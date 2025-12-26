@@ -4,6 +4,7 @@
 const vscode_module = require("vscode");
 const grpc_module = require("@grpc/grpc-js");
 const diff_match_patch_module = require("diff-match-patch");
+const retry_module = require("retry");
 /* [unbundle] ignore_module 已移至 config.js */
 const sqlite3_module = require("sqlite3");
 // const sqlite_module = require("sqlite");
@@ -24,7 +25,7 @@ const stream_module = require("stream");
 const sentry_browser_module = require("@sentry/browser");
 const sqlite_module = require("sqlite");
 const chokidar_module = require("chokidar");
-const p_retry = require("p-retry");
+const p_retry_module = require("p-retry")
 const path_module = {
   default: require("path"),
   ...require("path")
@@ -109,12 +110,12 @@ function getSentryInstance() {
   return sentryInstance === null && (sentryInstance = new sentry_browser_module.Scope()), sentryInstance;
 }
 function initializeSentryClient() {
-  let defaultIntegrations = sentry_browser_module.getDefaultIntegrations({}).filter(integration => !['BrowserApiErrors', 'Breadcrumbs', 'GlobalHandlers'].includes(integration.name)),
-    browserClient = new sentry_browser_module.BrowserClient({
+  let _0x580b61 = sentry_browser_module.getDefaultIntegrations({}).filter(_0x3b5607 => !['BrowserApiErrors', 'Breadcrumbs', 'GlobalHandlers'].includes(_0x3b5607.name)),
+    _0x823f87 = new sentry_browser_module.BrowserClient({
       dsn: "https://97263dbc9f614fd87a3a67aea26d1181@o4507249693229056.ingest.us.sentry.io/4507252971798528",
-      integrations: defaultIntegrations,
-      beforeSend(event) {
-        for (let key of event?.['exception']?.["values"] ?? []) for (let frame of key.stacktrace?.['frames'] ?? []) if (frame.filename?.["includes"](config.extensionName)) return event;
+      integrations: _0x580b61,
+      beforeSend(_0xc069f3) {
+        for (let key of _0xc069f3?.['exception']?.["values"] ?? []) for (let _0x1dfbc6 of key.stacktrace?.['frames'] ?? []) if (_0x1dfbc6.filename?.["includes"](config.extensionName)) return _0xc069f3;
         return null;
       },
       tracesSampleRate: 0.4,
@@ -124,7 +125,7 @@ function initializeSentryClient() {
       transport: sentry_browser_module.makeFetchTransport,
       stackParser: sentry_browser_module.defaultStackParser
     });
-  getSentryInstance().setTag("extention", config.extensionName), getSentryInstance().setClient(browserClient), browserClient.init();
+  getSentryInstance().setTag("extention", config.extensionName), getSentryInstance().setClient(_0x823f87), _0x823f87.init();
 }
 function captureExceptionToSentry(exceptionError, captureContext) {
   return config.nodeEnv === "production" && getSentryInstance().captureException(exceptionError, captureContext), exceptionError;
@@ -157,11 +158,11 @@ var Logger = new class {
   constructor() {
     this._isDebugging = false, this.level = 0, this._logLevel = "off";
   }
-  ["configure"](provider, logLevel, isDebug = false) {
-    this.provider = provider, this._isDebugging = isDebug, this.logLevel = logLevel;
+  ["configure"](_0x58fb5a, _0x1ce42b, _0x1cedf9 = false) {
+    this.provider = _0x58fb5a, this._isDebugging = _0x1cedf9, this.logLevel = _0x1ce42b;
   }
-  ['enabled'](levelStr) {
-    return this.level >= throttle(levelStr);
+  ['enabled'](_0x60137d) {
+    return this.level >= throttle(_0x60137d);
   }
   ['dispose']() {
     this.output?.["hide"](), this.output?.["clear"](), this.output?.['dispose'](), this.output = void 0;
@@ -176,36 +177,36 @@ var Logger = new class {
     newLogLevel === 'off' && (console.log('Traycer: Defaulting log level to \x27error\x27 as \x27off\x27 is not allowed'), newLogLevel = "error"), this.isDebugging && (newLogLevel = "trace"), this._logLevel = newLogLevel, this.level = throttle(this._logLevel), this.output ??= this.provider.createChannel(this.provider.name);
   }
   get ['timestamp']() {
-    let currentDate = new Date(),
-      padTwo = numValue => (numValue < 10 ? '0' : '') + numValue,
-      padThree = numValue => (numValue < 100 ? '0' : '') + (numValue < 10 ? '00' : '') + numValue;
-    return currentDate.getFullYear() + '-' + padTwo(currentDate.getMonth() + 1) + '-' + padTwo(currentDate.getDate()) + ' ' + padTwo(currentDate.getHours()) + ':' + padTwo(currentDate.getMinutes()) + ':' + padTwo(currentDate.getSeconds()) + '.' + padThree(currentDate.getMilliseconds());
+    let _0x10a8c6 = new Date(),
+      _0x377578 = numValue => (numValue < 10 ? '0' : '') + numValue,
+      _0x8b7079 = numValue => (numValue < 100 ? '0' : '') + (numValue < 10 ? '00' : '') + numValue;
+    return _0x10a8c6.getFullYear() + '-' + _0x377578(_0x10a8c6.getMonth() + 1) + '-' + _0x377578(_0x10a8c6.getDate()) + ' ' + _0x377578(_0x10a8c6.getHours()) + ':' + _0x377578(_0x10a8c6.getMinutes()) + ':' + _0x377578(_0x10a8c6.getSeconds()) + '.' + _0x8b7079(_0x10a8c6.getMilliseconds());
   }
-  ["trace"](message, ...args) {
-    this.level < 5 || (this.isDebugging && console.trace(this.timestamp, message ?? '', ...args), this.output?.['trace']?.(message, ...args));
+  ["trace"](_0x1c4f12, ..._0x17c1c7) {
+    this.level < 5 || (this.isDebugging && console.trace(this.timestamp, _0x1c4f12 ?? '', ..._0x17c1c7), this.output?.['trace']?.(_0x1c4f12, ..._0x17c1c7));
   }
-  ["debug"](message, ...args) {
-    this.level < 4 || (this.isDebugging && console.debug(this.timestamp, message ?? '', ...args), this.output?.["debug"]?.(message, ...args));
+  ["debug"](_0x333991, ..._0x2fd09d) {
+    this.level < 4 || (this.isDebugging && console.debug(this.timestamp, _0x333991 ?? '', ..._0x2fd09d), this.output?.["debug"]?.(_0x333991, ..._0x2fd09d));
   }
-  ["error"](errorObj, message, ...args) {
-    if (errorObj ? errorObj instanceof Error && errorObj.message === 'Canceled' || captureExceptionToSentry(new Error("Error: " + String(errorObj) + ', Message: ' + (message ?? '')), {
-      originalException: errorObj
-    }) : message && captureExceptionToSentry(new Error(message)), !(this.level < 1 && !this.isDebugging)) {
-      if (!message) {
-        let stackTrace = errorObj instanceof Error ? errorObj.stack : void 0;
-        if (stackTrace) {
-          let matchResult = /.*\s*?at\s(.+?)\s/.exec(stackTrace);
-          matchResult != null && (message = matchResult[1]);
+  ["error"](_0xfc345f, _0x176cd8, ..._0x59cb4c) {
+    if (_0xfc345f ? _0xfc345f instanceof Error && _0xfc345f.message === 'Canceled' || captureExceptionToSentry(new Error("Error: " + String(_0xfc345f) + ', Message: ' + (_0x176cd8 ?? '')), {
+      originalException: _0xfc345f
+    }) : _0x176cd8 && captureExceptionToSentry(new Error(_0x176cd8)), !(this.level < 1 && !this.isDebugging)) {
+      if (!_0x176cd8) {
+        let _0x30c0e0 = _0xfc345f instanceof Error ? _0xfc345f.stack : void 0;
+        if (_0x30c0e0) {
+          let _0x414ff8 = /.*\s*?at\s(.+?)\s/.exec(_0x30c0e0);
+          _0x414ff8 != null && (_0x176cd8 = _0x414ff8[1]);
         }
       }
-      this.isDebugging && (errorObj != null ? console.error(this.timestamp, message ?? '', ...args, errorObj) : console.error(this.timestamp, message ?? '', ...args)), this.output?.['error']?.(errorObj, message ?? '', ...args);
+      this.isDebugging && (_0xfc345f != null ? console.error(this.timestamp, _0x176cd8 ?? '', ..._0x59cb4c, _0xfc345f) : console.error(this.timestamp, _0x176cd8 ?? '', ..._0x59cb4c)), this.output?.['error']?.(_0xfc345f, _0x176cd8 ?? '', ..._0x59cb4c);
     }
   }
-  ['info'](message, ...args) {
-    this.level < 3 && !this.isDebugging || (this.isDebugging && console.info(this.timestamp, message ?? '', ...args), this.output?.["info"]?.(message, ...args));
+  ['info'](_0x499546, ..._0x207c22) {
+    this.level < 3 && !this.isDebugging || (this.isDebugging && console.info(this.timestamp, _0x499546 ?? '', ..._0x207c22), this.output?.["info"]?.(_0x499546, ..._0x207c22));
   }
-  ["warn"](message, ...args) {
-    this.level < 2 && !this.isDebugging || (this.isDebugging && console.warn(this.timestamp, message ?? '', ...args), this.output?.['warn']?.(message, ...args));
+  ["warn"](_0x121631, ..._0x335a0f) {
+    this.level < 2 && !this.isDebugging || (this.isDebugging && console.warn(this.timestamp, _0x121631 ?? '', ..._0x335a0f), this.output?.['warn']?.(_0x121631, ..._0x335a0f));
   }
 }();
 resolveRipgrepPath().catch(() => Logger.error("Failed to resolve ripgrep binary path"));
@@ -432,48 +433,48 @@ class FilePath {
 }
 ;
 /* [unbundle] diff-match-patch 已移至顶部导入区 */
-function createCodeSnippetFromRange(filePath, fileContent, startRange, endRange) {
-  let contentObj = FileContent.fromFile(fileContent),
-    adjustedStartLine = startRange.line,
-    adjustedEndLine = endRange.line;
-  startRange.context && (adjustedStartLine = Math.max(0, startRange.line - startRange.context)), endRange.context && (adjustedEndLine = Math.min(contentObj.length - 1, endRange.line + endRange.context));
-  let lineRange = LineRange.fromEndLine(adjustedStartLine, adjustedEndLine);
+function createCodeSnippetFromRange(_0x3d9552, _0x24123c, _0x309720, _0x2b83a8) {
+  let _0x352f6c = FileContent.fromFile(_0x24123c),
+    _0x3267d9 = _0x309720.line,
+    _0x596fe5 = _0x2b83a8.line;
+  _0x309720.context && (_0x3267d9 = Math.max(0, _0x309720.line - _0x309720.context)), _0x2b83a8.context && (_0x596fe5 = Math.min(_0x352f6c.length - 1, _0x2b83a8.line + _0x2b83a8.context));
+  let _0x5b19be = LineRange.fromEndLine(_0x3267d9, _0x596fe5);
   return {
-    path: filePath,
-    content: contentObj.getContent(),
-    range: lineRange.rangeOutput,
+    path: _0x3d9552,
+    content: _0x352f6c.getContent(),
+    range: _0x5b19be.rangeOutput,
     diagnostics: []
   };
 }
-function mergeOverlappingRanges(items, getRangeFn, mergeFn, includeAdjacent) {
-  if (items.length === 0) return [];
-  items.sort((itemA, itemB) => getRangeFn(itemA).startLine - getRangeFn(itemB).startLine);
-  let mergedList = [],
-    currentItem = items[0],
-    currentRange = getRangeFn(currentItem);
-  for (let loopIndex = 1; loopIndex < items.length; loopIndex++) {
-    let nextItem = items[loopIndex],
-      nextRange = getRangeFn(nextItem),
-      currentEndLine = currentRange.startLine + currentRange.count - 1,
-      isAdjacent = nextRange.startLine === currentEndLine + 1;
-    nextRange.startLine <= currentEndLine || includeAdjacent && isAdjacent ? (currentItem = mergeFn(currentItem, nextItem), currentRange = getRangeFn(currentItem)) : (mergedList.push(currentItem), currentItem = nextItem, currentRange = nextRange);
+function mergeOverlappingRanges(_0x3f9a56, _0x443e05, _0x2d2477, _0x239576) {
+  if (_0x3f9a56.length === 0) return [];
+  _0x3f9a56.sort((_0x42a602, _0x1e8f06) => _0x443e05(_0x42a602).startLine - _0x443e05(_0x1e8f06).startLine);
+  let _0x339bff = [],
+    _0x5863c7 = _0x3f9a56[0],
+    _0x1dcb38 = _0x443e05(_0x5863c7);
+  for (let _0x4b92d0 = 1; _0x4b92d0 < _0x3f9a56.length; _0x4b92d0++) {
+    let _0x43bd17 = _0x3f9a56[_0x4b92d0],
+      _0x4e2f87 = _0x443e05(_0x43bd17),
+      _0x42e5e2 = _0x1dcb38.startLine + _0x1dcb38.count - 1,
+      _0x333b25 = _0x4e2f87.startLine === _0x42e5e2 + 1;
+    _0x4e2f87.startLine <= _0x42e5e2 || _0x239576 && _0x333b25 ? (_0x5863c7 = _0x2d2477(_0x5863c7, _0x43bd17), _0x1dcb38 = _0x443e05(_0x5863c7)) : (_0x339bff.push(_0x5863c7), _0x5863c7 = _0x43bd17, _0x1dcb38 = _0x4e2f87);
   }
-  return mergedList.push(currentItem), mergedList;
+  return _0x339bff.push(_0x5863c7), _0x339bff;
 }
-function mergeOverlappingLineRanges(lineRanges, includeAdjacent = false) {
-  return mergeOverlappingRanges(lineRanges, rangeItem => rangeItem, (range1, range2) => {
-    let maxEndLine = Math.max(range1.endLine, range2.endLine);
-    return range1.count = maxEndLine - range1.startLine + 1, range1;
-  }, includeAdjacent);
+function mergeOverlappingLineRanges(_0x46b414, _0x3e8896 = false) {
+  return mergeOverlappingRanges(_0x46b414, _0x53a1d6 => _0x53a1d6, (_0x21121c, _0x6d0324) => {
+    let _0xa876e1 = Math.max(_0x21121c.endLine, _0x6d0324.endLine);
+    return _0x21121c.count = _0xa876e1 - _0x21121c.startLine + 1, _0x21121c;
+  }, _0x3e8896);
 }
-function getLineByNumber(textContent, lineNumber) {
-  let lines = textContent.split('\x0a');
-  if (lineNumber < 0 || lineNumber >= lines.length) throw new Error('Line number out of bounds');
-  return lines[lineNumber];
+function getLineByNumber(_0x433b9e, _0x3c9178) {
+  let _0x352f0e = _0x433b9e.split('\x0a');
+  if (_0x3c9178 < 0 || _0x3c9178 >= _0x352f0e.length) throw new Error('Line number out of bounds');
+  return _0x352f0e[_0x3c9178];
 }
-function fuzzyFindTextInDocument(textContent, lineNumber, searchPattern) {
-  let dmp = new diff_match_patch_module();
-  return dmp.Match_Distance = 5000, dmp.Match_Threshold = 0.1, findTextInDocument(textContent, lineNumber, searchPattern, dmp);
+function fuzzyFindTextInDocument(_0x5d65a3, _0x44d627, _0x304c53) {
+  let _0x5a8549 = new diff_match_patch_module();
+  return _0x5a8549.Match_Distance = 5000, _0x5a8549.Match_Threshold = 0.1, findTextInDocument(_0x5d65a3, _0x44d627, _0x304c53, _0x5a8549);
 }
 function findFuzzyTextPosition(_0x5324c8, _0x2b2ebe, _0x2a9906, _0x412a06) {
   let _0x28de44 = fuzzyFindTextInDocument(_0x5324c8, _0x2b2ebe, _0x2a9906),
@@ -484,66 +485,66 @@ function findFuzzyTextPosition(_0x5324c8, _0x2b2ebe, _0x2a9906, _0x412a06) {
     character: _0x2ed7ad
   };
 }
-function findTextInDocument(sourceText, lineNumber, textPattern, diffOptions, searchBackward = false) {
-  if (isWhitespaceOnly(textPattern) || isWhitespaceOnly(sourceText) || lineNumber < 0) throw new NoFuzzyMatchError();
-  let charOffsetForLine = getCharOffsetForLine(sourceText, lineNumber);
-  if (searchBackward) {
-    let reversedSource = reverseString(sourceText),
-      reversedPattern = reverseString(textPattern),
-      safeSearchOffset = calculateSafeOffset(sourceText.length, charOffsetForLine + textPattern.length - 1),
-      backwardMatchIndex = fuzzyMatchText(reversedSource, reversedPattern, safeSearchOffset, diffOptions);
-    if (backwardMatchIndex === -1) throw new NoFuzzyMatchError();
-    let adjustedOffset = calculateSafeOffset(sourceText.length, backwardMatchIndex);
-    return LineRange.fromEndLine(0, getLineNumberAtOffset(sourceText, adjustedOffset));
+function findTextInDocument(_0x56e703, _0xfbf152, _0x4fc112, _0x594165, _0x439e5f = false) {
+  if (isWhitespaceOnly(_0x4fc112) || isWhitespaceOnly(_0x56e703) || _0xfbf152 < 0) throw new NoFuzzyMatchError();
+  let _0x5db09c = getCharOffsetForLine(_0x56e703, _0xfbf152);
+  if (_0x439e5f) {
+    let _0x232898 = reverseString(_0x56e703),
+      _0x25869d = reverseString(_0x4fc112),
+      _0x1fd738 = calculateSafeOffset(_0x56e703.length, _0x5db09c + _0x4fc112.length - 1),
+      _0x27311d = fuzzyMatchText(_0x232898, _0x25869d, _0x1fd738, _0x594165);
+    if (_0x27311d === -1) throw new NoFuzzyMatchError();
+    let _0x2e88ca = calculateSafeOffset(_0x56e703.length, _0x27311d);
+    return LineRange.fromEndLine(0, getLineNumberAtOffset(_0x56e703, _0x2e88ca));
   } else {
-    let matchIndex = fuzzyMatchText(sourceText, textPattern, charOffsetForLine, diffOptions);
-    if (matchIndex === -1) throw new NoFuzzyMatchError();
-    return LineRange.fromCount(getLineNumberAtOffset(sourceText, matchIndex), 0);
+    let _0x732008 = fuzzyMatchText(_0x56e703, _0x4fc112, _0x5db09c, _0x594165);
+    if (_0x732008 === -1) throw new NoFuzzyMatchError();
+    return LineRange.fromCount(getLineNumberAtOffset(_0x56e703, _0x732008), 0);
   }
 }
-function fuzzyMatchText(sourceText, searchPattern, startIndex, diffMatchPatch) {
-  let truncatedPattern = searchPattern;
-  searchPattern.length > diffMatchPatch.Match_MaxBits && (truncatedPattern = searchPattern.substring(0, diffMatchPatch.Match_MaxBits));
-  let matchResult = -1;
+function fuzzyMatchText(_0x15f632, _0x240a2e, _0x4cccc3, _0x44ca18) {
+  let _0x576c7b = _0x240a2e;
+  _0x240a2e.length > _0x44ca18.Match_MaxBits && (_0x576c7b = _0x240a2e.substring(0, _0x44ca18.Match_MaxBits));
+  let _0x229f48 = -1;
   try {
-    matchResult = diffMatchPatch.match_main(sourceText, truncatedPattern, startIndex);
+    _0x229f48 = _0x44ca18.match_main(_0x15f632, _0x576c7b, _0x4cccc3);
   } catch {
     return -1;
   }
-  return matchResult;
+  return _0x229f48;
 }
-function getLineNumberAtOffset(textContent, charOffset) {
-  let lineStartIndex = textContent.lastIndexOf('\x0a', charOffset) + 1;
-  return (textContent.substring(0, lineStartIndex).match(/\n/g) || []).length;
+function getLineNumberAtOffset(_0x1a315a, _0x2aa510) {
+  let _0x55f3a7 = _0x1a315a.lastIndexOf('\x0a', _0x2aa510) + 1;
+  return (_0x1a315a.substring(0, _0x55f3a7).match(/\n/g) || []).length;
 }
-function findTokenPositionInLine(lineText, tokenStr) {
-  let tokenRegex = new RegExp('\x5cb' + tokenStr + '\x5cb'),
-    matchResult = lineText.match(tokenRegex);
-  if (!matchResult || matchResult.index === void 0) throw new NoFuzzyMatchError("Token " + tokenStr + ' not found in line ' + lineText);
-  return matchResult.index;
+function findTokenPositionInLine(_0xf911b0, _0x49d6d3) {
+  let _0x13d886 = new RegExp('\x5cb' + _0x49d6d3 + '\x5cb'),
+    _0xedeefd = _0xf911b0.match(_0x13d886);
+  if (!_0xedeefd || _0xedeefd.index === void 0) throw new NoFuzzyMatchError("Token " + _0x49d6d3 + ' not found in line ' + _0xf911b0);
+  return _0xedeefd.index;
 }
-function getCharOffsetForLine(textContent, lineNumber) {
-  let charOffset = 0,
-    currentLine = 0;
-  for (let index = 0; index < textContent.length && currentLine < lineNumber; index++) if (textContent.charAt(index) === '\x0a') {
-    if (currentLine++, index === textContent.length - 1) break;
-    charOffset = index + 1;
+function getCharOffsetForLine(_0x50b4a4, _0x4e6e40) {
+  let _0x3416d2 = 0,
+    _0x300257 = 0;
+  for (let _0x4fd11c = 0; _0x4fd11c < _0x50b4a4.length && _0x300257 < _0x4e6e40; _0x4fd11c++) if (_0x50b4a4.charAt(_0x4fd11c) === '\x0a') {
+    if (_0x300257++, _0x4fd11c === _0x50b4a4.length - 1) break;
+    _0x3416d2 = _0x4fd11c + 1;
   }
-  return charOffset;
+  return _0x3416d2;
 }
-function isWhitespaceOnly(textStr) {
-  for (let charIndex = 0; charIndex < textStr.length; charIndex++) {
-    let currentChar = textStr[charIndex];
-    if (!/\s/.test(currentChar)) return false;
+function isWhitespaceOnly(_0x426dfb) {
+  for (let _0x383a13 = 0; _0x383a13 < _0x426dfb.length; _0x383a13++) {
+    let _0xd8adc6 = _0x426dfb[_0x383a13];
+    if (!/\s/.test(_0xd8adc6)) return false;
   }
   return true;
 }
-function calculateSafeOffset(totalLength, offsetValue) {
-  let safeOffset = totalLength - offsetValue - 1;
-  return safeOffset < 0 ? 0 : safeOffset > totalLength - 1 ? totalLength - 1 : safeOffset;
+function calculateSafeOffset(_0x2bd8a6, _0x2c5776) {
+  let _0x2d32fe = _0x2bd8a6 - _0x2c5776 - 1;
+  return _0x2d32fe < 0 ? 0 : _0x2d32fe > _0x2bd8a6 - 1 ? _0x2bd8a6 - 1 : _0x2d32fe;
 }
-function reverseString(inputStr) {
-  return inputStr.split('').reverse().join('');
+function reverseString(_0x1677f0) {
+  return _0x1677f0.split('').reverse().join('');
 }
 function isValidAgentType(agentType) {
   return Object.keys(wm).includes(agentType);
@@ -737,58 +738,58 @@ var FileContent = class _0x27d9ac {
     }
   },
   oie = _0x472706 => new Error(_0x472706);
-function parseGitHubUrl(repoUrl) {
-  let httpsPattern = /^https:\/\/github\.com\/([^/]+)\/([^/]+?)(?=\.git|\/?$)(?:\.git)?\/?$/,
-    sshPattern = /^git@github\.com:([^/]+)\/([^/]+?)(?=\.git|\/?$)(?:\.git)?\/?$/;
-  repoUrl = repoUrl.trim();
-  let matchResult = repoUrl.match(httpsPattern);
-  return matchResult || (matchResult = repoUrl.match(sshPattern)), matchResult ? {
-    owner: matchResult[1],
-    name: matchResult[2]
+function parseGitHubUrl(_0xb5cb1d) {
+  let _0x1139a0 = /^https:\/\/github\.com\/([^/]+)\/([^/]+?)(?=\.git|\/?$)(?:\.git)?\/?$/,
+    _0xe68749 = /^git@github\.com:([^/]+)\/([^/]+?)(?=\.git|\/?$)(?:\.git)?\/?$/;
+  _0xb5cb1d = _0xb5cb1d.trim();
+  let _0x24dac3 = _0xb5cb1d.match(_0x1139a0);
+  return _0x24dac3 || (_0x24dac3 = _0xb5cb1d.match(_0xe68749)), _0x24dac3 ? {
+    owner: _0x24dac3[1],
+    name: _0x24dac3[2]
   } : null;
 }
-function distributeItemsAcrossGroups(groupKeyFn, items, maxItems = 50) {
-  let groupMap = new Map(),
-    getGroupItems = groupKey => groupMap.get(groupKey) ?? [],
-    groupCount = new Set(items.map(item => groupKeyFn(item.path))).size,
-    itemsPerGroup = groupCount > 0 ? Math.ceil(maxItems / groupCount) : 0,
-    totalCount = 0;
-  for (let key of items) {
-    if (totalCount >= maxItems) break;
-    let currentGroupKey = groupKeyFn(key.path);
-    if (Math.min(itemsPerGroup - getGroupItems(currentGroupKey).length, maxItems - totalCount) > 0) {
-      let existingItems = getGroupItems(currentGroupKey);
-      groupMap.set(currentGroupKey, existingItems.concat(key)), totalCount += 1;
+function distributeItemsAcrossGroups(_0x31e5e1, _0x41e53d, _0xaf935 = 50) {
+  let _0x2de324 = new Map(),
+    _0x2e681b = _0x97b73d => _0x2de324.get(_0x97b73d) ?? [],
+    _0x5b4dff = new Set(_0x41e53d.map(_0x30516e => _0x31e5e1(_0x30516e.path))).size,
+    _0x470525 = _0x5b4dff > 0 ? Math.ceil(_0xaf935 / _0x5b4dff) : 0,
+    _0x565f7b = 0;
+  for (let key of _0x41e53d) {
+    if (_0x565f7b >= _0xaf935) break;
+    let _0x41a617 = _0x31e5e1(key.path);
+    if (Math.min(_0x470525 - _0x2e681b(_0x41a617).length, _0xaf935 - _0x565f7b) > 0) {
+      let _0x591546 = _0x2e681b(_0x41a617);
+      _0x2de324.set(_0x41a617, _0x591546.concat(key)), _0x565f7b += 1;
     }
   }
-  return Array.from(groupMap.values()).flat();
+  return Array.from(_0x2de324.values()).flat();
 }
-function createUuid(subscriptionData, subscriptionStatus, additionalInfo) {
-  if (subscriptionStatus) switch (subscriptionStatus) {
+function createUuid(_0x48d9d4, _0x47d03e, _0x1e5614) {
+  if (_0x47d03e) switch (_0x47d03e) {
     case prisma.SubscriptionStatus.FREE:
     case prisma.SubscriptionStatus.PENDING:
       return 'Free';
     case prisma.SubscriptionStatus.PRO:
-      return formatPlanName(subscriptionData, "Pro (Legacy)", additionalInfo);
+      return formatPlanName(_0x48d9d4, "Pro (Legacy)", _0x1e5614);
     case prisma.SubscriptionStatus.PRO_PLUS:
-      return formatPlanName(subscriptionData, "Pro+ (Legacy)", additionalInfo);
+      return formatPlanName(_0x48d9d4, "Pro+ (Legacy)", _0x1e5614);
     case prisma.SubscriptionStatus.LITE:
-      return formatPlanName(subscriptionData, "Lite (Legacy)", additionalInfo);
+      return formatPlanName(_0x48d9d4, "Lite (Legacy)", _0x1e5614);
     case prisma.SubscriptionStatus.LITE_V2:
-      return formatPlanName(subscriptionData, 'Lite', additionalInfo);
+      return formatPlanName(_0x48d9d4, 'Lite', _0x1e5614);
     case prisma.SubscriptionStatus.PRO_V2:
-      return formatPlanName(subscriptionData, 'Pro', additionalInfo);
+      return formatPlanName(_0x48d9d4, 'Pro', _0x1e5614);
     case prisma.SubscriptionStatus.PRO_PLUS_V2:
-      return formatPlanName(subscriptionData, 'Pro+', additionalInfo);
+      return formatPlanName(_0x48d9d4, 'Pro+', _0x1e5614);
     case prisma.SubscriptionStatus.PRO_LEGACY:
-      return formatPlanName(subscriptionData, "Pro (Legacy)", additionalInfo);
+      return formatPlanName(_0x48d9d4, "Pro (Legacy)", _0x1e5614);
     default:
-      throw new Error("Invalid subscription status: " + subscriptionStatus);
+      throw new Error("Invalid subscription status: " + _0x47d03e);
   } else return 'Free';
 }
-function formatPlanName(subscriptionData, planName, additionalInfo) {
-  let _0x1ca706 = subscriptionData ? planName : 'Business ' + planName;
-  return additionalInfo ? _0x1ca706 + ' (Trial)' : _0x1ca706;
+function formatPlanName(_0x2aa6c9, _0x497a89, _0x4ce2d4) {
+  let _0x1ca706 = _0x2aa6c9 ? _0x497a89 : 'Business ' + _0x497a89;
+  return _0x4ce2d4 ? _0x1ca706 + ' (Trial)' : _0x1ca706;
 }
 function parseUserQueryContent(_0x4e3d49, _0x2960d1) {
   let _0x50343a = {
@@ -927,12 +928,12 @@ function parseUserQueryContent(_0x4e3d49, _0x2960d1) {
   }
   return _0x50343a.userQuery = _0x50343a.userQuery.trim(), _0x50343a.userQueryWithMentions = _0x50343a.userQueryWithMentions.trim(), _0x50343a.sourceContext.files = new CustomSet((_0x5e7a12, _0x1bd341) => FilePath.getAbsolutePath(_0x5e7a12.path, _0x2960d1) === FilePath.getAbsolutePath(_0x1bd341.path, _0x2960d1), [..._0x50343a.sourceContext.files]).values(), _0x50343a.sourceContext.directories = new CustomSet((_0x58a05f, _0x256672) => FilePath.getAbsolutePath(_0x58a05f.path, _0x2960d1) === FilePath.getAbsolutePath(_0x256672.path, _0x2960d1), [..._0x50343a.sourceContext.directories]).values(), _0x50343a;
 }
-function spliceIntoDocContent(docContent, itemsToInsert, insertIndex) {
-  let contentCopy = docContent.content ? [...docContent.content] : [],
-    safeIndex = insertIndex !== void 0 ? Math.max(0, Math.min(insertIndex, contentCopy.length)) : contentCopy.length;
-  return Array.isArray(itemsToInsert) ? contentCopy.splice(safeIndex, 0, ...itemsToInsert) : contentCopy.splice(safeIndex, 0, itemsToInsert), {
-    ...docContent,
-    content: contentCopy
+function spliceIntoDocContent(_0x206a3b, _0x42a599, _0x3a5d0e) {
+  let _0x50b145 = _0x206a3b.content ? [..._0x206a3b.content] : [],
+    _0xc71353 = _0x3a5d0e !== void 0 ? Math.max(0, Math.min(_0x3a5d0e, _0x50b145.length)) : _0x50b145.length;
+  return Array.isArray(_0x42a599) ? _0x50b145.splice(_0xc71353, 0, ..._0x42a599) : _0x50b145.splice(_0xc71353, 0, _0x42a599), {
+    ..._0x206a3b,
+    content: _0x50b145
   };
 }
 var w5e = 'Stream drain timed out',
@@ -962,49 +963,49 @@ var Ut = createUuidWithFallback,
     STREAM_END_TIMEOUT_MS: 75000,
     MAX_CHUNK_SIZE_BYTES: 1048576
   };
-async function splitMessageIntoChunks(message, serializeFn) {
-  let serializedData = await serializeFn(message);
-  if (serializedData.length <= un.MAX_CHUNK_SIZE_BYTES) return null;
-  let chunkId = Ut(),
-    totalChunks = Math.ceil(serializedData.length / un.MAX_CHUNK_SIZE_BYTES),
-    chunks = [];
-  for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-    let startOffset = chunkIndex * un.MAX_CHUNK_SIZE_BYTES,
-      endOffset = Math.min(startOffset + un.MAX_CHUNK_SIZE_BYTES, serializedData.length),
-      chunkData = serializedData.subarray(startOffset, endOffset);
-    chunks.push({
-      chunkId: chunkId,
-      sequenceNumber: chunkIndex,
-      totalChunks: totalChunks,
-      isFinal: chunkIndex === totalChunks - 1,
-      data: chunkData
+async function splitMessageIntoChunks(_0x39089f, _0x57dc84) {
+  let _0x4287c3 = await _0x57dc84(_0x39089f);
+  if (_0x4287c3.length <= un.MAX_CHUNK_SIZE_BYTES) return null;
+  let _0x58e015 = Ut(),
+    _0x1f0dbe = Math.ceil(_0x4287c3.length / un.MAX_CHUNK_SIZE_BYTES),
+    _0x39db9e = [];
+  for (let _0xc525e6 = 0; _0xc525e6 < _0x1f0dbe; _0xc525e6++) {
+    let _0x184372 = _0xc525e6 * un.MAX_CHUNK_SIZE_BYTES,
+      _0x5b1f6c = Math.min(_0x184372 + un.MAX_CHUNK_SIZE_BYTES, _0x4287c3.length),
+      _0x15b1f8 = _0x4287c3.subarray(_0x184372, _0x5b1f6c);
+    _0x39db9e.push({
+      chunkId: _0x58e015,
+      sequenceNumber: _0xc525e6,
+      totalChunks: _0x1f0dbe,
+      isFinal: _0xc525e6 === _0x1f0dbe - 1,
+      data: _0x15b1f8
     });
   }
-  return chunks;
+  return _0x39db9e;
 }
-function reassembleChunkedMessage(chunks) {
-  if (chunks.length === 0) throw new ChunkingError("Cannot reassemble message from empty chunks array");
-  let expectedChunkId = chunks[0].chunkId;
-  if (!expectedChunkId) throw new ChunkingError("First chunk missing chunkId");
-  for (let key of chunks) if (key.chunkId !== expectedChunkId) throw new ChunkingError('Chunk ID mismatch: expected ' + expectedChunkId + ", got " + key.chunkId);
-  let totalChunks = chunks[0].totalChunks;
-  if (!totalChunks) throw new ChunkingError('First chunk missing totalChunks');
-  if (chunks.length !== totalChunks) throw new ChunkingError('Expected ' + totalChunks + ' chunks, but received ' + chunks.length);
-  let sequenceSet = new Set(chunks.map(chunkItem => chunkItem.sequenceNumber ?? -1));
-  if (sequenceSet.size !== chunks.length) throw new ChunkingError('Duplicate chunks detected: received ' + chunks.length + ' chunks but only ' + sequenceSet.size + ' unique sequence numbers');
-  let sortedChunks = [...chunks].sort((chunkA, chunkB) => (chunkA.sequenceNumber ?? 0) - (chunkB.sequenceNumber ?? 0));
-  for (let seqIndex = 0; seqIndex < sortedChunks.length; seqIndex++) if (sortedChunks[seqIndex].sequenceNumber !== seqIndex) throw new ChunkingError('Missing or duplicate chunk: expected sequence ' + seqIndex + ", got " + sortedChunks[seqIndex].sequenceNumber);
-  let finalChunks = sortedChunks.filter(chunk => chunk.isFinal);
-  if (finalChunks.length !== 1) throw new ChunkingError("Expected exactly one chunk with isFinal=true, found " + finalChunks.length);
-  if (!sortedChunks[sortedChunks.length - 1].isFinal) throw new ChunkingError("The last chunk must have isFinal=true");
-  let _0x31c636 = sortedChunks.reduce((_0x3bf4a1, _0x22f581) => {
+function reassembleChunkedMessage(_0x42d4c0) {
+  if (_0x42d4c0.length === 0) throw new ChunkingError("Cannot reassemble message from empty chunks array");
+  let _0x1a7df6 = _0x42d4c0[0].chunkId;
+  if (!_0x1a7df6) throw new ChunkingError("First chunk missing chunkId");
+  for (let key of _0x42d4c0) if (key.chunkId !== _0x1a7df6) throw new ChunkingError('Chunk ID mismatch: expected ' + _0x1a7df6 + ", got " + key.chunkId);
+  let _0x285643 = _0x42d4c0[0].totalChunks;
+  if (!_0x285643) throw new ChunkingError('First chunk missing totalChunks');
+  if (_0x42d4c0.length !== _0x285643) throw new ChunkingError('Expected ' + _0x285643 + ' chunks, but received ' + _0x42d4c0.length);
+  let _0x308972 = new Set(_0x42d4c0.map(_0x3b559d => _0x3b559d.sequenceNumber ?? -1));
+  if (_0x308972.size !== _0x42d4c0.length) throw new ChunkingError('Duplicate chunks detected: received ' + _0x42d4c0.length + ' chunks but only ' + _0x308972.size + ' unique sequence numbers');
+  let _0x4f0c5d = [..._0x42d4c0].sort((_0x37f5ad, _0x10132) => (_0x37f5ad.sequenceNumber ?? 0) - (_0x10132.sequenceNumber ?? 0));
+  for (let _0x1d2eeb = 0; _0x1d2eeb < _0x4f0c5d.length; _0x1d2eeb++) if (_0x4f0c5d[_0x1d2eeb].sequenceNumber !== _0x1d2eeb) throw new ChunkingError('Missing or duplicate chunk: expected sequence ' + _0x1d2eeb + ", got " + _0x4f0c5d[_0x1d2eeb].sequenceNumber);
+  let _0x2854b9 = _0x4f0c5d.filter(_0x2cb003 => _0x2cb003.isFinal);
+  if (_0x2854b9.length !== 1) throw new ChunkingError("Expected exactly one chunk with isFinal=true, found " + _0x2854b9.length);
+  if (!_0x4f0c5d[_0x4f0c5d.length - 1].isFinal) throw new ChunkingError("The last chunk must have isFinal=true");
+  let _0x31c636 = _0x4f0c5d.reduce((_0x3bf4a1, _0x22f581) => {
       let _0x2c2019 = _0x22f581.data;
       if (!_0x2c2019) throw new ChunkingError('Chunk missing data field');
       return _0x3bf4a1 + (typeof _0x2c2019 == 'string' ? Buffer.from(_0x2c2019).length : _0x2c2019.length);
     }, 0),
     _0x2737c9 = new Uint8Array(_0x31c636),
     _0x808b8 = 0;
-  for (let key of sortedChunks) {
+  for (let key of _0x4f0c5d) {
     let _0x266a8f = key.data;
     if (!_0x266a8f) throw new ChunkingError("Chunk missing data field");
     let _0x1930f7 = typeof _0x266a8f == 'string' ? Buffer.from(_0x266a8f) : _0x266a8f;
@@ -1025,57 +1026,56 @@ function reassembleChunkedMessage(chunks) {
     return _0x109109;
   });
 }
-function calculateRetryDelay(maxDelaySeconds, attemptNumber) {
-  let exponentialDelay = Math.pow(2, attemptNumber) * 1000,
-    jitterMs = getRandomInt(50, 100);
+function calculateRetryDelay(_0x41c0b5, _0x162062) {
+  let _0xb2ea5b = Math.pow(2, _0x162062) * 1000,
+    _0x233ddc = getRandomInt(50, 100);
   return {
-    retryAfter: Math.min(exponentialDelay + jitterMs, maxDelaySeconds * 1000)
+    retryAfter: Math.min(_0xb2ea5b + _0x233ddc, _0x41c0b5 * 1000)
   };
 }
-function getRandomInt(minValue, maxValue) {
-  return Math.floor(Math.random() * (maxValue - minValue)) + minValue;
+function getRandomInt(_0xcb681b, _0x438e9a) {
+  return Math.floor(Math.random() * (_0x438e9a - _0xcb681b)) + _0xcb681b;
 }
 
-
-async function writeToStreamWithDrain(stream, data) {
-  return new Promise((resolve, reject) => {
-    if (!stream.writable) return reject(new StreamNotWritableError());
-    if (stream.write(data, writeError => {
-      writeError && reject(writeError);
+async function writeToStreamWithDrain(_0x121526, _0x2afa60) {
+  return new Promise((_0x255682, _0x40fef8) => {
+    if (!_0x121526.writable) return _0x40fef8(new StreamNotWritableError());
+    if (_0x121526.write(_0x2afa60, _0x10975b => {
+      _0x10975b && _0x40fef8(_0x10975b);
     }) === false) {
-      let drainHandler = () => {
-          clearTimeout(timeoutId), resolve();
+      let _0x5add3f = () => {
+          clearTimeout(_0xee9123), _0x255682();
         },
-        timeoutId = setTimeout(() => {
-          stream.off("drain", drainHandler), reject(new StreamDrainTimeoutError());
+        _0xee9123 = setTimeout(() => {
+          _0x121526.off("drain", _0x5add3f), _0x40fef8(new StreamDrainTimeoutError());
         }, x5e);
-      stream.once('drain', drainHandler);
-    } else resolve();
+      _0x121526.once('drain', _0x5add3f);
+    } else _0x255682();
   });
 }
-async function writeToStreamWithRetry(stream, data, logger, maxRetries, retryFn) {
-  await retryFn(async () => writeToStreamWithDrain(stream, data), {
-    retries: maxRetries,
-    shouldRetry(error) {
-      return !(error instanceof StreamNotWritableError);
+async function writeToStreamWithRetry(_0x381bd6, _0x4e6d6a, _0x349139, _0x6b5598, _0x25ac87) {
+  await _0x25ac87(async () => writeToStreamWithDrain(_0x381bd6, _0x4e6d6a), {
+    retries: _0x6b5598,
+    shouldRetry(_0xb9c87f) {
+      return !(_0xb9c87f instanceof StreamNotWritableError);
     },
-    onFailedAttempt: async attemptInfo => {
-      let retryDelay = calculateRetryDelay(10, attemptInfo.attemptNumber);
-      return logger.debug('stream.write failed ' + attemptInfo.attemptNumber + ", retrying in " + retryDelay.retryAfter + 'ms...', attemptInfo), new Promise(resolveFn => setTimeout(resolveFn, retryDelay.retryAfter));
+    onFailedAttempt: async _0x259322 => {
+      let _0x8ce263 = calculateRetryDelay(10, _0x259322.attemptNumber);
+      return _0x349139.debug('stream.write failed ' + _0x259322.attemptNumber + ", retrying in " + _0x8ce263.retryAfter + 'ms...', _0x259322), new Promise(_0x443ad9 => setTimeout(_0x443ad9, _0x8ce263.retryAfter));
     }
   });
 }
-async function writeChunkedMessageToStream(stream, message, logger, maxRetries, enableChunking, serializeFn, retryFn) {
-  if (message.chunkedMessage || !enableChunking) return writeToStreamWithRetry(stream, message, logger, maxRetries, retryFn);
-  let chunks = await splitMessageIntoChunks(message, serializeFn);
-  if (chunks === null) return writeToStreamWithRetry(stream, message, logger, maxRetries, retryFn);
-  for (let key of chunks) await writeToStreamWithRetry(stream, {
+async function writeChunkedMessageToStream(_0x23533f, _0x2611c4, _0x1bf0b0, _0x2d28b7, _0x2dd691, _0x266379, _0x330cef) {
+  if (_0x2611c4.chunkedMessage || !_0x2dd691) return writeToStreamWithRetry(_0x23533f, _0x2611c4, _0x1bf0b0, _0x2d28b7, _0x330cef);
+  let _0x1992bf = await splitMessageIntoChunks(_0x2611c4, _0x266379);
+  if (_0x1992bf === null) return writeToStreamWithRetry(_0x23533f, _0x2611c4, _0x1bf0b0, _0x2d28b7, _0x330cef);
+  for (let key of _0x1992bf) await writeToStreamWithRetry(_0x23533f, {
     chunkedMessage: key
-  }, logger, maxRetries, retryFn);
+  }, _0x1bf0b0, _0x2d28b7, _0x330cef);
 }
-async function writeChunkedMessageWithRetry(stream, message, logger, maxRetries, enableChunking, serializeFn) {
-  let retryModule = await p_retry.default;
-  return writeChunkedMessageToStream(stream, message, logger, maxRetries, enableChunking, serializeFn, retryModule);
+async function writeChunkedMessageWithRetry(_0x3efdc2, _0x2c197f, _0xd53e86, _0x3317bf, _0x487b94, _0x536d9c) {
+  let _0x3a375e = await p_retry_module.default;
+  return writeChunkedMessageToStream(_0x3efdc2, _0x2c197f, _0xd53e86, _0x3317bf, _0x487b94, _0x536d9c, _0x3a375e);
 }
 var x5e = un.DRAIN_TIMEOUT_MS;
 /* [unbundle] ignore patterns 已移至 config.js */
@@ -1092,60 +1092,60 @@ var u$ = config_module.IGNORE_DIRECTORIES,
     ['pendingPops'] = [];
     ['capacity'];
     ['logger'];
-    constructor(loggerInstance) {
-      super(), this.capacity = un.QUEUE_CAPACITY, this.logger = loggerInstance, this.items = new Array(un.QUEUE_CAPACITY);
+    constructor(_0x5cbc91) {
+      super(), this.capacity = un.QUEUE_CAPACITY, this.logger = _0x5cbc91, this.items = new Array(un.QUEUE_CAPACITY);
     }
-    ['push'](item) {
+    ['push'](_0x2a135c) {
       if (this._isClosed) return this.logger.warn('Attempted to push item to closed queue (size: ' + this._size + '/' + this.capacity + ')'), false;
-      let pendingPop = this.pendingPops.shift();
-      if (pendingPop) return pendingPop.resolve(item), true;
+      let _0x306a1e = this.pendingPops.shift();
+      if (_0x306a1e) return _0x306a1e.resolve(_0x2a135c), true;
       if (this._size >= this.capacity) {
-        let queueFullState = {
+        let _0x54145a = {
           currentSize: this._size,
           capacity: this.capacity,
           queueState: "full",
           pendingPops: this.pendingPops.length,
           isClosed: this._isClosed
         };
-        return this.logger.warn("Queue full, rejecting push operation", queueFullState), false;
+        return this.logger.warn("Queue full, rejecting push operation", _0x54145a), false;
       }
-      return this.items[this.tailIndex] = item, this.tailIndex = (this.tailIndex + 1) % this.capacity, this._size++, this.emit('item-available'), true;
+      return this.items[this.tailIndex] = _0x2a135c, this.tailIndex = (this.tailIndex + 1) % this.capacity, this._size++, this.emit('item-available'), true;
     }
     ['pop']() {
-      return new Promise((resolvePromise, rejectPromise) => {
+      return new Promise((_0x218753, _0xee5eae) => {
         if (this._size > 0) {
-          let poppedItem = this.popInternal();
-          if (poppedItem !== void 0) {
-            resolvePromise(poppedItem);
+          let _0x2d1313 = this.popInternal();
+          if (_0x2d1313 !== void 0) {
+            _0x218753(_0x2d1313);
             return;
           }
         }
         if (this._isClosed) {
-          let closedState = {
+          let _0xdb1b40 = {
             currentSize: this._size,
             capacity: this.capacity,
             queueState: "closed and empty",
             pendingPops: this.pendingPops.length
           };
-          this.logger.warn("Pop operation failed: queue is closed and empty", closedState), rejectPromise(new QueueClosedError("Queue is closed and empty"));
+          this.logger.warn("Pop operation failed: queue is closed and empty", _0xdb1b40), _0xee5eae(new QueueClosedError("Queue is closed and empty"));
           return;
         }
         this.pendingPops.push({
-          resolve: resolvePromise,
-          reject: rejectPromise
+          resolve: _0x218753,
+          reject: _0xee5eae
         });
       });
     }
     ["popInternal"]() {
       if (this._size === 0) return;
-      let itemFromQueue = this.items[this.headIndex];
+      let _0x4d4553 = this.items[this.headIndex];
       this.items[this.headIndex] = void 0, this.headIndex = (this.headIndex + 1) % this.capacity, this._size--;
-      let backpressureThreshold = Math.min(this.capacity - 1, un.BACKPRESSURE_THRESHOLD);
-      return this._size < backpressureThreshold && this.emit("space-available"), itemFromQueue;
+      let _0x2fa1f2 = Math.min(this.capacity - 1, un.BACKPRESSURE_THRESHOLD);
+      return this._size < _0x2fa1f2 && this.emit("space-available"), _0x4d4553;
     }
     ["close"]() {
       if (this._isClosed) return;
-      let closeState = {
+      let _0x5e16d0 = {
         currentSize: this._size,
         capacity: this.capacity,
         pendingPops: this.pendingPops.length,
@@ -1153,26 +1153,26 @@ var u$ = config_module.IGNORE_DIRECTORIES,
       };
       this._isClosed = true;
       for (let key of this.pendingPops) key.reject(new QueueClosedError("Queue was closed"));
-      this.pendingPops.length = 0, this.emit("closed", closeState), this.removeAllListeners(), this.items.fill(void 0);
+      this.pendingPops.length = 0, this.emit("closed", _0x5e16d0), this.removeAllListeners(), this.items.fill(void 0);
     }
     async *[Symbol.asyncIterator]() {
       for (; !this._isClosed || this._size > 0;) {
         if (this._size > 0) {
-          let internalItem = this.popInternal();
-          if (internalItem !== void 0) {
-            yield internalItem;
+          let _0x127a4e = this.popInternal();
+          if (_0x127a4e !== void 0) {
+            yield _0x127a4e;
             continue;
           }
         }
         if (this._isClosed) break;
-        await new Promise(resolveWait => {
-          let onItemAvailable = () => {
-              this.off('item-available', onItemAvailable), this.off('closed', onClosed), resolveWait();
+        await new Promise(_0xcb03ae => {
+          let _0x2b120d = () => {
+              this.off('item-available', _0x2b120d), this.off('closed', _0x1394bf), _0xcb03ae();
             },
-            onClosed = () => {
-              this.off('item-available', onItemAvailable), this.off("closed", onClosed), resolveWait();
+            _0x1394bf = () => {
+              this.off('item-available', _0x2b120d), this.off("closed", _0x1394bf), _0xcb03ae();
             };
-          this.once('item-available', onItemAvailable), this.once("closed", onClosed);
+          this.once('item-available', _0x2b120d), this.once("closed", _0x1394bf);
         });
       }
     }
@@ -1186,28 +1186,28 @@ var u$ = config_module.IGNORE_DIRECTORIES,
     ["_logger"];
     ['_chunkBuffers'];
     ["_chunkTimeouts"];
-    constructor(streamInstance, loggerInstance) {
-      this._stream = streamInstance, this._logger = loggerInstance, this._messageQueue = new AsyncQueue(loggerInstance), this._passThrough = new stream_module.PassThrough({
+    constructor(_0x35007b, _0x14e17f) {
+      this._stream = _0x35007b, this._logger = _0x14e17f, this._messageQueue = new AsyncQueue(_0x14e17f), this._passThrough = new stream_module.PassThrough({
         objectMode: true,
         highWaterMark: un.HIGH_WATER_MARK
       }), this._chunkBuffers = new Map(), this._chunkTimeouts = new Map(), this.setupStreamPipeline();
     }
     ['setupStreamPipeline']() {
-      this._passThrough.on("data", messageData => {
+      this._passThrough.on("data", _0xdd152e => {
         if (this._shuttingDown) return;
-        let chunkedMsg = this.extractChunkedMessage(messageData);
-        if (chunkedMsg) try {
-          let reconstructedMsg = this.handleChunkedMessage(chunkedMsg);
-          if (!reconstructedMsg) return;
-          messageData = reconstructedMsg;
-        } catch (chunkError) {
-          this._logger.error(chunkError, 'Error handling chunked message, discarding chunk_id: ' + chunkedMsg.chunkId);
-          let chunkIdToClean = chunkedMsg.chunkId,
-            existingTimeout = this._chunkTimeouts.get(chunkIdToClean);
-          existingTimeout && clearTimeout(existingTimeout), this._chunkBuffers.delete(chunkIdToClean), this._chunkTimeouts.delete(chunkIdToClean);
+        let _0x14518c = this.extractChunkedMessage(_0xdd152e);
+        if (_0x14518c) try {
+          let _0x5cb62c = this.handleChunkedMessage(_0x14518c);
+          if (!_0x5cb62c) return;
+          _0xdd152e = _0x5cb62c;
+        } catch (_0x1b3c86) {
+          this._logger.error(_0x1b3c86, 'Error handling chunked message, discarding chunk_id: ' + _0x14518c.chunkId);
+          let _0x406716 = _0x14518c.chunkId,
+            _0x21f408 = this._chunkTimeouts.get(_0x406716);
+          _0x21f408 && clearTimeout(_0x21f408), this._chunkBuffers.delete(_0x406716), this._chunkTimeouts.delete(_0x406716);
           return;
         }
-        this._messageQueue.push(messageData) || (this._overflowBuffer.push(messageData), this._passThrough.isPaused() || (this._passThrough.pause(), this._logger.warn('Stream paused due to queue overflow, backpressure detected')));
+        this._messageQueue.push(_0xdd152e) || (this._overflowBuffer.push(_0xdd152e), this._passThrough.isPaused() || (this._passThrough.pause(), this._logger.warn('Stream paused due to queue overflow, backpressure detected')));
       }), this._messageQueue.on("space-available", () => {
         if (!this._shuttingDown) {
           if (this._overflowBuffer.length === 0) {
@@ -1215,9 +1215,9 @@ var u$ = config_module.IGNORE_DIRECTORIES,
             return;
           }
           for (; this._overflowBuffer.length > 0;) {
-            let bufferedItem = this._overflowBuffer.shift();
-            if (bufferedItem && !this._messageQueue.push(bufferedItem)) {
-              this._overflowBuffer.unshift(bufferedItem);
+            let _0xd4c600 = this._overflowBuffer.shift();
+            if (_0xd4c600 && !this._messageQueue.push(_0xd4c600)) {
+              this._overflowBuffer.unshift(_0xd4c600);
               return;
             }
           }
@@ -1225,28 +1225,28 @@ var u$ = config_module.IGNORE_DIRECTORIES,
         }
       }), this._stream.pipe(this._passThrough);
     }
-    ["extractChunkedMessage"](messageObj) {
-      return messageObj.chunkedMessage ?? void 0;
+    ["extractChunkedMessage"](_0x40196a) {
+      return _0x40196a.chunkedMessage ?? void 0;
     }
-    ['handleChunkedMessage'](chunkedMessage) {
-      let chunkId = chunkedMessage.chunkId;
-      this._chunkBuffers.has(chunkId) || this._chunkBuffers.set(chunkId, []);
-      let currentTimeout = this._chunkTimeouts.get(chunkId);
-      currentTimeout && clearTimeout(currentTimeout);
-      let newTimeout = setTimeout(() => {
-        this._logger.warn("Clearing stale chunks for chunk_id " + chunkId + " after " + un.STREAM_END_TIMEOUT_MS + "ms timeout"), this._chunkBuffers.delete(chunkId), this._chunkTimeouts.delete(chunkId);
+    ['handleChunkedMessage'](_0x50ac93) {
+      let _0x36a460 = _0x50ac93.chunkId;
+      this._chunkBuffers.has(_0x36a460) || this._chunkBuffers.set(_0x36a460, []);
+      let _0x1c8c4a = this._chunkTimeouts.get(_0x36a460);
+      _0x1c8c4a && clearTimeout(_0x1c8c4a);
+      let _0x150864 = setTimeout(() => {
+        this._logger.warn("Clearing stale chunks for chunk_id " + _0x36a460 + " after " + un.STREAM_END_TIMEOUT_MS + "ms timeout"), this._chunkBuffers.delete(_0x36a460), this._chunkTimeouts.delete(_0x36a460);
       }, un.STREAM_END_TIMEOUT_MS);
-      this._chunkTimeouts.set(chunkId, newTimeout);
-      let chunkBuffer = this._chunkBuffers.get(chunkId);
-      if (chunkBuffer.some(existingChunk => existingChunk.sequenceNumber === chunkedMessage.sequenceNumber)) return this._logger.debug("Duplicate chunk detected: sequence " + chunkedMessage.sequenceNumber + ' for chunk_id: ' + chunkId + ', ignoring'), null;
-      chunkBuffer.push(chunkedMessage);
-      let uniqueSequences = new Set(chunkBuffer.map(chunkItem => chunkItem.sequenceNumber));
-      if (uniqueSequences.size === chunkedMessage.totalChunks) {
-        this._logger.debug("Attempting reassembly for chunk_id: " + chunkId + ', unique sequences: ' + uniqueSequences.size + ", total chunks expected: " + chunkedMessage.totalChunks + ', buffer length: ' + chunkBuffer.length), clearTimeout(newTimeout), this._chunkBuffers.delete(chunkId), this._chunkTimeouts.delete(chunkId);
+      this._chunkTimeouts.set(_0x36a460, _0x150864);
+      let _0x1166d9 = this._chunkBuffers.get(_0x36a460);
+      if (_0x1166d9.some(_0x348757 => _0x348757.sequenceNumber === _0x50ac93.sequenceNumber)) return this._logger.debug("Duplicate chunk detected: sequence " + _0x50ac93.sequenceNumber + ' for chunk_id: ' + _0x36a460 + ', ignoring'), null;
+      _0x1166d9.push(_0x50ac93);
+      let _0x2c39bb = new Set(_0x1166d9.map(_0x325bae => _0x325bae.sequenceNumber));
+      if (_0x2c39bb.size === _0x50ac93.totalChunks) {
+        this._logger.debug("Attempting reassembly for chunk_id: " + _0x36a460 + ', unique sequences: ' + _0x2c39bb.size + ", total chunks expected: " + _0x50ac93.totalChunks + ', buffer length: ' + _0x1166d9.length), clearTimeout(_0x150864), this._chunkBuffers.delete(_0x36a460), this._chunkTimeouts.delete(_0x36a460);
         try {
-          return reassembleChunkedMessage(chunkBuffer);
-        } catch (reassembleError) {
-          throw this._logger.error(reassembleError, "Failed to reassemble message from chunks (chunk_id: " + chunkId + ')'), reassembleError;
+          return reassembleChunkedMessage(_0x1166d9);
+        } catch (_0x3f0c2f) {
+          throw this._logger.error(_0x3f0c2f, "Failed to reassemble message from chunks (chunk_id: " + _0x36a460 + ')'), _0x3f0c2f;
         }
       }
       return null;
@@ -1266,12 +1266,12 @@ var u$ = config_module.IGNORE_DIRECTORIES,
       try {
         for await (let key of this.consumeMessages()) {
           if (this._shuttingDown) break;
-          this.processMessage(key).catch(processingError => {
-            this._logger.error(processingError, 'Error in message processing');
+          this.processMessage(key).catch(_0x42b310 => {
+            this._logger.error(_0x42b310, 'Error in message processing');
           });
         }
-      } catch (consumptionError) {
-        consumptionError instanceof QueueClosedError ? this._logger.debug("Message queue closed, ending consumption") : this._logger.error(consumptionError, 'Error in message consumption');
+      } catch (_0xf7110d) {
+        _0xf7110d instanceof QueueClosedError ? this._logger.debug("Message queue closed, ending consumption") : this._logger.error(_0xf7110d, 'Error in message consumption');
       }
     }
   },
@@ -1642,23 +1642,23 @@ var c9e = new Set(Object.values(Ou)),
     static ["getInstance"]() {
       return _0x98f6f0.instance || (_0x98f6f0.instance = new _0x98f6f0()), _0x98f6f0.instance;
     }
-    ["registerAgent"](agentConfig) {
-      this.agents.set(agentConfig.id, agentConfig);
+    ["registerAgent"](_0x2d953d) {
+      this.agents.set(_0x2d953d.id, _0x2d953d);
     }
-    ['unregisterAgent'](agentId) {
-      return this.agents.delete(agentId);
+    ['unregisterAgent'](_0x2358a0) {
+      return this.agents.delete(_0x2358a0);
     }
-    ['getAgent'](agentIdToGet) {
-      return this.hasAgent(agentIdToGet) ? this.agents.get(agentIdToGet) : isValidAgentType(agentIdToGet) ? getAgentIcon(agentIdToGet) : void 0;
+    ['getAgent'](_0x205f38) {
+      return this.hasAgent(_0x205f38) ? this.agents.get(_0x205f38) : isValidAgentType(_0x205f38) ? getAgentIcon(_0x205f38) : void 0;
     }
     ['getAllAgents']() {
       return Array.from(this.agents.values());
     }
-    ['getAgentsBySource'](sourceType) {
-      return this.getAllAgents().filter(agentItem => agentItem.source === sourceType);
+    ['getAgentsBySource'](_0x5f51c9) {
+      return this.getAllAgents().filter(_0x2b27ea => _0x2b27ea.source === _0x5f51c9);
     }
     ['getBuiltInCLIAgents']() {
-      return this.getAgentsBySource('builtin').filter(cliAgent => cliAgent.type === 'terminal');
+      return this.getAgentsBySource('builtin').filter(_0x1447b2 => _0x1447b2.type === 'terminal');
     }
     ["getUserAgents"]() {
       return this.getAgentsBySource('user');
@@ -1666,23 +1666,23 @@ var c9e = new Set(Object.values(Ou)),
     ['getWorkspaceAgents']() {
       return this.getAgentsBySource('workspace');
     }
-    ["hasAgent"](agentIdToCheck) {
-      return this.agents.has(agentIdToCheck);
+    ["hasAgent"](_0x460b87) {
+      return this.agents.has(_0x460b87);
     }
-    ["getAgentInfo"](agentIdParam) {
-      let agentData = this.getAgent(agentIdParam);
-      if (!agentData) throw new Error("Agent with ID " + agentIdParam + " not found");
-      return agentData;
+    ["getAgentInfo"](_0xd801d2) {
+      let _0x23405d = this.getAgent(_0xd801d2);
+      if (!_0x23405d) throw new Error("Agent with ID " + _0xd801d2 + " not found");
+      return _0x23405d;
     }
-    ["getAgentInfoIfExists"](agentIdQuery) {
+    ["getAgentInfoIfExists"](_0x112a1a) {
       try {
-        return this.getAgentInfo(agentIdQuery);
+        return this.getAgentInfo(_0x112a1a);
       } catch {
         return null;
       }
     }
-    ["getConflictingWithBuiltInAgent"](nameOrId) {
-      return this.getAgentsBySource('builtin').find(builtinAgent => builtinAgent.id === nameOrId || builtinAgent.displayName.toLowerCase() === nameOrId.toLowerCase()) || null;
+    ["getConflictingWithBuiltInAgent"](_0x3824d6) {
+      return this.getAgentsBySource('builtin').find(_0x360e25 => _0x360e25.id === _0x3824d6 || _0x360e25.displayName.toLowerCase() === _0x3824d6.toLowerCase()) || null;
     }
   },
   RequestQueue,
@@ -1690,17 +1690,17 @@ var c9e = new Set(Object.values(Ou)),
     'use strict';
 
     RequestQueue = class {
-      constructor(concurrency, breatherMs, continuousMs) {
-        this.concurrencyLimit = concurrency, this.breatherDuration = breatherMs, this.continuousRequestDuration = continuousMs, this.breatherDuration = breatherMs, this.continuousRequestDuration = continuousMs, this.inFlightRequests = 0, this.requestQueue = [], this.continuousRequestStart = Date.now(), this.isBreatherActive = false;
+      constructor(_0x4e2b69, _0x2c6a5f, _0x4a727a) {
+        this.concurrencyLimit = _0x4e2b69, this.breatherDuration = _0x2c6a5f, this.continuousRequestDuration = _0x4a727a, this.breatherDuration = _0x2c6a5f, this.continuousRequestDuration = _0x4a727a, this.inFlightRequests = 0, this.requestQueue = [], this.continuousRequestStart = Date.now(), this.isBreatherActive = false;
       }
-      ["enqueueRequest"](requestFn) {
-        return new Promise((resolveFn, rejectFn) => {
+      ["enqueueRequest"](_0x509ae7) {
+        return new Promise((_0x58d202, _0x2e0025) => {
           this.requestQueue.push(async () => {
             try {
-              let result = await requestFn();
-              resolveFn(result);
-            } catch (error) {
-              rejectFn(error);
+              let _0x23d3ee = await _0x509ae7();
+              _0x58d202(_0x23d3ee);
+            } catch (_0x13a262) {
+              _0x2e0025(_0x13a262);
             } finally {
               this.inFlightRequests--, this.processQueue();
             }
@@ -1732,123 +1732,123 @@ var c9e = new Set(Object.values(Ou)),
       constructor() {
         super(1, 1000, 30000), this.currentRequest = null, this.abortController = null;
       }
-      ['enqueueRequest'](requestFunction) {
+      ['enqueueRequest'](_0x2c82ea) {
         Logger.debug("LatestRequestLimiter: New request received"), this.abortController && (Logger.debug("LatestRequestLimiter: Cancelling previous request"), this.abortController.abort(), this.abortController = null), this.abortController = new AbortController();
-        let wrappedRequest = async () => {
+        let _0x48cd32 = async () => {
           try {
-            let abortSignal = this.abortController.signal,
-              abortPromise = new Promise((resolveAbort, rejectAbort) => {
-                abortSignal.addEventListener("abort", () => {
-                  rejectAbort(new Error('Request cancelled'));
+            let _0x5b0847 = this.abortController.signal,
+              _0x469b7d = new Promise((_0x4e244a, _0x8134b7) => {
+                _0x5b0847.addEventListener("abort", () => {
+                  _0x8134b7(new Error('Request cancelled'));
                 });
               }),
-              requestResult = await Promise.race([requestFunction(this.abortController), abortPromise]);
-            return Logger.debug('LatestRequestLimiter: Request completed successfully'), requestResult;
-          } catch (requestError) {
-            throw requestError instanceof Error && requestError.message === 'Request cancelled' ? Logger.debug('LatestRequestLimiter: Request was cancelled') : Logger.warn('LatestRequestLimiter: Request failed', requestError), requestError;
+              _0x194141 = await Promise.race([_0x2c82ea(this.abortController), _0x469b7d]);
+            return Logger.debug('LatestRequestLimiter: Request completed successfully'), _0x194141;
+          } catch (_0x5ca370) {
+            throw _0x5ca370 instanceof Error && _0x5ca370.message === 'Request cancelled' ? Logger.debug('LatestRequestLimiter: Request was cancelled') : Logger.warn('LatestRequestLimiter: Request failed', _0x5ca370), _0x5ca370;
           }
         };
-        return this.currentRequest = super.enqueueRequest(wrappedRequest), this.currentRequest;
+        return this.currentRequest = super.enqueueRequest(_0x48cd32), this.currentRequest;
       }
     };
   });
-async function formatCodeBlockContent(fileService, rgPath, searchRegex, dirInfo, includePattern, ignorePatterns, maxResults, formatFn) {
-  if (!(await fileService.fileExists(dirInfo.absPath))) throw new Error("Directory not found");
-  let rgCommand = new RipgrepCommandBuilder(rgPath).withMaxResults(300).withIncludePatterns(includePattern ? [includePattern] : []).withIgnorePatterns(ignorePatterns).withAdditionalArgs(['--json', '--context=' + 3, dirInfo.absPath]).withRegex(searchRegex).build(),
-    searchResults = await RipgrepExecutor.execute([rgCommand], {
+async function formatCodeBlockContent(_0xaeb101, _0x36e209, _0x4fbe28, _0xb33b6, _0xef23c3, _0x136f81, _0x11d8e6, _0xcd99b2) {
+  if (!(await _0xaeb101.fileExists(_0xb33b6.absPath))) throw new Error("Directory not found");
+  let _0x35c95e = new RipgrepCommandBuilder(_0x36e209).withMaxResults(300).withIncludePatterns(_0xef23c3 ? [_0xef23c3] : []).withIgnorePatterns(_0x136f81).withAdditionalArgs(['--json', '--context=' + 3, _0xb33b6.absPath]).withRegex(_0x4fbe28).build(),
+    _0x3c19f5 = await RipgrepExecutor.execute([_0x35c95e], {
       encoding: 'utf8'
     });
   return {
-    matchingFileSnippets: await formatFn(searchResults, dirInfo.proto, maxResults)
+    matchingFileSnippets: await _0xcd99b2(_0x3c19f5, _0xb33b6.proto, _0x11d8e6)
   };
 }
-async function searchFilesWithRipgrep(searchPath, searchQuery, filePattern, ignoreGlobs, maxResults = H$, recursive = true) {
-  let ripgrepPath = await config.getRipgrepBinPath();
-  if (!ripgrepPath) throw new Error('ripgrep binary not found');
-  if (!(await me.getInstance().fileExists(searchPath))) return Logger.warn('Path to list files in does not exist', searchPath), '';
-  let pathSeparatorRegex = isWindows ? '[^\x5c\x5c]*' : "[^/]*",
-    baseArgs = [...DEFAULT_RG_ARGS];
-  recursive || baseArgs.push('--max-depth', '1');
-  let includeCmd = new RipgrepCommandBuilder(ripgrepPath).withAdditionalArgs(baseArgs).withIncludePatterns(filePattern ? [filePattern] : []).build(),
-    searchCmd = new RipgrepCommandBuilder(ripgrepPath).withMaxResults(maxResults).withCaseInsensitive().withQuery('' + pathSeparatorRegex + searchQuery + pathSeparatorRegex + '$').build(),
-    commands = [includeCmd, searchCmd];
-  return await RipgrepExecutor.execute(commands, {
-    cwd: searchPath,
+async function searchFilesWithRipgrep(_0x5639f8, _0x5cdd49, _0x4b2c47, _0x4d5e92, _0x401908 = H$, _0x2cee82 = true) {
+  let _0x4eeab0 = await config.getRipgrepBinPath();
+  if (!_0x4eeab0) throw new Error('ripgrep binary not found');
+  if (!(await me.getInstance().fileExists(_0x5639f8))) return Logger.warn('Path to list files in does not exist', _0x5639f8), '';
+  let _0xa9f861 = isWindows ? '[^\x5c\x5c]*' : "[^/]*",
+    _0x5a2f9 = [...DEFAULT_RG_ARGS];
+  _0x2cee82 || _0x5a2f9.push('--max-depth', '1');
+  let _0x565312 = new RipgrepCommandBuilder(_0x4eeab0).withAdditionalArgs(_0x5a2f9).withIncludePatterns(_0x4b2c47 ? [_0x4b2c47] : []).build(),
+    _0xafc48d = new RipgrepCommandBuilder(_0x4eeab0).withMaxResults(_0x401908).withCaseInsensitive().withQuery('' + _0xa9f861 + _0x5cdd49 + _0xa9f861 + '$').build(),
+    _0x407f09 = [_0x565312, _0xafc48d];
+  return await RipgrepExecutor.execute(_0x407f09, {
+    cwd: _0x5639f8,
     timeout: MAX_SEARCH_RESULTS,
-    abortSignal: ignoreGlobs?.['signal']
+    abortSignal: _0x4d5e92?.['signal']
   });
 }
-async function searchFoldersWithRipgrep(searchPath, searchQuery, abortController, maxResults = H$, recursive = true) {
-  let ripgrepPath = await config.getRipgrepBinPath();
-  if (!ripgrepPath) throw new Error('ripgrep binary not found');
-  if (!(await me.getInstance().fileExists(searchPath))) return Logger.warn("Path to list folders in does not exist", searchPath), [];
-  let extractArgs = isWindows ? ['-o', "^.*\\\\"] : ['-o', "'^.*/'"],
-    baseArgs = [...DEFAULT_RG_ARGS];
-  recursive || baseArgs.push('--max-depth', '2');
-  let listFilesCmd = new RipgrepCommandBuilder(ripgrepPath).withAdditionalArgs(baseArgs).build(),
-    extractPathCmd = new RipgrepCommandBuilder(ripgrepPath).withAdditionalArgs(extractArgs).build(),
-    searchCmd = new RipgrepCommandBuilder(ripgrepPath).withCaseInsensitive().withQuery(searchQuery).build(),
-    sortCmd = isWindows ? ["sort", "/unique"] : ["sort", '-u', '-f'],
-    limitCmd = new RipgrepCommandBuilder(ripgrepPath).withMaxResults(maxResults).withCaseInsensitive().withQuery('').build(),
-    commands = [listFilesCmd, extractPathCmd, searchCmd, sortCmd, limitCmd];
-  return (await RipgrepExecutor.execute(commands, {
-    cwd: searchPath,
+async function searchFoldersWithRipgrep(_0x10d4d2, _0x249521, _0x1d3546, _0x4ffec6 = H$, _0x1850be = true) {
+  let _0x1ff9c5 = await config.getRipgrepBinPath();
+  if (!_0x1ff9c5) throw new Error('ripgrep binary not found');
+  if (!(await me.getInstance().fileExists(_0x10d4d2))) return Logger.warn("Path to list folders in does not exist", _0x10d4d2), [];
+  let _0x17afb1 = isWindows ? ['-o', "^.*\\\\"] : ['-o', "'^.*/'"],
+    _0x1f39ac = [...DEFAULT_RG_ARGS];
+  _0x1850be || _0x1f39ac.push('--max-depth', '2');
+  let _0x547294 = new RipgrepCommandBuilder(_0x1ff9c5).withAdditionalArgs(_0x1f39ac).build(),
+    _0x4f4b02 = new RipgrepCommandBuilder(_0x1ff9c5).withAdditionalArgs(_0x17afb1).build(),
+    _0x40281f = new RipgrepCommandBuilder(_0x1ff9c5).withCaseInsensitive().withQuery(_0x249521).build(),
+    _0x23e87e = isWindows ? ["sort", "/unique"] : ["sort", '-u', '-f'],
+    _0x13e594 = new RipgrepCommandBuilder(_0x1ff9c5).withMaxResults(_0x4ffec6).withCaseInsensitive().withQuery('').build(),
+    _0x262355 = [_0x547294, _0x4f4b02, _0x40281f, _0x23e87e, _0x13e594];
+  return (await RipgrepExecutor.execute(_0x262355, {
+    cwd: _0x10d4d2,
     timeout: MAX_SEARCH_RESULTS,
-    abortSignal: abortController?.['signal']
+    abortSignal: _0x1d3546?.['signal']
   })).trim().replaceAll('\x0d', '\x0a').split('\x0a').filter(Boolean);
 }
-async function searchFilesAndFoldersInWorkspace(searchQuery, searchType, abortController) {
-  let results = {
+async function searchFilesAndFoldersInWorkspace(_0x41dcf1, _0x326761, _0x438a88) {
+  let _0x5aa40f = {
       files: [],
       folders: []
     },
-    workspaceFolders = vscode_module.workspace.workspaceFolders;
-  if (workspaceFolders?.["length"]) {
-    let perFolderLimit = Math.ceil(H$ / workspaceFolders.length);
-    searchType === 'mix' && (perFolderLimit = Math.ceil(perFolderLimit / 2));
-    let searchFilesInFolder = async folder => {
+    _0x40d284 = vscode_module.workspace.workspaceFolders;
+  if (_0x40d284?.["length"]) {
+    let _0x1c0187 = Math.ceil(H$ / _0x40d284.length);
+    _0x326761 === 'mix' && (_0x1c0187 = Math.ceil(_0x1c0187 / 2));
+    let _0x236178 = async _0x579343 => {
         try {
-          let fileList = (await searchFilesWithRipgrep(folder.uri.fsPath, searchQuery, void 0, abortController, perFolderLimit)).trim().replaceAll('\x0d', '\x0a').split('\x0a').filter(Boolean);
-          results.files.push(...fileList.map(filePath => ({
-            absolutePath: path_module.join(folder.uri.fsPath, filePath),
+          let _0x159f12 = (await searchFilesWithRipgrep(_0x579343.uri.fsPath, _0x41dcf1, void 0, _0x438a88, _0x1c0187)).trim().replaceAll('\x0d', '\x0a').split('\x0a').filter(Boolean);
+          _0x5aa40f.files.push(..._0x159f12.map(_0x3c2431 => ({
+            absolutePath: path_module.join(_0x579343.uri.fsPath, _0x3c2431),
             isDirectory: false
           })));
-        } catch (fileError) {
+        } catch (_0x1a1b3c) {
           Logger.warn("Error getting files for workspace", {
-            error: fileError instanceof Error ? fileError.message : String(fileError)
+            error: _0x1a1b3c instanceof Error ? _0x1a1b3c.message : String(_0x1a1b3c)
           });
         }
       },
-      searchFoldersInFolder = async workspaceFolder => {
+      _0x27aedc = async _0x15bd70 => {
         try {
-          let folderList = await searchFoldersWithRipgrep(workspaceFolder.uri.fsPath, searchQuery, abortController, perFolderLimit);
-          results.folders.push(...folderList.map(folderPath => ({
-            absolutePath: path_module.join(workspaceFolder.uri.fsPath, folderPath),
+          let _0x256034 = await searchFoldersWithRipgrep(_0x15bd70.uri.fsPath, _0x41dcf1, _0x438a88, _0x1c0187);
+          _0x5aa40f.folders.push(..._0x256034.map(_0x579285 => ({
+            absolutePath: path_module.join(_0x15bd70.uri.fsPath, _0x579285),
             isDirectory: true
           })));
-        } catch (folderError) {
+        } catch (_0x5f1918) {
           Logger.warn('Error getting folders for workspace', {
-            error: folderError instanceof Error ? folderError.message : String(folderError)
+            error: _0x5f1918 instanceof Error ? _0x5f1918.message : String(_0x5f1918)
           });
         }
       },
-      promises = [];
-    workspaceFolders.forEach(wsFolder => {
-      (searchType === 'file' || searchType === 'mix') && promises.push(searchFilesInFolder(wsFolder)), (searchType === "folder" || searchType === "mix") && promises.push(searchFoldersInFolder(wsFolder));
-    }), await Promise.allSettled(promises);
+      _0x412a71 = [];
+    _0x40d284.forEach(_0x13b04a => {
+      (_0x326761 === 'file' || _0x326761 === 'mix') && _0x412a71.push(_0x236178(_0x13b04a)), (_0x326761 === "folder" || _0x326761 === "mix") && _0x412a71.push(_0x27aedc(_0x13b04a));
+    }), await Promise.allSettled(_0x412a71);
   }
-  return results;
+  return _0x5aa40f;
 }
-function escapeSearchPattern(pattern) {
-  return pattern.replace(/[^a-zA-Z0-9_-]/g, '.');
+function escapeSearchPattern(_0xa891fa) {
+  return _0xa891fa.replace(/[^a-zA-Z0-9_-]/g, '.');
 }
-async function searchFilesAndFoldersQueued(query, searchType) {
+async function searchFilesAndFoldersQueued(_0x3ad6d4, _0x4205d2) {
   try {
-    return await I9e.enqueueRequest(abortController => searchFilesAndFoldersInWorkspace(escapeSearchPattern(query), searchType, abortController));
-  } catch (error) {
+    return await I9e.enqueueRequest(_0x3cfdfb => searchFilesAndFoldersInWorkspace(escapeSearchPattern(_0x3ad6d4), _0x4205d2, _0x3cfdfb));
+  } catch (_0x571111) {
     throw Logger.warn('Error in getListOfFilesAndFolders', {
-      error: error instanceof Error ? error.message : String(error)
-    }), error;
+      error: _0x571111 instanceof Error ? _0x571111.message : String(_0x571111)
+    }), _0x571111;
   }
 }
 var H$,
@@ -1866,123 +1866,123 @@ var H$,
       static {
         this.concurrencyLimiter = new RequestQueue(5, 200, 2000);
       }
-      static async ["getSourceCode"](filePath) {
-        let cachedDoc = await _0xc6fed.getCachedTextDocument(filePath);
-        return cachedDoc ? cachedDoc.getText() : me.getInstance().readFile(filePath, false);
+      static async ["getSourceCode"](_0x37304d) {
+        let _0x40d5e7 = await _0xc6fed.getCachedTextDocument(_0x37304d);
+        return _0x40d5e7 ? _0x40d5e7.getText() : me.getInstance().readFile(_0x37304d, false);
       }
-      static async ['saveDocument'](filePath) {
-        let textDoc = await _0xc6fed.getTextDocument(filePath);
-        textDoc.isDirty && (await textDoc.save());
+      static async ['saveDocument'](_0xe4fa0a) {
+        let _0x18ba5d = await _0xc6fed.getTextDocument(_0xe4fa0a);
+        _0x18ba5d.isDirty && (await _0x18ba5d.save());
       }
-      static async ['getCachedTextDocument'](filePath) {
-        let fileUri = vscode_module.Uri.file(filePath),
-          foundDoc = vscode_module.workspace.textDocuments.find(doc => doc.uri.toString() === fileUri.toString());
-        if (foundDoc) return foundDoc;
+      static async ['getCachedTextDocument'](_0x8cd8c3) {
+        let _0x46ace8 = vscode_module.Uri.file(_0x8cd8c3),
+          _0x4ddba6 = vscode_module.workspace.textDocuments.find(_0x5aec35 => _0x5aec35.uri.toString() === _0x46ace8.toString());
+        if (_0x4ddba6) return _0x4ddba6;
       }
-      static async ["getTextDocument"](filePath) {
-        let fileUri = vscode_module.Uri.file(filePath),
-          cachedDoc = await _0xc6fed.getCachedTextDocument(filePath);
-        return cachedDoc || _0xc6fed.enqueueOpenTextDocument(fileUri);
+      static async ["getTextDocument"](_0x1bfaca) {
+        let _0x91bc78 = vscode_module.Uri.file(_0x1bfaca),
+          _0x4c8a6e = await _0xc6fed.getCachedTextDocument(_0x1bfaca);
+        return _0x4c8a6e || _0xc6fed.enqueueOpenTextDocument(_0x91bc78);
       }
-      static async ['enqueueOpenTextDocument'](uri) {
-        return _0xc6fed.concurrencyLimiter.enqueueRequest(() => _0xc6fed.openDocumentWithTimeout(uri));
+      static async ['enqueueOpenTextDocument'](_0x1633d2) {
+        return _0xc6fed.concurrencyLimiter.enqueueRequest(() => _0xc6fed.openDocumentWithTimeout(_0x1633d2));
       }
-      static async ['openDocumentWithTimeout'](uri, timeoutMs = 5000) {
-        let openPromise = vscode_module.workspace.openTextDocument(uri),
-          timeoutPromise = new Promise((resolveTimeout, rejectTimeout) => {
-            setTimeout(() => rejectTimeout(new Error("Timed out opening document")), timeoutMs);
+      static async ['openDocumentWithTimeout'](_0x339582, _0x4d84bc = 5000) {
+        let _0x5c4629 = vscode_module.workspace.openTextDocument(_0x339582),
+          _0x2e5ed9 = new Promise((_0x47e156, _0x53246c) => {
+            setTimeout(() => _0x53246c(new Error("Timed out opening document")), _0x4d84bc);
           });
         try {
-          return await Promise.race([openPromise, timeoutPromise]);
-        } catch (error) {
-          throw Logger.debug('Failed to open document:', error), error;
+          return await Promise.race([_0x5c4629, _0x2e5ed9]);
+        } catch (_0x5c9453) {
+          throw Logger.debug('Failed to open document:', _0x5c9453), _0x5c9453;
         }
       }
-      static async ['enqueueOpenNotebookDocument'](uri) {
-        return _0xc6fed.concurrencyLimiter.enqueueRequest(() => _0xc6fed.openNotebookDocumentWithTimeout(uri));
+      static async ['enqueueOpenNotebookDocument'](_0x52d2d8) {
+        return _0xc6fed.concurrencyLimiter.enqueueRequest(() => _0xc6fed.openNotebookDocumentWithTimeout(_0x52d2d8));
       }
-      static async ["openNotebookDocumentWithTimeout"](uri, timeoutMs = 5000) {
-        let openPromise = vscode_module.workspace.openNotebookDocument(uri),
-          timeoutPromise = new Promise((resolveTimeout, rejectTimeout) => {
-            setTimeout(() => rejectTimeout(new Error('Timed out opening document')), timeoutMs);
+      static async ["openNotebookDocumentWithTimeout"](_0x5e8688, _0x164049 = 5000) {
+        let _0x56d04c = vscode_module.workspace.openNotebookDocument(_0x5e8688),
+          _0x26501d = new Promise((_0x255cca, _0x46b812) => {
+            setTimeout(() => _0x46b812(new Error('Timed out opening document')), _0x164049);
           });
         try {
-          return await Promise.race([openPromise, timeoutPromise]);
-        } catch (error) {
-          throw Logger.debug('Failed to open notebook document:', error), error;
+          return await Promise.race([_0x56d04c, _0x26501d]);
+        } catch (_0x5de235) {
+          throw Logger.debug('Failed to open notebook document:', _0x5de235), _0x5de235;
         }
       }
     };
   });
-function insertByPriority(array, item) {
-  let insertIndex = formatDirectoryContent(array, existingItem => item.priority <= existingItem.priority);
-  array.splice(insertIndex + 1, 0, item);
+function insertByPriority(_0x59a373, _0x1b15dc) {
+  let _0x17f22b = formatDirectoryContent(_0x59a373, _0x5bf12d => _0x1b15dc.priority <= _0x5bf12d.priority);
+  _0x59a373.splice(_0x17f22b + 1, 0, _0x1b15dc);
 }
-function formatDirectoryContent(array, predicate) {
-  for (let index = array.length - 1; index >= 0; index--) if (predicate(array[index])) return index;
+function formatDirectoryContent(_0x1f61aa, _0x1e68b7) {
+  for (let _0x14b15f = _0x1f61aa.length - 1; _0x14b15f >= 0; _0x14b15f--) if (_0x1e68b7(_0x1f61aa[_0x14b15f])) return _0x14b15f;
   return -1;
 }
 var k9e = new Error("request for lock canceled"),
   R9e = function (_0x280674, _0x48f92c, _0x1ec16a, _0x343adc) {
-    function adopt(value) {
-      return value instanceof _0x1ec16a ? value : new _0x1ec16a(function (resolve) {
-        resolve(value);
+    function _0x3f6858(_0x2f94f5) {
+      return _0x2f94f5 instanceof _0x1ec16a ? _0x2f94f5 : new _0x1ec16a(function (_0x568be9) {
+        _0x568be9(_0x2f94f5);
       });
     }
     return new (_0x1ec16a || (_0x1ec16a = Promise))(function (_0x17ff9e, _0x1b1325) {
-      function fulfilled(value) {
+      function _0x4be22c(_0x345ba6) {
         try {
-          _0x544b51(_0x343adc.next(value));
-        } catch (error) {
-          _0x1b1325(error);
+          _0x544b51(_0x343adc.next(_0x345ba6));
+        } catch (_0x1181f4) {
+          _0x1b1325(_0x1181f4);
         }
       }
-      function rejected(value) {
+      function _0x69b6e7(_0xa98fbb) {
         try {
-          _0x544b51(_0x343adc.throw(value));
-        } catch (error) {
-          _0x1b1325(error);
+          _0x544b51(_0x343adc.throw(_0xa98fbb));
+        } catch (_0x4a3a6f) {
+          _0x1b1325(_0x4a3a6f);
         }
       }
-      function step(result) {
-        result.done ? _0x17ff9e(result.value) : _0x3f6858(result.value).then(_0x4be22c, _0x69b6e7);
+      function _0x544b51(_0x8bc1b8) {
+        _0x8bc1b8.done ? _0x17ff9e(_0x8bc1b8.value) : _0x3f6858(_0x8bc1b8.value).then(_0x4be22c, _0x69b6e7);
       }
       _0x544b51((_0x343adc = _0x343adc.apply(_0x280674, _0x48f92c || [])).next());
     });
   },
   Semaphore = class {
-    constructor(initialValue, cancelError = k9e) {
-      this._value = initialValue, this._cancelError = cancelError, this._queue = [], this._weightedWaiters = [];
+    constructor(_0x4025fa, _0x17f399 = k9e) {
+      this._value = _0x4025fa, this._cancelError = _0x17f399, this._queue = [], this._weightedWaiters = [];
     }
-    ['acquire'](weight = 1, priority = 0) {
-      if (weight <= 0) throw new Error("invalid weight " + weight + ": must be positive");
-      return new Promise((resolveFn, rejectFn) => {
-        let waiter = {
-            resolve: resolveFn,
-            reject: rejectFn,
-            weight: weight,
-            priority: priority
+    ['acquire'](_0x33d309 = 1, _0xcab634 = 0) {
+      if (_0x33d309 <= 0) throw new Error("invalid weight " + _0x33d309 + ": must be positive");
+      return new Promise((_0x4c7173, _0x141022) => {
+        let _0x5cfbf2 = {
+            resolve: _0x4c7173,
+            reject: _0x141022,
+            weight: _0x33d309,
+            priority: _0xcab634
           },
-          insertIndex = formatDirectoryContent(this._queue, queueItem => priority <= queueItem.priority);
-        insertIndex === -1 && weight <= this._value ? this._dispatchItem(waiter) : this._queue.splice(insertIndex + 1, 0, waiter);
+          _0x332b32 = formatDirectoryContent(this._queue, _0x556405 => _0xcab634 <= _0x556405.priority);
+        _0x332b32 === -1 && _0x33d309 <= this._value ? this._dispatchItem(_0x5cfbf2) : this._queue.splice(_0x332b32 + 1, 0, _0x5cfbf2);
       });
     }
-    ['runExclusive'](callback) {
-      return R9e(this, arguments, void 0, function* (fn, weight = 1, priority = 0) {
-        let [value, releaser] = yield this.acquire(weight, priority);
+    ['runExclusive'](_0x5b826d) {
+      return R9e(this, arguments, void 0, function* (_0x34ebcd, _0x2f2cc5 = 1, _0x470ca6 = 0) {
+        let [_0x2529ec, _0x39757e] = yield this.acquire(_0x2f2cc5, _0x470ca6);
         try {
-          return yield fn(value);
+          return yield _0x34ebcd(_0x2529ec);
         } finally {
-          releaser();
+          _0x39757e();
         }
       });
     }
-    ["waitForUnlock"](weight = 1, priority = 0) {
-      if (weight <= 0) throw new Error("invalid weight " + weight + ': must be positive');
-      return this._couldLockImmediately(weight, priority) ? Promise.resolve() : new Promise(resolve => {
-        this._weightedWaiters[weight - 1] || (this._weightedWaiters[weight - 1] = []), insertByPriority(this._weightedWaiters[weight - 1], {
-          resolve: resolve,
-          priority: priority
+    ["waitForUnlock"](_0x1f5c66 = 1, _0x59a49e = 0) {
+      if (_0x1f5c66 <= 0) throw new Error("invalid weight " + _0x1f5c66 + ': must be positive');
+      return this._couldLockImmediately(_0x1f5c66, _0x59a49e) ? Promise.resolve() : new Promise(_0x1c2e70 => {
+        this._weightedWaiters[_0x1f5c66 - 1] || (this._weightedWaiters[_0x1f5c66 - 1] = []), insertByPriority(this._weightedWaiters[_0x1f5c66 - 1], {
+          resolve: _0x1c2e70,
+          priority: _0x59a49e
         });
       });
     }
@@ -1992,72 +1992,72 @@ var k9e = new Error("request for lock canceled"),
     ['getValue']() {
       return this._value;
     }
-    ["setValue"](newValue) {
-      this._value = newValue, this._dispatchQueue();
+    ["setValue"](_0x50f692) {
+      this._value = _0x50f692, this._dispatchQueue();
     }
-    ["release"](weight = 1) {
-      if (weight <= 0) throw new Error("invalid weight " + weight + ': must be positive');
-      this._value += weight, this._dispatchQueue();
+    ["release"](_0x150d6e = 1) {
+      if (_0x150d6e <= 0) throw new Error("invalid weight " + _0x150d6e + ': must be positive');
+      this._value += _0x150d6e, this._dispatchQueue();
     }
     ["cancel"]() {
-      this._queue.forEach(waiter => waiter.reject(this._cancelError)), this._queue = [];
+      this._queue.forEach(_0xdfbf8d => _0xdfbf8d.reject(this._cancelError)), this._queue = [];
     }
     ["_dispatchQueue"]() {
       for (this._drainUnlockWaiters(); this._queue.length > 0 && this._queue[0].weight <= this._value;) this._dispatchItem(this._queue.shift()), this._drainUnlockWaiters();
     }
-    ["_dispatchItem"](item) {
-      let currentValue = this._value;
-      this._value -= item.weight, item.resolve([currentValue, this._newReleaser(item.weight)]);
+    ["_dispatchItem"](_0x5b1201) {
+      let _0x33ba64 = this._value;
+      this._value -= _0x5b1201.weight, _0x5b1201.resolve([_0x33ba64, this._newReleaser(_0x5b1201.weight)]);
     }
-    ['_newReleaser'](weight) {
-      let released = false;
+    ['_newReleaser'](_0x4faebe) {
+      let _0x3596cb = false;
       return () => {
-        released || (released = true, this.release(weight));
+        _0x3596cb || (_0x3596cb = true, this.release(_0x4faebe));
       };
     }
     ['_drainUnlockWaiters']() {
-      if (this._queue.length === 0) for (let availableWeight = this._value; availableWeight > 0; availableWeight--) {
-        let waiters = this._weightedWaiters[availableWeight - 1];
-        waiters && (waiters.forEach(waiter => waiter.resolve()), this._weightedWaiters[availableWeight - 1] = []);
+      if (this._queue.length === 0) for (let _0x2f2947 = this._value; _0x2f2947 > 0; _0x2f2947--) {
+        let _0x473b46 = this._weightedWaiters[_0x2f2947 - 1];
+        _0x473b46 && (_0x473b46.forEach(_0x1ead18 => _0x1ead18.resolve()), this._weightedWaiters[_0x2f2947 - 1] = []);
       } else {
-        let queuePriority = this._queue[0].priority;
-        for (let weight = this._value; weight > 0; weight--) {
-          let weightWaiters = this._weightedWaiters[weight - 1];
-          if (!weightWaiters) continue;
-          let splitIndex = weightWaiters.findIndex(waiter => waiter.priority <= queuePriority);
-          (splitIndex === -1 ? weightWaiters : weightWaiters.splice(0, splitIndex)).forEach(waiterToResolve => waiterToResolve.resolve());
+        let _0x492173 = this._queue[0].priority;
+        for (let _0x24debb = this._value; _0x24debb > 0; _0x24debb--) {
+          let _0x38eeb0 = this._weightedWaiters[_0x24debb - 1];
+          if (!_0x38eeb0) continue;
+          let _0x2b8de1 = _0x38eeb0.findIndex(_0x24b5b7 => _0x24b5b7.priority <= _0x492173);
+          (_0x2b8de1 === -1 ? _0x38eeb0 : _0x38eeb0.splice(0, _0x2b8de1)).forEach(_0x5f41d2 => _0x5f41d2.resolve());
         }
       }
     }
-    ['_couldLockImmediately'](weight, priority) {
-      return (this._queue.length === 0 || this._queue[0].priority < priority) && weight <= this._value;
+    ['_couldLockImmediately'](_0x29ff0c, _0xeeb3fe) {
+      return (this._queue.length === 0 || this._queue[0].priority < _0xeeb3fe) && _0x29ff0c <= this._value;
     }
   },
-  x9e = function (thisArg, argumentsList, PromiseConstructor, generator) {
-    function adopt(value) {
-      return value instanceof PromiseConstructor ? value : new PromiseConstructor(function (resolve) {
-        resolve(value);
+  x9e = function (_0x23dec5, _0x382a51, _0x3fccb9, _0x393b37) {
+    function _0x21f58f(_0x3f67cf) {
+      return _0x3f67cf instanceof _0x3fccb9 ? _0x3f67cf : new _0x3fccb9(function (_0x7ba1ac) {
+        _0x7ba1ac(_0x3f67cf);
       });
     }
-    return new (PromiseConstructor || (PromiseConstructor = Promise))(function (resolveFn, rejectFn) {
-      function fulfilled(value) {
+    return new (_0x3fccb9 || (_0x3fccb9 = Promise))(function (_0x68f9, _0x129c6b) {
+      function _0x147510(_0x1f32ec) {
         try {
-          step(generator.next(value));
-        } catch (error) {
-          rejectFn(error);
+          _0x542c3c(_0x393b37.next(_0x1f32ec));
+        } catch (_0x2d580b) {
+          _0x129c6b(_0x2d580b);
         }
       }
       function _0x569aea(_0x29dcf5) {
         try {
-          step(generator.throw(_0x29dcf5));
+          _0x542c3c(_0x393b37.throw(_0x29dcf5));
         } catch (_0x4583e1) {
-          rejectFn(_0x4583e1);
+          _0x129c6b(_0x4583e1);
         }
       }
-      function step(_0x398914) {
-        _0x398914.done ? resolveFn(_0x398914.value) : adopt(_0x398914.value).then(fulfilled, _0x569aea);
+      function _0x542c3c(_0x398914) {
+        _0x398914.done ? _0x68f9(_0x398914.value) : _0x21f58f(_0x398914.value).then(_0x147510, _0x569aea);
       }
-      step((generator = generator.apply(thisArg, argumentsList || [])).next());
+      _0x542c3c((_0x393b37 = _0x393b37.apply(_0x23dec5, _0x382a51 || [])).next());
     });
   },
   Mutex = class {
@@ -2076,8 +2076,8 @@ var k9e = new Error("request for lock canceled"),
     ['isLocked']() {
       return this._semaphore.isLocked();
     }
-    ["waitForUnlock"](priority = 0) {
-      return this._semaphore.waitForUnlock(1, priority);
+    ["waitForUnlock"](_0x3f0aa9 = 0) {
+      return this._semaphore.waitForUnlock(1, _0x3f0aa9);
     }
     ['release']() {
       this._semaphore.isLocked() && this._semaphore.release();
@@ -2087,28 +2087,28 @@ var k9e = new Error("request for lock canceled"),
     }
   };
 /* [unbundle] sqlite3 已移至顶部导入区 */
-async function ensureFolderExists(folderPath, logger) {
+async function ensureFolderExists(_0x5d3f77, _0x2d922b) {
   try {
-    await (0, fs_promises_module.stat)(folderPath);
-  } catch (statError) {
-    logger.debug("Creating folder", statError);
+    await (0, fs_promises_module.stat)(_0x5d3f77);
+  } catch (_0x4f35d6) {
+    _0x2d922b.debug("Creating folder", _0x4f35d6);
     try {
-      await (0, fs_promises_module.mkdir)(folderPath);
-    } catch (mkdirError) {
-      if (mkdirError.code !== 'EEXIST') throw logger.warn("Error creating folder", mkdirError), mkdirError;
+      await (0, fs_promises_module.mkdir)(_0x5d3f77);
+    } catch (_0x1f090a) {
+      if (_0x1f090a.code !== 'EEXIST') throw _0x2d922b.warn("Error creating folder", _0x1f090a), _0x1f090a;
     }
   }
 }
-async function ensureOutputFolder(logger) {
-  let outputPath = path_module.join(os_module.homedir(), ".traycer");
-  return await ensureFolderExists(outputPath, logger), outputPath;
+async function ensureOutputFolder(_0x26fdd1) {
+  let _0x17fea5 = path_module.join(os_module.homedir(), ".traycer");
+  return await ensureFolderExists(_0x17fea5, _0x26fdd1), _0x17fea5;
 }
-async function ensureCacheFolder(logger) {
-  let cachePath = path_module.join(await ensureOutputFolder(logger), 'cache');
-  return await ensureFolderExists(cachePath, logger), cachePath;
+async function ensureCacheFolder(_0xdf9916) {
+  let _0x27c1aa = path_module.join(await ensureOutputFolder(_0xdf9916), 'cache');
+  return await ensureFolderExists(_0x27c1aa, _0xdf9916), _0x27c1aa;
 }
-async function getCacheDatabasePath(logger) {
-  return path_module.join(await ensureCacheFolder(logger), "cache.db");
+async function getCacheDatabasePath(_0x161dc6) {
+  return path_module.join(await ensureCacheFolder(_0x161dc6), "cache.db");
 }
 var GO,
   initSqliteService = __esmModule(() => {
@@ -2118,96 +2118,96 @@ var GO,
       ["logger"];
       ["mutex"] = new Mutex();
       ['isShuttingDown'] = false;
-      constructor(loggerInstance) {
-        this.logger = loggerInstance;
+      constructor(_0x1f239a) {
+        this.logger = _0x1f239a;
       }
-      static ['getInstance'](logger) {
-        return _0xe8f64e.instance || (_0xe8f64e.instance = new _0xe8f64e(logger)), _0xe8f64e.instance;
+      static ['getInstance'](_0x248aba) {
+        return _0xe8f64e.instance || (_0xe8f64e.instance = new _0xe8f64e(_0x248aba)), _0xe8f64e.instance;
       }
       async ["getConnection"]() {
-        let releaseLock = await this.mutex.acquire();
+        let _0x142273 = await this.mutex.acquire();
         try {
           return await (0, fs_promises_module.stat)(await getCacheDatabasePath(this.logger)), this.dbConnection ? this.dbConnection : (this.dbConnection = await this.openConnection(this.logger), this.dbConnection);
-        } catch (error) {
-          return this.logger.debug("Database file not found or connection error, creating new connection: " + error), this.dbConnection = await this.openConnection(this.logger), this.dbConnection;
+        } catch (_0x231d6e) {
+          return this.logger.debug("Database file not found or connection error, creating new connection: " + _0x231d6e), this.dbConnection = await this.openConnection(this.logger), this.dbConnection;
         } finally {
-          releaseLock();
+          _0x142273();
         }
       }
       async ['shutdown']() {
         this.isShuttingDown = true;
-        let releaseLock = await this.mutex.acquire();
+        let _0x230dcd = await this.mutex.acquire();
         try {
           this.dbConnection && (await this.dbConnection.close(), this.dbConnection = null);
         } finally {
-          releaseLock();
+          _0x230dcd();
         }
       }
-      async ['openConnection'](logger) {
-        let dbConnection = await sqlite_module.open({
-          filename: await getCacheDatabasePath(logger),
+      async ['openConnection'](_0x33ed51) {
+        let _0x21f3db = await sqlite_module.open({
+          filename: await getCacheDatabasePath(_0x33ed51),
           driver: sqlite3_module.Database
         });
-        return await _0xe8f64e.createTables(dbConnection), dbConnection;
+        return await _0xe8f64e.createTables(_0x21f3db), _0x21f3db;
       }
-      async ['withRecovery'](operation) {
-        let connection = await this.getConnection();
+      async ['withRecovery'](_0x17b3a4) {
+        let _0x48a58e = await this.getConnection();
         try {
-          return await operation(connection);
-        } catch (error) {
-          throw error instanceof Error && isDatabaseError(error) && !this.isShuttingDown && (await connection.close(), this.dbConnection = null), error;
+          return await _0x17b3a4(_0x48a58e);
+        } catch (_0x18d110) {
+          throw _0x18d110 instanceof Error && isDatabaseError(_0x18d110) && !this.isShuttingDown && (await _0x48a58e.close(), this.dbConnection = null), _0x18d110;
         }
       }
-      ["execute"](sql, params = []) {
-        return this.withRecovery(conn => conn.run(sql, params));
+      ["execute"](_0x243a41, _0x2e79c4 = []) {
+        return this.withRecovery(_0x3fe82a => _0x3fe82a.run(_0x243a41, _0x2e79c4));
       }
-      ['query'](sql, params = []) {
-        return this.withRecovery(conn => conn.get(sql, params));
+      ['query'](_0x216f91, _0x4b77b1 = []) {
+        return this.withRecovery(_0x412511 => _0x412511.get(_0x216f91, _0x4b77b1));
       }
-      static async ["createTables"](connection) {
-        await connection.exec("PRAGMA busy_timeout=10000;"), await connection.exec('PRAGMA journal_mode=WAL;'), await connection.exec("PRAGMA synchronous=NORMAL;"), await connection.exec("PRAGMA cache_size=-2048;"), await connection.exec("\n      CREATE TABLE IF NOT EXISTS summary_cache (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        cacheKey TEXT NOT NULL UNIQUE,\n        value TEXT NOT NULL,\n        hash TEXT NOT NULL,\n        created_at DATETIME DEFAULT CURRENT_TIMESTAMP\n      )\n    ");
+      static async ["createTables"](_0x43b0bb) {
+        await _0x43b0bb.exec("PRAGMA busy_timeout=10000;"), await _0x43b0bb.exec('PRAGMA journal_mode=WAL;'), await _0x43b0bb.exec("PRAGMA synchronous=NORMAL;"), await _0x43b0bb.exec("PRAGMA cache_size=-2048;"), await _0x43b0bb.exec("\n      CREATE TABLE IF NOT EXISTS summary_cache (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        cacheKey TEXT NOT NULL UNIQUE,\n        value TEXT NOT NULL,\n        hash TEXT NOT NULL,\n        created_at DATETIME DEFAULT CURRENT_TIMESTAMP\n      )\n    ");
       }
-      async ["getSummaryFromCache"](cacheKey) {
-        let result = await this.query('SELECT value, hash FROM summary_cache WHERE cacheKey = ?', [cacheKey]);
-        return result ? {
-          cacheKey: cacheKey,
-          value: result.value,
-          hash: result.hash
-        } : (this.logger.debug('No summary found for cacheKey: ' + cacheKey), null);
+      async ["getSummaryFromCache"](_0x47a268) {
+        let _0x48acf4 = await this.query('SELECT value, hash FROM summary_cache WHERE cacheKey = ?', [_0x47a268]);
+        return _0x48acf4 ? {
+          cacheKey: _0x47a268,
+          value: _0x48acf4.value,
+          hash: _0x48acf4.hash
+        } : (this.logger.debug('No summary found for cacheKey: ' + _0x47a268), null);
       }
       async ['setSummaryToCache'](_0x4719d2, _0x34812d, _0x37f1e2) {
         await this.execute('INSERT INTO summary_cache (cacheKey, value, hash) VALUES (?, ?, ?)\x0a       ON CONFLICT(cacheKey) DO UPDATE SET value = excluded.value, hash = excluded.hash', [_0x4719d2, _0x34812d, _0x37f1e2]);
       }
-      async ['invalidateCache'](cacheKey) {
-        await this.execute("DELETE FROM summary_cache WHERE cacheKey = ?", [cacheKey]);
+      async ['invalidateCache'](_0x44c5f0) {
+        await this.execute("DELETE FROM summary_cache WHERE cacheKey = ?", [_0x44c5f0]);
       }
     };
   }),
   /* [unbundle] Wce = require('node:crypto') 已移至顶部导入区 crypto_module */
   SummaryCacheService = class _0x2aacb8 {
     ["dbService"];
-    constructor(dbService) {
-      this.dbService = dbService;
+    constructor(_0x250e31) {
+      this.dbService = _0x250e31;
     }
     async ['shutdown']() {
       await this.dbService.shutdown();
     }
-    async ['getSummaryFromCache'](cacheKey, content) {
-      let cachedData = await this.dbService.getSummaryFromCache(cacheKey);
-      if (cachedData) {
-        if ((await _0x2aacb8.calculateHashAsync(content)) === cachedData.hash) return cachedData.value;
-        await this.dbService.invalidateCache(cacheKey);
+    async ['getSummaryFromCache'](_0x323614, _0x5e924a) {
+      let _0x348058 = await this.dbService.getSummaryFromCache(_0x323614);
+      if (_0x348058) {
+        if ((await _0x2aacb8.calculateHashAsync(_0x5e924a)) === _0x348058.hash) return _0x348058.value;
+        await this.dbService.invalidateCache(_0x323614);
       }
       return '';
     }
-    async ["setSummaryToCache"](cacheKey, value, content, metadata) {
-      let hash = await _0x2aacb8.calculateHashAsync(content);
-      await this.dbService.setSummaryToCache(cacheKey, value, hash, metadata);
+    async ["setSummaryToCache"](_0x59dfbb, _0x1f1aa9, _0x398501, _0x4cd420) {
+      let _0x4c87b3 = await _0x2aacb8.calculateHashAsync(_0x398501);
+      await this.dbService.setSummaryToCache(_0x59dfbb, _0x1f1aa9, _0x4c87b3, _0x4cd420);
     }
-    static async ["calculateHashAsync"](content) {
-      let encoded = new TextEncoder().encode(content),
-        hashBuffer = await crypto_module.webcrypto.subtle.digest('SHA-256', encoded);
-      return Array.from(new Uint8Array(hashBuffer)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+    static async ["calculateHashAsync"](_0x3c5e7b) {
+      let _0x125191 = new TextEncoder().encode(_0x3c5e7b),
+        _0x4e817a = await crypto_module.webcrypto.subtle.digest('SHA-256', _0x125191);
+      return Array.from(new Uint8Array(_0x4e817a)).map(_0x3df838 => _0x3df838.toString(16).padStart(2, '0')).join('');
     }
   },
   LlmCacheHandler,
@@ -2215,15 +2215,15 @@ var GO,
     'use strict';
 
     initPathModule(), initDocumentManager(), initWorkspaceInfo(), initSqliteService(), LlmCacheHandler = class _0x31bc7c {
-      constructor(cacheService) {
-        this.llmCache = cacheService;
+      constructor(_0x46d11a) {
+        this.llmCache = _0x46d11a;
       }
       static async ["getInstance"]() {
         if (!_0x31bc7c.instance) {
-          let workspaceInfo = me.getInstance(),
-            dbService = GO.getInstance(workspaceInfo.getLogger()),
-            cacheService = new SummaryCacheService(dbService);
-          _0x31bc7c.instance = new _0x31bc7c(cacheService);
+          let _0x4fae2a = me.getInstance(),
+            _0x48aa46 = GO.getInstance(_0x4fae2a.getLogger()),
+            _0xba957a = new SummaryCacheService(_0x48aa46);
+          _0x31bc7c.instance = new _0x31bc7c(_0xba957a);
         }
         return _0x31bc7c.instance;
       }
@@ -2233,30 +2233,30 @@ var GO,
       async ['runShutdownInBackground']() {
         try {
           await this.llmCache.shutdown(), _0x31bc7c.instance = null;
-        } catch (error) {
-          Logger.error(error, 'Failed to shutdown cache handler');
+        } catch (_0x295c81) {
+          Logger.error(_0x295c81, 'Failed to shutdown cache handler');
         }
       }
-      async ['getSummaryFromCache'](cacheKey, content) {
+      async ['getSummaryFromCache'](_0xecb0a5, _0xb09b81) {
         try {
-          return await this.llmCache.getSummaryFromCache(cacheKey, content);
-        } catch (error) {
-          return Logger.error('Error getting summary from cache for ' + cacheKey, error), '';
+          return await this.llmCache.getSummaryFromCache(_0xecb0a5, _0xb09b81);
+        } catch (_0x508ecc) {
+          return Logger.error('Error getting summary from cache for ' + _0xecb0a5, _0x508ecc), '';
         }
       }
-      async ['setSummaryToCache'](filePath, summary) {
+      async ['setSummaryToCache'](_0x35e77a, _0x4aac3b) {
         try {
-          let absolutePath = TraycerPath.fromPathProto(filePath).absPath,
-            sourceCode = await In.getSourceCode(absolutePath);
-          await this.llmCache.setSummaryToCache(absolutePath, summary, sourceCode, null);
-        } catch (error) {
-          Logger.error("Error setting summary to cache for " + filePath, error);
+          let _0x45aed9 = TraycerPath.fromPathProto(_0x35e77a).absPath,
+            _0x2a483b = await In.getSourceCode(_0x45aed9);
+          await this.llmCache.setSummaryToCache(_0x45aed9, _0x4aac3b, _0x2a483b, null);
+        } catch (_0x4ace6d) {
+          Logger.error("Error setting summary to cache for " + _0x35e77a, _0x4ace6d);
         }
       }
     };
   });
-function getWorkspaceRootPath(uri) {
-  return vscode_module.languages.getDiagnostics(uri);
+function getWorkspaceRootPath(_0x479aed) {
+  return vscode_module.languages.getDiagnostics(_0x479aed);
 }
 async function getDiagnosticsForFile(_0x993928, _0x2eeeaf) {
   let _0x175edc = TraycerPath.fromPathProto(_0x993928),
@@ -2264,29 +2264,29 @@ async function getDiagnosticsForFile(_0x993928, _0x2eeeaf) {
   try {
     let _0xa788b = getWorkspaceRootPath(_0x2302aa),
       _0x5f3657 = [];
-    return await Promise.allSettled(_0xa788b.map(async diagnostic => {
-      if (_0x2eeeaf !== void 0 && diagnostic.severity !== _0x2eeeaf) return;
-      let relatedInfo = [],
-        relatedPromises = (diagnostic.relatedInformation ?? []).map(async related => {
-          let relatedItem = {
+    return await Promise.allSettled(_0xa788b.map(async _0x29ecf2 => {
+      if (_0x2eeeaf !== void 0 && _0x29ecf2.severity !== _0x2eeeaf) return;
+      let _0x3f672b = [],
+        _0x235844 = (_0x29ecf2.relatedInformation ?? []).map(async _0x26bac4 => {
+          let _0x1da05e = {
             location: {
-              range: LineRange.fromEndLine(related.location.range.start.line, related.location.range.end.line).rangeOutput,
-              path: (await TraycerPath.fromPath(related.location.uri.fsPath)).proto
+              range: LineRange.fromEndLine(_0x26bac4.location.range.start.line, _0x26bac4.location.range.end.line).rangeOutput,
+              path: (await TraycerPath.fromPath(_0x26bac4.location.uri.fsPath)).proto
             },
-            message: related.message
+            message: _0x26bac4.message
           };
-          relatedInfo.push(relatedItem);
+          _0x3f672b.push(_0x1da05e);
         });
-      await Promise.allSettled(relatedPromises), _0x5f3657.push({
-        info: relatedInfo,
-        message: diagnostic.message,
-        range: LineRange.fromEndLine(diagnostic.range.start.line, diagnostic.range.end.line).rangeOutput,
-        severity: vscode_module.DiagnosticSeverity[diagnostic.severity ?? 0],
-        tags: diagnostic.tags?.['map'](_0x35cd57 => vscode_module.DiagnosticTag[_0x35cd57 ?? 0]) ?? [],
-        source: diagnostic.source,
-        code: diagnostic.code ? {
-          value: typeof diagnostic.code == 'object' ? diagnostic.code.value.toString() : diagnostic.code.toString(),
-          targetUri: typeof diagnostic.code == "object" ? diagnostic.code.target.fsPath : void 0
+      await Promise.allSettled(_0x235844), _0x5f3657.push({
+        info: _0x3f672b,
+        message: _0x29ecf2.message,
+        range: LineRange.fromEndLine(_0x29ecf2.range.start.line, _0x29ecf2.range.end.line).rangeOutput,
+        severity: vscode_module.DiagnosticSeverity[_0x29ecf2.severity ?? 0],
+        tags: _0x29ecf2.tags?.['map'](_0x35cd57 => vscode_module.DiagnosticTag[_0x35cd57 ?? 0]) ?? [],
+        source: _0x29ecf2.source,
+        code: _0x29ecf2.code ? {
+          value: typeof _0x29ecf2.code == 'object' ? _0x29ecf2.code.value.toString() : _0x29ecf2.code.toString(),
+          targetUri: typeof _0x29ecf2.code == "object" ? _0x29ecf2.code.target.fsPath : void 0
         } : void 0
       });
     })), {
@@ -2808,7 +2808,7 @@ var ox,
         await (await this.getConnection()).run("DELETE FROM " + _0x38954a);
       }
       async ['runInTransaction'](_0x5b2034) {
-        let _0x131b3a = await p_retry.default,
+        let _0x131b3a = await p_retry_module.default,
           _0x5c16da = false;
         return _0x131b3a(async () => this.writeLock.runExclusive(async () => {
           _0x5c16da && (await this.closeAndReOpenConnection(), _0x5c16da = false);
@@ -15505,10 +15505,399 @@ var Mit = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d*)?(?:Z|[-+]\d{2}:?\d{2})?
   /* [dead-code] bH removed */
   /* [dead-code] rwe removed */
   /* [dead-code] CH removed */
-  /* [dead-code] iwe removed */
+  /* [dead-code] iwe removed */,
+  awe = {};
+__export(awe, {
+  createSupportsColor: () => createSupportsColorInstance,
+  default: () => ist
+});
+function hasCliFlag(_0x132aed, _0x461f49 = globalThis.Deno ? globalThis.Deno.args : eL.default.argv) {
+  let _0x5679f6 = _0x132aed.startsWith('-') ? '' : _0x132aed.length === 1 ? '-' : '--',
+    _0x4497fb = _0x461f49.indexOf(_0x5679f6 + _0x132aed),
+    _0x57f271 = _0x461f49.indexOf('--');
+  return _0x4497fb !== -1 && (_0x57f271 === -1 || _0x4497fb < _0x57f271);
+}
+function parseForceColorEnv() {
+  if ("FORCE_COLOR" in dn) return dn.FORCE_COLOR === 'true' ? 1 : dn.FORCE_COLOR === "false" ? 0 : dn.FORCE_COLOR.length === 0 ? 1 : Math.min(Number.parseInt(dn.FORCE_COLOR, 10), 3);
+}
+function createColorSupport(_0x4fd103) {
+  return _0x4fd103 === 0 ? false : {
+    level: _0x4fd103,
+    hasBasic: true,
+    has256: _0x4fd103 >= 2,
+    has16m: _0x4fd103 >= 3
+  };
+}
+function detectColorSupportLevel(_0x39012d, {
+  streamIsTTY: _0x19dc79,
+  sniffFlags: _0x1f09de = true
+} = {}) {
+  let _0x3c57b9 = parseForceColorEnv();
+  _0x3c57b9 !== void 0 && (ZN = _0x3c57b9);
+  let _0xb44f1f = _0x1f09de ? ZN : _0x3c57b9;
+  if (_0xb44f1f === 0) return 0;
+  if (_0x1f09de) {
+    if (hasCliFlag('color=16m') || hasCliFlag("color=full") || hasCliFlag("color=truecolor")) return 3;
+    if (hasCliFlag('color=256')) return 2;
+  }
+  if ("TF_BUILD" in dn && 'AGENT_NAME' in dn) return 1;
+  if (_0x39012d && !_0x19dc79 && _0xb44f1f === void 0) return 0;
+  let _0xf1628a = _0xb44f1f || 0;
+  if (dn.TERM === "dumb") return _0xf1628a;
+  if (eL.default.platform === "win32") {
+    let _0x55ffbc = swe.default.release().split('.');
+    return Number(_0x55ffbc[0]) >= 10 && Number(_0x55ffbc[2]) >= 10586 ? Number(_0x55ffbc[2]) >= 14931 ? 3 : 2 : 1;
+  }
+  if ('CI' in dn) return "GITHUB_ACTIONS" in dn || "GITEA_ACTIONS" in dn ? 3 : ['TRAVIS', "CIRCLECI", 'APPVEYOR', "GITLAB_CI", "BUILDKITE", "DRONE"].some(_0x5f4c43 => _0x5f4c43 in dn) || dn.CI_NAME === 'codeship' ? 1 : _0xf1628a;
+  if ('TEAMCITY_VERSION' in dn) return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(dn.TEAMCITY_VERSION) ? 1 : 0;
+  if (dn.COLORTERM === 'truecolor' || dn.TERM === "xterm-kitty") return 3;
+  if ("TERM_PROGRAM" in dn) {
+    let _0x3715cd = Number.parseInt((dn.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
+    switch (dn.TERM_PROGRAM) {
+      case "iTerm.app":
+        return _0x3715cd >= 3 ? 3 : 2;
+      case 'Apple_Terminal':
+        return 2;
+    }
+  }
+  return /-256(color)?$/i.test(dn.TERM) ? 2 : /^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(dn.TERM) || 'COLORTERM' in dn ? 1 : _0xf1628a;
+}
+function createSupportsColorInstance(_0x5319de, _0x51c417 = {}) {
+  let _0x318424 = detectColorSupportLevel(_0x5319de, {
+    streamIsTTY: _0x5319de && _0x5319de.isTTY,
+    ..._0x51c417
+  });
+  return createColorSupport(_0x318424);
+}
+var eL, swe, dn, ZN, ist
+  /* [dead-code] owe removed */
+  /* [dead-code] cwe removed */
+  /* [dead-code] RH removed */
+  /* [dead-code] pwe removed */
+  /* [dead-code] _we removed */
+  /* [dead-code] gwe removed */
+  /* [dead-code] wwe removed */;
+var Pwe
+/* [dead-code] bwe removed */
 
-
-
+/* [dead-code] Awe removed */;
+var Qu
+  /* [dead-code] Qb removed */, nh
+  /* [dead-code] DH removed */;
+var ih
+  /* [dead-code] oL removed */,
+  Rs
+  /* [dead-code] LH removed */,
+  Nwe,
+  Lwe
+  /* [dead-code] lL removed */
+  /* [dead-code] Uwe removed */,
+  qwe,
+  Gwe,
+  $we,
+  Wwe,
+  Ywe = {};
+__export(Ywe, {
+  toFormData: () => parseMultipartFormData
+});
+function parseContentDispositionFilename(_0x1d6515) {
+  let _0x50f559 = _0x1d6515.match(/\bfilename=("(.*?)"|([^()<>@,;:\\"/[\]?={}\s\t]+))($|;\s)/i);
+  if (!_0x50f559) return;
+  let _0x2efcfc = _0x50f559[2] || _0x50f559[3] || '',
+    _0xcb679 = _0x2efcfc.slice(_0x2efcfc.lastIndexOf('\x5c') + 1);
+  return _0xcb679 = _0xcb679.replace(/%22/g, '\x22'), _0xcb679 = _0xcb679.replace(/&#(\d{4});/g, (_0xf19761, _0x378376) => String.fromCharCode(_0x378376)), _0xcb679;
+}
+async function parseMultipartFormData(_0x18d455, _0x5bc0b9) {
+  if (!/multipart/i.test(_0x5bc0b9)) throw new TypeError("Failed to fetch");
+  let _0x225707 = _0x5bc0b9.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
+  if (!_0x225707) throw new TypeError('no or bad content-type header, no multipart boundary');
+  let _0x521439 = new BH(_0x225707[1] || _0x225707[2]),
+    _0x1106d5,
+    _0x37a98f,
+    _0x529734,
+    _0x1bb36c,
+    _0x5ac054,
+    _0x5cd9bf,
+    _0x4e3a8a = [],
+    _0x1eed4c = new ih(),
+    _0x24b0f7 = _0x23e2ca => {
+      _0x529734 += _0x3f56cc.decode(_0x23e2ca, {
+        stream: true
+      });
+    },
+    _0x15fb8c = _0x37a5a4 => {
+      _0x4e3a8a.push(_0x37a5a4);
+    },
+    _0x186e34 = () => {
+      let _0x3ccf77 = new nh(_0x4e3a8a, _0x5cd9bf, {
+        type: _0x5ac054
+      });
+      _0x1eed4c.append(_0x1bb36c, _0x3ccf77);
+    },
+    _0x4a178e = () => {
+      _0x1eed4c.append(_0x1bb36c, _0x529734);
+    },
+    _0x3f56cc = new TextDecoder("utf-8");
+  _0x3f56cc.decode(), _0x521439.onPartBegin = function () {
+    _0x521439.onPartData = _0x24b0f7, _0x521439.onPartEnd = _0x4a178e, _0x1106d5 = '', _0x37a98f = '', _0x529734 = '', _0x1bb36c = '', _0x5ac054 = '', _0x5cd9bf = null, _0x4e3a8a.length = 0;
+  }, _0x521439.onHeaderField = function (_0x524889) {
+    _0x1106d5 += _0x3f56cc.decode(_0x524889, {
+      stream: true
+    });
+  }, _0x521439.onHeaderValue = function (_0x6e4e17) {
+    _0x37a98f += _0x3f56cc.decode(_0x6e4e17, {
+      stream: true
+    });
+  }, _0x521439.onHeaderEnd = function () {
+    if (_0x37a98f += _0x3f56cc.decode(), _0x1106d5 = _0x1106d5.toLowerCase(), _0x1106d5 === 'content-disposition') {
+      let _0x5527e2 = _0x37a98f.match(/\bname=("([^"]*)"|([^()<>@,;:\\"/[\]?={}\s\t]+))/i);
+      _0x5527e2 && (_0x1bb36c = _0x5527e2[2] || _0x5527e2[3] || ''), _0x5cd9bf = parseContentDispositionFilename(_0x37a98f), _0x5cd9bf && (_0x521439.onPartData = _0x15fb8c, _0x521439.onPartEnd = _0x186e34);
+    } else _0x1106d5 === "content-type" && (_0x5ac054 = _0x37a98f);
+    _0x37a98f = '', _0x1106d5 = '';
+  };
+  for await (let key of _0x18d455) _0x521439.write(key);
+  return _0x521439.end(), _0x1eed4c;
+}
+var BH
+/* [dead-code] Kwe removed */;
+var nT, Jwe
+  /* [dead-code] mL removed */;
+function createHeadersFromPairs(_0x498cf8 = []) {
+  return new ma(_0x498cf8.reduce((_0x403669, _0x3a0274, _0x166193, _0x154fb3) => (_0x166193 % 2 === 0 && _0x403669.push(_0x154fb3.slice(_0x166193, _0x166193 + 2)), _0x403669), []).filter(([_0x52720b, _0xc3ac03]) => {
+    try {
+      return _L(_0x52720b), $H(_0x52720b, String(_0xc3ac03)), true;
+    } catch {
+      return false;
+    }
+  }));
+}
+var _L, $H, ma
+  /* [dead-code] gL removed */, tC
+  /* [dead-code] WH removed */, Ya
+  /* [dead-code] Zwe removed */;
+function parseReferrerPolicy(_0x37b45c) {
+  let _0xf3f7a4 = (_0x37b45c.get("referrer-policy") || '').split(/[,\s]+/),
+    _0x35bcb2 = '';
+  for (let key of _0xf3f7a4) key && iPe.has(key) && (_0x35bcb2 = key);
+  return _0x35bcb2;
+}
+var iPe,
+  ah,
+  dPe
+  /* [dead-code] pPe removed */,
+  nC
+  /* [dead-code] fPe removed */,
+  _Pe = {};
+__export(_Pe, {
+  AbortError: () => nC,
+  Blob: () => Qu,
+  FetchError: () => Rs,
+  File: () => nh,
+  FormData: () => ih,
+  Headers: () => ma,
+  Request: () => ah,
+  Response: () => Ya,
+  blobFrom: () => Gwe,
+  blobFromSync: () => qwe,
+  default: () => nodeFetch,
+  fileFrom: () => $we,
+  fileFromSync: () => Wwe,
+  isRedirect: () => tC
+});
+async function nodeFetch(_0x3ecf89, _0x370198) {
+  return new Promise((_0x5cc489, _0x3c8de2) => {
+    let _0x46b8be = new ah(_0x3ecf89, _0x370198),
+      {
+        parsedURL: _0x23d0e7,
+        options: _0x1c0207
+      } = dPe(_0x46b8be);
+    if (!Zst.has(_0x23d0e7.protocol)) throw new TypeError('node-fetch cannot load ' + _0x3ecf89 + ". URL scheme \"" + _0x23d0e7.protocol.replace(/:$/, '') + '\x22 is not supported.');
+    if (_0x23d0e7.protocol === 'data:') {
+      let _0x439237 = Pwe(_0x46b8be.url),
+        _0x30a2a8 = new Ya(_0x439237, {
+          headers: {
+            'Content-Type': _0x439237.typeFull
+          }
+        });
+      _0x5cc489(_0x30a2a8);
+      return;
+    }
+    let _0xbca6f6 = (_0x23d0e7.protocol === 'https:' ? mPe.default : hPe.default).request,
+      {
+        signal: _0x8c2c50
+      } = _0x46b8be,
+      _0x14a1b0 = null,
+      _0x37e97e = () => {
+        let _0x2c6da5 = new nC('The operation was aborted.');
+        _0x3c8de2(_0x2c6da5), _0x46b8be.body && _0x46b8be.body instanceof Ka.default.Readable && _0x46b8be.body.destroy(_0x2c6da5), !(!_0x14a1b0 || !_0x14a1b0.body) && _0x14a1b0.body.emit("error", _0x2c6da5);
+      };
+    if (_0x8c2c50 && _0x8c2c50.aborted) {
+      _0x37e97e();
+      return;
+    }
+    let _0x495444 = () => {
+        _0x37e97e(), _0xf7f698();
+      },
+      _0x4583aa = _0xbca6f6(_0x23d0e7.toString(), _0x1c0207);
+    _0x8c2c50 && _0x8c2c50.addEventListener('abort', _0x495444);
+    let _0xf7f698 = () => {
+      _0x4583aa.abort(), _0x8c2c50 && _0x8c2c50.removeEventListener('abort', _0x495444);
+    };
+    _0x4583aa.on('error', _0x5209ca => {
+      _0x3c8de2(new Rs("request to " + _0x46b8be.url + ' failed, reason: ' + _0x5209ca.message, "system", _0x5209ca)), _0xf7f698();
+    }), handleChunkedTransferEncoding(_0x4583aa, _0xa10bb8 => {
+      _0x14a1b0 && _0x14a1b0.body && _0x14a1b0.body.destroy(_0xa10bb8);
+    }), process.version < "v14" && _0x4583aa.on('socket', _0x467a1c => {
+      let _0x10acfd;
+      _0x467a1c.prependListener('end', () => {
+        _0x10acfd = _0x467a1c._eventsCount;
+      }), _0x467a1c.prependListener('close', _0x54f330 => {
+        if (_0x14a1b0 && _0x10acfd < _0x467a1c._eventsCount && !_0x54f330) {
+          let _0x615ce = new Error('Premature close');
+          _0x615ce.code = "ERR_STREAM_PREMATURE_CLOSE", _0x14a1b0.body.emit("error", _0x615ce);
+        }
+      });
+    }), _0x4583aa.on('response', _0x2dc86a => {
+      _0x4583aa.setTimeout(0);
+      let _0x501d4d = createHeadersFromPairs(_0x2dc86a.rawHeaders);
+      if (tC(_0x2dc86a.statusCode)) {
+        let _0x44cc22 = _0x501d4d.get('Location'),
+          _0xeca132 = null;
+        try {
+          _0xeca132 = _0x44cc22 === null ? null : new URL(_0x44cc22, _0x46b8be.url);
+        } catch {
+          if (_0x46b8be.redirect !== 'manual') {
+            _0x3c8de2(new Rs("uri requested responds with an invalid redirect URL: " + _0x44cc22, 'invalid-redirect')), _0xf7f698();
+            return;
+          }
+        }
+        switch (_0x46b8be.redirect) {
+          case 'error':
+            _0x3c8de2(new Rs("uri requested responds with a redirect, redirect mode is set to error: " + _0x46b8be.url, 'no-redirect')), _0xf7f698();
+            return;
+          case 'manual':
+            break;
+          case "follow":
+            {
+              if (_0xeca132 === null) break;
+              if (_0x46b8be.counter >= _0x46b8be.follow) {
+                _0x3c8de2(new Rs('maximum redirect reached at: ' + _0x46b8be.url, 'max-redirect')), _0xf7f698();
+                return;
+              }
+              let _0x380988 = {
+                headers: new ma(_0x46b8be.headers),
+                follow: _0x46b8be.follow,
+                counter: _0x46b8be.counter + 1,
+                agent: _0x46b8be.agent,
+                compress: _0x46b8be.compress,
+                method: _0x46b8be.method,
+                body: nT(_0x46b8be),
+                signal: _0x46b8be.signal,
+                size: _0x46b8be.size,
+                referrer: _0x46b8be.referrer,
+                referrerPolicy: _0x46b8be.referrerPolicy
+              };
+              if (!Nwe(_0x46b8be.url, _0xeca132) || !Lwe(_0x46b8be.url, _0xeca132)) {
+                for (let key of ["authorization", 'www-authenticate', "cookie", 'cookie2']) _0x380988.headers.delete(key);
+              }
+              if (_0x2dc86a.statusCode !== 303 && _0x46b8be.body && _0x370198.body instanceof Ka.default.Readable) {
+                _0x3c8de2(new Rs('Cannot follow redirect with body being a readable stream', "unsupported-redirect")), _0xf7f698();
+                return;
+              }
+              (_0x2dc86a.statusCode === 303 || (_0x2dc86a.statusCode === 301 || _0x2dc86a.statusCode === 302) && _0x46b8be.method === 'POST') && (_0x380988.method = "GET", _0x380988.body = void 0, _0x380988.headers.delete("content-length"));
+              let _0x2389f8 = parseReferrerPolicy(_0x501d4d);
+              _0x2389f8 && (_0x380988.referrerPolicy = _0x2389f8), _0x5cc489(nodeFetch(new ah(_0xeca132, _0x380988))), _0xf7f698();
+              return;
+            }
+          default:
+            return _0x3c8de2(new TypeError("Redirect option '" + _0x46b8be.redirect + "' is not a valid value of RequestRedirect"));
+        }
+      }
+      _0x8c2c50 && _0x2dc86a.once("end", () => {
+        _0x8c2c50.removeEventListener('abort', _0x495444);
+      });
+      let _0x102b85 = (0, Ka.pipeline)(_0x2dc86a, new Ka.PassThrough(), _0x14191e => {
+        _0x14191e && _0x3c8de2(_0x14191e);
+      });
+      process.version < "v12.10" && _0x2dc86a.on('aborted', _0x495444);
+      let _0x456913 = {
+          url: _0x46b8be.url,
+          status: _0x2dc86a.statusCode,
+          statusText: _0x2dc86a.statusMessage,
+          headers: _0x501d4d,
+          size: _0x46b8be.size,
+          counter: _0x46b8be.counter,
+          highWaterMark: _0x46b8be.highWaterMark
+        },
+        _0x50f10c = _0x501d4d.get('Content-Encoding');
+      if (!_0x46b8be.compress || _0x46b8be.method === 'HEAD' || _0x50f10c === null || _0x2dc86a.statusCode === 204 || _0x2dc86a.statusCode === 304) {
+        _0x14a1b0 = new Ya(_0x102b85, _0x456913), _0x5cc489(_0x14a1b0);
+        return;
+      }
+      let _0x4f38d3 = {
+        flush: yg.default.Z_SYNC_FLUSH,
+        finishFlush: yg.default.Z_SYNC_FLUSH
+      };
+      if (_0x50f10c === "gzip" || _0x50f10c === "x-gzip") {
+        _0x102b85 = (0, Ka.pipeline)(_0x102b85, yg.default.createGunzip(_0x4f38d3), _0xf7c217 => {
+          _0xf7c217 && _0x3c8de2(_0xf7c217);
+        }), _0x14a1b0 = new Ya(_0x102b85, _0x456913), _0x5cc489(_0x14a1b0);
+        return;
+      }
+      if (_0x50f10c === 'deflate' || _0x50f10c === "x-deflate") {
+        let _0x2627b5 = (0, Ka.pipeline)(_0x2dc86a, new Ka.PassThrough(), _0x912c09 => {
+          _0x912c09 && _0x3c8de2(_0x912c09);
+        });
+        _0x2627b5.once("data", _0x2a0e73 => {
+          (_0x2a0e73[0] & 15) === 8 ? _0x102b85 = (0, Ka.pipeline)(_0x102b85, yg.default.createInflate(), _0x470e4f => {
+            _0x470e4f && _0x3c8de2(_0x470e4f);
+          }) : _0x102b85 = (0, Ka.pipeline)(_0x102b85, yg.default.createInflateRaw(), _0x39d8d6 => {
+            _0x39d8d6 && _0x3c8de2(_0x39d8d6);
+          }), _0x14a1b0 = new Ya(_0x102b85, _0x456913), _0x5cc489(_0x14a1b0);
+        }), _0x2627b5.once("end", () => {
+          _0x14a1b0 || (_0x14a1b0 = new Ya(_0x102b85, _0x456913), _0x5cc489(_0x14a1b0));
+        });
+        return;
+      }
+      if (_0x50f10c === 'br') {
+        _0x102b85 = (0, Ka.pipeline)(_0x102b85, yg.default.createBrotliDecompress(), _0xc47dea => {
+          _0xc47dea && _0x3c8de2(_0xc47dea);
+        }), _0x14a1b0 = new Ya(_0x102b85, _0x456913), _0x5cc489(_0x14a1b0);
+        return;
+      }
+      _0x14a1b0 = new Ya(_0x102b85, _0x456913), _0x5cc489(_0x14a1b0);
+    }), Jwe(_0x4583aa, _0x46b8be).catch(_0x3c8de2);
+  });
+}
+function handleChunkedTransferEncoding(_0x21ec6d, _0x50713d) {
+  let _0x46bc58 = iC.Buffer.from('0\x0d\x0a\x0d\x0a'),
+    _0x820d26 = false,
+    _0x22b073 = false,
+    _0x393e12;
+  _0x21ec6d.on("response", _0x48991e => {
+    let {
+      headers: _0x1cb677
+    } = _0x48991e;
+    _0x820d26 = _0x1cb677["transfer-encoding"] === 'chunked' && !_0x1cb677['content-length'];
+  }), _0x21ec6d.on("socket", _0x14cd24 => {
+    let _0x276830 = () => {
+        if (_0x820d26 && !_0x22b073) {
+          let _0x3e76aa = new Error('Premature close');
+          _0x3e76aa.code = "ERR_STREAM_PREMATURE_CLOSE", _0x50713d(_0x3e76aa);
+        }
+      },
+      _0x38eedf = _0x1a7459 => {
+        _0x22b073 = iC.Buffer.compare(_0x1a7459.slice(-5), _0x46bc58) === 0, !_0x22b073 && _0x393e12 && (_0x22b073 = iC.Buffer.compare(_0x393e12.slice(-3), _0x46bc58.slice(0, 3)) === 0 && iC.Buffer.compare(_0x1a7459.slice(-2), _0x46bc58.slice(3)) === 0), _0x393e12 = _0x1a7459;
+      };
+    _0x14cd24.prependListener("close", _0x276830), _0x14cd24.on('data', _0x38eedf), _0x21ec6d.on("close", () => {
+      _0x14cd24.removeListener('close', _0x276830), _0x14cd24.removeListener("data", _0x38eedf);
+    });
+  });
+}
+var hPe, mPe, yg, Ka, iC, Zst
+  /* [dead-code] gPe removed */
+  /* [dead-code] TPe removed */
+  /* [dead-code] Mi removed */;
 async function fetchGoogleIapToken() {
   let _0x1f74ad = config.iapTargetAudience;
   if (!_0x1f74ad?.["trim"]()) return Logger.warn("No target audience provided"), null;
@@ -15568,7 +15957,7 @@ var initGoogleAuth = __esmModule(() => {
           signal: _0xdb76cd
         } = _0x846566;
         if (_0xdb76cd?.['aborted']) throw new bC();
-        return (await p_retry.default)(_0x25e662, {
+        return (await p_retry_module.default)(_0x25e662, {
           retries: _0x846566.retries,
           signal: _0xdb76cd,
           onFailedAttempt: _0x490a84 => {
