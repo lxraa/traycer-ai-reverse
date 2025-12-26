@@ -1,0 +1,27 @@
+{
+  "globals": {},
+  "locals": {
+    "487-503": {
+      "_0xfbf152": "lineNumber",
+      "_0x4fc112": "textPattern",
+      "_0x594165": "diffOptions",
+      "_0x439e5f": "searchBackward",
+      "_0x5db09c": "charOffsetForLine",
+      "_0x232898": "reversedSource",
+      "_0x25869d": "reversedPattern",
+      "_0x1fd738": "safeSearchOffset",
+      "_0x27311d": "backwardMatchIndex",
+      "_0x2e88ca": "adjustedOffset"
+    },
+    "999-1027": {
+      "_0x4f0c5d": "chunks",
+      "_0x31c636": "totalLength",
+      "_0x2737c9": "resultBuffer",
+      "_0x808b8": "writeOffset",
+      "_0x266a8f": "dataField",
+      "_0x1930f7": "bufferData",
+      "_0x1b8713": "decodedStr"
+    }
+  }
+}
+

@@ -1,0 +1,87 @@
+{
+  "globals": {},
+  "locals": {
+    "1715-1717": {
+      "_0x2d953d": "agentConfig"
+    },
+    "1718-1720": {
+      "_0x2358a0": "agentId"
+    },
+    "1721-1723": {
+      "_0x205f38": "agentIdToGet"
+    },
+    "1727-1729": {
+      "_0x5f51c9": "sourceType",
+      "_0x2b27ea": "agentItem"
+    },
+    "1730-1732": {
+      "_0x1447b2": "cliAgent"
+    },
+    "1739-1741": {
+      "_0x460b87": "agentIdToCheck"
+    },
+    "1742-1746": {
+      "_0xd801d2": "agentIdParam",
+      "_0x23405d": "agentData"
+    },
+    "1747-1753": {
+      "_0x112a1a": "agentIdQuery"
+    },
+    "1754-1756": {
+      "_0x3824d6": "nameOrId",
+      "_0x360e25": "builtinAgent"
+    },
+    "1763-1765": {
+      "_0x4e2b69": "concurrency",
+      "_0x2c6a5f": "breatherMs",
+      "_0x4a727a": "continuousMs"
+    },
+    "1766-1779": {
+      "_0x509ae7": "requestFn",
+      "_0x58d202": "resolveFn",
+      "_0x2e0025": "rejectFn",
+      "_0x23d3ee": "result",
+      "_0x13a262": "error"
+    },
+    "1790-1794": {
+      "_0x422b46": "nextRequest"
+    },
+    "1805-1822": {
+      "_0x2c82ea": "requestFunction",
+      "_0x48cd32": "wrappedRequest",
+      "_0x5b0847": "abortSignal",
+      "_0x469b7d": "abortPromise",
+      "_0x4e244a": "resolveAbort",
+      "_0x8134b7": "rejectAbort",
+      "_0x194141": "requestResult",
+      "_0x5ca370": "requestError"
+    },
+    "1825-1834": {
+      "_0xaeb101": "fileService",
+      "_0x36e209": "rgPath",
+      "_0x4fbe28": "searchRegex",
+      "_0xb33b6": "dirInfo",
+      "_0xef23c3": "includePattern",
+      "_0x136f81": "ignorePatterns",
+      "_0x11d8e6": "maxResults",
+      "_0xcd99b2": "formatFn",
+      "_0x35c95e": "rgCommand",
+      "_0x3c19f5": "searchResults"
+    },
+    "1835-1865": {
+      "_0x5639f8": "searchPath",
+      "_0x5cdd49": "searchQuery",
+      "_0x4b2c47": "filePattern",
+      "_0x4d5e92": "ignoreGlobs",
+      "_0x401908": "maxResults",
+      "_0x2cee82": "recursive",
+      "_0x4eeab0": "ripgrepPath",
+      "_0xa9f861": "pathSeparatorRegex",
+      "_0x5a2f9": "baseArgs",
+      "_0x565312": "includeCmd",
+      "_0xafc48d": "searchCmd",
+      "_0x407f09": "commands"
+    }
+  }
+}
+

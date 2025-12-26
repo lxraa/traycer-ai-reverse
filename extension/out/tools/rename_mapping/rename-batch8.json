@@ -1,0 +1,81 @@
+{
+  "globals": {},
+  "locals": {
+    "930-937": {
+      "_0x206a3b": "docContent",
+      "_0x42a599": "itemsToInsert",
+      "_0x3a5d0e": "insertIndex",
+      "_0x50b145": "contentCopy",
+      "_0xc71353": "safeIndex"
+    },
+    "965-984": {
+      "_0x39089f": "message",
+      "_0x57dc84": "serializeFn",
+      "_0x4287c3": "serializedData",
+      "_0x58e015": "chunkId",
+      "_0x1f0dbe": "totalChunks",
+      "_0x39db9e": "chunks",
+      "_0xc525e6": "chunkIndex",
+      "_0x184372": "startOffset",
+      "_0x5b1f6c": "endOffset",
+      "_0x15b1f8": "chunkData"
+    },
+    "985-1027": {
+      "_0x42d4c0": "chunks",
+      "_0x1a7df6": "expectedChunkId",
+      "_0x285643": "totalChunks",
+      "_0x308972": "sequenceSet",
+      "_0x3b559d": "chunkItem",
+      "_0x4f0c5d": "sortedChunks",
+      "_0x37f5ad": "chunkA",
+      "_0x10132": "chunkB",
+      "_0x1d2eeb": "seqIndex",
+      "_0x2854b9": "finalChunks",
+      "_0x2cb003": "chunk"
+    },
+    "1101-1108": {
+      "_0x1fc85a": "logger",
+      "_0x4b236a": "loadError"
+    },
+    "1110-1125": {
+      "_0x121526": "stream",
+      "_0x2afa60": "data",
+      "_0x255682": "resolve",
+      "_0x40fef8": "reject",
+      "_0x10975b": "writeError",
+      "_0x5add3f": "drainHandler",
+      "_0xee9123": "timeoutId"
+    },
+    "1126-1137": {
+      "_0x381bd6": "stream",
+      "_0x4e6d6a": "data",
+      "_0x349139": "logger",
+      "_0x6b5598": "maxRetries",
+      "_0x25ac87": "retryFn",
+      "_0xb9c87f": "error",
+      "_0x259322": "attemptInfo",
+      "_0x8ce263": "retryDelay",
+      "_0x443ad9": "resolveFn"
+    },
+    "1138-1145": {
+      "_0x23533f": "stream",
+      "_0x2611c4": "message",
+      "_0x1bf0b0": "logger",
+      "_0x2d28b7": "maxRetries",
+      "_0x2dd691": "enableChunking",
+      "_0x266379": "serializeFn",
+      "_0x330cef": "retryFn",
+      "_0x1992bf": "chunks"
+    },
+    "1146-1149": {
+      "_0x3efdc2": "stream",
+      "_0x2c197f": "message",
+      "_0xd53e86": "logger",
+      "_0x3317bf": "maxRetries",
+      "_0x487b94": "enableChunking",
+      "_0x536d9c": "serializeFn",
+      "_0x3a375e": "retryModule"
+    }
+  }
+}
+

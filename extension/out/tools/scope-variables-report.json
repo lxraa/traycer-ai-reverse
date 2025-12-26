@@ -1,0 +1,1565 @@
+{
+  "summary": {
+    "totalScopes": 3067,
+    "totalVariableNames": 6783,
+    "duplicateVariableNames": 34,
+    "byKind": {
+      "let": 120,
+      "var": 3,
+      "local": 3,
+      "param": 53
+    },
+    "byScopeType": {
+      "Program": 6,
+      "ClassDeclaration": 3,
+      "ClassExpression": 3,
+      "ForOfStatement": 92,
+      "ForInStatement": 2,
+      "ArrowFunctionExpression": 5,
+      "ClassMethod": 61,
+      "FunctionDeclaration": 5,
+      "BlockStatement": 2
+    },
+    "topDuplicates": [
+      {
+        "name": "key",
+        "count": 94
+      },
+      {
+        "name": "token",
+        "count": 6
+      },
+      {
+        "name": "abortSignal",
+        "count": 5
+      },
+      {
+        "name": "errorMessage",
+        "count": 4
+      },
+      {
+        "name": "platformType",
+        "count": 4
+      },
+      {
+        "name": "normalizedPath",
+        "count": 4
+      },
+      {
+        "name": "otherSet",
+        "count": 3
+      },
+      {
+        "name": "resultSet",
+        "count": 3
+      },
+      {
+        "name": "itemToCheck",
+        "count": 3
+      },
+      {
+        "name": "otherRange",
+        "count": 3
+      },
+      {
+        "name": "absolutePath",
+        "count": 3
+      },
+      {
+        "name": "inputPath",
+        "count": 3
+      },
+      {
+        "name": "CustomSet",
+        "count": 2
+      },
+      {
+        "name": "LineRange",
+        "count": 2
+      },
+      {
+        "name": "FilePath",
+        "count": 2
+      },
+      {
+        "name": "TraycerPath",
+        "count": 2
+      },
+      {
+        "name": "WorkerPoolManager",
+        "count": 2
+      },
+      {
+        "name": "TraycerCredentials",
+        "count": 2
+      },
+      {
+        "name": "numValue",
+        "count": 2
+      },
+      {
+        "name": "startLineNum",
+        "count": 2
+      }
+    ]
+  },
+  "duplicateVariables": [
+    {
+      "name": "key",
+      "count": 94,
+      "occurrences": [
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 117,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 301,
+          "column": 15,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 756,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 989,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 1007,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 1142,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 1225,
+          "column": 15,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 1325,
+          "column": 21,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 1332,
+          "column": 15,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 1337,
+          "column": 23,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 1387,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 1394,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForInStatement",
+          "kind": "let",
+          "line": 1414,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 2374,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 2525,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 2573,
+          "column": 13,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 2766,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 2855,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 2973,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 2982,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 2996,
+          "column": 19,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 2999,
+          "column": 19,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 3039,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 3049,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 3341,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 3387,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 3434,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 3506,
+          "column": 13,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 3533,
+          "column": 13,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 3740,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 3749,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 4010,
+          "column": 19,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 4937,
+          "column": 15,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 5058,
+          "column": 15,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 5293,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6039,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6058,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6059,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6087,
+          "column": 13,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6098,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6220,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6252,
+          "column": 13,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6255,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6271,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6547,
+          "column": 55,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6575,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 6681,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 7400,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 7411,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 7424,
+          "column": 43,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 7461,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 7536,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 7555,
+          "column": 50,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 7567,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 8022,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 9239,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 9367,
+          "column": 21,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForInStatement",
+          "kind": "let",
+          "line": 9859,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 10368,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 10561,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 10596,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 10612,
+          "column": 15,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 10663,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 11480,
+          "column": 19,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 11485,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 13051,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 13112,
+          "column": 21,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 13173,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 13219,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 13220,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 13233,
+          "column": 23,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 13246,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 13998,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 14083,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 14363,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 14364,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 14414,
+          "column": 23,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 14426,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 14806,
+          "column": 15,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 14917,
+          "column": 15,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 15007,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 15728,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 15751,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 15871,
+          "column": 25,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 16349,
+          "column": 13,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 16715,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 16847,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 16862,
+          "column": 19,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 16949,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 17046,
+          "column": 19,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 17056,
+          "column": 19,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 17385,
+          "column": 11,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 18198,
+          "column": 19,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ForOfStatement",
+          "kind": "let",
+          "line": 18242,
+          "column": 17,
+          "pathType": "VariableDeclarator"
+        }
+      ]
+    },
+    {
+      "name": "token",
+      "count": 6,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16129,
+          "column": 33,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16175,
+          "column": 45,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16179,
+          "column": 37,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16199,
+          "column": 44,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 16209,
+          "column": 10,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 16224,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        }
+      ]
+    },
+    {
+      "name": "abortSignal",
+      "count": 5,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 16146,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 16176,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16179,
+          "column": 44,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16187,
+          "column": 50,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16199,
+          "column": 51,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "errorMessage",
+      "count": 4,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 214,
+          "column": 16,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 219,
+          "column": 16,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 224,
+          "column": 16,
+          "pathType": "AssignmentPattern"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 230,
+          "column": 16,
+          "pathType": "AssignmentPattern"
+        }
+      ]
+    },
+    {
+      "name": "platformType",
+      "count": 4,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 386,
+          "column": 41,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 390,
+          "column": 42,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 399,
+          "column": 35,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 403,
+          "column": 46,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "normalizedPath",
+      "count": 4,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 400,
+          "column": 8,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 2532,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 2537,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 2543,
+          "column": 10,
+          "pathType": "VariableDeclarator"
+        }
+      ]
+    },
+    {
+      "name": "otherSet",
+      "count": 3,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 313,
+          "column": 12,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 317,
+          "column": 19,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 323,
+          "column": 17,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "resultSet",
+      "count": 3,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 314,
+          "column": 8,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 318,
+          "column": 8,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 324,
+          "column": 8,
+          "pathType": "VariableDeclarator"
+        }
+      ]
+    },
+    {
+      "name": "itemToCheck",
+      "count": 3,
+      "occurrences": [
+        {
+          "scopeType": "ArrowFunctionExpression",
+          "kind": "param",
+          "line": 319,
+          "column": 33,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ArrowFunctionExpression",
+          "kind": "param",
+          "line": 325,
+          "column": 33,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ArrowFunctionExpression",
+          "kind": "param",
+          "line": 330,
+          "column": 31,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "otherRange",
+      "count": 3,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 360,
+          "column": 13,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 363,
+          "column": 20,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 366,
+          "column": 12,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "absolutePath",
+      "count": 3,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 386,
+          "column": 14,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 2522,
+          "column": 38,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 2542,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        }
+      ]
+    },
+    {
+      "name": "inputPath",
+      "count": 3,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 2519,
+          "column": 31,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 2531,
+          "column": 33,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 2536,
+          "column": 32,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "CustomSet",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "Program",
+          "kind": "let",
+          "line": 296,
+          "column": 6,
+          "pathType": "ClassDeclaration"
+        },
+        {
+          "scopeType": "ClassDeclaration",
+          "kind": "let",
+          "line": 296,
+          "column": 6,
+          "pathType": "ClassDeclaration"
+        }
+      ]
+    },
+    {
+      "name": "LineRange",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "Program",
+          "kind": "let",
+          "line": 339,
+          "column": 6,
+          "pathType": "ClassDeclaration"
+        },
+        {
+          "scopeType": "ClassDeclaration",
+          "kind": "let",
+          "line": 339,
+          "column": 6,
+          "pathType": "ClassDeclaration"
+        }
+      ]
+    },
+    {
+      "name": "FilePath",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "Program",
+          "kind": "let",
+          "line": 385,
+          "column": 6,
+          "pathType": "ClassDeclaration"
+        },
+        {
+          "scopeType": "ClassDeclaration",
+          "kind": "let",
+          "line": 385,
+          "column": 6,
+          "pathType": "ClassDeclaration"
+        }
+      ]
+    },
+    {
+      "name": "TraycerPath",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "Program",
+          "kind": "var",
+          "line": 2470,
+          "column": 4,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassExpression",
+          "kind": "local",
+          "line": 2474,
+          "column": 88,
+          "pathType": "ClassExpression"
+        }
+      ]
+    },
+    {
+      "name": "WorkerPoolManager",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "Program",
+          "kind": "var",
+          "line": 2631,
+          "column": 2,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassExpression",
+          "kind": "local",
+          "line": 2635,
+          "column": 51,
+          "pathType": "ClassExpression"
+        }
+      ]
+    },
+    {
+      "name": "TraycerCredentials",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "Program",
+          "kind": "var",
+          "line": 16115,
+          "column": 2,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassExpression",
+          "kind": "local",
+          "line": 16119,
+          "column": 161,
+          "pathType": "ClassExpression"
+        }
+      ]
+    },
+    {
+      "name": "numValue",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ArrowFunctionExpression",
+          "kind": "param",
+          "line": 180,
+          "column": 18,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ArrowFunctionExpression",
+          "kind": "param",
+          "line": 181,
+          "column": 18,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "startLineNum",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 342,
+          "column": 14,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 369,
+          "column": 23,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "lineCount",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 342,
+          "column": 28,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 369,
+          "column": 37,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "filePath",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 399,
+          "column": 25,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16835,
+          "column": 26,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "agentType",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "FunctionDeclaration",
+          "kind": "param",
+          "line": 548,
+          "column": 26,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "FunctionDeclaration",
+          "kind": "param",
+          "line": 555,
+          "column": 22,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "agentObj",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "FunctionDeclaration",
+          "kind": "param",
+          "line": 558,
+          "column": 24,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "FunctionDeclaration",
+          "kind": "param",
+          "line": 561,
+          "column": 25,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "pathProto",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 2475,
+          "column": 31,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 2541,
+          "column": 45,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "platform",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 2477,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 2508,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        }
+      ]
+    },
+    {
+      "name": "workspaceFolders",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 2484,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 2523,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        }
+      ]
+    },
+    {
+      "name": "workerType",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 2647,
+          "column": 24,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 2659,
+          "column": 28,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "context",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16120,
+          "column": 18,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "FunctionDeclaration",
+          "kind": "param",
+          "line": 18666,
+          "column": 43,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16129,
+          "column": 40,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 16208,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        }
+      ]
+    },
+    {
+      "name": "legacyToken",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "BlockStatement",
+          "kind": "let",
+          "line": 16167,
+          "column": 14,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16187,
+          "column": 37,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "uri",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16832,
+          "column": 18,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16843,
+          "column": 54,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "content",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16835,
+          "column": 36,
+          "pathType": "Identifier"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "param",
+          "line": 16843,
+          "column": 45,
+          "pathType": "Identifier"
+        }
+      ]
+    },
+    {
+      "name": "tree",
+      "count": 2,
+      "occurrences": [
+        {
+          "scopeType": "BlockStatement",
+          "kind": "let",
+          "line": 16837,
+          "column": 14,
+          "pathType": "VariableDeclarator"
+        },
+        {
+          "scopeType": "ClassMethod",
+          "kind": "let",
+          "line": 16844,
+          "column": 12,
+          "pathType": "VariableDeclarator"
+        }
+      ]
+    }
+  ]
+}

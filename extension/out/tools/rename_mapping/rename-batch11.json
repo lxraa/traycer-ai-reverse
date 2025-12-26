@@ -1,0 +1,51 @@
+{
+  "globals": {},
+  "locals": {
+    "1851-1869": {
+      "_0x10d4d2": "searchPath",
+      "_0x249521": "searchQuery",
+      "_0x1d3546": "abortController",
+      "_0x4ffec6": "maxResults",
+      "_0x1850be": "recursive",
+      "_0x1ff9c5": "ripgrepPath",
+      "_0x17afb1": "extractArgs",
+      "_0x1f39ac": "baseArgs",
+      "_0x547294": "listFilesCmd",
+      "_0x4f4b02": "extractPathCmd",
+      "_0x40281f": "searchCmd",
+      "_0x23e87e": "sortCmd",
+      "_0x13e594": "limitCmd",
+      "_0x262355": "commands"
+    },
+    "1870-1911": {
+      "_0x41dcf1": "searchQuery",
+      "_0x326761": "searchType",
+      "_0x438a88": "abortController",
+      "_0x5aa40f": "results",
+      "_0x40d284": "workspaceFolders",
+      "_0x1c0187": "perFolderLimit",
+      "_0x236178": "searchFilesInFolder",
+      "_0x579343": "folder",
+      "_0x159f12": "fileList",
+      "_0x3c2431": "filePath",
+      "_0x1a1b3c": "fileError",
+      "_0x27aedc": "searchFoldersInFolder",
+      "_0x15bd70": "workspaceFolder",
+      "_0x256034": "folderList",
+      "_0x579285": "folderPath",
+      "_0x5f1918": "folderError",
+      "_0x412a71": "promises",
+      "_0x13b04a": "wsFolder"
+    },
+    "1912-1914": {
+      "_0xa891fa": "pattern"
+    },
+    "1915-1923": {
+      "_0x3ad6d4": "query",
+      "_0x4205d2": "searchType",
+      "_0x3cfdfb": "abortController",
+      "_0x571111": "error"
+    }
+  }
+}
+

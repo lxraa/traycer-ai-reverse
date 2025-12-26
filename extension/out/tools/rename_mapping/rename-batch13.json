@@ -1,0 +1,83 @@
+{
+  "globals": {},
+  "locals": {
+    "2024-2026": {
+      "_0x4025fa": "initialValue",
+      "_0x17f399": "cancelError"
+    },
+    "2027-2039": {
+      "_0x33d309": "weight",
+      "_0xcab634": "priority",
+      "_0x4c7173": "resolveFn",
+      "_0x141022": "rejectFn",
+      "_0x5cfbf2": "waiter",
+      "_0x332b32": "insertIndex",
+      "_0x556405": "queueItem"
+    },
+    "2040-2049": {
+      "_0x5b826d": "callback",
+      "_0x34ebcd": "fn",
+      "_0x2f2cc5": "weight",
+      "_0x470ca6": "priority",
+      "_0x2529ec": "value",
+      "_0x39757e": "releaser"
+    },
+    "2050-2058": {
+      "_0x1f5c66": "weight",
+      "_0x59a49e": "priority",
+      "_0x1c2e70": "resolve"
+    },
+    "2065-2067": {
+      "_0x50f692": "newValue"
+    },
+    "2068-2071": {
+      "_0x150d6e": "weight"
+    },
+    "2072-2074": {
+      "_0xdfbf8d": "waiter"
+    },
+    "2078-2081": {
+      "_0x5b1201": "item",
+      "_0x33ba64": "currentValue"
+    },
+    "2082-2087": {
+      "_0x4faebe": "weight",
+      "_0x3596cb": "released"
+    },
+    "2088-2101": {
+      "_0x2f2947": "availableWeight",
+      "_0x473b46": "waiters",
+      "_0x1ead18": "waiter",
+      "_0x492173": "queuePriority",
+      "_0x24debb": "weight",
+      "_0x38eeb0": "weightWaiters",
+      "_0x2b8de1": "splitIndex",
+      "_0x24b5b7": "waiter",
+      "_0x5f41d2": "waiterToResolve"
+    },
+    "2102-2104": {
+      "_0x29ff0c": "weight",
+      "_0xeeb3fe": "priority"
+    },
+    "2106-2145": {
+      "_0x23dec5": "thisArg",
+      "_0x382a51": "argumentsList",
+      "_0x3fccb9": "PromiseConstructor",
+      "_0x393b37": "generator",
+      "_0x21f58f": "adopt",
+      "_0x3f67cf": "value",
+      "_0x7ba1ac": "resolve",
+      "_0x68f9": "resolveFn",
+      "_0x129c6b": "rejectFn",
+      "_0x147510": "fulfilled",
+      "_0x1f32ec": "value",
+      "_0x542c3c": "step",
+      "_0x2d580b": "error",
+      "_0x34a46f": "rejected",
+      "_0x1f2ff1": "value",
+      "_0x28c55a": "error",
+      "_0x32a28c": "result"
+    }
+  }
+}
+

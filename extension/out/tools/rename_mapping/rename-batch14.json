@@ -1,0 +1,65 @@
+{
+  "globals": {},
+  "locals": {
+    "2149-2151": {
+      "_0x3f0aa9": "priority"
+    },
+    "2160-2171": {
+      "_0x5d3f77": "folderPath",
+      "_0x2d922b": "logger",
+      "_0x4f35d6": "statError",
+      "_0x1f090a": "mkdirError"
+    },
+    "2172-2175": {
+      "_0x26fdd1": "logger",
+      "_0x17fea5": "outputPath"
+    },
+    "2176-2179": {
+      "_0xdf9916": "logger",
+      "_0x27c1aa": "cachePath"
+    },
+    "2180-2182": {
+      "_0x161dc6": "logger"
+    },
+    "2191-2193": {
+      "_0x1f239a": "loggerInstance"
+    },
+    "2194-2196": {
+      "_0x248aba": "logger"
+    },
+    "2197-2206": {
+      "_0x142273": "releaseLock",
+      "_0x231d6e": "error"
+    },
+    "2207-2215": {
+      "_0x230dcd": "releaseLock"
+    },
+    "2216-2222": {
+      "_0x33ed51": "logger",
+      "_0x21f3db": "dbConnection"
+    },
+    "2223-2230": {
+      "_0x17b3a4": "operation",
+      "_0x48a58e": "connection",
+      "_0x18d110": "error"
+    },
+    "2231-2233": {
+      "_0x243a41": "sql",
+      "_0x2e79c4": "params",
+      "_0x3fe82a": "conn"
+    },
+    "2234-2236": {
+      "_0x216f91": "sql",
+      "_0x4b77b1": "params",
+      "_0x412511": "conn"
+    },
+    "2237-2239": {
+      "_0x43b0bb": "connection"
+    },
+    "2240-2247": {
+      "_0x47a268": "cacheKey",
+      "_0x48acf4": "result"
+    }
+  }
+}
+

@@ -1,0 +1,64 @@
+{
+  "globals": {},
+  "locals": {
+    "1165-1167": {
+      "_0x5cbc91": "loggerInstance"
+    },
+    "1168-1183": {
+      "_0x2a135c": "item",
+      "_0x306a1e": "pendingPop",
+      "_0x54145a": "queueFullState"
+    },
+    "1185-1207": {
+      "_0x218753": "resolvePromise",
+      "_0xee5eae": "rejectPromise",
+      "_0x2d1313": "poppedItem",
+      "_0xdb1b40": "closedState"
+    },
+    "1209-1215": {
+      "_0x4d4553": "itemFromQueue",
+      "_0x2fa1f2": "backpressureThreshold"
+    },
+    "1216-1227": {
+      "_0x5e16d0": "closeState"
+    },
+    "1228-1248": {
+      "_0x127a4e": "internalItem",
+      "_0xcb03ae": "resolveWait",
+      "_0x2b120d": "onItemAvailable",
+      "_0x1394bf": "onClosed"
+    },
+    "1259-1264": {
+      "_0x35007b": "streamInstance",
+      "_0x14e17f": "loggerInstance"
+    },
+    "1265-1297": {
+      "_0xdd152e": "messageData",
+      "_0x14518c": "chunkedMsg",
+      "_0x5cb62c": "reconstructedMsg",
+      "_0x1b3c86": "chunkError",
+      "_0x406716": "chunkIdToClean",
+      "_0x21f408": "existingTimeout",
+      "_0xd4c600": "bufferedItem"
+    },
+    "1298-1300": {
+      "_0x40196a": "messageObj"
+    },
+    "1301-1323": {
+      "_0x50ac93": "chunkedMessage",
+      "_0x36a460": "chunkId",
+      "_0x1c8c4a": "currentTimeout",
+      "_0x150864": "newTimeout",
+      "_0x1166d9": "chunkBuffer",
+      "_0x348757": "existingChunk",
+      "_0x2c39bb": "uniqueSequences",
+      "_0x325bae": "chunkItem",
+      "_0x3f0c2f": "reassembleError"
+    },
+    "1335-1346": {
+      "_0x42b310": "processingError",
+      "_0xf7110d": "consumptionError"
+    }
+  }
+}
+

@@ -1,0 +1,69 @@
+{
+  "globals": {},
+  "locals": {
+    "2251-2253": {
+      "_0x44c5f0": "cacheKey"
+    },
+    "2259-2261": {
+      "_0x250e31": "dbService"
+    },
+    "2265-2272": {
+      "_0x323614": "cacheKey",
+      "_0x5e924a": "content",
+      "_0x348058": "cachedData"
+    },
+    "2273-2276": {
+      "_0x59dfbb": "cacheKey",
+      "_0x1f1aa9": "value",
+      "_0x398501": "content",
+      "_0x4cd420": "metadata",
+      "_0x4c87b3": "hash"
+    },
+    "2277-2281": {
+      "_0x3c5e7b": "content",
+      "_0x125191": "encoded",
+      "_0x4e817a": "hashBuffer",
+      "_0x3df838": "byte"
+    },
+    "2288-2290": {
+      "_0x46d11a": "cacheService"
+    },
+    "2291-2299": {
+      "_0x4fae2a": "workspaceInfo",
+      "_0x48aa46": "dbService",
+      "_0xba957a": "cacheService"
+    },
+    "2303-2309": {
+      "_0x295c81": "error"
+    },
+    "2310-2316": {
+      "_0xecb0a5": "cacheKey",
+      "_0xb09b81": "content",
+      "_0x508ecc": "error"
+    },
+    "2317-2325": {
+      "_0x35e77a": "filePath",
+      "_0x4aac3b": "summary",
+      "_0x45aed9": "absolutePath",
+      "_0x2a483b": "sourceCode",
+      "_0x4ace6d": "error"
+    },
+    "2328-2330": {
+      "_0x479aed": "uri"
+    },
+    "2331-2368": {
+      "_0x993928": "filePathProto",
+      "_0x2eeeaf": "severityFilter",
+      "_0x175edc": "traycerPath",
+      "_0x2302aa": "fileUri",
+      "_0xa788b": "diagnostics",
+      "_0x5f3657": "results",
+      "_0x29ecf2": "diagnostic",
+      "_0x3f672b": "relatedInfo",
+      "_0x235844": "relatedPromises",
+      "_0x26bac4": "related",
+      "_0x1da05e": "relatedItem"
+    }
+  }
+}
+

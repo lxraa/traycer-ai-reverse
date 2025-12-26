@@ -1,0 +1,40 @@
+{
+  "globals": {},
+  "locals": {
+    "740-749": {
+      "_0xb5cb1d": "repoUrl",
+      "_0x1139a0": "httpsPattern",
+      "_0xe68749": "sshPattern",
+      "_0x24dac3": "matchResult"
+    },
+    "750-765": {
+      "_0x31e5e1": "groupKeyFn",
+      "_0x41e53d": "items",
+      "_0xaf935": "maxItems",
+      "_0x2de324": "groupMap",
+      "_0x2e681b": "getGroupItems",
+      "_0x97b73d": "groupKey",
+      "_0x5b4dff": "groupCount",
+      "_0x30516e": "item",
+      "_0x470525": "itemsPerGroup",
+      "_0x565f7b": "totalCount",
+      "_0x41a617": "currentGroupKey",
+      "_0x591546": "existingItems"
+    },
+    "766-788": {
+      "_0x48d9d4": "subscriptionData",
+      "_0x47d03e": "subscriptionStatus",
+      "_0x1e5614": "additionalInfo"
+    },
+    "789-792": {
+      "_0x2aa6c9": "subscriptionData",
+      "_0x497a89": "planName",
+      "_0x4ce2d4": "additionalInfo"
+    },
+    "793-809": {
+      "_0x4e3d49": "queryText",
+      "_0x2960d1": "parseOptions"
+    }
+  }
+}
+

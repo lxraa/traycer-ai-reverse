@@ -1,0 +1,79 @@
+{
+  "globals": {},
+  "locals": {
+    "1939-1942": {
+      "_0x37304d": "filePath",
+      "_0x40d5e7": "cachedDoc"
+    },
+    "1943-1946": {
+      "_0xe4fa0a": "filePath",
+      "_0x18ba5d": "textDoc"
+    },
+    "1947-1951": {
+      "_0x8cd8c3": "filePath",
+      "_0x46ace8": "fileUri",
+      "_0x4ddba6": "foundDoc",
+      "_0x5aec35": "doc"
+    },
+    "1952-1956": {
+      "_0x1bfaca": "filePath",
+      "_0x91bc78": "fileUri",
+      "_0x4c8a6e": "cachedDoc"
+    },
+    "1957-1959": {
+      "_0x1633d2": "uri"
+    },
+    "1960-1970": {
+      "_0x339582": "uri",
+      "_0x4d84bc": "timeoutMs",
+      "_0x5c4629": "openPromise",
+      "_0x2e5ed9": "timeoutPromise",
+      "_0x47e156": "resolveTimeout",
+      "_0x53246c": "rejectTimeout",
+      "_0x5c9453": "error"
+    },
+    "1971-1973": {
+      "_0x52d2d8": "uri"
+    },
+    "1974-1984": {
+      "_0x5e8688": "uri",
+      "_0x164049": "timeoutMs",
+      "_0x56d04c": "openPromise",
+      "_0x26501d": "timeoutPromise",
+      "_0x255cca": "resolveTimeout",
+      "_0x46b812": "rejectTimeout",
+      "_0x5de235": "error"
+    },
+    "1987-1990": {
+      "_0x59a373": "array",
+      "_0x1b15dc": "item",
+      "_0x17f22b": "insertIndex",
+      "_0x5bf12d": "existingItem"
+    },
+    "1991-1994": {
+      "_0x1f61aa": "array",
+      "_0x1e68b7": "predicate",
+      "_0x14b15f": "index"
+    },
+    "1996-2020": {
+      "_0x280674": "thisArg",
+      "_0x48f92c": "argumentsList",
+      "_0x1ec16a": "PromiseConstructor",
+      "_0x343adc": "generator",
+      "_0x3f6858": "adopt",
+      "_0x2f94f5": "value",
+      "_0x568be9": "resolve",
+      "_0x17ff9e": "resolveFn",
+      "_0x1b1325": "rejectFn",
+      "_0x4be22c": "fulfilled",
+      "_0x345ba6": "value",
+      "_0x544b51": "step",
+      "_0x1181f4": "error",
+      "_0x69b6e7": "rejected",
+      "_0xa98fbb": "value",
+      "_0x4a3a6f": "error",
+      "_0x8bc1b8": "result"
+    }
+  }
+}
+

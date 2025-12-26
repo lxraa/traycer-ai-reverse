@@ -1,0 +1,52 @@
+{
+  "globals": {},
+  "locals": {
+    "480-503": {
+      "_0x56e703": "sourceText",
+      "_0x5802e4": "textPattern",
+      "_0x32f03d": "lineNumber",
+      "_0x197f66": "diffOptions",
+      "_0x732008": "matchIndex"
+    },
+    "504-514": {
+      "_0x15f632": "sourceText",
+      "_0x240a2e": "searchPattern",
+      "_0x4cccc3": "startIndex",
+      "_0x44ca18": "diffMatchPatch",
+      "_0x576c7b": "truncatedPattern",
+      "_0x229f48": "matchResult"
+    },
+    "515-518": {
+      "_0x1a315a": "textContent",
+      "_0x2aa510": "charOffset",
+      "_0x55f3a7": "lineStartIndex"
+    },
+    "519-524": {
+      "_0xf911b0": "lineText",
+      "_0x49d6d3": "tokenStr",
+      "_0x13d886": "tokenRegex",
+      "_0xedeefd": "matchResult"
+    },
+    "525-533": {
+      "_0x50b4a4": "textContent",
+      "_0x4e6e40": "lineNumber",
+      "_0x3416d2": "charOffset",
+      "_0x300257": "currentLine",
+      "_0x4fd11c": "index"
+    },
+    "534-540": {
+      "_0x426dfb": "textStr",
+      "_0x383a13": "charIndex",
+      "_0xd8adc6": "currentChar"
+    },
+    "541-544": {
+      "_0x2bd8a6": "totalLength",
+      "_0x2c5776": "offsetValue",
+      "_0x2d32fe": "safeOffset"
+    },
+    "545-547": {
+      "_0x1677f0": "inputStr"
+    }
+  }
+}
+

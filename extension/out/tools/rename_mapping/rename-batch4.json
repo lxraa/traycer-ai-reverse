@@ -1,0 +1,52 @@
+{
+  "globals": {},
+  "locals": {
+    "999-1027": {
+      "_0x4f0c5d": "chunks",
+      "_0x3bf4a1": "accumulator",
+      "_0x22f581": "chunk",
+      "_0x2c2019": "chunkData",
+      "_0x31c636": "totalLength",
+      "_0x2737c9": "resultBuffer",
+      "_0x808b8": "writeOffset",
+      "_0x266a8f": "dataField",
+      "_0x1930f7": "bufferData",
+      "_0x1b8713": "decodedStr",
+      "_0x15aaae": "key",
+      "_0x109109": "value",
+      "_0x1dfafb": "isBufferType",
+      "_0x20a570": "objKeys",
+      "_0x4e18b8": "isNumericKeys",
+      "_0x771dcf": "keyStr"
+    },
+    "1028-1034": {
+      "_0x41c0b5": "maxDelaySeconds",
+      "_0x162062": "attemptNumber",
+      "_0xb2ea5b": "exponentialDelay",
+      "_0x233ddc": "jitterMs"
+    },
+    "1035-1037": {
+      "_0xcb681b": "minValue",
+      "_0x438e9a": "maxValue"
+    },
+    "1039-1046": {
+      "_0x11fef8": "errorObj",
+      "_0x42e607": "message",
+      "_0x2c6796": "stack"
+    },
+    "1055-1086": {
+      "_0x509899": "operationFn",
+      "_0x2b7336": "retryOptions",
+      "_0x165a48": "resolve",
+      "_0x2ec320": "reject",
+      "_0x5bf151": "retryOperation",
+      "_0x3a98f7": "abortHandler",
+      "_0x342997": "cleanupFn",
+      "_0x47cd9e": "attemptNum",
+      "_0x2e62d8": "result",
+      "_0x23baf9": "error",
+      "_0x5eb253": "retryError"
+    }
+  }
+}
+

@@ -1,0 +1,52 @@
+{
+  "globals": {},
+  "locals": {
+    "initializeSentryClient@111": {
+      "_0x580b61": "defaultIntegrations",
+      "_0x3b5607": "integration",
+      "_0x823f87": "browserClient",
+      "_0xc069f3": "event",
+      "_0x1dfbc6": "frame"
+    },
+    "throttle@138": {
+      "_0x58fb5a": "provider",
+      "_0x1ce42b": "logLevel",
+      "_0x1cedf9": "isDebug",
+      "_0x60137d": "levelStr"
+    },
+    "Logger>constructor@157": {
+      "_0x58fb5a": "provider",
+      "_0x1ce42b": "logLevel", 
+      "_0x1cedf9": "isDebug"
+    },
+    "Logger>logLevel@175": {
+      "_0x10a8c6": "currentDate",
+      "_0x377578": "padTwo",
+      "_0x8b7079": "padThree"
+    },
+    "Logger>trace@184": {
+      "_0x1c4f12": "message",
+      "_0x17c1c7": "args"
+    },
+    "Logger>debug@187": {
+      "_0x333991": "message",
+      "_0x2fd09d": "args"
+    },
+    "Logger>error@190": {
+      "_0xfc345f": "errorObj",
+      "_0x176cd8": "message",
+      "_0x59cb4c": "args",
+      "_0x30c0e0": "stackTrace",
+      "_0x414ff8": "match"
+    },
+    "Logger>info@204": {
+      "_0x499546": "message",
+      "_0x207c22": "args"
+    },
+    "Logger>warn@207": {
+      "_0x121631": "message",
+      "_0x335a0f": "args"
+    }
+  }
+}
+

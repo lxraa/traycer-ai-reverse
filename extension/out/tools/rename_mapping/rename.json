@@ -1,564 +1,801 @@
 {
-  "globals": {
-    "Bq": "LinkParsers",
-    "FileContent": "FileContent",
-    "oie": "createError"
-  },
+  "globals": {},
   "locals": {
-    "createSimpleDocNode@968": {
-      "_0x15162b": "text"
-    },
-    "createTextNode@982": {
-      "_0x5ccabc": "text",
-      "_0x128d74": "marks"
-    },
-    "parseMarkdownToDoc@991": {
-      "_0x336d0d": "markdown",
-      "_0x2826fc": "tokens",
-      "_0x800340": "nodes",
-      "_0x1ada63": "error"
-    },
-    "escapeHtml@801": {
-      "_0x1c6706": "str"
-    },
-    "escapeMarkdownChars@804": {
-      "_0x566d90": "str"
-    },
-    "isSpaceOrTab@807": {
-      "_0x588a16": "code"
-    },
-    "isWhitespaceChar@815": {
-      "_0x3f2c59": "code"
-    },
-    "isPunctuationOrSymbol@833": {
-      "_0x3abbf6": "char",
-      "_0xec7fd4": "code"
-    },
-    "isAsciiPunctuation@836": {
-      "_0x356a00": "code"
-    },
-    "isValidUnicodeCodePoint@770": {
-      "_0x127297": "code"
-    },
-    "codePointToString@773": {
-      "_0x310aee": "codePoint",
-      "_0x365a08": "high",
-      "_0x713c77": "low"
-    },
-    "resolveHtmlEntity@782": {
-      "_0xc66f35": "match",
-      "_0x45d821": "entity",
-      "_0x12a045": "codePoint",
-      "_0x3e5eb3": "decoded"
-    },
-    "unescapeBackslash@790": {
-      "_0x22b5a5": "str"
-    },
-    "unescapeMarkdown@793": {
-      "_0x5c2a3b": "str",
-      "_0x34c8ea": "match",
-      "_0x158e99": "escaped",
-      "_0x3c1097": "entity"
-    },
-    "getHtmlEntityChar@798": {
-      "_0x14d9a4": "char"
-    },
-    "findMatchingBracket@880": {
-      "_0x2be336": "state",
-      "_0x1d2a0d": "start",
-      "_0x14c681": "disableNested",
-      "_0x2241ce": "level",
-      "_0x484ca3": "found",
-      "_0x54ef9c": "charCode",
-      "_0x234c78": "lastPos",
-      "_0x314dd7": "max",
-      "_0x36feab": "oldPos",
-      "_0x611d69": "labelEnd"
-    },
-    "parseLinkDestination@901": {
-      "_0x5a1f9c": "str",
-      "_0x5141b8": "pos",
-      "_0x3b1d18": "max",
-      "_0x51961e": "code",
-      "_0x3b5007": "start",
-      "_0x31d8e4": "result",
-      "_0x1bd601": "level"
-    },
-    "formatPlanName@1327": {
-      "_0x2aa6c9": "isIndividual",
-      "_0x497a89": "baseName",
-      "_0x4ce2d4": "isTrial",
-      "_0x1ca706": "planName"
-    },
-    "parseGitHubUrl@1278": {
-      "_0xb5cb1d": "url",
-      "_0x1139a0": "httpsRegex",
-      "_0xe68749": "sshRegex",
-      "_0x24dac3": "matchResult"
-    },
-    "distributeItemsAcrossGroups@1288": {
-      "_0x31e5e1": "getGroupKey",
-      "_0x41e53d": "items",
-      "_0xaf935": "maxItems",
-      "_0x2de324": "groupMap",
-      "_0x97b73d": "groupKey",
-      "_0x2e681b": "getGroupItems",
-      "_0x5b4dff": "uniqueGroupCount",
-      "_0x30516e": "item",
-      "_0x470525": "itemsPerGroup",
-      "_0x565f7b": "totalCount",
-      "_0x41a617": "currentGroupKey",
-      "_0x591546": "currentGroupItems"
-    },
     "initializeSentryClient@111": {
-      "_0x580b61": "integrations",
+      "_0x580b61": "defaultIntegrations",
       "_0x3b5607": "integration",
-      "_0x823f87": "client",
+      "_0x823f87": "browserClient",
       "_0xc069f3": "event",
       "_0x1dfbc6": "frame"
     },
-    "captureExceptionToSentry@129": {
-      "_0x4bb160": "error",
-      "_0x23a2b2": "context"
-    },
-    "setSentryTag@132": {
-      "_0x308571": "key",
-      "_0x48796e": "value"
-    },
     "throttle@138": {
-      "_0x2bdefb": "level"
+      "_0x58fb5a": "provider",
+      "_0x1ce42b": "logLevel",
+      "_0x1cedf9": "isDebug",
+      "_0x60137d": "levelStr"
     },
-    "ensureBuffer@281": {
-      "_0x1cdfc6": "input",
-      "_0x353a86": "obj",
-      "_0x20af3f": "objKeys",
-      "_0x26d1f1": "keyStr",
-      "_0x36e8d0": "numA",
-      "_0x1e17ce": "numB",
-      "_0x4a94c4": "numVal",
-      "_0x24d624": "index",
-      "_0x4d9909": "uint8Array",
-      "_0x52adde": "i"
+    "Logger>constructor@157": {
+      "_0x58fb5a": "provider",
+      "_0x1ce42b": "logLevel",
+      "_0x1cedf9": "isDebug"
     },
-    "299-303": {
-      "_0x4be53e": "equalsFunc",
-      "_0xee6711": "initialItems"
+    "Logger>logLevel@175": {
+      "_0x10a8c6": "currentDate",
+      "_0x377578": "padTwo",
+      "_0x8b7079": "padThree"
     },
-    "304-306": {
-      "_0x30372c": "item"
+    "Logger>trace@184": {
+      "_0x1c4f12": "message",
+      "_0x17c1c7": "args"
     },
-    "307-309": {
-      "_0xc781ff": "item",
-      "_0xeba538": "existingItem"
+    "Logger>debug@187": {
+      "_0x333991": "message",
+      "_0x2fd09d": "args"
     },
-    "313-316": {
-      "_0x43aea7": "otherSet",
-      "_0x13a3ff": "result",
-      "_0x5e6f25": "item",
-      "_0x1e3183": "item"
+    "Logger>error@190": {
+      "_0xfc345f": "errorObj",
+      "_0x176cd8": "message",
+      "_0x59cb4c": "args",
+      "_0x30c0e0": "stackTrace",
+      "_0x414ff8": "match"
     },
-    "317-322": {
-      "_0x2d1e07": "otherSet",
-      "_0x5eb420": "result",
-      "_0x166395": "item"
+    "Logger>info@204": {
+      "_0x499546": "message",
+      "_0x207c22": "args"
     },
-    "323-328": {
-      "_0x10342b": "otherSet",
-      "_0x148bb8": "result",
-      "_0x471d31": "item"
+    "Logger>warn@207": {
+      "_0x121631": "message",
+      "_0x335a0f": "args"
     },
-    "329-331": {
-      "_0x34d0d7": "otherSet",
-      "_0x2f99fc": "item"
+    "160-162": {
+      "_0x58fb5a": "provider",
+      "_0x1ce42b": "logLevel",
+      "_0x1cedf9": "isDebug"
     },
-    "342-344": {
-      "_0x448dac": "startLine",
-      "_0x43a6e7": "count"
+    "163-165": {
+      "_0x60137d": "levelStr"
     },
-    "360-362": {
-      "_0x3295d4": "other"
+    "178-183": {
+      "_0x10a8c6": "currentDate",
+      "_0x377578": "padTwo",
+      "_0x8b7079": "padThree"
     },
-    "363-365": {
-      "_0x69589b": "other"
+    "184-186": {
+      "_0x1c4f12": "message",
+      "_0x17c1c7": "args"
     },
-    "366-368": {
-      "_0x45d6c0": "other"
+    "187-189": {
+      "_0x333991": "message",
+      "_0x2fd09d": "args"
     },
-    "369-371": {
-      "_0x348802": "startLine",
-      "_0x544328": "count"
+    "190-203": {
+      "_0xfc345f": "errorObj",
+      "_0x176cd8": "message",
+      "_0x59cb4c": "args",
+      "_0x30c0e0": "stackTrace",
+      "_0x414ff8": "matchResult"
     },
-    "372-374": {
-      "_0xa19a67": "startLine",
-      "_0x37cf22": "endLine"
+    "204-206": {
+      "_0x499546": "message",
+      "_0x207c22": "args"
     },
-    "375-377": {
-      "_0x42e23a": "rangeOutput"
+    "207-209": {
+      "_0x121631": "message",
+      "_0x335a0f": "args"
     },
-    "378-380": {
-      "_0x131f4b": "startLineOneBased",
-      "_0x40dc3d": "endLineOneBased"
+    "480-503": {
+      "_0x56e703": "sourceText",
+      "_0x5802e4": "textPattern",
+      "_0x32f03d": "lineNumber",
+      "_0x197f66": "diffOptions",
+      "_0x732008": "matchIndex"
     },
-    "381-383": {
-      "_0x3c01f2": "startLineOneBased",
-      "_0x5d0fdf": "count"
+    "504-514": {
+      "_0x15f632": "sourceText",
+      "_0x240a2e": "searchPattern",
+      "_0x4cccc3": "startIndex",
+      "_0x44ca18": "diffMatchPatch",
+      "_0x576c7b": "truncatedPattern",
+      "_0x229f48": "matchResult"
     },
-    "386-388": {
-      "_0x115f8a": "absolutePath",
-      "_0x303cea": "isDirectory",
-      "_0x5892f8": "platform"
+    "515-518": {
+      "_0x1a315a": "textContent",
+      "_0x2aa510": "charOffset",
+      "_0x55f3a7": "lineStartIndex"
     },
-    "390-392": {
-      "_0x37e0e2": "filePath",
-      "_0x5c4320": "platform"
+    "519-524": {
+      "_0xf911b0": "lineText",
+      "_0x49d6d3": "tokenStr",
+      "_0x13d886": "tokenRegex",
+      "_0xedeefd": "matchResult"
     },
-    "393-395": {
-      "_0x4a1032": "path1",
-      "_0x4b10ae": "path2"
+    "525-533": {
+      "_0x50b4a4": "textContent",
+      "_0x4e6e40": "lineNumber",
+      "_0x3416d2": "charOffset",
+      "_0x300257": "currentLine",
+      "_0x4fd11c": "index"
     },
-    "396-398": {
-      "_0xb0995b": "paths",
-      "_0x40a96d": "path",
-      "_0x8106da": "p"
+    "534-540": {
+      "_0x426dfb": "textStr",
+      "_0x383a13": "charIndex",
+      "_0xd8adc6": "currentChar"
+    },
+    "541-544": {
+      "_0x2bd8a6": "totalLength",
+      "_0x2c5776": "offsetValue",
+      "_0x2d32fe": "safeOffset"
+    },
+    "545-547": {
+      "_0x1677f0": "inputStr"
+    },
+    "999-1027": {
+      "_0x4f0c5d": "chunks",
+      "_0x31c636": "totalLength",
+      "_0x2737c9": "resultBuffer",
+      "_0x808b8": "writeOffset",
+      "_0x266a8f": "dataField",
+      "_0x1930f7": "bufferData",
+      "_0x1b8713": "decodedStr"
+    },
+    "1028-1034": {
+      "_0x41c0b5": "maxDelaySeconds",
+      "_0x162062": "attemptNumber",
+      "_0xb2ea5b": "exponentialDelay",
+      "_0x233ddc": "jitterMs"
+    },
+    "1035-1037": {
+      "_0xcb681b": "minValue",
+      "_0x438e9a": "maxValue"
+    },
+    "1039-1046": {
+      "_0x11fef8": "errorObj",
+      "_0x42e607": "message",
+      "_0x2c6796": "stack"
+    },
+    "1055-1086": {
+      "_0x509899": "operationFn",
+      "_0x2b7336": "retryOptions",
+      "_0x165a48": "resolve",
+      "_0x2ec320": "reject",
+      "_0x5bf151": "retryOperation",
+      "_0x3a98f7": "abortHandler",
+      "_0x342997": "cleanupFn",
+      "_0x47cd9e": "attemptNum",
+      "_0x2e62d8": "result",
+      "_0x23baf9": "error",
+      "_0x5eb253": "retryError"
+    },
+    "487-503": {
+      "_0xfbf152": "lineNumber",
+      "_0x4fc112": "textPattern",
+      "_0x594165": "diffOptions",
+      "_0x439e5f": "searchBackward",
+      "_0x5db09c": "charOffsetForLine",
+      "_0x232898": "reversedSource",
+      "_0x25869d": "reversedPattern",
+      "_0x1fd738": "safeSearchOffset",
+      "_0x27311d": "backwardMatchIndex",
+      "_0x2e88ca": "adjustedOffset"
+    },
+    "435-447": {
+      "_0x3d9552": "filePath",
+      "_0x24123c": "fileContent",
+      "_0x309720": "startRange",
+      "_0x2b83a8": "endRange",
+      "_0x352f6c": "contentObj",
+      "_0x3267d9": "adjustedStartLine",
+      "_0x596fe5": "adjustedEndLine",
+      "_0x5b19be": "lineRange"
     },
     "448-462": {
       "_0x3f9a56": "items",
-      "_0x443e05": "getRange",
-      "_0x2d2477": "merge",
+      "_0x443e05": "getRangeFn",
+      "_0x2d2477": "mergeFn",
       "_0x239576": "includeAdjacent",
-      "_0x42a602": "a",
-      "_0x1e8f06": "b",
-      "_0x339bff": "merged",
-      "_0x5863c7": "current",
+      "_0x42a602": "itemA",
+      "_0x1e8f06": "itemB",
+      "_0x339bff": "mergedList",
+      "_0x5863c7": "currentItem",
       "_0x1dcb38": "currentRange",
-      "_0x4b92d0": "i",
-      "_0x43bd17": "next",
+      "_0x4b92d0": "loopIndex",
+      "_0x43bd17": "nextItem",
       "_0x4e2f87": "nextRange",
       "_0x42e5e2": "currentEndLine",
       "_0x333b25": "isAdjacent"
     },
     "463-468": {
-      "_0x46b414": "ranges",
+      "_0x46b414": "lineRanges",
       "_0x3e8896": "includeAdjacent",
-      "_0x53a1d6": "range",
-      "_0x21121c": "r1",
-      "_0x6d0324": "r2",
+      "_0x53a1d6": "rangeItem",
+      "_0x21121c": "range1",
+      "_0x6d0324": "range2",
       "_0xa876e1": "maxEndLine"
     },
     "469-473": {
-      "_0x433b9e": "text",
+      "_0x433b9e": "textContent",
       "_0x3c9178": "lineNumber",
       "_0x352f0e": "lines"
     },
     "474-477": {
-      "_0x5d65a3": "document",
+      "_0x5d65a3": "textContent",
       "_0x44d627": "lineNumber",
-      "_0x304c53": "searchText",
+      "_0x304c53": "searchPattern",
       "_0x5a8549": "dmp"
     },
-    "478-486": {
-      "_0x5324c8": "document",
+    "478-485": {
+      "_0x5324c8": "textContent",
       "_0x2b2ebe": "lineNumber",
       "_0x2a9906": "searchText",
       "_0x412a06": "token",
-      "_0x28de44": "lineRange",
-      "_0x1fbb0d": "line",
-      "_0x2ed7ad": "characterPos"
+      "_0x28de44": "matchRange",
+      "_0x1fbb0d": "lineText",
+      "_0x2ed7ad": "charPosition"
     },
-    "487-503": {
-      "_0x56e703": "document",
-      "_0xfbf152": "startLine",
-      "_0x4fc112": "searchText",
-      "_0x594165": "dmp",
-      "_0x439e5f": "reverse",
-      "_0x5db09c": "offset",
-      "_0x232898": "reversedDoc",
-      "_0x25869d": "reversedSearch",
-      "_0x1fd738": "safeOffset",
-      "_0x27311d": "matchIndex",
-      "_0x2e88ca": "actualOffset",
-      "_0x732008": "matchPos"
-    },
-    "504-514": {
-      "_0x15f632": "text",
-      "_0x240a2e": "pattern",
-      "_0x4cccc3": "location",
-      "_0x44ca18": "dmp",
-      "_0x576c7b": "trimmedPattern",
-      "_0x229f48": "result"
-    },
-    "515-518": {
-      "_0x1a315a": "text",
-      "_0x2aa510": "offset",
-      "_0x55f3a7": "lineStart"
-    },
-    "519-524": {
-      "_0xf911b0": "line",
-      "_0x49d6d3": "token",
-      "_0x13d886": "regex",
-      "_0xedeefd": "match"
-    },
-    "525-533": {
-      "_0x50b4a4": "text",
-      "_0x4e6e40": "lineNumber",
-      "_0x3416d2": "offset",
-      "_0x300257": "currentLine",
-      "_0x4fd11c": "i"
-    },
-    "534-540": {
-      "_0x426dfb": "text",
-      "_0x383a13": "i",
-      "_0xd8adc6": "char"
-    },
-    "541-544": {
-      "_0x2bd8a6": "maxValue",
-      "_0x2c5776": "offset",
-      "_0x2d32fe": "result"
-    },
-    "545-547": {
-      "_0x1677f0": "str"
-    },
-    "548-550": {
-      "_0x3ea554": "agentType"
-    },
-    "551-554": {
-      "_0x2f064c": "displayName",
-      "_0x5dd133": "type",
-      "_0x257465": "agent"
-    },
-    "555-557": {
-      "_0x18754a": "agentType"
-    },
-    "558-560": {
-      "_0x5f395f": "agent"
-    },
-    "561-563": {
-      "_0x1b3184": "agent"
-    },
-    "690-693": {
-      "_0x2d0e2a": "urlParts",
-      "_0x494af0": "result"
-    },
-    "725-727": {
-      "_0x717388": "text",
-      "_0x145db0": "mode"
-    },
-    "748-750": {
-      "_0x29d32a": "obj"
-    },
-    "751-753": {
-      "_0x283375": "obj"
-    },
-    "754-756": {
-      "_0x48c6d9": "obj",
-      "_0x5bbe46": "prop"
-    },
-    "757-766": {
-      "_0x5bcf63": "target",
-      "_0x5ba411": "source",
-      "_0x2b8951": "key"
-    },
-    "767-769": {
-      "_0x3011d4": "array",
-      "_0x585952": "index",
-      "_0x60f929": "replacement"
-    },
-    "770-772": {
-      "_0x127297": "code"
-    },
-    "773-781": {
-      "_0x310aee": "codePoint",
-      "_0x365a08": "high",
-      "_0x713c77": "low"
-    },
-    "782-789": {
-      "_0xc66f35": "match",
-      "_0x45d821": "entity",
-      "_0x12a045": "codePoint",
-      "_0x3e5eb3": "decoded"
-    },
-    "790-792": {
-      "_0x22b5a5": "str"
-    },
-    "793-797": {
-      "_0x5c2a3b": "str",
-      "_0x34c8ea": "match",
-      "_0x158e99": "escaped",
-      "_0x3c1097": "entity"
-    },
-    "798-800": {
-      "_0x14d9a4": "char"
-    },
-    "801-803": {
-      "_0x1c6706": "str"
-    },
-    "804-806": {
-      "_0x566d90": "str"
-    },
-    "807-814": {
-      "_0x588a16": "code"
-    },
-    "815-831": {
-      "_0x3f2c59": "code"
-    },
-    "832-874": {
-      "_0xec7fd4": "code"
-    },
-    "875-877": {
-      "_0x41c70b": "str"
-    },
-    "880-900": {
-      "_0x2be336": "state",
-      "_0x1d2a0d": "start",
-      "_0x14c681": "disableNested",
-      "_0x2241ce": "level",
-      "_0x484ca3": "found",
-      "_0x54ef9c": "charCode",
-      "_0x234c78": "lastPos",
-      "_0x314dd7": "max",
-      "_0x36feab": "oldPos",
-      "_0x611d69": "labelEnd"
-    },
-    "901-936": {
-      "_0x5a1f9c": "str",
-      "_0x5141b8": "pos",
-      "_0x3b1d18": "max",
-      "_0x51961e": "code",
-      "_0x3b5007": "start",
-      "_0x31d8e4": "result",
-      "_0x1bd601": "level"
-    },
-    "937-1006": {
-      "_0x46318d": "str",
-      "_0xc044cf": "pos",
-      "_0x36c909": "max",
-      "_0x4f568c": "prev",
-      "_0xf608e": "code",
-      "_0x172f33": "start",
-      "_0x1f6e9d": "result",
-      "_0x18062c": "marker"
-    },
-    "1010-1175": {
-      "_0x202c34": "tokens",
-      "_0xcfda32": "nodes",
-      "_0x391302": "stack",
-      "_0x439cbb": "i",
-      "_0x533b74": "token",
-      "_0xc7deb5": "headingNode",
-      "_0x43b94e": "closedNode",
-      "_0x4e0049": "paraNode",
-      "_0x3b3931": "paraNode",
-      "_0x2e3a0b": "bulletNode",
-      "_0x27a603": "listNode",
-      "_0x10bcdb": "orderedNode",
-      "_0x1e4517": "listNode",
-      "_0x43e0ac": "itemNode",
-      "_0x54f00b": "itemNode",
-      "_0x182b59": "quoteNode",
-      "_0x15fe2c": "quoteNode",
-      "_0x2f61b0": "codeNode",
-      "_0x4eb32e": "textNode",
-      "_0x54df1e": "inlineNodes",
-      "_0x51b4f7": "breakNode"
-    },
-    "1176-1223": {
-      "_0x8b6f93": "tokens",
-      "_0x5f2604": "nodes",
-      "_0x40620a": "marks",
-      "_0x1cedb6": "markTypes",
-      "_0x1a25ea": "markType",
-      "_0x3cce8f": "textNode",
-      "_0x62d4b8": "codeText",
-      "_0x4a8aa9": "codeNode",
-      "_0x12d912": "boldIdx",
-      "_0x40453f": "italicIdx"
-    },
-    "1226-1228": {
-      "_0x3743aa": "lines"
-    },
-    "1232-1236": {
-      "_0x19cec2": "lineRange",
-      "_0x4c789a": "errorFactory"
-    },
-    "1237-1239": {
-      "_0x3a4d91": "lineRange",
-      "_0x4c3743": "errorFactory"
-    },
-    "1243-1254": {
-      "_0x41b83f": "replacements",
-      "_0x4cbade": "repA",
-      "_0x1f3ada": "repB",
-      "_0xc9e607": "offset",
-      "_0x2622d6": "replLines",
-      "_0x361b27": "lineRange",
-      "_0x53b844": "startIdx",
-      "_0x20e666": "removeCount"
-    },
-    "1255-1262": {
-      "_0x233b9a": "word",
-      "_0x42b161": "results",
-      "_0x4b27a3": "lineNum",
-      "_0x29f05c": "lineText"
-    },
-    "1263-1269": {
-      "_0x23766c": "replacements",
-      "_0x53dccc": "i",
-      "_0x150cb2": "prevRange",
-      "_0x119743": "currRange"
-    },
-    "1270-1272": {
-      "_0x4cae84": "fileContent"
-    },
-    "1273-1275": {
-      "_0x23c94b": "lines"
-    },
-    "1278-1287": {
-      "_0xb5cb1d": "url",
-      "_0x1139a0": "httpsRegex",
-      "_0xe68749": "sshRegex",
+    "740-749": {
+      "_0xb5cb1d": "repoUrl",
+      "_0x1139a0": "httpsPattern",
+      "_0xe68749": "sshPattern",
       "_0x24dac3": "matchResult"
     },
-    "1288-1303": {
-      "_0x31e5e1": "getGroupKey",
+    "750-765": {
+      "_0x31e5e1": "groupKeyFn",
       "_0x41e53d": "items",
       "_0xaf935": "maxItems",
       "_0x2de324": "groupMap",
-      "_0x97b73d": "groupKey",
       "_0x2e681b": "getGroupItems",
-      "_0x5b4dff": "uniqueGroupCount",
+      "_0x97b73d": "groupKey",
+      "_0x5b4dff": "groupCount",
       "_0x30516e": "item",
       "_0x470525": "itemsPerGroup",
       "_0x565f7b": "totalCount",
       "_0x41a617": "currentGroupKey",
-      "_0x591546": "currentGroupItems"
+      "_0x591546": "existingItems"
     },
-    "1304-1326": {
-      "_0x48d9d4": "isIndividual",
+    "766-788": {
+      "_0x48d9d4": "subscriptionData",
       "_0x47d03e": "subscriptionStatus",
-      "_0x1e5614": "isTrial"
+      "_0x1e5614": "additionalInfo"
     },
-    "1327-1330": {
-      "_0x2aa6c9": "isIndividual",
-      "_0x497a89": "baseName",
-      "_0x4ce2d4": "isTrial",
-      "_0x1ca706": "planName"
+    "789-792": {
+      "_0x2aa6c9": "subscriptionData",
+      "_0x497a89": "planName",
+      "_0x4ce2d4": "additionalInfo"
     },
-    "1331-1450": {
-      "_0x4e3d49": "docContent",
-      "_0x2960d1": "platform",
-      "_0x50343a": "result",
-      "_0x66f191": "mentionList",
-      "_0x5e69bc": "node",
-      "_0x78978b": "hasNewline",
-      "_0x2a7f29": "quoteLines",
-      "_0x240971": "quoteNode",
-      "_0x1f5b50": "quotedText",
-      "_0x4a5067": "extractText",
-      "_0x26a6fd": "textNode",
-      "_0x37455c": "quotedContent",
-      "_0x2a66a7": "filePath",
-      "_0x527c1a": "absPath",
-      "_0xa1e769": "phaseId"
+    "793-809": {
+      "_0x4e3d49": "queryText",
+      "_0x2960d1": "parseOptions"
+    },
+    "930-937": {
+      "_0x206a3b": "docContent",
+      "_0x42a599": "itemsToInsert",
+      "_0x3a5d0e": "insertIndex",
+      "_0x50b145": "contentCopy",
+      "_0xc71353": "safeIndex"
+    },
+    "965-984": {
+      "_0x39089f": "message",
+      "_0x57dc84": "serializeFn",
+      "_0x4287c3": "serializedData",
+      "_0x58e015": "chunkId",
+      "_0x1f0dbe": "totalChunks",
+      "_0x39db9e": "chunks",
+      "_0xc525e6": "chunkIndex",
+      "_0x184372": "startOffset",
+      "_0x5b1f6c": "endOffset",
+      "_0x15b1f8": "chunkData"
+    },
+    "985-1027": {
+      "_0x42d4c0": "chunks",
+      "_0x1a7df6": "expectedChunkId",
+      "_0x285643": "totalChunks",
+      "_0x308972": "sequenceSet",
+      "_0x3b559d": "chunkItem",
+      "_0x4f0c5d": "sortedChunks",
+      "_0x37f5ad": "chunkA",
+      "_0x10132": "chunkB",
+      "_0x1d2eeb": "seqIndex",
+      "_0x2854b9": "finalChunks",
+      "_0x2cb003": "chunk"
+    },
+    "1101-1108": {
+      "_0x1fc85a": "logger",
+      "_0x4b236a": "loadError"
+    },
+    "1110-1125": {
+      "_0x121526": "stream",
+      "_0x2afa60": "data",
+      "_0x255682": "resolve",
+      "_0x40fef8": "reject",
+      "_0x10975b": "writeError",
+      "_0x5add3f": "drainHandler",
+      "_0xee9123": "timeoutId"
+    },
+    "1126-1137": {
+      "_0x381bd6": "stream",
+      "_0x4e6d6a": "data",
+      "_0x349139": "logger",
+      "_0x6b5598": "maxRetries",
+      "_0x25ac87": "retryFn",
+      "_0xb9c87f": "error",
+      "_0x259322": "attemptInfo",
+      "_0x8ce263": "retryDelay",
+      "_0x443ad9": "resolveFn"
+    },
+    "1138-1145": {
+      "_0x23533f": "stream",
+      "_0x2611c4": "message",
+      "_0x1bf0b0": "logger",
+      "_0x2d28b7": "maxRetries",
+      "_0x2dd691": "enableChunking",
+      "_0x266379": "serializeFn",
+      "_0x330cef": "retryFn",
+      "_0x1992bf": "chunks"
+    },
+    "1146-1149": {
+      "_0x3efdc2": "stream",
+      "_0x2c197f": "message",
+      "_0xd53e86": "logger",
+      "_0x3317bf": "maxRetries",
+      "_0x487b94": "enableChunking",
+      "_0x536d9c": "serializeFn",
+      "_0x3a375e": "retryModule"
+    },
+    "1165-1167": {
+      "_0x5cbc91": "loggerInstance"
+    },
+    "1168-1183": {
+      "_0x2a135c": "item",
+      "_0x306a1e": "pendingPop",
+      "_0x54145a": "queueFullState"
+    },
+    "1185-1207": {
+      "_0x218753": "resolvePromise",
+      "_0xee5eae": "rejectPromise",
+      "_0x2d1313": "poppedItem",
+      "_0xdb1b40": "closedState"
+    },
+    "1209-1215": {
+      "_0x4d4553": "itemFromQueue",
+      "_0x2fa1f2": "backpressureThreshold"
+    },
+    "1216-1227": {
+      "_0x5e16d0": "closeState"
+    },
+    "1228-1248": {
+      "_0x127a4e": "internalItem",
+      "_0xcb03ae": "resolveWait",
+      "_0x2b120d": "onItemAvailable",
+      "_0x1394bf": "onClosed"
+    },
+    "1259-1264": {
+      "_0x35007b": "streamInstance",
+      "_0x14e17f": "loggerInstance"
+    },
+    "1265-1297": {
+      "_0xdd152e": "messageData",
+      "_0x14518c": "chunkedMsg",
+      "_0x5cb62c": "reconstructedMsg",
+      "_0x1b3c86": "chunkError",
+      "_0x406716": "chunkIdToClean",
+      "_0x21f408": "existingTimeout",
+      "_0xd4c600": "bufferedItem"
+    },
+    "1298-1300": {
+      "_0x40196a": "messageObj"
+    },
+    "1301-1323": {
+      "_0x50ac93": "chunkedMessage",
+      "_0x36a460": "chunkId",
+      "_0x1c8c4a": "currentTimeout",
+      "_0x150864": "newTimeout",
+      "_0x1166d9": "chunkBuffer",
+      "_0x348757": "existingChunk",
+      "_0x2c39bb": "uniqueSequences",
+      "_0x325bae": "chunkItem",
+      "_0x3f0c2f": "reassembleError"
+    },
+    "1335-1346": {
+      "_0x42b310": "processingError",
+      "_0xf7110d": "consumptionError"
+    },
+    "1715-1717": {
+      "_0x2d953d": "agentConfig"
+    },
+    "1718-1720": {
+      "_0x2358a0": "agentId"
+    },
+    "1721-1723": {
+      "_0x205f38": "agentIdToGet"
+    },
+    "1727-1729": {
+      "_0x5f51c9": "sourceType",
+      "_0x2b27ea": "agentItem"
+    },
+    "1730-1732": {
+      "_0x1447b2": "cliAgent"
+    },
+    "1739-1741": {
+      "_0x460b87": "agentIdToCheck"
+    },
+    "1742-1746": {
+      "_0xd801d2": "agentIdParam",
+      "_0x23405d": "agentData"
+    },
+    "1747-1753": {
+      "_0x112a1a": "agentIdQuery"
+    },
+    "1754-1756": {
+      "_0x3824d6": "nameOrId",
+      "_0x360e25": "builtinAgent"
+    },
+    "1763-1765": {
+      "_0x4e2b69": "concurrency",
+      "_0x2c6a5f": "breatherMs",
+      "_0x4a727a": "continuousMs"
+    },
+    "1766-1779": {
+      "_0x509ae7": "requestFn",
+      "_0x58d202": "resolveFn",
+      "_0x2e0025": "rejectFn",
+      "_0x23d3ee": "result",
+      "_0x13a262": "error"
+    },
+    "1790-1794": {
+      "_0x422b46": "nextRequest"
+    },
+    "1805-1822": {
+      "_0x2c82ea": "requestFunction",
+      "_0x48cd32": "wrappedRequest",
+      "_0x5b0847": "abortSignal",
+      "_0x469b7d": "abortPromise",
+      "_0x4e244a": "resolveAbort",
+      "_0x8134b7": "rejectAbort",
+      "_0x194141": "requestResult",
+      "_0x5ca370": "requestError"
+    },
+    "1825-1834": {
+      "_0xaeb101": "fileService",
+      "_0x36e209": "rgPath",
+      "_0x4fbe28": "searchRegex",
+      "_0xb33b6": "dirInfo",
+      "_0xef23c3": "includePattern",
+      "_0x136f81": "ignorePatterns",
+      "_0x11d8e6": "maxResults",
+      "_0xcd99b2": "formatFn",
+      "_0x35c95e": "rgCommand",
+      "_0x3c19f5": "searchResults"
+    },
+    "1835-1865": {
+      "_0x5639f8": "searchPath",
+      "_0x5cdd49": "searchQuery",
+      "_0x4b2c47": "filePattern",
+      "_0x4d5e92": "ignoreGlobs",
+      "_0x401908": "maxResults",
+      "_0x2cee82": "recursive",
+      "_0x4eeab0": "ripgrepPath",
+      "_0xa9f861": "pathSeparatorRegex",
+      "_0x5a2f9": "baseArgs",
+      "_0x565312": "includeCmd",
+      "_0xafc48d": "searchCmd",
+      "_0x407f09": "commands"
+    },
+    "1851-1869": {
+      "_0x10d4d2": "searchPath",
+      "_0x249521": "searchQuery",
+      "_0x1d3546": "abortController",
+      "_0x4ffec6": "maxResults",
+      "_0x1850be": "recursive",
+      "_0x1ff9c5": "ripgrepPath",
+      "_0x17afb1": "extractArgs",
+      "_0x1f39ac": "baseArgs",
+      "_0x547294": "listFilesCmd",
+      "_0x4f4b02": "extractPathCmd",
+      "_0x40281f": "searchCmd",
+      "_0x23e87e": "sortCmd",
+      "_0x13e594": "limitCmd",
+      "_0x262355": "commands"
+    },
+    "1870-1911": {
+      "_0x41dcf1": "searchQuery",
+      "_0x326761": "searchType",
+      "_0x438a88": "abortController",
+      "_0x5aa40f": "results",
+      "_0x40d284": "workspaceFolders",
+      "_0x1c0187": "perFolderLimit",
+      "_0x236178": "searchFilesInFolder",
+      "_0x579343": "folder",
+      "_0x159f12": "fileList",
+      "_0x3c2431": "filePath",
+      "_0x1a1b3c": "fileError",
+      "_0x27aedc": "searchFoldersInFolder",
+      "_0x15bd70": "workspaceFolder",
+      "_0x256034": "folderList",
+      "_0x579285": "folderPath",
+      "_0x5f1918": "folderError",
+      "_0x412a71": "promises",
+      "_0x13b04a": "wsFolder"
+    },
+    "1912-1914": {
+      "_0xa891fa": "pattern"
+    },
+    "1915-1923": {
+      "_0x3ad6d4": "query",
+      "_0x4205d2": "searchType",
+      "_0x3cfdfb": "abortController",
+      "_0x571111": "error"
+    },
+    "1939-1942": {
+      "_0x37304d": "filePath",
+      "_0x40d5e7": "cachedDoc"
+    },
+    "1943-1946": {
+      "_0xe4fa0a": "filePath",
+      "_0x18ba5d": "textDoc"
+    },
+    "1947-1951": {
+      "_0x8cd8c3": "filePath",
+      "_0x46ace8": "fileUri",
+      "_0x4ddba6": "foundDoc",
+      "_0x5aec35": "doc"
+    },
+    "1952-1956": {
+      "_0x1bfaca": "filePath",
+      "_0x91bc78": "fileUri",
+      "_0x4c8a6e": "cachedDoc"
+    },
+    "1957-1959": {
+      "_0x1633d2": "uri"
+    },
+    "1960-1970": {
+      "_0x339582": "uri",
+      "_0x4d84bc": "timeoutMs",
+      "_0x5c4629": "openPromise",
+      "_0x2e5ed9": "timeoutPromise",
+      "_0x47e156": "resolveTimeout",
+      "_0x53246c": "rejectTimeout",
+      "_0x5c9453": "error"
+    },
+    "1971-1973": {
+      "_0x52d2d8": "uri"
+    },
+    "1974-1984": {
+      "_0x5e8688": "uri",
+      "_0x164049": "timeoutMs",
+      "_0x56d04c": "openPromise",
+      "_0x26501d": "timeoutPromise",
+      "_0x255cca": "resolveTimeout",
+      "_0x46b812": "rejectTimeout",
+      "_0x5de235": "error"
+    },
+    "1987-1990": {
+      "_0x59a373": "array",
+      "_0x1b15dc": "item",
+      "_0x17f22b": "insertIndex",
+      "_0x5bf12d": "existingItem"
+    },
+    "1991-1994": {
+      "_0x1f61aa": "array",
+      "_0x1e68b7": "predicate",
+      "_0x14b15f": "index"
+    },
+    "1996-2020": {
+      "_0x280674": "thisArg",
+      "_0x48f92c": "argumentsList",
+      "_0x1ec16a": "PromiseConstructor",
+      "_0x343adc": "generator",
+      "_0x3f6858": "adopt",
+      "_0x2f94f5": "value",
+      "_0x568be9": "resolve",
+      "_0x17ff9e": "resolveFn",
+      "_0x1b1325": "rejectFn",
+      "_0x4be22c": "fulfilled",
+      "_0x345ba6": "value",
+      "_0x544b51": "step",
+      "_0x1181f4": "error",
+      "_0x69b6e7": "rejected",
+      "_0xa98fbb": "value",
+      "_0x4a3a6f": "error",
+      "_0x8bc1b8": "result"
+    },
+    "2024-2026": {
+      "_0x4025fa": "initialValue",
+      "_0x17f399": "cancelError"
+    },
+    "2027-2039": {
+      "_0x33d309": "weight",
+      "_0xcab634": "priority",
+      "_0x4c7173": "resolveFn",
+      "_0x141022": "rejectFn",
+      "_0x5cfbf2": "waiter",
+      "_0x332b32": "insertIndex",
+      "_0x556405": "queueItem"
+    },
+    "2040-2049": {
+      "_0x5b826d": "callback",
+      "_0x34ebcd": "fn",
+      "_0x2f2cc5": "weight",
+      "_0x470ca6": "priority",
+      "_0x2529ec": "value",
+      "_0x39757e": "releaser"
+    },
+    "2050-2058": {
+      "_0x1f5c66": "weight",
+      "_0x59a49e": "priority",
+      "_0x1c2e70": "resolve"
+    },
+    "2065-2067": {
+      "_0x50f692": "newValue"
+    },
+    "2068-2071": {
+      "_0x150d6e": "weight"
+    },
+    "2072-2074": {
+      "_0xdfbf8d": "waiter"
+    },
+    "2078-2081": {
+      "_0x5b1201": "item",
+      "_0x33ba64": "currentValue"
+    },
+    "2082-2087": {
+      "_0x4faebe": "weight",
+      "_0x3596cb": "released"
+    },
+    "2088-2101": {
+      "_0x2f2947": "availableWeight",
+      "_0x473b46": "waiters",
+      "_0x1ead18": "waiter",
+      "_0x492173": "queuePriority",
+      "_0x24debb": "weight",
+      "_0x38eeb0": "weightWaiters",
+      "_0x2b8de1": "splitIndex",
+      "_0x24b5b7": "waiter",
+      "_0x5f41d2": "waiterToResolve"
+    },
+    "2102-2104": {
+      "_0x29ff0c": "weight",
+      "_0xeeb3fe": "priority"
+    },
+    "2106-2145": {
+      "_0x23dec5": "thisArg",
+      "_0x382a51": "argumentsList",
+      "_0x3fccb9": "PromiseConstructor",
+      "_0x393b37": "generator",
+      "_0x21f58f": "adopt",
+      "_0x3f67cf": "value",
+      "_0x7ba1ac": "resolve",
+      "_0x68f9": "resolveFn",
+      "_0x129c6b": "rejectFn",
+      "_0x147510": "fulfilled",
+      "_0x1f32ec": "value",
+      "_0x542c3c": "step",
+      "_0x2d580b": "error",
+      "_0x34a46f": "rejected",
+      "_0x1f2ff1": "value",
+      "_0x28c55a": "error",
+      "_0x32a28c": "result"
+    },
+    "2149-2151": {
+      "_0x3f0aa9": "priority"
+    },
+    "2160-2171": {
+      "_0x5d3f77": "folderPath",
+      "_0x2d922b": "logger",
+      "_0x4f35d6": "statError",
+      "_0x1f090a": "mkdirError"
+    },
+    "2172-2175": {
+      "_0x26fdd1": "logger",
+      "_0x17fea5": "outputPath"
+    },
+    "2176-2179": {
+      "_0xdf9916": "logger",
+      "_0x27c1aa": "cachePath"
+    },
+    "2180-2182": {
+      "_0x161dc6": "logger"
+    },
+    "2191-2193": {
+      "_0x1f239a": "loggerInstance"
+    },
+    "2194-2196": {
+      "_0x248aba": "logger"
+    },
+    "2197-2206": {
+      "_0x142273": "releaseLock",
+      "_0x231d6e": "error"
+    },
+    "2207-2215": {
+      "_0x230dcd": "releaseLock"
+    },
+    "2216-2222": {
+      "_0x33ed51": "logger",
+      "_0x21f3db": "dbConnection"
+    },
+    "2223-2230": {
+      "_0x17b3a4": "operation",
+      "_0x48a58e": "connection",
+      "_0x18d110": "error"
+    },
+    "2231-2233": {
+      "_0x243a41": "sql",
+      "_0x2e79c4": "params",
+      "_0x3fe82a": "conn"
+    },
+    "2234-2236": {
+      "_0x216f91": "sql",
+      "_0x4b77b1": "params",
+      "_0x412511": "conn"
+    },
+    "2237-2239": {
+      "_0x43b0bb": "connection"
+    },
+    "2240-2247": {
+      "_0x47a268": "cacheKey",
+      "_0x48acf4": "result"
+    },
+    "2251-2253": {
+      "_0x44c5f0": "cacheKey"
+    },
+    "2259-2261": {
+      "_0x250e31": "dbService"
+    },
+    "2265-2272": {
+      "_0x323614": "cacheKey",
+      "_0x5e924a": "content",
+      "_0x348058": "cachedData"
+    },
+    "2273-2276": {
+      "_0x59dfbb": "cacheKey",
+      "_0x1f1aa9": "value",
+      "_0x398501": "content",
+      "_0x4cd420": "metadata",
+      "_0x4c87b3": "hash"
+    },
+    "2277-2281": {
+      "_0x3c5e7b": "content",
+      "_0x125191": "encoded",
+      "_0x4e817a": "hashBuffer",
+      "_0x3df838": "byte"
+    },
+    "2288-2290": {
+      "_0x46d11a": "cacheService"
+    },
+    "2291-2299": {
+      "_0x4fae2a": "workspaceInfo",
+      "_0x48aa46": "dbService",
+      "_0xba957a": "cacheService"
+    },
+    "2303-2309": {
+      "_0x295c81": "error"
+    },
+    "2310-2316": {
+      "_0xecb0a5": "cacheKey",
+      "_0xb09b81": "content",
+      "_0x508ecc": "error"
+    },
+    "2317-2325": {
+      "_0x35e77a": "filePath",
+      "_0x4aac3b": "summary",
+      "_0x45aed9": "absolutePath",
+      "_0x2a483b": "sourceCode",
+      "_0x4ace6d": "error"
+    },
+    "2328-2330": {
+      "_0x479aed": "uri"
+    },
+    "2331-2368": {
+      "_0x993928": "filePathProto",
+      "_0x2eeeaf": "severityFilter",
+      "_0x175edc": "traycerPath",
+      "_0x2302aa": "fileUri",
+      "_0xa788b": "diagnostics",
+      "_0x5f3657": "results",
+      "_0x29ecf2": "diagnostic",
+      "_0x3f672b": "relatedInfo",
+      "_0x235844": "relatedPromises",
+      "_0x26bac4": "related",
+      "_0x1da05e": "relatedItem"
     }
   }
 }

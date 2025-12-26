@@ -1,0 +1,60 @@
+{
+  "globals": {},
+  "locals": {
+    "435-447": {
+      "_0x3d9552": "filePath",
+      "_0x24123c": "fileContent",
+      "_0x309720": "startRange",
+      "_0x2b83a8": "endRange",
+      "_0x352f6c": "contentObj",
+      "_0x3267d9": "adjustedStartLine",
+      "_0x596fe5": "adjustedEndLine",
+      "_0x5b19be": "lineRange"
+    },
+    "448-462": {
+      "_0x3f9a56": "items",
+      "_0x443e05": "getRangeFn",
+      "_0x2d2477": "mergeFn",
+      "_0x239576": "includeAdjacent",
+      "_0x42a602": "itemA",
+      "_0x1e8f06": "itemB",
+      "_0x339bff": "mergedList",
+      "_0x5863c7": "currentItem",
+      "_0x1dcb38": "currentRange",
+      "_0x4b92d0": "loopIndex",
+      "_0x43bd17": "nextItem",
+      "_0x4e2f87": "nextRange",
+      "_0x42e5e2": "currentEndLine",
+      "_0x333b25": "isAdjacent"
+    },
+    "463-468": {
+      "_0x46b414": "lineRanges",
+      "_0x3e8896": "includeAdjacent",
+      "_0x53a1d6": "rangeItem",
+      "_0x21121c": "range1",
+      "_0x6d0324": "range2",
+      "_0xa876e1": "maxEndLine"
+    },
+    "469-473": {
+      "_0x433b9e": "textContent",
+      "_0x3c9178": "lineNumber",
+      "_0x352f0e": "lines"
+    },
+    "474-477": {
+      "_0x5d65a3": "textContent",
+      "_0x44d627": "lineNumber",
+      "_0x304c53": "searchPattern",
+      "_0x5a8549": "dmp"
+    },
+    "478-485": {
+      "_0x5324c8": "textContent",
+      "_0x2b2ebe": "lineNumber",
+      "_0x2a9906": "searchText",
+      "_0x412a06": "token",
+      "_0x28de44": "matchRange",
+      "_0x1fbb0d": "lineText",
+      "_0x2ed7ad": "charPosition"
+    }
+  }
+}
+

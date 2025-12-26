@@ -1,0 +1,42 @@
+{
+  "globals": {},
+  "locals": {
+    "160-162": {
+      "_0x58fb5a": "provider",
+      "_0x1ce42b": "logLevel",
+      "_0x1cedf9": "isDebug"
+    },
+    "163-165": {
+      "_0x60137d": "levelStr"
+    },
+    "178-183": {
+      "_0x10a8c6": "currentDate",
+      "_0x377578": "padTwo",
+      "_0x8b7079": "padThree"
+    },
+    "184-186": {
+      "_0x1c4f12": "message",
+      "_0x17c1c7": "args"
+    },
+    "187-189": {
+      "_0x333991": "message",
+      "_0x2fd09d": "args"
+    },
+    "190-203": {
+      "_0xfc345f": "errorObj",
+      "_0x176cd8": "message",
+      "_0x59cb4c": "args",
+      "_0x30c0e0": "stackTrace",
+      "_0x414ff8": "matchResult"
+    },
+    "204-206": {
+      "_0x499546": "message",
+      "_0x207c22": "args"
+    },
+    "207-209": {
+      "_0x121631": "message",
+      "_0x335a0f": "args"
+    }
+  }
+}
+
