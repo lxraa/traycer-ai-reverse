@@ -7,7 +7,6 @@ const diff_match_patch_module = require("diff-match-patch");
 const retry_module = require("retry");
 /* [unbundle] ignore_module 已移至 config.js */
 const sqlite3_module = require("sqlite3");
-const workerpool_module = require("workerpool");
 const lru_map_module = require("lru_map");
 const posthog_module = require("posthog-js-lite");
 const lodash_module = require("lodash");
@@ -3504,12 +3503,11 @@ var Pf,
   },
   /* [unbundle] workerpool 已移至顶部导入区 */
   
-  WorkerType,
   WorkerPoolManager,
   initStatusBar = __esmModule(() => {
     'use strict';
 
-     initWorkspaceInfo(), WorkerType = (WorkerTypeEnum => (WorkerTypeEnum.JSON_OPERATIONS = 'json-operations.cjs', WorkerTypeEnum.THREE_WAY_MERGE = 'three-way-merge.cjs', WorkerTypeEnum.RIPGREP_PROCESSOR = 'ripgrep-processor.cjs', WorkerTypeEnum.DIFF_UTILS = "diff-utils.cjs", WorkerTypeEnum.LIST_FILES_PROCESSOR = "list-files-processor.cjs", WorkerTypeEnum))(WorkerType || {}), WorkerPoolManager = class WorkerPoolManager extends ex {
+     initWorkspaceInfo(), WorkerPoolManager = class WorkerPoolManager extends ex {
       static {
         this._instance = null;
       }
@@ -3525,7 +3523,7 @@ var Pf,
         return path_module.join(me.getInstance().getResourcesDir(), "workers", workerType);
       }
       ['getSupportedWorkerTypes']() {
-        return Object.values(WorkerType);
+        return ['json-operations.cjs', 'three-way-merge.cjs', 'ripgrep-processor.cjs', 'diff-utils.cjs', 'list-files-processor.cjs'];
       }
       static ["getInstance"]() {
         return WorkerPoolManager._instance || (WorkerPoolManager._instance = new WorkerPoolManager()), WorkerPoolManager._instance;
@@ -19543,75 +19541,138 @@ async function cleanupExtensionResources() {
     Logger.error(_0x3e450a, "Failed to close Sentry");
   });
 }
-async function initializeExtensionServices(_0x6b8fd4, _0x12fddd) {
-  let _0x166796 = _0x12fddd.traycerToken,
-    _0x40cd3c = _0x12fddd.traycerUser;
-  if (!_0x166796 || !_0x40cd3c) return;
-  checkAndShowReleaseNotes(_0x6b8fd4, _0x40cd3c), loadLastSelectedAgent(_0x6b8fd4);
-  let _0xcce45f = _0x40cd3c.user.providerHandle;
-  _0xcce45f || (_0xcce45f = _0x40cd3c.user.providerHandle), setSentryTag("User", _0xcce45f), await WorkerPoolManager.initWorkerPool(), yn.getInstance(_0xcce45f, _0x40cd3c.user.email ?? void 0, _0x40cd3c.user.privacyMode);
-  let _0x5917e5 = config.nodeEnv !== 'local' ? grpc_module.ChannelCredentials.createSsl() : grpc_module.credentials.createSsl(null, null, null, {
+async function initializeExtensionServices(context, authState_local) {
+  // 获取认证令牌和用户信息
+  let traycerToken = authState_local.traycerToken,
+    traycerUser = authState_local.traycerUser;
+  if (!traycerToken || !traycerUser) return;
+  
+  // 检查并显示更新说明,加载最后选择的Agent
+  checkAndShowReleaseNotes(context, traycerUser);
+  loadLastSelectedAgent(context);
+  
+  // 获取用户的providerHandle
+  let providerHandle = traycerUser.user.providerHandle;
+  providerHandle || (providerHandle = traycerUser.user.providerHandle);
+  setSentryTag("User", providerHandle);
+  
+  // 初始化WorkerPool
+  await WorkerPoolManager.initWorkerPool();
+  
+  // 初始化PostHog分析实例
+  yn.getInstance(providerHandle, traycerUser.user.email ?? void 0, traycerUser.user.privacyMode);
+  
+  // 创建gRPC凭证
+  let grpcCredentials = config.nodeEnv !== 'local' ? grpc_module.ChannelCredentials.createSsl() : grpc_module.credentials.createSsl(null, null, null, {
       rejectUnauthorized: false,
       checkServerIdentity: () => {}
     }),
-    _0x23a44e = await GrpcClient.open(_0x12fddd, _0x5917e5),
-    _0x5175b4 = {
-      dispose: () => _0x23a44e.close()
+    grpcClient = await GrpcClient.open(authState_local, grpcCredentials),
+    grpcDisposable = {
+      dispose: () => grpcClient.close()
     };
-  disposables.push(_0x5175b4), Nh.getInstance(_0x23a44e), initializeLanguageParsers(_0x6b8fd4);
-  let _0x544192 = vscode_module.workspace.registerFileSystemProvider(EXTENSION_ID, TraycerFileSystem.getInstance(), {
+  
+  // 初始化各种管理器
+  disposables.push(grpcDisposable);
+  Nh.getInstance(grpcClient);
+  initializeLanguageParsers(context);
+  
+  // 注册Traycer文件系统提供者
+  let traycerFsProvider = vscode_module.workspace.registerFileSystemProvider(EXTENSION_ID, TraycerFileSystem.getInstance(), {
     isCaseSensitive: true,
     isReadonly: true
   });
-  disposables.push(_0x544192);
-  let _0x29946c = vscode_module.workspace.registerFileSystemProvider(MEDIA_VIEW_ID, MediaFileSystem.getInstance(), {
+  disposables.push(traycerFsProvider);
+  
+  // 注册Media文件系统提供者
+  let mediaFsProvider = vscode_module.workspace.registerFileSystemProvider(MEDIA_VIEW_ID, MediaFileSystem.getInstance(), {
     isCaseSensitive: false,
     isReadonly: true
   });
-  disposables.push(_0x29946c);
-  let _0x34dca5 = vscode_module.workspace.registerFileSystemProvider(EDITABLE_DIFF_VIEW_ID, TE.getInstance(_0x6b8fd4), {
+  disposables.push(mediaFsProvider);
+  
+  // 注册可编辑Diff视图文件系统提供者
+  let editableDiffFsProvider = vscode_module.workspace.registerFileSystemProvider(EDITABLE_DIFF_VIEW_ID, TE.getInstance(context), {
     isCaseSensitive: true
   });
-  disposables.push(_0x34dca5);
-  let _0x5f20a4 = zn.getInstance(_0x23a44e),
-    _0x2c5a3d = await PersistenceManager.getInstancePromise(_0x6b8fd4, _0x5f20a4);
-  await Vt.getInstance().fetchFromStorage(), new Gf(_0x12fddd).handle({
+  disposables.push(editableDiffFsProvider);
+  
+  // 初始化存储服务
+  let storageService = zn.getInstance(grpcClient),
+    persistenceManager = await PersistenceManager.getInstancePromise(context, storageService);
+  
+  // 从存储加载数据
+  await Vt.getInstance().fetchFromStorage();
+  
+  // 获取订阅信息
+  new Gf(authState_local).handle({
     type: il.FETCH_SUBSCRIPTION
-  }).catch(_0x112b50 => {
-    Logger.error(_0x112b50, "Failed to fetch subscription");
+  }).catch(subscriptionError => {
+    Logger.error(subscriptionError, "Failed to fetch subscription");
   });
-  let _0x19e65e = UsageTracker.getInstance(_0x23a44e);
-  _0x19e65e.fetchRateLimitUsage(false, false).catch(_0x7108f5 => {
-    Logger.error(_0x7108f5, "Failed to fetch rate limit usage");
+  
+  // 初始化使用量追踪器并获取速率限制
+  let usageTracker = UsageTracker.getInstance(grpcClient);
+  usageTracker.fetchRateLimitUsage(false, false).catch(rateLimitError => {
+    Logger.error(rateLimitError, "Failed to fetch rate limit usage");
   });
-  let _0x507e92 = {
-    dispose: () => _0x19e65e.dispose()
+  
+  let usageTrackerDisposable = {
+    dispose: () => usageTracker.dispose()
   };
-  disposables.push(_0x507e92), await Du.getInstance().upsertRepoMappings();
+  disposables.push(usageTrackerDisposable);
+  
+  // 更新仓库映射
+  await Du.getInstance().upsertRepoMappings();
+  
+  // 创建文件监视器
   let {
-    disposables: _0x235294
-  } = createWatchers(_0x6b8fd4, _0x12fddd);
-  disposables.push(..._0x235294), await registerAllVscodeCommands(_0x6b8fd4);
-  let _0x525705 = vscode_module.workspace.onDidChangeConfiguration(_0x5399d1 => {
-    _0x5399d1.affectsConfiguration("traycer.additionalAgents") && Xr.syncStateToWebview();
+    disposables: watcherDisposables
+  } = createWatchers(context, authState_local);
+  disposables.push(...watcherDisposables);
+  
+  // 注册所有VSCode命令
+  await registerAllVscodeCommands(context);
+  
+  // 监听配置变化
+  let configChangeDisposable = vscode_module.workspace.onDidChangeConfiguration(configEvent => {
+    configEvent.affectsConfiguration("traycer.additionalAgents") && Xr.syncStateToWebview();
   });
-  disposables.push(_0x525705);
-  let _0x59eccf = await LlmCacheHandler.getInstance(),
-    _0x202128 = {
-      dispose: () => _0x59eccf.shutdown()
+  disposables.push(configChangeDisposable);
+  
+  // 初始化LLM缓存处理器
+  let llmCacheHandler = await LlmCacheHandler.getInstance(),
+    llmCacheDisposable = {
+      dispose: () => llmCacheHandler.shutdown()
     };
-  disposables.push(_0x202128), _0x2c5a3d.loadDataFromDisk();
-  let _0x220782 = br.getInstance();
-  await _0x220782.startWatcher();
-  let _0x4d551e = {
-    dispose: () => _0x220782.dispose()
+  disposables.push(llmCacheDisposable);
+  
+  // 从磁盘加载持久化数据
+  persistenceManager.loadDataFromDisk();
+  
+  // 初始化文件监视器管理器
+  let fileWatcherManager = br.getInstance();
+  await fileWatcherManager.startWatcher();
+  let fileWatcherDisposable = {
+    dispose: () => fileWatcherManager.dispose()
   };
-  disposables.push(_0x4d551e);
-  let _0x31586b = YoloArtifactManager.getInstance(),
-    _0x5b6bbc = {
-      dispose: () => _0x31586b.dispose()
+  disposables.push(fileWatcherDisposable);
+  
+  // 初始化Yolo产物管理器
+  let yoloArtifactManager = YoloArtifactManager.getInstance(),
+    yoloDisposable = {
+      dispose: () => yoloArtifactManager.dispose()
     };
-  disposables.push(_0x5b6bbc), _0x6b8fd4.subscriptions.push(...disposables), config.activated = true, await S0.sendExtensionActivationStatus();
+  disposables.push(yoloDisposable);
+  
+  // 将所有disposables添加到context订阅
+  context.subscriptions.push(...disposables);
+  
+  // 标记为已激活
+  config.activated = true;
+  
+  // 发送扩展激活状态
+  await S0.sendExtensionActivationStatus();
 }
 function loadLastSelectedAgent(_0x144cda) {
   let _0x466f4e = _0x144cda.globalState.get(LAST_SELECTED_IDE_AGENT_KEY);
