@@ -26,6 +26,7 @@
     "posthog-js-lite": "^4.2.5",
     "protobufjs": "^7.5.4",
     "semver": "^7.7.3",
+    "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "uuid": "^13.0.0",
     "web-streams-polyfill": "^3.3.3",

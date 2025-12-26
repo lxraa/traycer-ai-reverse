@@ -23,7 +23,7 @@ const uuid_module = require("uuid");
 const events_module = require("events");
 const stream_module = require("stream");
 const sentry_browser_module = require("@sentry/browser");
-
+const sqlite_module = require("sqlite");
 const chokidar_module = require("chokidar");
 const path_module = {
   default: require("path"),
@@ -36,7 +36,6 @@ const os_module = {
 };
 const child_process_module = require("child_process");
 const util_module = require("util");
-const fs_module = require("fs");
 const crypto_module = {
   default: require("node:crypto"),
   ...require("node:crypto")
@@ -2163,339 +2162,7 @@ var k9e = new Error("request for lock canceled"),
     ["cancel"]() {
       return this._semaphore.cancel();
     }
-  },
-  formatErrorModule = __commonJS(_0x9c6374 => {
-    'use strict';
-
-    Object.defineProperty(_0x9c6374, "__esModule", {
-      value: true
-    }), _0x9c6374.formatError = void 0;
-    function _0x11b1a0(_0x3d9496) {
-      if (_0x3d9496 instanceof Error) return _0x3d9496;
-      if (typeof _0x3d9496 == "object") {
-        let _0x1f6d54 = new Error();
-        for (let key in _0x3d9496) _0x1f6d54[key] = _0x3d9496[key];
-        return _0x3d9496.message && (_0x1f6d54.message = _0x3d9496.message), _0x1f6d54;
-      }
-      return typeof _0x3d9496 == "string" ? new Error(_0x3d9496) : new Error(_0x3d9496);
-    }
-    _0x9c6374.formatError = _0x11b1a0;
-  }),
-  workerpoolErrorHandler = __commonJS(_0x180efb => {
-    'use strict';
-
-    Object.defineProperty(_0x180efb, '__esModule', {
-      value: true
-    }), _0x180efb.Statement = void 0;
-    var _0x231292 = formatErrorModule(),
-      _0x12ce06 = class {
-        constructor(_0x4c223a) {
-          this.stmt = _0x4c223a;
-        }
-        ["getStatementInstance"]() {
-          return this.stmt;
-        }
-        ["bind"](..._0x42c8e6) {
-          return new Promise((_0x5ec2f2, _0x2f7264) => {
-            this.stmt.bind(..._0x42c8e6, _0x5d345c => {
-              if (_0x5d345c) return _0x2f7264((0, _0x231292.formatError)(_0x5d345c));
-              _0x5ec2f2();
-            });
-          });
-        }
-        ['reset']() {
-          return new Promise(_0x5492c5 => {
-            this.stmt.reset(() => {
-              _0x5492c5();
-            });
-          });
-        }
-        ['finalize']() {
-          return new Promise((_0x4fe37e, _0x268108) => {
-            this.stmt.finalize(_0x74f514 => {
-              if (_0x74f514) return _0x268108((0, _0x231292.formatError)(_0x74f514));
-              _0x4fe37e();
-            });
-          });
-        }
-        ["run"](..._0x254651) {
-          return new Promise((_0x3e20b9, _0x273da1) => {
-            let _0x5b5a34 = this;
-            this.stmt.run(..._0x254651, function (_0x1b8838) {
-              if (_0x1b8838) return _0x273da1((0, _0x231292.formatError)(_0x1b8838));
-              _0x3e20b9({
-                stmt: _0x5b5a34,
-                lastID: this.lastID,
-                changes: this.changes
-              });
-            });
-          });
-        }
-        ["get"](..._0x5dc38c) {
-          return new Promise((_0x44beb3, _0x213186) => {
-            this.stmt.get(..._0x5dc38c, (_0x394932, _0x594c19) => {
-              if (_0x394932) return _0x213186((0, _0x231292.formatError)(_0x394932));
-              _0x44beb3(_0x594c19);
-            });
-          });
-        }
-        ['all'](..._0x2f5d91) {
-          return new Promise((_0x330061, _0x437b34) => {
-            this.stmt.all(..._0x2f5d91, (_0x38e9e3, _0x49144c) => {
-              if (_0x38e9e3) return _0x437b34((0, _0x231292.formatError)(_0x38e9e3));
-              _0x330061(_0x49144c);
-            });
-          });
-        }
-        ['each'](..._0x530345) {
-          return new Promise((_0x4b2086, _0x403293) => {
-            let _0x37fe28 = _0x530345.pop();
-            if (!_0x37fe28 || typeof _0x37fe28 != 'function') throw new Error('sqlite:\x20Last\x20param\x20of\x20Statement#each()\x20must\x20be\x20a\x20callback\x20function');
-            if (_0x530345.length > 0) {
-              let _0x4339f0 = _0x530345.pop();
-              if (typeof _0x4339f0 == 'function') throw new Error("sqlite: Statement#each() should only have a single callback defined. See readme for usage.");
-              _0x530345.push(_0x4339f0);
-            }
-            this.stmt.each(..._0x530345, (_0x4b111c, _0x4bae09) => {
-              if (_0x4b111c) return _0x37fe28((0, _0x231292.formatError)(_0x4b111c), null);
-              _0x37fe28(null, _0x4bae09);
-            }, (_0x28d277, _0x49a571) => {
-              if (_0x28d277) return _0x403293((0, _0x231292.formatError)(_0x28d277));
-              _0x4b2086(_0x49a571);
-            });
-          });
-        }
-      };
-    _0x180efb.Statement = _0x12ce06;
-  }),
-  sqliteMigrate = __commonJS(_0x4d360a => {
-    'use strict';
-
-    Object.defineProperty(_0x4d360a, '__esModule', {
-      value: true
-    }), _0x4d360a.migrate = _0x4d360a.readMigrations = void 0;
-    /* [unbundle] _0xfaf859 = require('fs') 已移至顶部导入区 fs_module */
-    async function _0x5cdf49(_0xcb2894) {
-      let _0x3daba2 = _0xcb2894 || path_module.join(process.cwd(), 'migrations'),
-        _0x314acb = path_module.resolve(_0x3daba2),
-        _0x5c301c = await new Promise((_0x63429f, _0x4d281a) => {
-          fs_module.readdir(_0x314acb, (_0x3a4193, _0x4f5349) => {
-            if (_0x3a4193) return _0x4d281a(_0x3a4193);
-            _0x63429f(_0x4f5349.map(_0x5a7d4a => _0x5a7d4a.match(/^(\d+).(.*?)\.sql$/)).filter(_0x1f73b2 => _0x1f73b2 !== null).map(_0x3b31b9 => ({
-              id: Number(_0x3b31b9[1]),
-              name: _0x3b31b9[2],
-              filename: _0x3b31b9[0]
-            })).sort((_0x5d4749, _0x4802f4) => Math.sign(_0x5d4749.id - _0x4802f4.id)));
-          });
-        });
-      if (!_0x5c301c.length) throw new Error('No\x20migration\x20files\x20found\x20in\x20\x27' + _0x314acb + '\x27.');
-      return Promise.all(_0x5c301c.map(_0x5d93d8 => new Promise((_0x746016, _0x4a1687) => {
-        let _0x20e5da = path_module.join(_0x314acb, _0x5d93d8.filename);
-        fs_module.readFile(_0x20e5da, "utf-8", (_0xced3cc, _0x4ede60) => {
-          if (_0xced3cc) return _0x4a1687(_0xced3cc);
-          let [_0x204c69, _0x25d9ce] = _0x4ede60.split(/^--\s+?down\b/im),
-            _0xe9e2e4 = _0x5d93d8;
-          _0xe9e2e4.up = _0x204c69.replace(/^-- .*?$/gm, '').trim(), _0xe9e2e4.down = _0x25d9ce ? _0x25d9ce.trim() : '', _0x746016(_0xe9e2e4);
-        });
-      })));
-    }
-    _0x4d360a.readMigrations = _0x5cdf49;
-    async function _0x2bdfc8(_0x106796, _0x1c31f1 = {}) {
-      _0x1c31f1.force = _0x1c31f1.force || false, _0x1c31f1.table = _0x1c31f1.table || "migrations";
-      let {
-          force: _0x541e20,
-          table: _0x2cda8c
-        } = _0x1c31f1,
-        _0x5225b2 = _0x1c31f1.migrations ? _0x1c31f1.migrations : await _0x5cdf49(_0x1c31f1.migrationsPath);
-      await _0x106796.run('CREATE\x20TABLE\x20IF\x20NOT\x20EXISTS\x20\x22' + _0x2cda8c + '\x22\x20(\x0a\x20\x20id\x20\x20\x20INTEGER\x20PRIMARY\x20KEY,\x0a\x20\x20name\x20TEXT\x20\x20\x20\x20NOT\x20NULL,\x0a\x20\x20up\x20\x20\x20TEXT\x20\x20\x20\x20NOT\x20NULL,\x0a\x20\x20down\x20TEXT\x20\x20\x20\x20NOT\x20NULL\x0a)');
-      let _0x2a2970 = await _0x106796.all("SELECT id, name, up, down FROM \"" + _0x2cda8c + "\" ORDER BY id ASC"),
-        _0x31cbfe = _0x5225b2[_0x5225b2.length - 1];
-      for (let key of _0x2a2970.slice().sort((_0x5eec9e, _0xc3f2d4) => Math.sign(_0xc3f2d4.id - _0x5eec9e.id))) if (!_0x5225b2.some(_0x25052c => _0x25052c.id === key.id) || _0x541e20 && key.id === _0x31cbfe.id) {
-        await _0x106796.run('BEGIN');
-        try {
-          await _0x106796.exec(key.down), await _0x106796.run("DELETE FROM \"" + _0x2cda8c + "\" WHERE id = ?", key.id), await _0x106796.run('COMMIT'), _0x2a2970 = _0x2a2970.filter(_0x15d67d => _0x15d67d.id !== key.id);
-        } catch (_0x5e3fb7) {
-          throw await _0x106796.run('ROLLBACK'), _0x5e3fb7;
-        }
-      } else break;
-      let _0x4ae3c5 = _0x2a2970.length ? _0x2a2970[_0x2a2970.length - 1].id : 0;
-      for (let key of _0x5225b2) if (key.id > _0x4ae3c5) {
-        await _0x106796.run("BEGIN");
-        try {
-          await _0x106796.exec(key.up), await _0x106796.run('INSERT\x20INTO\x20\x22' + _0x2cda8c + "\" (id, name, up, down) VALUES (?, ?, ?, ?)", key.id, key.name, key.up, key.down), await _0x106796.run('COMMIT');
-        } catch (_0x494553) {
-          throw await _0x106796.run('ROLLBACK'), _0x494553;
-        }
-      }
-    }
-    _0x4d360a.migrate = _0x2bdfc8;
-  }),
-  sqliteToSqlParams = __commonJS(_0x2fb5c3 => {
-    'use strict';
-
-    Object.defineProperty(_0x2fb5c3, "__esModule", {
-      value: true
-    }), _0x2fb5c3.toSqlParams = void 0;
-    function _0x2f3716(_0x2a9e3f, _0x41c546 = []) {
-      return typeof _0x2a9e3f == "string" ? {
-        sql: _0x2a9e3f,
-        params: _0x41c546
-      } : {
-        sql: _0x2a9e3f.sql,
-        params: _0x2a9e3f.values
-      };
-    }
-    _0x2fb5c3.toSqlParams = _0x2f3716;
-  }),
-  sqliteDatabase = __commonJS(_0x40b520 => {
-    'use strict';
-
-    Object.defineProperty(_0x40b520, "__esModule", {
-      value: true
-    }), _0x40b520.Database = void 0;
-    var _0x465262 = workerpoolErrorHandler(),
-      _0xdbc697 = sqliteMigrate(),
-      _0x25fd3f = sqliteToSqlParams(),
-      _0x19ce63 = formatErrorModule(),
-      _0x174ec1 = class {
-        constructor(_0x1cb314) {
-          this.config = _0x1cb314, this.db = null;
-        }
-        ['on'](_0x530986, _0x41c361) {
-          this.db.on(_0x530986, _0x41c361);
-        }
-        ['getDatabaseInstance']() {
-          return this.db;
-        }
-        ["open"]() {
-          return new Promise((_0xf9a8b1, _0x6bd97e) => {
-            let {
-              filename: _0x3530d4,
-              mode: _0x3e26eb,
-              driver: _0x14acce
-            } = this.config;
-            if (_0x3530d4 == null) throw new Error("sqlite: filename cannot be null / undefined");
-            if (!_0x14acce) throw new Error('sqlite:\x20driver\x20is\x20not\x20defined');
-            _0x3e26eb ? this.db = new _0x14acce(_0x3530d4, _0x3e26eb, _0x5c8c1a => {
-              if (_0x5c8c1a) return _0x6bd97e((0, _0x19ce63.formatError)(_0x5c8c1a));
-              _0xf9a8b1();
-            }) : this.db = new _0x14acce(_0x3530d4, _0x36a4ec => {
-              if (_0x36a4ec) return _0x6bd97e((0, _0x19ce63.formatError)(_0x36a4ec));
-              _0xf9a8b1();
-            });
-          });
-        }
-        ['close']() {
-          return new Promise((_0x3e4e5e, _0x565676) => {
-            this.db.close(_0x44b23e => {
-              if (_0x44b23e) return _0x565676((0, _0x19ce63.formatError)(_0x44b23e));
-              _0x3e4e5e();
-            });
-          });
-        }
-        ['configure'](_0x4562c4, _0x37c60d) {
-          this.db.configure(_0x4562c4, _0x37c60d);
-        }
-        ["run"](_0x209f33, ..._0x1a6e94) {
-          return new Promise((_0x3214ed, _0x30d261) => {
-            let _0x2a8879 = (0, _0x25fd3f.toSqlParams)(_0x209f33, _0x1a6e94);
-            this.db.run(_0x2a8879.sql, ..._0x2a8879.params, function (_0x5cdb7b) {
-              if (_0x5cdb7b) return _0x30d261((0, _0x19ce63.formatError)(_0x5cdb7b));
-              _0x3214ed({
-                stmt: new _0x465262.Statement(this.stmt),
-                lastID: this.lastID,
-                changes: this.changes
-              });
-            });
-          });
-        }
-        ['get'](_0x85064, ..._0x5a2790) {
-          return new Promise((_0x1dcbfa, _0x2be733) => {
-            let _0x4a3c79 = (0, _0x25fd3f.toSqlParams)(_0x85064, _0x5a2790);
-            this.db.get(_0x4a3c79.sql, ..._0x4a3c79.params, (_0x542173, _0xb3f33a) => {
-              if (_0x542173) return _0x2be733((0, _0x19ce63.formatError)(_0x542173));
-              _0x1dcbfa(_0xb3f33a);
-            });
-          });
-        }
-        ["each"](_0xd04043, ..._0x484e22) {
-          return new Promise((_0x455958, _0x29a9b2) => {
-            let _0x1d9393 = _0x484e22.pop();
-            if (!_0x1d9393 || typeof _0x1d9393 != "function") throw new Error('sqlite:\x20Last\x20param\x20of\x20Database#each()\x20must\x20be\x20a\x20callback\x20function');
-            if (_0x484e22.length > 0) {
-              let _0x43461a = _0x484e22.pop();
-              if (typeof _0x43461a == 'function') throw new Error('sqlite:\x20Database#each()\x20should\x20only\x20have\x20a\x20single\x20callback\x20defined.\x20See\x20readme\x20for\x20usage.');
-              _0x484e22.push(_0x43461a);
-            }
-            let _0x380065 = (0, _0x25fd3f.toSqlParams)(_0xd04043, _0x484e22);
-            this.db.each(_0x380065.sql, ..._0x380065.params, (_0x41798e, _0x3d9a51) => {
-              if (_0x41798e) return _0x1d9393((0, _0x19ce63.formatError)(_0x41798e), null);
-              _0x1d9393(null, _0x3d9a51);
-            }, (_0x2f3345, _0xd0262b) => {
-              if (_0x2f3345) return _0x29a9b2((0, _0x19ce63.formatError)(_0x2f3345));
-              _0x455958(_0xd0262b);
-            });
-          });
-        }
-        ["all"](_0x3626ee, ..._0x48e35a) {
-          return new Promise((_0x51e064, _0x23c920) => {
-            let _0x3a7498 = (0, _0x25fd3f.toSqlParams)(_0x3626ee, _0x48e35a);
-            this.db.all(_0x3a7498.sql, ..._0x3a7498.params, (_0x5ce7b9, _0x454310) => {
-              if (_0x5ce7b9) return _0x23c920((0, _0x19ce63.formatError)(_0x5ce7b9));
-              _0x51e064(_0x454310);
-            });
-          });
-        }
-        ["exec"](_0x241d86) {
-          return new Promise((_0x2941de, _0x5d4c5f) => {
-            let _0x2f01a6 = (0, _0x25fd3f.toSqlParams)(_0x241d86);
-            this.db.exec(_0x2f01a6.sql, _0x56a7ff => {
-              if (_0x56a7ff) return _0x5d4c5f((0, _0x19ce63.formatError)(_0x56a7ff));
-              _0x2941de();
-            });
-          });
-        }
-        ["prepare"](_0x5e89d9, ..._0x26cbae) {
-          return new Promise((_0x4c9875, _0xa6d02f) => {
-            let _0x1945be = (0, _0x25fd3f.toSqlParams)(_0x5e89d9, _0x26cbae),
-              _0x51c518 = this.db.prepare(_0x1945be.sql, ..._0x1945be.params, _0x13e003 => {
-                if (_0x13e003) return _0xa6d02f(_0x13e003);
-                _0x4c9875(new _0x465262.Statement(_0x51c518));
-              });
-          });
-        }
-        ['loadExtension'](_0x22e2d5) {
-          return new Promise((_0x246bc7, _0x618c94) => {
-            this.db.loadExtension(_0x22e2d5, _0x5a964d => {
-              if (_0x5a964d) return _0x618c94((0, _0x19ce63.formatError)(_0x5a964d));
-              _0x246bc7();
-            });
-          });
-        }
-        async ['migrate'](_0x2868bd) {
-          await (0, _0xdbc697.migrate)(this, _0x2868bd);
-        }
-        ['serialize']() {
-          throw new Error('sqlite:\x20Currently\x20not\x20implemented.\x20Use\x20getDatabaseInstance().serialize()\x20instead.');
-        }
-        ['parallelize']() {
-          throw new Error("sqlite: Currently not implemented. Use getDatabaseInstance().parallelize() instead.");
-        }
-      };
-    _0x40b520.Database = _0x174ec1;
-  }),
-  ws = {};
-__export(ws, {
-  open: () => getWorkspaceFolders
-});
-async function getWorkspaceFolders(_0xb11ea8) {
-  let _0x360e2b = new Ece.default.Database(_0xb11ea8);
-  return await _0x360e2b.open(), _0x360e2b;
-}
-var Ece,
-  initSqliteExports = __esmModule(() => {
-    __reExport(ws, __toESM(workerpoolErrorHandler(), 1)), __reExport(ws, __toESM(sqliteDatabase(), 1)), Ece = __toESM(sqliteDatabase(), 1);
-  });
+  };
 /* [unbundle] sqlite3 已移至顶部导入区 */
 async function ensureFolderExists(_0x5d3f77, _0x2d922b) {
   try {
@@ -2520,10 +2187,9 @@ async function ensureCacheFolder(_0xdf9916) {
 async function getCacheDatabasePath(_0x161dc6) {
   return path_module.join(await ensureCacheFolder(_0x161dc6), "cache.db");
 }
-var Gce,
-  GO,
+var GO,
   initSqliteService = __esmModule(() => {
-    initSqliteExports(), Gce = sqlite3_module, GO = class _0xe8f64e {
+    GO = class _0xe8f64e {
       static ['instance'];
       ["dbConnection"] = null;
       ["logger"];
@@ -2555,9 +2221,9 @@ var Gce,
         }
       }
       async ['openConnection'](_0x33ed51) {
-        let _0x21f3db = await getWorkspaceFolders({
+        let _0x21f3db = await sqlite_module.open({
           filename: await getCacheDatabasePath(_0x33ed51),
-          driver: Gce.Database
+          driver: sqlite3_module.Database
         });
         return await _0xe8f64e.createTables(_0x21f3db), _0x21f3db;
       }
@@ -3077,13 +2743,13 @@ var initFsHelpers = __esmModule(() => {
 function isSqliteBusyError(_0xbf95bf) {
   return String(_0xbf95bf).includes('SQLITE_BUSY') ? true : _0xbf95bf instanceof Error ? getContextFilePath(_0xbf95bf) : false;
 }
-var wfe,
+var
   ox,
   Bv,
   initProgressReporter = __esmModule(() => {
     'use strict';
 
-     initStatusBarExports(),  initFsHelpers(), initSqliteExports(), wfe = sqlite3_module, ox = class _0x22559d {
+     initStatusBarExports(),  initFsHelpers(), ox = class _0x22559d {
       constructor(_0x55ecde) {
         this.reopenConnectionLock = new Mutex(), this._txDb = null, this._db = _0x55ecde, this.writeLock = new Mutex();
       }
@@ -3127,7 +2793,7 @@ var wfe,
       }
       static async ['openConnection']() {
         let _0x2ab7fb = await getAppAssetsDatabasePath(),
-          _0x264d80 = await getWorkspaceFolders({
+          _0x264d80 = await sqlite_module.open({
             filename: _0x2ab7fb,
             driver: sqlite3_module.Database
           });
