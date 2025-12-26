@@ -253,13 +253,52 @@ console.log(`   重命名: ${stats.globalsRenamed} 个全局符号`);
 // ============== 阶段 2: 局部符号重命名 ==============
 console.log('\n🔄 阶段 2: 局部符号重命名...');
 
-// 解析行号范围
-function parseLineRange(key) {
-  const match = key.match(/^(\d+)-(\d+)$/);
-  if (match) {
-    return { start: parseInt(match[1]), end: parseInt(match[2]) };
+// 解析作用域键的格式
+function parseScopeKey(key) {
+  // 格式1: "startLine-endLine" (行号范围)
+  const rangeMatch = key.match(/^(\d+)-(\d+)$/);
+  if (rangeMatch) {
+    return {
+      type: 'range',
+      start: parseInt(rangeMatch[1]),
+      end: parseInt(rangeMatch[2])
+    };
   }
-  return null;
+  
+  // 格式2: "funcName@line" (函数名 + 起始行号)
+  const funcLineMatch = key.match(/^(.+)@(\d+)$/);
+  if (funcLineMatch) {
+    return {
+      type: 'funcAtLine',
+      funcName: funcLineMatch[1],
+      line: parseInt(funcLineMatch[2])
+    };
+  }
+  
+  // 格式3: "outerFunc>innerFunc@line" (嵌套函数路径)
+  if (key.includes('>')) {
+    const atIndex = key.lastIndexOf('@');
+    if (atIndex > 0) {
+      const path = key.substring(0, atIndex);
+      const line = parseInt(key.substring(atIndex + 1));
+      return {
+        type: 'nestedPath',
+        path: path.split('>'),
+        line: line
+      };
+    }
+    return {
+      type: 'nestedPath',
+      path: key.split('>'),
+      line: null
+    };
+  }
+  
+  // 格式4: "funcName" (仅函数名)
+  return {
+    type: 'funcName',
+    funcName: key
+  };
 }
 
 // 检查节点是否在行号范围内
@@ -270,58 +309,199 @@ function isInLineRange(node, range) {
   return startLine >= range.start && endLine <= range.end;
 }
 
-// 处理每个局部映射
-for (const [scopeKey, localMap] of Object.entries(localMappings)) {
-  const lineRange = parseLineRange(scopeKey);
+// 获取函数名称（考虑各种声明方式）
+function getFunctionName(path) {
+  const node = path.node;
+  const parent = path.parent;
   
-  if (lineRange) {
-    // 按行号范围匹配
-    console.log(`   处理行号范围 ${scopeKey}...`);
-    
+  if (t.isFunctionDeclaration(node) && node.id) {
+    return node.id.name;
+  }
+  
+  if (t.isFunctionExpression(node) && node.id) {
+    return node.id.name;
+  }
+  
+  // 变量声明: const funcName = function() {} 或 const funcName = () => {}
+  if (t.isVariableDeclarator(parent) && t.isIdentifier(parent.id)) {
+    return parent.id.name;
+  }
+  
+  // 赋值表达式: funcName = () => {}
+  if (t.isAssignmentExpression(parent) && t.isIdentifier(parent.left)) {
+    return parent.left.name;
+  }
+  
+  // 对象方法: { methodName() {} } 或 { methodName: function() {} }
+  if (t.isObjectMethod(path.parent)) {
+    const key = path.parent.key;
+    if (t.isIdentifier(key)) {
+      return key.name;
+    }
+  }
+  
+  if (t.isObjectProperty(parent) && t.isIdentifier(parent.key) && !parent.computed) {
+    return parent.key.name;
+  }
+  
+  // 类方法
+  if (t.isClassMethod(parent) && t.isIdentifier(parent.key)) {
+    return parent.key.name;
+  }
+  
+  return null;
+}
+
+// 获取函数起始行号
+function getFunctionStartLine(path) {
+  return path.node.loc ? path.node.loc.start.line : null;
+}
+
+// 构建函数的嵌套路径
+function buildFunctionPath(path) {
+  const names = [];
+  let current = path;
+  
+  while (current) {
+    if (current.isFunction()) {
+      const name = getFunctionName(current);
+      if (name) {
+        names.unshift(name);
+      }
+    }
+    current = current.getFunctionParent();
+  }
+  
+  return names;
+}
+
+// 匹配函数路径
+function matchFunctionPath(actualPath, targetPath) {
+  if (actualPath.length < targetPath.length) return false;
+  
+  // 从末尾开始匹配（最内层函数必须匹配）
+  const offset = actualPath.length - targetPath.length;
+  for (let i = 0; i < targetPath.length; i++) {
+    if (actualPath[offset + i] !== targetPath[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// 收集所有匹配的函数作用域
+const matchedScopes = [];
+
+for (const [scopeKey, localMap] of Object.entries(localMappings)) {
+  const scopeInfo = parseScopeKey(scopeKey);
+  
+  console.log(`   解析作用域键: ${scopeKey} (类型: ${scopeInfo.type})`);
+  
+  if (scopeInfo.type === 'range') {
+    // 方式1: 按行号范围匹配
     traverse(ast, {
       Function(path) {
-        if (!isInLineRange(path.node, lineRange)) return;
-        
-        // 重命名这个函数作用域内的局部变量
-        renameLocalsInScope(path, localMap);
-      },
+        if (isInLineRange(path.node, scopeInfo)) {
+          const funcName = getFunctionName(path);
+          const line = getFunctionStartLine(path);
+          matchedScopes.push({
+            path: path,
+            localMap: localMap,
+            description: `行号范围 ${scopeKey}`,
+            funcName: funcName || '(匿名)',
+            line: line
+          });
+          path.skip(); // 避免重复处理嵌套函数
+        }
+      }
     });
-  } else {
-    // 按函数名匹配（使用重命名后的名称）
-    console.log(`   处理函数 ${scopeKey}...`);
-    
+  } else if (scopeInfo.type === 'funcAtLine') {
+    // 方式2: 按函数名 + 行号精确匹配
+    let found = false;
     traverse(ast, {
       Function(path) {
-        let funcName = null;
-        if (t.isFunctionDeclaration(path.node) && path.node.id) {
-          funcName = path.node.id.name;
-        } else if (t.isFunctionExpression(path.node) && path.node.id) {
-          funcName = path.node.id.name;
-        } else if (t.isArrowFunctionExpression(path.node) || t.isFunctionExpression(path.node)) {
-          // 箭头函数或函数表达式可能是变量赋值或赋值表达式
-          if (t.isVariableDeclarator(path.parent) && t.isIdentifier(path.parent.id)) {
-            funcName = path.parent.id.name;
-          } else if (t.isAssignmentExpression(path.parent) && t.isIdentifier(path.parent.left)) {
-            // 赋值表达式: funcName = () => {...}
-            funcName = path.parent.left.name;
-          } else if (t.isCallExpression(path.parent)) {
-            // 作为函数参数: __esmModule(() => {...})
-            // 检查外层是否是赋值表达式
-            const grandParent = path.parentPath.parent;
-            if (t.isAssignmentExpression(grandParent) && t.isIdentifier(grandParent.left)) {
-              funcName = grandParent.left.name;
-            } else if (t.isVariableDeclarator(grandParent) && t.isIdentifier(grandParent.id)) {
-              funcName = grandParent.id.name;
-            }
+        const funcName = getFunctionName(path);
+        const line = getFunctionStartLine(path);
+        
+        if (funcName === scopeInfo.funcName && line === scopeInfo.line) {
+          matchedScopes.push({
+            path: path,
+            localMap: localMap,
+            description: `函数 ${scopeInfo.funcName} @ 行${scopeInfo.line}`,
+            funcName: funcName,
+            line: line
+          });
+          found = true;
+          path.skip();
+        }
+      }
+    });
+    
+    if (!found) {
+      console.log(`   ⚠️  警告: 未找到函数 ${scopeInfo.funcName} @ 行${scopeInfo.line}`);
+    }
+  } else if (scopeInfo.type === 'nestedPath') {
+    // 方式3: 按嵌套函数路径匹配
+    traverse(ast, {
+      Function(path) {
+        const actualPath = buildFunctionPath(path);
+        const line = getFunctionStartLine(path);
+        
+        if (matchFunctionPath(actualPath, scopeInfo.path)) {
+          // 如果指定了行号，还要匹配行号
+          if (scopeInfo.line === null || line === scopeInfo.line) {
+            matchedScopes.push({
+              path: path,
+              localMap: localMap,
+              description: `嵌套路径 ${scopeInfo.path.join('>')}${scopeInfo.line ? ` @ 行${scopeInfo.line}` : ''}`,
+              funcName: actualPath[actualPath.length - 1] || '(匿名)',
+              line: line
+            });
+            path.skip();
           }
         }
-        
-        if (funcName === scopeKey) {
-          renameLocalsInScope(path, localMap);
-        }
-      },
+      }
     });
+  } else if (scopeInfo.type === 'funcName') {
+    // 方式4: 仅按函数名匹配（如果唯一）
+    const matches = [];
+    traverse(ast, {
+      Function(path) {
+        const funcName = getFunctionName(path);
+        const line = getFunctionStartLine(path);
+        
+        if (funcName === scopeInfo.funcName) {
+          matches.push({ path, line });
+        }
+      }
+    });
+    
+    if (matches.length === 0) {
+      console.log(`   ⚠️  警告: 未找到函数 ${scopeInfo.funcName}`);
+    } else if (matches.length === 1) {
+      matchedScopes.push({
+        path: matches[0].path,
+        localMap: localMap,
+        description: `函数 ${scopeInfo.funcName}`,
+        funcName: scopeInfo.funcName,
+        line: matches[0].line
+      });
+    } else {
+      console.log(`   ⚠️  警告: 找到 ${matches.length} 个同名函数 ${scopeInfo.funcName}，需要指定行号或路径:`);
+      matches.forEach(m => {
+        console.log(`       - 行${m.line}`);
+      });
+      console.log(`   建议使用 "${scopeInfo.funcName}@${matches[0].line}" 格式精确指定`);
+    }
   }
+}
+
+console.log(`   匹配到 ${matchedScopes.length} 个作用域需要处理\n`);
+
+// 处理所有匹配的作用域
+for (const scope of matchedScopes) {
+  console.log(`   处理 ${scope.description}...`);
+  renameLocalsInScope(scope.path, scope.localMap);
 }
 
 // 在函数作用域内重命名局部变量

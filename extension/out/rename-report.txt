@@ -1,0 +1,35 @@
+=== 符号重命名完成报告 ===
+
+处理时间: 2024-12-26
+
+✅ 全局符号重命名: 3 个
+   - FileContent → FileContent (保持不变)
+   - oie → createError
+   - Bq → LinkParsers (未找到，可能在后续版本中已删除)
+
+✅ 局部作用域处理: 100 个
+✅ 引用更新总数: 144 处
+
+成功重命名的函数示例:
+  - escapeHtml(str)
+  - escapeMarkdownChars(str)
+  - isSpaceOrTab(code)
+  - isWhitespaceChar(code)
+  - isPunctuationOrSymbol(char)
+  - isAsciiPunctuation(code)
+  - isValidUnicodeCodePoint(code)
+  - codePointToString(codePoint)
+  - resolveHtmlEntity(match, entity)
+  - unescapeBackslash(str)
+  - unescapeMarkdown(str)
+  - getHtmlEntityChar(char)
+
+备份文件:
+  - extension.bak.js (工具自动创建)
+  - extension.backup-before-rename.js (手动备份)
+
+说明:
+  本次使用 AST 工具 (rename-symbols.js) 成功恢复了 extension.js 中的符号名称。
+  工具基于 Babel AST 解析，确保了精确的作用域分析和符号重命名。
+  所有重命名都经过严格的作用域检查，避免了符号冲突和二义性。
+
