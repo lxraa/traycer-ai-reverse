@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/task.proto";
+import "traycer/stream/v3/plan.proto";
+import "traycer/stream/v3/file-system.proto";
+import "traycer/stream/v3/tool-call.proto";
+import "traycer/stream/v3/phase-breakdown.proto";
+import "traycer/stream/v3/identifier.proto";
+
+enum Severity {
+  MINOR = 0;
+  MAJOR = 1;
+  CRITICAL = 2;
+}
+
+message VerificationComment {
+  string title = 1;
+  string description = 2;
+  string promptForAIAgent = 3;
+  repeated Path referredFiles = 4;
+  Severity severity = 5;
+  bool isApplied = 6;
+}
+
+enum VerificationThreadStatus {
+  UNRESOLVED = 0;
+  RESOLVED = 1;
+  OUTDATED = 2;
+}
+
+message VerificationThread {
+  string id = 1;
+  repeated VerificationComment comments = 2;
+  VerificationThreadStatus status = 3;
+}
+
+message VerificationOutput {
+  string markdown = 1;
+  repeated VerificationComment comments = 2;
+}
+
+message VerificationRequestRoot {
+  VerificationIdentifier verificationIdentifier = 1;
+  repeated Task allTasks = 2;
+  repeated WorkspaceRepoMapping workspaceRepoMappings = 3;
+  repeated VerificationComment discardedComments = 4;
+}
+
+message VerificationRequest {
+  VerificationRequestRoot root = 1;
+}
+
+message VerificationResponse {
+  VerificationOutput output = 1;
+  bool isPayToRun = 2;
+}
+
+message ReVerificationRequest {
+  VerificationRequestRoot root = 1;
+  repeated VerificationThread verificationThreads = 2;
+}
+
+message ReVerificationResponse {
+  string markdown = 1;
+  repeated ReVerificationUpdate updates = 2;
+}
+
+message ReVerificationUpdate {
+  string verificationThreadID = 1;
+  oneof reply {
+    VerificationComment newComment = 2;
+    VerificationThreadStatus statusUpdate = 3;
+  }
+}

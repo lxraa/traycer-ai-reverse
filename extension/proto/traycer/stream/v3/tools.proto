@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/file-system.proto";
+import "traycer/stream/v3/git.proto";
+
+//------------- Read Files Messages Start -------------
+message FileRequest {
+  Path path = 1;
+  optional Range range = 2;
+  bool includeDiagnostics = 3;
+}
+
+message ReadFilesRequest {
+  repeated FileRequest fileRequests = 1;
+}
+
+message ReadFilesResponse {
+  repeated FileContent fileContents = 1;
+  repeated FileContent detectedRuleFiles = 2;
+}
+//------------- Read Files Messages End -------------
+
+//------------- File Glob Search Messages Start -------------
+message FileGlobSearchRequest {
+  string pattern = 1;
+  Path directory = 2;
+}
+
+message FileGlobSearchResponse {
+  repeated Path filePaths = 1;
+}
+//------------- File Glob Search Messages End -------------
+
+//------------- Get Diagnostics Messages Start -------------
+message GetDiagnosticsRequest {
+  optional string includePattern = 1;
+  repeated Path directories = 2;
+  optional DiagnosticSeverity severity = 3;
+}
+
+message GetDiagnosticsResponse {
+  repeated FileDiagnosticsWithPath filePathDiagnostics = 1;
+}
+//------------- Get Diagnostics Messages End -------------
+
+//------------- List Files Messages Start -------------
+message ListFilesRequest {
+  Path directory = 1;
+  bool recursive = 2;
+  repeated string ignoreFilePatterns = 3;
+}
+
+message ListFilesResponse {
+  Directory directory = 1;
+  repeated FileContent detectedRuleFiles = 2;
+}
+//------------- List Files Messages End -------------
+
+//------------- Regex Search Messages Start -------------
+message RegexSearchRequest {
+  string regex = 1;
+  Path directory = 2;
+  optional string includeFilesPattern = 3;
+  repeated string ignoreFilePatterns = 4;
+}
+
+message RegexSearchResponse {
+  repeated FileContent matchingFileSnippets = 1;
+}
+//------------- Regex Search Messages End -------------
+
+//------------- LSPSearch Messages Start -------------
+
+enum LSPSearchType {
+  DEFINITION = 0;
+  REFERENCE = 1;
+  IMPLEMENTATION = 2;
+}
+
+message LSPSearchRequest {
+  Path filePath = 1;
+  int32 lineNumber = 2;
+  string lineText = 3;
+  string word = 4;
+  LSPSearchType type = 5;
+}
+
+message LSPSearchResponse {
+  repeated FileContent matchingFileSnippets = 1;
+}
+//------------- LSPSearch Messages End -------------
+
+//------------- Get Git Diff Messages Start -------------
+message GetGitUncommittedDiffRequest {
+  Path filePath = 1;
+}
+
+message GetGitRevisionDiffRequest {
+  Path filePath = 1;
+  string revisionSpec = 2;
+}
+
+message GetGitDiffRequest {
+  oneof diffType {
+    GetGitUncommittedDiffRequest getGitUncommittedDiffRequest = 3;
+    GetGitRevisionDiffRequest getGitRevisionDiffRequest = 4;
+  }
+}
+
+message GetGitDiffResponse {
+  GitDiff gitDiff = 1;
+}
+//------------- Get Git Diff Messages End -------------
+
+//------------- Get Git Info Messages Start -------------
+message GetGitInfoRequest {
+  Path filePath = 1;
+  optional int32 numBranches = 2;
+  optional int32 numCommits = 3;
+}
+
+message GetGitInfoResponse {
+  GitInfo gitInfo = 1;
+}
+//------------- Get Git Info Messages End -------------

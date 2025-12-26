@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/plan.proto";
+import "traycer/stream/v3/attachments.proto";
+import "traycer/stream/v3/thinking.proto";
+
+enum SCMProviderType {
+  GITHUB = 0;
+  GITLAB = 1;
+}
+
+enum TicketUserType {
+  TICKET_USER_TYPE_UNSPECIFIED = 0;
+  TICKET_USER_TYPE_USER = 1;
+  TICKET_USER_TYPE_BOT = 2;
+}
+
+message TicketUser {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string username = 4;
+  string avatarUrl = 5;
+  TicketUserType type = 6;
+}
+
+message TicketComment {
+  string body = 1;
+  TicketUser user = 2;
+  string createdAt = 3;
+  string updatedAt = 4;
+  string id = 5;
+}
+
+message PersistedTicketPlan {
+  string planId = 1;
+  repeated Thinking thinkings = 2;
+  AllPlan plan = 3;
+  TicketLLMInput ticketInput = 4;
+  string commitHash = 5;
+  string targetBranch = 6;
+  int32 version = 7;
+}
+
+message PersistedTicket {
+  repeated PersistedTicketPlan plans = 1;
+  string ticketId = 2;
+}
+
+message CommonTicket {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  repeated TicketUser assignee = 4;
+  TicketUser creator = 5;
+  string status = 6;
+  int64 createdAt = 7;
+  int64 updatedAt = 8;
+  string url = 9;
+  repeated TicketComment comments = 10;
+  optional PersistedTicket persistedTicket = 11;
+  repeated Attachment attachments = 12;
+}
+
+message TicketLLMInput {
+  string title = 1;
+  string description = 2;
+  repeated TicketUser assignees = 3;
+  TicketUser creator = 4;
+  repeated TicketComment comments = 5;
+  repeated string labels = 6;
+  string ticketReference = 7;
+  repeated Attachment attachments = 8;
+}

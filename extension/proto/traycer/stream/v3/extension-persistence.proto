@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+enum StepState {
+  NOT_STARTED = 0;
+  RATE_LIMITED = 1;
+  IN_PROGRESS = 2;
+  COMPLETED = 3;
+  FAILED = 4;
+  ABORTING = 5;
+  ABORTED = 6;
+  SKIPPED = 7;
+  WAITING_FOR_EXECUTION = 8;
+}
+
+message TaskSteps {
+  StepState userQuery = 1;
+  StepState planGeneration = 2;
+  StepState verification = 3;
+}

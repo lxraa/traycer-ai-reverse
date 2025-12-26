@@ -1,0 +1,565 @@
+{
+  "name": "traycer-vscode",
+  "displayName": "Traycer",
+  "description": "An AI-powered coding assistant that plans, implements, and reviews every change 🚀",
+  "author": {
+    "name": "Traycer",
+    "email": "support@traycer.ai"
+  },
+  "pricing": "Free",
+  "preview": false,
+  "icon": "resources/assets/traycer-icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/traycerai/community"
+  },
+  "version": "2.13.5",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "bugs": {
+    "url": "https://discord.gg/QYDzEyT7Fq",
+    "email": "support@traycer.ai"
+  },
+  "qna": "https://discord.gg/FA62AjTqCa",
+  "categories": [
+    "AI",
+    "Chat",
+    "Machine Learning",
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "ai",
+    "openai",
+    "codex",
+    "pilot",
+    "snippets",
+    "intellisense",
+    "refactor",
+    "python",
+    "typescript",
+    "typescriptreact",
+    "tsx",
+    "javascript",
+    "javascriptreact",
+    "jsx",
+    "golang",
+    "rust",
+    "php"
+  ],
+  "publisher": "Traycer",
+  "activationEvents": [
+    "onStartupFinished",
+    "onView:traycerCommentNavigator",
+    "onView:traycerDetailView",
+    "onUri"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "walkthroughs": [
+      {
+        "id": "traycer.walkthrough",
+        "title": "Traycer Walkthrough",
+        "description": "Learn how to use Traycer to manage complex multi-file changes with precision and ease.",
+        "steps": [
+          {
+            "id": "1_select_mode",
+            "title": "Select Your Workflow",
+            "description": "Choose how you want to build:\n\n- **Phases**: Start with a short chat to clarify your goal. Traycer then breaks your project into clear, actionable phases, each with its own plan.\n- **Plan**: Generate a single, detailed plan. Refine it with AI, then execute it using your preferred coding agent.\n- **Review**: Analyze recent changes to catch issues, track deviations, and maintain quality.",
+            "media": {
+              "image": "resources/assets/walkthrough/1-select-workflow.png",
+              "altText": "Select Your Workflow"
+            }
+          },
+          {
+            "id": "2_describe_task",
+            "title": "Describe Your Task",
+            "description": "Tell Traycer what you want to build.\n\nReference files or folders using `@[NAME]`, attach images or snippets for context, and hit **Send** when you're ready.",
+            "media": {
+              "image": "resources/assets/walkthrough/2-describe-task.png",
+              "altText": "Describe Your Task"
+            }
+          },
+          {
+            "id": "3_keep_building",
+            "title": "Keep Building",
+            "description": "Once your workflow begins, stay in flow:\n\n- Follow the generated phases or plan.\n- Iterate and validate with Traycer's feedback.\n- Keep building; every step compounds progress.",
+            "media": {
+              "image": "resources/assets/walkthrough/3-follow-workflow.png",
+              "altText": "Keep Building"
+            }
+          },
+          {
+            "id": "4_connect_mcp",
+            "title": "Connect MCP Servers",
+            "description": "Click the **MCP icon** (top-right) to view and manage your Model Context Protocol servers.\n\nThese servers link Traycer with external context, extending what your AI can see and reason about.",
+            "media": {
+              "image": "resources/assets/walkthrough/4-mcp.png",
+              "altText": "Connect MCP Servers"
+            }
+          },
+          {
+            "id": "5_customize_prompts",
+            "title": "Customize Prompts & Agents",
+            "description": "Open the **⋯ menu** (top-right) to fine-tune how Traycer thinks:\n\n- Edit prompt templates for planning or review.\n- Connect more AI agents, Claude Code, Gemini, Codex, Copilot, RooCode, Cursor, Windsurf, and beyond.\n- Adjust other settings to fit your workflow.",
+            "media": {
+              "image": "resources/assets/walkthrough/5-prompt-and-settings.png",
+              "altText": "Customize Prompts & Agents"
+            }
+          }
+        ]
+      }
+    ],
+    "languages": [
+      {
+        "id": "typescript",
+        "extensions": [
+          ".ts"
+        ],
+        "aliases": [
+          "TypeScript",
+          "ts"
+        ]
+      },
+      {
+        "id": "typescriptreact",
+        "extensions": [
+          ".tsx"
+        ],
+        "aliases": [
+          "TypeScript React",
+          "tsx"
+        ]
+      },
+      {
+        "id": "javascript",
+        "extensions": [
+          ".js",
+          ".mjs",
+          ".cjs",
+          ".jsx"
+        ],
+        "aliases": [
+          "JavaScript",
+          "JavaScript React",
+          "js",
+          "mjs",
+          "cjs",
+          "jsx"
+        ]
+      },
+      {
+        "id": "python",
+        "extensions": [
+          ".py"
+        ],
+        "aliases": [
+          "Python",
+          "py"
+        ]
+      },
+      {
+        "id": "go",
+        "extensions": [
+          ".go"
+        ],
+        "aliases": [
+          "Go",
+          "go"
+        ]
+      },
+      {
+        "id": "rust",
+        "extensions": [
+          ".rs"
+        ],
+        "aliases": [
+          "Rust",
+          "rs"
+        ]
+      },
+      {
+        "id": "php",
+        "extensions": [
+          ".php"
+        ],
+        "aliases": [
+          "PHP",
+          "php"
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "Traycer",
+      "properties": {
+        "traycer.enablePromptTemplateSelector": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable or disable the prompt template selector when choosing an execution agent from the dropdown.",
+          "scope": "window",
+          "order": 10
+        },
+        "traycer.autoOpenDiffOnApply": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Automatically open the diff view when changes are applied.",
+          "scope": "window",
+          "order": 20
+        },
+        "traycer.alwaysAllowPayToRun": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Proceed with pay to run without prompting for confirmation.",
+          "scope": "window",
+          "order": 30
+        },
+        "traycer.additionalAgents": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string",
+            "enum": [
+              "Claude Code Extension",
+              "Codex Extension",
+              "Cline",
+              "Kilo Code",
+              "Roo Code",
+              "Augment",
+              "ZenCoder",
+              "Amp",
+              "Export as Markdown"
+            ],
+            "enumDescriptions": [
+              "VS Code extension for Claude Code",
+              "VS Code extension for OpenAI Codex",
+              "Cline AI coding assistant",
+              "Kilo Code AI assistant",
+              "Roo Code AI assistant",
+              "Augment Code AI coding assistant",
+              "ZenCoder AI assistant",
+              "Amp by Sourcegraph AI assistant",
+              "Export conversation as Markdown file"
+            ]
+          },
+          "markdownDescription": "Additional agents that will appear in the Execute in dropdown. Default agents (IDE, Traycer, Copy) are always available.",
+          "scope": "window",
+          "order": 31
+        },
+        "traycer.outputLevel": {
+          "type": "string",
+          "default": "info",
+          "enum": [
+            "error",
+            "warn",
+            "info",
+            "debug",
+            "trace"
+          ],
+          "enumDescriptions": [
+            "Logs only errors.",
+            "Logs errors and warnings.",
+            "Logs errors, warnings, and messages.",
+            "Logs verbose errors, warnings, and messages. Best for issue reporting.",
+            "Logs all messages, including verbose messages. Best for debugging."
+          ],
+          "markdownDescription": "Specifies how much (if any) output will be sent to the Traycer output channel.",
+          "scope": "window",
+          "order": 40
+        },
+        "traycer.sendKey": {
+          "type": "string",
+          "default": "ctrlEnter",
+          "enum": [
+            "enter",
+            "ctrlEnter"
+          ],
+          "enumItemLabels": [
+            "Enter",
+            "Ctrl/Cmd + Enter"
+          ],
+          "enumDescriptions": [
+            "Pressing `Enter` key sends query.",
+            "Pressing `Ctrl/Cmd + Enter` key sends query."
+          ],
+          "markdownDescription": "Specifies the submit key(s) for queries.",
+          "scope": "window",
+          "order": 50
+        },
+        "traycer.languagePreference": {
+          "type": "string",
+          "default": "English",
+          "enum": [
+            "Català",
+            "Deutsch",
+            "English",
+            "Español",
+            "Français",
+            "हिन्दी",
+            "Bahasa Indonesia",
+            "Italiano",
+            "日本語",
+            "한국어",
+            "Nederlands",
+            "Polski",
+            "Português",
+            "Русский",
+            "Türkçe",
+            "Tiếng Việt",
+            "简体中文",
+            "繁體中文"
+          ],
+          "markdownDescription": "**_Beta Feature_**: Specifies the language preference for AI responses and interactions.",
+          "scope": "window",
+          "order": 70
+        },
+        "traycer.enableAgentsMd": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable reading and processing of AGENTS.md files in the workspace.",
+          "scope": "window",
+          "order": 80
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "traycerCommentNavigator",
+          "title": "Traycer",
+          "icon": "resources/assets/traycer-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "traycerCommentNavigator": [
+        {
+          "type": "webview",
+          "id": "traycer.commentNavigatorWebview",
+          "name": "Traycer",
+          "accessibilityHelpContent": "Navigate through the comments generated by Traycer",
+          "icon": "resources/assets/traycer-icon.svg"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "traycer.main",
+        "label": "Traycer"
+      }
+    ],
+    "commands": [
+      {
+        "command": "traycer.triggerManualAnalysisFile",
+        "title": "Analyze File",
+        "category": "Traycer",
+        "icon": "$(traycer-logo)"
+      },
+      {
+        "command": "traycer.triggerManualAnalysisChanges",
+        "title": "Analyze Changes in File",
+        "category": "Traycer"
+      },
+      {
+        "command": "traycer.triggerManualAnalysisAllChanges",
+        "title": "Analyze Changes in Workspace",
+        "category": "Traycer"
+      },
+      {
+        "command": "traycer.signIn",
+        "title": "Sign in",
+        "category": "Traycer",
+        "icon": "$(sign-in)"
+      },
+      {
+        "command": "traycer.signOut",
+        "title": "Sign Out",
+        "category": "Traycer",
+        "icon": "$(sign-out)"
+      },
+      {
+        "command": "traycer.startNewTask",
+        "title": "Start New Task",
+        "category": "Traycer",
+        "icon": "$(plus)"
+      },
+      {
+        "command": "traycer.openSettings",
+        "title": "Open Settings",
+        "category": "Traycer",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "traycer.openTaskHistory",
+        "title": "Task History",
+        "category": "Traycer",
+        "icon": "$(history)"
+      },
+      {
+        "command": "traycer.listMCPServers",
+        "title": "Remote MCP Servers",
+        "category": "Traycer",
+        "icon": {
+          "dark": "resources/assets/mcp-dark.svg",
+          "light": "resources/assets/mcp-light.svg"
+        }
+      },
+      {
+        "command": "traycer.managePromptTemplates",
+        "title": "Manage Prompt Templates",
+        "category": "Traycer",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "traycer.manageCLIAgents",
+        "title": "Manage CLI Agents",
+        "category": "Traycer",
+        "icon": "$(tools)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "traycer.startNewTask",
+          "group": "navigation@1",
+          "when": "view == traycer.commentNavigatorWebview && traycer.enableCommands"
+        },
+        {
+          "command": "traycer.openTaskHistory",
+          "group": "navigation@2",
+          "when": "view == traycer.commentNavigatorWebview && traycer.enableCommands"
+        },
+        {
+          "command": "traycer.listMCPServers",
+          "group": "navigation@3",
+          "when": "view == traycer.commentNavigatorWebview && traycer.enableCommands"
+        },
+        {
+          "command": "traycer.openSettings",
+          "group": "overflow@1",
+          "when": "view == traycer.commentNavigatorWebview && traycer.enableCommands"
+        },
+        {
+          "command": "traycer.managePromptTemplates",
+          "group": "overflow@2",
+          "when": "view == traycer.commentNavigatorWebview && traycer.enableCommands"
+        },
+        {
+          "command": "traycer.manageCLIAgents",
+          "group": "overflow@3",
+          "when": "view == traycer.commentNavigatorWebview && traycer.enableCommands"
+        }
+      ],
+      "editor/context": [
+        {
+          "when": "traycer.enableCommands",
+          "submenu": "traycer.main",
+          "group": "navigation"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "traycer.triggerManualAnalysisFile",
+          "group": "navigation",
+          "when": "traycer.enableCommands"
+        }
+      ],
+      "traycer.main": [
+        {
+          "command": "traycer.triggerManualAnalysisFile",
+          "group": "traycerMenuGroup@3",
+          "when": "traycer.enableCommands"
+        },
+        {
+          "command": "traycer.triggerManualAnalysisChanges",
+          "group": "traycerMenuGroup@1",
+          "when": "traycer.enableCommands"
+        },
+        {
+          "command": "traycer.triggerManualAnalysisAllChanges",
+          "group": "traycerMenuGroup@2",
+          "when": "traycer.enableCommands"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "traycer.triggerManualAnalysisFile",
+          "when": "traycer.enableCommands"
+        },
+        {
+          "command": "traycer.triggerManualAnalysisChanges",
+          "when": "traycer.enableCommands"
+        },
+        {
+          "command": "traycer.triggerManualAnalysisAllChanges",
+          "when": "traycer.enableCommands"
+        },
+        {
+          "command": "traycer.signIn",
+          "when": "traycer.isSignedOut"
+        },
+        {
+          "command": "traycer.signOut",
+          "when": "!traycer.isSignedOut"
+        },
+        {
+          "command": "traycer.startNewTask",
+          "when": "traycer.enableCommands"
+        },
+        {
+          "command": "traycer.openTaskHistory",
+          "when": "traycer.enableCommands"
+        },
+        {
+          "command": "traycer.listMCPServers",
+          "when": "traycer.enableCommands"
+        },
+        {
+          "command": "traycer.openSettings",
+          "when": "traycer.enableCommands"
+        },
+        {
+          "command": "traycer.managePromptTemplates",
+          "when": "traycer.enableCommands"
+        },
+        {
+          "command": "traycer.manageCLIAgents",
+          "when": "traycer.enableCommands"
+        }
+      ]
+    },
+    "icons": {
+      "traycer-logo": {
+        "description": "Traycer Logo",
+        "default": {
+          "fontPath": "resources/assets/Avatar_Black.woff",
+          "fontCharacter": "\\e900"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run esbuild-base -- --minify && node build-script.mjs",
+    "preesbuild-base": "rm -rf out/ && cd traycer-views && npm run build && cd ..",
+    "esbuild-base": "esbuild ../resources/tiktokenWorkerPool.mjs --bundle --outfile=./resources/tiktokenWorkerPool.js --external:vscode --format=cjs --platform=node && node scripts/esbuild.mjs",
+    "esbuild": "npm run esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "build": "npm run esbuild",
+    "compile": "tsc -p ./",
+    "watch": "npm run esbuild-base -- --sourcemap --watch",
+    "watch:all": "concurrently \"npm run esbuild-base -- --sourcemap --watch\" \"npm run watch --workspace traycer-views\"",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint . --ext .ts,.tsx --cache --fix",
+    "test": "vscode-test",
+    "format": "find . -type f \\( -name '*.ts' -o -name '*.js' -o -name '*.json' -o -name '*.jsx' -o -name '*.tsx' \\) -not -path './node_modules/*' -not -path './out/*' -not -path './dist/*' -not -path './.next/*' -not -path './@types/*' -not -path './traycer-ui/*' -not -path './traycer-ui-vite/*' | xargs npx prettier --write",
+    "prestaging_deploy": "rm -rf *.vsix",
+    "staging_deploy": "bash ./scripts/staging_deploy.sh",
+    "production_deploy": "bash ./scripts/production_deploy.sh",
+    "local_uninstall": "code --uninstall-extension traycer.traycer-vscode"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
+    "@dnd-kit/sortable": "^10.0.0"
+  }
+}

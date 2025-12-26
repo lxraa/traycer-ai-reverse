@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/extension-persistence.proto";
+import "traycer/stream/v3/plan.proto";
+import "traycer/stream/v3/user-prompt.proto";
+import "traycer/stream/v3/llm.proto";
+import "traycer/stream/v3/file-system.proto";
+import "traycer/stream/v3/tool-call.proto";
+import "traycer/stream/v3/identifier.proto";
+
+enum PhaseStatus {
+  NEW_PHASE = 0;
+  MODIFIED_PHASE = 1;
+  UNCHANGED_PHASE = 2;
+}
+
+enum PhaseSize {
+  ISSUE = 0;
+  STORY = 1;
+  EPIC = 2;
+}
+
+message Phase {
+  string id = 1;
+  string title = 2;
+  string query = 3;
+  repeated Path referredFiles = 4;
+  repeated Path referredFolders = 5;
+  PhaseStatus status = 6;
+  string reasoning = 7;
+  PhaseSize phaseSize = 8;
+  PlanArtifactType planArtifactType = 9;
+}
+
+message PhaseOutput {
+  repeated Phase phases = 1;
+  string reasoning = 2;
+}
+
+message ExplanationOutput {
+  string text = 1;
+  bool canProposePhases = 2;
+}
+
+message Question {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  repeated string options = 4;
+  bool multiselect = 5;
+}
+
+message InterviewOutput {
+  repeated Question questions = 1;
+}
+
+message PhaseBreakdownOutput {
+  string markdown = 1;
+  oneof output {
+    ExplanationOutput explanationOutput = 2;
+    InterviewOutput interviewOutput = 3;
+    PhaseOutput phaseOutput = 4;
+  }
+}
+
+message PhaseBreakdownContext {
+  repeated FileContent files = 1;
+  repeated Directory directories = 2;
+  repeated FileContent detectedRuleFiles = 3;
+}
+
+message PhaseBreakdown {
+  repeated LivePhase livePhases = 1;
+  PhaseBreakdownContext phaseBreakdownContext = 2;
+  repeated PhaseConversation phaseBreakdownConversation = 3;
+  string phaseBreakdownID = 4;
+}
+
+message LivePhase {
+  Phase phase = 1;
+  TaskSteps taskSteps = 2;
+}
+
+message PhaseConversation {
+  UserPrompt userPrompt = 1;
+  PhaseBreakdownResponse output = 2;
+}
+
+message PhaseBreakdownRequestCommon {
+  PhaseConversationIdentifier phaseConversationIdentifier = 1;
+  UserPrompt userPrompt = 2;
+  repeated WorkspaceRepoMapping workspaceRepoMappings = 3;
+  repeated PhaseConversation currentPhaseBreakdownConversation = 4;
+  string taskChainTitle = 5;
+}
+
+message PhaseGenerationRequest {
+  PhaseBreakdownRequestCommon commonRequest = 1;
+  optional EncryptedLLMInput llmInput = 2;
+}
+
+message PhaseIterationRequest {
+  PhaseBreakdownRequestCommon commonRequest = 1;
+  EncryptedLLMInput llmInput = 2;
+  repeated PhaseBreakdown previousPhaseBreakdowns = 3;
+}
+
+message PhaseBreakdownResponse {
+  PhaseBreakdownOutput output = 1;
+  EncryptedLLMInput llmInput = 2;
+  bool isPayToRun = 3;
+}

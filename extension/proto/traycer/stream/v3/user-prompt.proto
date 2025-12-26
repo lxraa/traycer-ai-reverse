@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/file-system.proto";
+import "traycer/stream/v3/git.proto";
+import "traycer/stream/v3/attachments.proto";
+import "traycer/stream/v3/ticket-reference.proto";
+
+message UserAttachedContext {
+  repeated FileContent files = 1;
+  repeated Directory directories = 2;
+  repeated FileContent detectedRuleFiles = 3;
+  optional TicketReferenceByName ticketReference = 4;
+  repeated Attachment attachments = 5;
+  repeated GitDiff gitDiffs = 6;
+}
+
+message UserPrompt {
+  string query = 1;
+  UserAttachedContext context = 2;
+}

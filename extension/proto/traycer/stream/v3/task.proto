@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/file-system.proto";
+import "traycer/stream/v3/plan.proto";
+import "traycer/stream/v3/attachments.proto";
+import "traycer/stream/v3/phase-breakdown.proto";
+import "traycer/stream/v3/user-prompt.proto";
+import "traycer/stream/v3/llm.proto";
+import "traycer/stream/v3/identifier.proto";
+
+enum TaskState {
+  TASK_NOT_STARTED = 0;
+  TASK_IN_PROGRESS = 1;
+  TASK_COMPLETED = 2;
+}
+
+message PlanWithUserPrompt {
+  AllPlan plan = 1;
+  UserPrompt userPrompt = 2;
+  PlanIdentifier identifier = 3;
+}
+
+message Task {
+  string taskID = 1;
+  PlanWithUserPrompt activePlan = 2;
+  string title = 3;
+  TaskState state = 4;
+  repeated PlanWithUserPrompt parentPlans = 5;
+  repeated AttachmentSummary attachmentSummaries = 6;
+}
+
+message PlanGenerationRequest {
+  PlanIdentifier planIdentifier = 1;
+  UserPrompt userPrompt = 2;
+  repeated Task allTasks = 3;
+  repeated WorkspaceRepoMapping workspaceRepoMappings = 4;
+  string taskTitle = 5;
+  string taskChainTitle = 6;
+  repeated PhaseConversation phaseConversation = 7 [deprecated = true];
+  PlanArtifactType planArtifactType = 8;
+  repeated PhaseBreakdown phaseBreakdownsTillCurrent = 9;
+}
+
+message PlanGenerationResponse {
+  AllPlan plan = 1;
+  bool isPayToRun = 2;
+  EncryptedLLMInput llmInput = 3;
+}
+
+message PlanChatRoot {
+  PlanWithUserPrompt planWithUserPrompt = 1;
+  EncryptedLLMInput llmInput = 2;
+  PlanArtifactType planArtifactType = 3;
+}
+
+message PlanChatRequest {
+  PlanChatRoot root = 1;
+  UserPrompt userPrompt = 2;
+  repeated Task previousTasks = 3;
+  PlanChatIdentifier planChatIdentifier = 4;
+  int32 priorPlanChatIterationCount = 5;
+  repeated WorkspaceRepoMapping workspaceRepoMappings = 6;
+}
+
+message PlanChatResponse {
+  AllPlan plan = 1;
+  EncryptedLLMInput llmInput = 2;
+  PlanChatQueryType queryType = 3;
+  bool isPayToRun = 4;
+}

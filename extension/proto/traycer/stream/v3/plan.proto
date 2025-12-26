@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/file-system.proto";
+import "traycer/stream/v3/attachments.proto";
+import "traycer/stream/v3/review.proto";
+import "traycer/stream/v3/identifier.proto";
+
+message ImplementationPlan {
+  string output = 1;
+  optional string aiGeneratedSummary = 2;
+}
+
+message AllPlan {
+  oneof planType {
+    ImplementationPlan implementationPlan = 1;
+    ReviewOutput reviewOutput = 2;
+  }
+}
+
+enum PlanChatQueryType {
+  EXPLANATION = 0;
+  ITERATION = 1;
+}
+
+enum PlanArtifactType {
+  IMPLEMENTATION_ARTIFACT = 0;
+  REVIEW_ARTIFACT = 1;
+}

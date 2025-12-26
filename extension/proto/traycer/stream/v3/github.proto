@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/ticket.proto";
+
+message GitHubLabel {
+  string id = 1;
+  string name = 2;
+}
+
+message GitHubTicket {
+  CommonTicket common = 1;
+  GitHubOrganization organization = 2;
+  GitHubRepository repository = 3;
+  repeated GitHubLabel labels = 4;
+}
+
+message GitHubOrganization {
+  string login = 1;
+  string id = 2;
+}
+
+message GitHubRepository {
+  string name = 1;
+  string id = 2;
+}
+
+message GitHubTicketReferenceByID {
+  oneof ownerId {
+    string organizationID = 1;
+    string userID = 4;
+  }
+  string repositoryID = 2;
+  optional string issueNumber = 3;
+}
+
+message GitHubTicketReferenceByName {
+  oneof ownerLogin {
+    string organizationLogin = 1;
+    string userLogin = 4;
+  }
+  string repositoryName = 2;
+  string issueNumber = 3;
+}

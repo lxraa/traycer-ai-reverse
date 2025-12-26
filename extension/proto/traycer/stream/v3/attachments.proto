@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+message AttachmentSummary {
+  oneof attachmentSummary {
+    FileAttachmentSummary fileAttachmentSummary = 1;
+  }
+}
+
+message FileAttachmentSummary {
+  string fileName = 1;
+  string summary = 2;
+}
+
+message FileAttachment {
+  string b64content = 1;
+  string fileName = 2;
+}
+
+message Attachment {
+  oneof attachment {
+    FileAttachment file = 1;
+  }
+}

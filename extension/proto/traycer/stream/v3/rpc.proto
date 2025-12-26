@@ -1,0 +1,162 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/file-system.proto";
+import "traycer/stream/v3/task.proto";
+import "traycer/stream/v3/ticket-assist.proto";
+import "traycer/stream/v3/tools.proto";
+import "traycer/stream/v3/llm.proto";
+import "traycer/stream/v3/plan.proto";
+import "traycer/stream/v3/phase-breakdown.proto";
+import "traycer/stream/v3/usage-information.proto";
+import "traycer/stream/v3/verification.proto";
+import "traycer/stream/v3/mcp.proto";
+import "traycer/stream/v3/language.proto";
+import "traycer/stream/v3/artifact.proto";
+import "traycer/stream/v3/sync-to-extension.proto";
+
+enum RPCErrorType {
+  SERVER_ERROR = 0;
+  NO_ACTIVE_SUBSCRIPTION = 1;
+  RATE_LIMIT_EXCEEDED = 2;
+  USER_ABORTED = 3;
+}
+
+message RPCError {
+  string message = 1;
+  int32 retryAfter = 2;
+  RPCErrorType errorType = 3;
+  bool allowPayToRun = 4;
+  optional string invoiceUrl = 5;
+}
+
+message RPCRequest {
+  int32 id = 1;
+  Platform platform = 2;
+  oneof message {
+    PlanGenerationRequest planGenerationRequest = 3;
+    PlanChatRequest planChatRequest = 4;
+    FetchPersistedTicketRequest fetchPersistedTicketRequest = 5;
+    PersistTicketRequest persistTicketRequest = 6;
+    GenerateTicketLLMInputRequest generateTicketLLMInputRequest = 7;
+    ImportPersistedTicketRequest importPersistedTicketRequest = 8;
+    CompareTicketLLMInputRequest compareTicketLLMInputRequest = 9;
+    VerificationRequest verificationRequest = 10;
+    GetRateLimitUsageRequest getRateLimitUsageRequest = 11;
+    PhaseGenerationRequest phaseGenerationRequest = 12;
+    PhaseIterationRequest phaseIterationRequest = 13;
+    ReVerificationRequest reVerificationRequest = 14;
+  }
+  bool isPayToRun = 15;
+  optional MCPParent selectedMCPParent = 16;
+  SupportedLanguage languagePreference = 17;
+}
+
+message RPCResponse {
+  int32 id = 1;
+  oneof message {
+    RPCError error = 2;
+    PlanGenerationResponse planGenerationResponse = 3;
+    PlanChatResponse planChatResponse = 4;
+    FetchPersistedTicketResponse fetchPersistedTicketResponse = 5;
+    PersistTicketResponse persistTicketResponse = 6;
+    GenerateTicketLLMInputResponse generateTicketLLMInputResponse = 7;
+    ImportPersistedTicketResponse importPersistedTicketResponse = 8;
+    CompareTicketLLMInputResponse compareTicketLLMInputResponse = 9;
+    VerificationResponse verificationResponse = 10;
+    GetRateLimitUsageResponse getRateLimitUsageResponse = 11;
+    ReVerificationResponse reVerificationResponse = 12;
+    PhaseBreakdownResponse phaseBreakdownResponse = 13;
+  }
+}
+
+message ReverseRPCError {
+  string message = 1;
+}
+
+message ReverseRPCRequest {
+  int32 id = 1;
+  oneof message {
+    ReadFilesRequest readFilesRequest = 2;
+    ListFilesRequest listFilesRequest = 3;
+    RegexSearchRequest regexSearchRequest = 4;
+    LSPSearchRequest lspSearchRequest = 5;
+    FileGlobSearchRequest fileGlobSearchRequest = 6;
+    GetDiagnosticsRequest getDiagnosticsRequest = 7;
+    GetGitDiffRequest getGitDiffRequest = 8;
+    GetGitInfoRequest getGitInfoRequest = 9;
+  }
+}
+
+message ReverseRPCResponse {
+  int32 id = 1;
+  oneof message {
+    ReverseRPCError error = 2;
+    ReadFilesResponse readFilesResponse = 3;
+    ListFilesResponse listFilesResponse = 4;
+    RegexSearchResponse regexSearchResponse = 5;
+    LSPSearchResponse lspSearchResponse = 6;
+    FileGlobSearchResponse fileGlobSearchResponse = 7;
+    GetDiagnosticsResponse getDiagnosticsResponse = 8;
+    GetGitDiffResponse getGitDiffResponse = 9;
+    GetGitInfoResponse getGitInfoResponse = 10;
+  }
+}
+
+enum AbortReason {
+  USER_ABORT = 0;
+  PING_WRITE_FAILURE = 1;
+  PING_TIMEOUT = 2;
+  EXTENSION_CLOSED = 3;
+}
+
+message AbortRPC {
+  int32 id = 1;
+  reserved 2;
+  AbortReason reason = 3;
+}
+
+message Ping {}
+
+message Pong {}
+
+message ChunkedMessage {
+  string chunk_id = 1;
+  int32 sequence_number = 2;
+  int32 total_chunks = 3;
+  bool is_final = 4;
+  bytes data = 5;
+}
+
+message AgentToServer {
+  oneof message {
+    RPCRequest rpcRequest = 1;
+    ReverseRPCResponse reverseRPCResponse = 2;
+    AbortRPC abortRPC = 3;
+    Ping ping = 4;
+    ChunkedMessage chunkedMessage = 5;
+  }
+}
+
+message ServerToAgent {
+  oneof message {
+    RPCResponse rpcResponse = 1;
+    ReverseRPCRequest reverseRPCRequest = 2;
+    SyncTaskTitle syncTaskTitle = 3;
+    SyncTaskChainTitle syncTaskChainTitle = 4;
+    SyncTaskSummary syncTaskSummary = 5;
+    Pong pong = 6;
+    SyncFileSummary syncFileSummary = 7;
+    SyncPlanChatQueryType syncPlanChatQueryType = 8;
+    SyncRateLimitUsageRequest syncRateLimitUsageRequest = 9;
+    SyncPayToRunStatus syncPayToRunStatus = 10;
+    ChunkedMessage chunkedMessage = 11;
+    StreamThinking streamThinking = 12;
+    StreamImplementationPlanDelta streamImplementationPlanDelta = 13;
+  }
+}
+
+service CodeDebugService {
+  rpc Stream(stream AgentToServer) returns (stream ServerToAgent);
+}

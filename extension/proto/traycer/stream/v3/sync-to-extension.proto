@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/attachments.proto";
+import "traycer/stream/v3/plan.proto";
+import "traycer/stream/v3/artifact.proto";
+import "traycer/stream/v3/usage-information.proto";
+import "traycer/stream/v3/thinking.proto";
+import "traycer/stream/v3/verification.proto";
+import "traycer/stream/v3/identifier.proto";
+import "traycer/stream/v3/file-system.proto";
+
+message SyncFileSummary {
+  Path path = 1;
+  string summary = 2;
+}
+
+message SyncPlanChatQueryType {
+  PlanChatQueryType queryType = 1;
+  PlanChatIdentifier planChatIdentifier = 2;
+}
+
+message StreamImplementationPlanDelta {
+  string outputDelta = 1;
+  PlanIdentifier planIdentifier = 2;
+}
+
+message SyncPayToRunStatus {
+  ArtifactIdentifier artifactIdentifier = 1;
+  bool isPayToRun = 2;
+}
+
+message SyncTaskChainTitle {
+  string taskChainID = 1;
+  string title = 2;
+}
+
+message SyncTaskTitle {
+  string title = 1;
+  TaskIdentifier taskIdentifier = 2;
+}
+
+message SyncTaskSummary {
+  repeated AttachmentSummary attachmentSummaries = 1;
+  PlanIdentifier planIdentifier = 2;
+  string planSummary = 3;
+}
+
+message SyncRateLimitUsageRequest {
+  RateLimitInformation rateLimitInfo = 1;
+}
+
+message StreamThinking {
+  ArtifactIdentifier artifactIdentifier = 1;
+  Thinking thinking = 2;
+}

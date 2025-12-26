@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/attachments.proto";
+
+message LLMInput {
+  repeated UserMessage userMessages = 1;
+}
+
+message UserMessage {
+  string content = 1;
+  optional AssistantMessage assistantMessage = 2;
+  repeated Attachment attachments = 3;
+}
+
+message AssistantMessage {
+  string content = 1;
+  repeated ToolCall toolCalls = 2;
+  repeated ToolCallReply toolCallReplies = 3;
+}
+
+message ToolCall {
+  string id = 1;
+  ToolFunc function = 2;
+}
+
+message ToolFunc {
+  string name = 1;
+  string arguments = 2;
+}
+
+message ToolCallReply {
+  string content = 1;
+  string id = 2;
+}
+
+message EncryptedLLMInput {
+  bytes data = 1;
+  int32 version = 2;
+}

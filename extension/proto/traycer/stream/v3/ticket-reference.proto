@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/github.proto";
+
+message TicketReferenceByID {
+  oneof reference {
+    GitHubTicketReferenceByID github = 1;
+  }
+}
+
+message TicketReferenceByName {
+  oneof reference {
+    GitHubTicketReferenceByName github = 1;
+  }
+}

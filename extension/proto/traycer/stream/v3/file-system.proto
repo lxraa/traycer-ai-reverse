@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+enum Platform {
+  POSIX = 0;
+  WINDOWS = 1;
+}
+
+message Path {
+  string absolutePath = 1;
+  bool isDirectory = 2;
+}
+
+message Range {
+  int32 startLine = 1;
+  int32 count = 2;
+}
+
+message FileContent {
+  Path path = 1;
+  string content = 2;
+  Range range = 3;
+  optional string summary = 4;
+  repeated FileDiagnostic diagnostics = 5;
+}
+
+//------------- Diagnostic Messages Start -------------
+message FileDiagnosticsWithPath {
+  Path path = 1;
+  repeated FileDiagnostic diagnostics = 2;
+}
+
+message FileDiagnosticCode {
+  string value = 1;
+  optional string target_uri = 2;
+}
+
+message FileDiagnosticInfo {
+  string message = 1;
+  FileDiagnosticInfoLocation location = 2;
+}
+
+message FileDiagnosticInfoLocation {
+  Range range = 1;
+  Path path = 2;
+}
+
+message FileDiagnostic {
+  Range range = 1;
+  string message = 2;
+  string severity = 3;
+  repeated FileDiagnosticInfo info = 4;
+  repeated string tags = 5;
+  optional FileDiagnosticCode code = 6;
+  optional string source = 7;
+}
+
+enum DiagnosticSeverity {
+  ERROR = 0;
+  WARNING = 1;
+  INFORMATION = 2;
+  HINT = 3;
+}
+//------------- Diagnostic Messages End -------------
+
+//------------- Workspace Repo Mapping Messages Start -------------
+message Directory {
+  Path path = 1;
+  repeated Path filePaths = 2;
+  repeated Directory subDirectories = 3;
+}
+
+message WorkspaceSubDirectoryList {
+  repeated WorkspaceSubDirectory subDirectories = 1;
+}
+
+message FilePathList {
+  repeated Path filePaths = 1;
+}
+
+message WorkspaceSubDirectory {
+  Path path = 1;
+  oneof file_representation {
+    FilePathList filePaths = 2;
+    int32 fileCount = 3;
+  }
+  oneof directory_representation {
+    WorkspaceSubDirectoryList subDirectoryList = 4;
+    int32 subDirectoryCount = 5;
+  }
+}
+
+message WorkspaceRepoMapping {
+  Path workspacePath = 1;
+  repeated Path files = 2;
+  repeated WorkspaceSubDirectory directories = 3;
+  repeated FileContent detectedRuleFiles = 4;
+}
+//------------- Workspace Repo Mapping Messages End -------------

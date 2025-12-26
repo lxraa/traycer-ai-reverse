@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+// GetRateLimitUsageRequest is an empty request to get rate limit usage information
+message GetRateLimitUsageRequest {
+}
+
+// RateLimitInformation contains rate limit usage information
+message RateLimitInformation {
+  float totalTokens = 1;
+  float remainingTokens = 2;
+  optional float retryAfter = 3;
+}
+
+// GetRateLimitUsageResponse contains rate limit usage information
+message GetRateLimitUsageResponse {
+  RateLimitInformation rateLimitInfo = 1;
+}

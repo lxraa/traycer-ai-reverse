@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+message PhaseBreakdownIdentifier {
+  string taskChainID = 1;
+  string phaseBreakdownID = 2;
+}
+
+message PhaseConversationIdentifier {
+  PhaseBreakdownIdentifier phaseBreakdownIdentifier = 1;
+  string conversationID = 2;
+}
+
+message PlanIdentifier {
+  PhaseBreakdownIdentifier phaseBreakdownIdentifier = 1;
+  string taskID = 2;
+  string planID = 3;
+}
+
+message PlanChatIdentifier {
+  PlanIdentifier planIdentifier = 1;
+  string newPlanID = 2;
+}
+
+message VerificationIdentifier {
+  PhaseBreakdownIdentifier phaseBreakdownIdentifier = 1;
+  string taskID = 2;
+  string verificationID = 3;
+}
+
+message TaskIdentifier {
+  PhaseBreakdownIdentifier phaseBreakdownIdentifier = 1;
+  string taskID = 2;
+}

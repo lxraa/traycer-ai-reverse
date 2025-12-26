@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/file-system.proto";
+
+enum GitStatus {
+  UNKNOWN_STATUS = 0;
+  INDEX_MODIFIED = 1;
+  INDEX_ADDED = 2;
+  INDEX_DELETED = 3;
+  INDEX_RENAMED = 4;
+  INDEX_COPIED = 5;
+  MODIFIED = 6;
+  DELETED = 7;
+  UNTRACKED = 8;
+  IGNORED = 9;
+  INTENT_TO_ADD = 10;
+  INTENT_TO_RENAME = 11;
+  TYPE_CHANGED = 12;
+  ADDED_BY_US = 13;
+  ADDED_BY_THEM = 14;
+  DELETED_BY_US = 15;
+  DELETED_BY_THEM = 16;
+  BOTH_ADDED = 17;
+  BOTH_DELETED = 18;
+  BOTH_MODIFIED = 19;
+}
+
+message GitFileDelta {
+  Path currentPath = 1;
+  string currentFileContent = 2;
+  optional string previousFileContent = 3;
+  optional Path previousPath = 4;
+  string diff = 5;
+  GitStatus gitStatus = 6;
+}
+
+message GitDiffAgainstUncommitted {
+  repeated GitFileDelta fileDeltas = 1;
+}
+
+message GitDiffAgainstRevision {
+  string revisionSpec = 1;
+  repeated GitFileDelta fileDeltas = 2;
+}
+
+message GitDiff {
+  oneof diffType {
+    GitDiffAgainstUncommitted gitDiffAgainstUncommitted = 3;
+    GitDiffAgainstRevision gitDiffAgainstRevision = 4;
+  }
+}
+
+message GitCommit {
+  string hash = 1;
+  string message = 2;
+  string author = 3;
+  string date = 4;
+}
+
+message GitInfo {
+  string currentBranch = 1;
+  string currentCommitHash = 2;
+  repeated string recentBranches = 3;
+  repeated GitCommit recentCommits = 4;
+}

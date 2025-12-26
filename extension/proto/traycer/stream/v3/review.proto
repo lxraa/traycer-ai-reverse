@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/file-system.proto";
+
+enum Category {
+  UNKNOWN = 0;
+  BUG = 1;
+  CLARITY = 2;
+  PERFORMANCE = 3;
+  SECURITY = 4;
+}
+
+message ReviewOutput {
+  string markdown = 1;
+  string howDidIGetHere = 2;
+  string mermaid = 3;
+  repeated ReviewComment comments = 4;
+  optional string aiGeneratedSummary = 5;
+}
+
+message ReviewComment {
+  string statement = 1;
+  string explanation = 2;
+  string promptForAIAgent = 3;
+  repeated Path relevantFiles = 4;
+  Category category = 5;
+  bool isApplied = 6;
+  string id = 7;
+}

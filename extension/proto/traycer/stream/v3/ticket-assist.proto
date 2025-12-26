@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/ticket.proto";
+import "traycer/stream/v3/github.proto";
+import "traycer/stream/v3/plan.proto";
+import "traycer/stream/v3/ticket-reference.proto";
+
+message FetchPersistedTicketRequest {
+  TicketReferenceByID ticketReference = 1;
+}
+
+message FetchPersistedTicketResponse {
+  PersistedTicket ticket = 1;
+}
+
+enum TicketSource {
+  GITHUB_TICKET = 0;
+  JIRA_TICKET = 1;
+}
+
+message ImportPersistedTicketRequest {
+  string ticketID = 1;
+  oneof reference {
+    GitHubTicketReferenceByID github = 2;
+  }
+}
+
+message ImportPersistedTicketResponse {
+  PersistedTicket ticket = 1;
+  oneof ticketReference {
+    GitHubTicketReferenceByName github = 2;
+  }
+}
+
+message PersistTicketRequest {
+  TicketReferenceByID ticketReference = 1;
+  PersistedTicketPlan plan = 2;
+}
+
+message PersistTicketResponse {
+  PersistedTicket ticket = 1;
+  TicketReferenceByName ticketReference = 2;
+}
+
+message CompareTicketLLMInputRequest {
+  TicketLLMInput previousTicketLLMInput = 1;
+  AllPlan previousPlan = 2;
+  TicketLLMInput latestTicketLLMInput = 3;
+}
+
+message CompareTicketLLMInputResponse {
+  bool isReworkNeeded = 1;
+  string explanation = 2;
+}
+
+message GenerateTicketLLMInputRequest {
+  TicketReferenceByName ticketReference = 1;
+}
+
+message GenerateTicketLLMInputResponse {
+  TicketLLMInput ticketLLMInput = 1;
+}

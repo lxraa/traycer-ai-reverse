@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/tool-call.proto";
+
+message Thinking {
+  string id = 1;
+  ThinkingContent content = 2;
+  repeated Thinking childrenThinkings = 3;
+  bool isCompleted = 4;
+}
+
+message ThinkingContent {
+  oneof content {
+    MCPToolCallInfo mcpToolCallInfo = 1;
+    CodeExplorationToolCallInfo codeExplorationToolCallInfo = 2;
+  }
+}

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/file-system.proto";
+
+message MCPToolCallInfo {
+  string toolName = 1;
+  string parameters = 2;
+  string result = 3;
+}
+
+message ObfuscatedFileContent {
+  Path path = 1;
+  Range range = 2;
+}
+
+message CodeExplorationToolCallInfo {
+  string title = 1;
+  string subTitle = 2;
+  string description = 3;
+  string result = 4;
+}

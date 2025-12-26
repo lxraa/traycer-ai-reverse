@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+enum MCPParentType {
+  USER = 0;
+  ORGANIZATION = 1;
+}
+
+message MCPParent {
+  string id = 1;
+  string providerHandle = 2;
+  MCPParentType type = 3;
+}

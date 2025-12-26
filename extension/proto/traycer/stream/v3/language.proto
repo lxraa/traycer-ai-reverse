@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+enum SupportedLanguage {
+  EN = 0;
+  CA = 1;
+  DE = 2;
+  ES = 3;
+  FR = 4;
+  HI = 5;
+  ID = 6;
+  IT = 7;
+  JA = 8;
+  KO = 9;
+  NL = 10;
+  PL = 11;
+  PT_BR = 12;
+  RU = 13;
+  TR = 14;
+  VI = 15;
+  ZH_CN = 16;
+  ZH_TW = 17;
+}

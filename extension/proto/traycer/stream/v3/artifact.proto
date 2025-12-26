@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package traycer.stream.v3;
+
+import "traycer/stream/v3/identifier.proto";
+
+message ArtifactIdentifier {
+  oneof identifier {
+    PlanIdentifier planIdentifier = 1;
+    PhaseConversationIdentifier phaseConversationIdentifier = 2;
+    VerificationIdentifier verificationIdentifier = 3;
+    PlanChatIdentifier planChatIdentifier = 4;
+    TaskIdentifier taskIdentifier = 5;
+  }
+}

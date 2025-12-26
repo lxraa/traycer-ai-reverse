@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+		<Metadata>
+			<Identity Language="en-US" Id="traycer-vscode" Version="2.13.5" Publisher="Traycer" TargetPlatform="win32-x64"/>
+			<DisplayName>Traycer</DisplayName>
+			<Description xml:space="preserve">An AI-powered coding assistant that plans, implements, and reviews every change 🚀</Description>
+			<Tags>ai,openai,codex,pilot,snippets,intellisense,refactor,python,typescript,typescriptreact,tsx,javascript,javascriptreact,jsx,golang,rust,php,TypeScript,ts,__ext_ts,TypeScriptReact,__ext_tsx,JavaScript,JavaScriptReact,js,mjs,cjs,__ext_js,__ext_mjs,__ext_cjs,__ext_jsx,Python,py,__ext_py,go,Go,__ext_go,Rust,rs,__ext_rs,PHP,__ext_php</Tags>
+			<Categories>AI,Chat,Machine Learning,Programming Languages,Snippets</Categories>
+			<GalleryFlags>Public</GalleryFlags>
+			
+			<Properties>
+				<Property Id="Microsoft.VisualStudio.Code.Engine" Value="^1.75.0" />
+				<Property Id="Microsoft.VisualStudio.Code.ExtensionDependencies" Value="" />
+				<Property Id="Microsoft.VisualStudio.Code.ExtensionPack" Value="" />
+				<Property Id="Microsoft.VisualStudio.Code.ExtensionKind" Value="workspace" />
+				<Property Id="Microsoft.VisualStudio.Code.LocalizedLanguages" Value="" />
+				<Property Id="Microsoft.VisualStudio.Code.EnabledApiProposals" Value="" />
+				
+				<Property Id="Microsoft.VisualStudio.Code.ExecutesCode" Value="true" />
+				
+				<Property Id="Microsoft.VisualStudio.Services.Links.Source" Value="https://github.com/traycerai/community.git" />
+				<Property Id="Microsoft.VisualStudio.Services.Links.Getstarted" Value="https://github.com/traycerai/community.git" />
+				<Property Id="Microsoft.VisualStudio.Services.Links.GitHub" Value="https://github.com/traycerai/community.git" />
+				<Property Id="Microsoft.VisualStudio.Services.Links.Support" Value="https://discord.gg/QYDzEyT7Fq" />
+				<Property Id="Microsoft.VisualStudio.Services.Links.Learn" Value="https://github.com/traycerai/community#readme" />
+				
+				
+				<Property Id="Microsoft.VisualStudio.Services.GitHubFlavoredMarkdown" Value="true" />
+				<Property Id="Microsoft.VisualStudio.Services.Content.Pricing" Value="Free"/>
+
+				
+				<Property Id="Microsoft.VisualStudio.Services.CustomerQnALink" Value="https://discord.gg/FA62AjTqCa" />
+			</Properties>
+			<License>extension/LICENSE.md</License>
+			<Icon>extension/resources/assets/traycer-icon.png</Icon>
+		</Metadata>
+		<Installation>
+			<InstallationTarget Id="Microsoft.VisualStudio.Code"/>
+		</Installation>
+		<Dependencies/>
+		<Assets>
+			<Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true" />
+			<Asset Type="Microsoft.VisualStudio.Services.Content.Details" Path="extension/readme.md" Addressable="true" />
+<Asset Type="Microsoft.VisualStudio.Services.Content.Changelog" Path="extension/changelog.md" Addressable="true" />
+<Asset Type="Microsoft.VisualStudio.Services.Content.License" Path="extension/LICENSE.md" Addressable="true" />
+<Asset Type="Microsoft.VisualStudio.Services.Icons.Default" Path="extension/resources/assets/traycer-icon.png" Addressable="true" />
+		</Assets>
+	</PackageManifest>
