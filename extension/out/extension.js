@@ -42,6 +42,7 @@ const crypto_module = {
   ...require("node:crypto")
 };
 const config_module = require("./modules/config.js");
+
 // 从 config_module 导入 ripgrep 配置和语言相关函数
 const { isWindows, MAX_SEARCH_RESULTS, DEFAULT_RG_ARGS, resolveRipgrepPath, parseLanguagePreference } = config_module;
 
@@ -93,600 +94,122 @@ const { ex } = require("./modules/workerpool.js");
 // ============== 导入区结束====================================
 var prisma = __toESM(prismaClient(), 1);
 
+var config = config_module.createExtensionConfig();
+
+// 初始化Logger
+var sentryInstance = null;
+
+function getSentryInstance() {
+  return sentryInstance === null && (sentryInstance = new sentry_browser_module.Scope()), sentryInstance;
+}
+function initializeSentryClient() {
+  let _0x580b61 = sentry_browser_module.getDefaultIntegrations({}).filter(_0x3b5607 => !['BrowserApiErrors', 'Breadcrumbs', 'GlobalHandlers'].includes(_0x3b5607.name)),
+    _0x823f87 = new sentry_browser_module.BrowserClient({
+      dsn: "https://97263dbc9f614fd87a3a67aea26d1181@o4507249693229056.ingest.us.sentry.io/4507252971798528",
+      integrations: _0x580b61,
+      beforeSend(_0xc069f3) {
+        for (let key of _0xc069f3?.['exception']?.["values"] ?? []) for (let _0x1dfbc6 of key.stacktrace?.['frames'] ?? []) if (_0x1dfbc6.filename?.["includes"](config.extensionName)) return _0xc069f3;
+        return null;
+      },
+      tracesSampleRate: 0.4,
+      sampleRate: 1,
+      attachStacktrace: true,
+      environment: config.nodeEnv,
+      transport: sentry_browser_module.makeFetchTransport,
+      stackParser: sentry_browser_module.defaultStackParser
+    });
+  getSentryInstance().setTag("extention", config.extensionName), getSentryInstance().setClient(_0x823f87), _0x823f87.init();
+}
+function captureExceptionToSentry(_0x4bb160, _0x23a2b2) {
+  return config.nodeEnv === "production" && getSentryInstance().captureException(_0x4bb160, _0x23a2b2), _0x4bb160;
+}
+function setSentryTag(_0x308571, _0x48796e) {
+  getSentryInstance().setTag(_0x308571, _0x48796e);
+}
+async function closeSentryClient() {
+  await getSentryInstance().getClient()?.["close"](200);
+}
+
+function throttle(_0x2bdefb) {
+  switch (_0x2bdefb) {
+    case 'off':
+      return 0;
+    case 'error':
+      return 1;
+    case 'warn':
+      return 2;
+    case 'info':
+      return 3;
+    case 'debug':
+      return 4;
+    case "trace":
+      return 5;
+    default:
+      return 3;
+  }
+}
+
+var Logger = new class {
+  constructor() {
+    this._isDebugging = false, this.level = 0, this._logLevel = "off";
+  }
+  ["configure"](_0x58fb5a, _0x1ce42b, _0x1cedf9 = false) {
+    this.provider = _0x58fb5a, this._isDebugging = _0x1cedf9, this.logLevel = _0x1ce42b;
+  }
+  ['enabled'](_0x60137d) {
+    return this.level >= throttle(_0x60137d);
+  }
+  ['dispose']() {
+    this.output?.["hide"](), this.output?.["clear"](), this.output?.['dispose'](), this.output = void 0;
+  }
+  get ["isDebugging"]() {
+    return this._isDebugging;
+  }
+  get ['logLevel']() {
+    return this._logLevel;
+  }
+  set ['logLevel'](_0x2975b1) {
+    _0x2975b1 === 'off' && (console.log('Traycer:\x20Defaulting\x20log\x20level\x20to\x20\x27error\x27\x20as\x20\x27off\x27\x20is\x20not\x20allowed'), _0x2975b1 = "error"), this.isDebugging && (_0x2975b1 = "trace"), this._logLevel = _0x2975b1, this.level = throttle(this._logLevel), this.output ??= this.provider.createChannel(this.provider.name);
+  }
+  get ['timestamp']() {
+    let _0x10a8c6 = new Date(),
+      _0x377578 = _0x38d502 => (_0x38d502 < 10 ? '0' : '') + _0x38d502,
+      _0x8b7079 = _0x4d95cb => (_0x4d95cb < 100 ? '0' : '') + (_0x4d95cb < 10 ? '00' : '') + _0x4d95cb;
+    return _0x10a8c6.getFullYear() + '-' + _0x377578(_0x10a8c6.getMonth() + 1) + '-' + _0x377578(_0x10a8c6.getDate()) + '\x20' + _0x377578(_0x10a8c6.getHours()) + ':' + _0x377578(_0x10a8c6.getMinutes()) + ':' + _0x377578(_0x10a8c6.getSeconds()) + '.' + _0x8b7079(_0x10a8c6.getMilliseconds());
+  }
+  ["trace"](_0x1c4f12, ..._0x17c1c7) {
+    this.level < 5 || (this.isDebugging && console.trace(this.timestamp, _0x1c4f12 ?? '', ..._0x17c1c7), this.output?.['trace']?.(_0x1c4f12, ..._0x17c1c7));
+  }
+  ["debug"](_0x333991, ..._0x2fd09d) {
+    this.level < 4 || (this.isDebugging && console.debug(this.timestamp, _0x333991 ?? '', ..._0x2fd09d), this.output?.["debug"]?.(_0x333991, ..._0x2fd09d));
+  }
+  ["error"](_0xfc345f, _0x176cd8, ..._0x59cb4c) {
+    if (_0xfc345f ? _0xfc345f instanceof Error && _0xfc345f.message === 'Canceled' || captureExceptionToSentry(new Error("Error: " + String(_0xfc345f) + ',\x20Message:\x20' + (_0x176cd8 ?? '')), {
+      originalException: _0xfc345f
+    }) : _0x176cd8 && captureExceptionToSentry(new Error(_0x176cd8)), !(this.level < 1 && !this.isDebugging)) {
+      if (!_0x176cd8) {
+        let _0x30c0e0 = _0xfc345f instanceof Error ? _0xfc345f.stack : void 0;
+        if (_0x30c0e0) {
+          let _0x414ff8 = /.*\s*?at\s(.+?)\s/.exec(_0x30c0e0);
+          _0x414ff8 != null && (_0x176cd8 = _0x414ff8[1]);
+        }
+      }
+      this.isDebugging && (_0xfc345f != null ? console.error(this.timestamp, _0x176cd8 ?? '', ..._0x59cb4c, _0xfc345f) : console.error(this.timestamp, _0x176cd8 ?? '', ..._0x59cb4c)), this.output?.['error']?.(_0xfc345f, _0x176cd8 ?? '', ..._0x59cb4c);
+    }
+  }
+  ['info'](_0x499546, ..._0x207c22) {
+    this.level < 3 && !this.isDebugging || (this.isDebugging && console.info(this.timestamp, _0x499546 ?? '', ..._0x207c22), this.output?.["info"]?.(_0x499546, ..._0x207c22));
+  }
+  ["warn"](_0x121631, ..._0x335a0f) {
+    this.level < 2 && !this.isDebugging || (this.isDebugging && console.warn(this.timestamp, _0x121631 ?? '', ..._0x335a0f), this.output?.['warn']?.(_0x121631, ..._0x335a0f));
+  }
+}();
 
 
 resolveRipgrepPath().catch(() => Logger.error("Failed to resolve ripgrep binary path"));
 
 
-var SENTRY_DEBUG = typeof __SENTRY_DEBUG__ > 'u' || __SENTRY_DEBUG__;
-var SENTRY_VERSION = "10.30.0";
 
-function getSentryCarrier(carrier) {
-  let sentryGlobal = carrier.__SENTRY__ = carrier.__SENTRY__ || {};
-  return sentryGlobal.version = sentryGlobal.version || SENTRY_VERSION, sentryGlobal[SENTRY_VERSION] = sentryGlobal[SENTRY_VERSION] || {};
-}
-function getOrCreateGlobalSingleton(key, factory, globalObj = __globalThis) {
-  let sentryGlobal = globalObj.__SENTRY__ = globalObj.__SENTRY__ || {},
-    versionedCarrier = sentryGlobal[SENTRY_VERSION] = sentryGlobal[SENTRY_VERSION] || {};
-  return versionedCarrier[key] || (versionedCarrier[key] = factory());
-}
-function consoleSandbox(callback) {
-  if (!('console' in __globalThis)) return callback();
-  let consoleObj = __globalThis.console,
-    backup = {},
-    keys = Object.keys(originalConsoleMethods);
-  keys.forEach(key => {
-    let wrappedMethod = originalConsoleMethods[key];
-    backup[key] = consoleObj[key], consoleObj[key] = wrappedMethod;
-  });
-  try {
-    return callback();
-  } finally {
-    keys.forEach(key => {
-      consoleObj[key] = backup[key];
-    });
-  }
-}
-function enableLogger() {
-  getLoggerSettings().enabled = true;
-}
-function disableLogger() {
-  getLoggerSettings().enabled = false;
-}
-function isLoggerEnabled() {
-  return getLoggerSettings().enabled;
-}
-function logInfo(...args) {
-  sentryLog("log", ...args);
-}
-function logWarn(...args) {
-  sentryLog("warn", ...args);
-}
-function logError(...args) {
-  sentryLog("error", ...args);
-}
-function sentryLog(level, ...args) {
-  SENTRY_DEBUG && isLoggerEnabled() && consoleSandbox(() => {
-    __globalThis.console[level]('Sentry\x20Logger\x20' + '[' + level + ']:', ...args);
-  });
-}
-function getLoggerSettings() {
-  return SENTRY_DEBUG ? getOrCreateGlobalSingleton('loggerSettings', () => ({
-    enabled: false
-  })) : {
-    enabled: false
-  };
-}
-var originalConsoleMethods = {},
-  logger = {
-    enable: enableLogger,
-    disable: disableLogger,
-    isEnabled: isLoggerEnabled,
-    log: logInfo,
-    warn: logWarn,
-    error: logError
-  };
-function getFunctionName(_0x5e67d9) {
-  try {
-    return !_0x5e67d9 || typeof _0x5e67d9 != "function" ? "<anonymous>" : _0x5e67d9.name || "<anonymous>";
-  } catch {
-    return "<anonymous>";
-  }
-}
-function getVueNodeType(_0x378561) {
-  return "__v_isVNode" in _0x378561 && _0x378561.__v_isVNode ? '[VueVNode]' : "[VueViewModel]";
-}
-
-function getErrorType(_0x1efecb) {
-  switch (Object.prototype.toString.call(_0x1efecb)) {
-    case "[object Error]":
-    case "[object Exception]":
-    case "[object DOMException]":
-    case '[object\x20WebAssembly.Exception]':
-      return true;
-    default:
-      return safeInstanceOf(_0x1efecb, Error);
-  }
-}
-function isObjectType(_0x117468, _0xea0583) {
-  return Object.prototype.toString.call(_0x117468) === "[object " + _0xea0583 + ']';
-}
-function isString(_0x534b1a) {
-  return isObjectType(_0x534b1a, "String");
-}
-function isPlainObject(_0x50eea6) {
-  return isObjectType(_0x50eea6, 'Object');
-}
-function isDomEvent(_0x4d0536) {
-  return typeof Event < 'u' && safeInstanceOf(_0x4d0536, Event);
-}
-function isDomElement(_0x1a904e) {
-  return typeof Element < 'u' && safeInstanceOf(_0x1a904e, Element);
-}
-function isThenable(_0x10a599) {
-  return !!(_0x10a599?.["then"] && typeof _0x10a599.then == "function");
-}
-function isSyntheticEvent(_0x11cdb0) {
-  return isPlainObject(_0x11cdb0) && 'nativeEvent' in _0x11cdb0 && "preventDefault" in _0x11cdb0 && "stopPropagation" in _0x11cdb0;
-}
-function safeInstanceOf(_0x160087, _0x195195) {
-  try {
-    return _0x160087 instanceof _0x195195;
-  } catch {
-    return false;
-  }
-}
-function isVueInstance(_0x2293cc) {
-  return !!(typeof _0x2293cc == "object" && _0x2293cc !== null && (_0x2293cc.__isVue || _0x2293cc._isVue || _0x2293cc.__v_isVNode));
-}
-function buildDomPath(_0x509178, _0x7472c3 = {}) {
-  if (!_0x509178) return "<unknown>";
-  try {
-    let _0x3731a6 = _0x509178,
-      _0x54c133 = 5,
-      _0x1924f3 = [],
-      _0x523f5a = 0,
-      _0x4832c3 = 0,
-      _0x121251 = '\x20>\x20',
-      _0x1b4298 = '\x20>\x20'.length,
-      _0x22663c,
-      _0x25ec69 = Array.isArray(_0x7472c3) ? _0x7472c3 : _0x7472c3.keyAttrs,
-      _0x70e294 = !Array.isArray(_0x7472c3) && _0x7472c3.maxStringLength || 80;
-    for (; _0x3731a6 && _0x523f5a++ < 5 && (_0x22663c = buildDomSelector(_0x3731a6, _0x25ec69), !(_0x22663c === 'html' || _0x523f5a > 1 && _0x4832c3 + _0x1924f3.length * _0x1b4298 + _0x22663c.length >= _0x70e294));) _0x1924f3.push(_0x22663c), _0x4832c3 += _0x22663c.length, _0x3731a6 = _0x3731a6.parentNode;
-    return _0x1924f3.reverse().join('\x20>\x20');
-  } catch {
-    return "<unknown>";
-  }
-}
-function buildDomSelector(_0x774290, _0x2262de) {
-  let _0x5b31a6 = _0x774290,
-    _0x502630 = [];
-  if (!_0x5b31a6?.['tagName']) return '';
-  if (__globalThis.HTMLElement && _0x5b31a6 instanceof HTMLElement && _0x5b31a6.dataset) {
-    if (_0x5b31a6.dataset.sentryComponent) return _0x5b31a6.dataset.sentryComponent;
-    if (_0x5b31a6.dataset.sentryElement) return _0x5b31a6.dataset.sentryElement;
-  }
-  _0x502630.push(_0x5b31a6.tagName.toLowerCase());
-  let _0x535664 = _0x2262de?.['length'] ? _0x2262de.filter(_0x5d6792 => _0x5b31a6.getAttribute(_0x5d6792)).map(_0x22d3af => [_0x22d3af, _0x5b31a6.getAttribute(_0x22d3af)]) : null;
-  if (_0x535664?.["length"]) _0x535664.forEach(_0x4060e9 => {
-    _0x502630.push('[' + _0x4060e9[0] + '=\x22' + _0x4060e9[1] + '\x22]');
-  });else {
-    _0x5b31a6.id && _0x502630.push('#' + _0x5b31a6.id);
-    let _0x12038c = _0x5b31a6.className;
-    if (_0x12038c && isString(_0x12038c)) {
-      let _0x1d4350 = _0x12038c.split(/\s+/);
-      for (let key of _0x1d4350) _0x502630.push('.' + key);
-    }
-  }
-  let _0x35fdf7 = ['aria-label', 'type', 'name', 'title', "alt"];
-  for (let key of _0x35fdf7) {
-    let _0x266552 = _0x5b31a6.getAttribute(key);
-    _0x266552 && _0x502630.push('[' + key + '=\x22' + _0x266552 + '\x22]');
-  }
-  return _0x502630.join('');
-}
-
-function normalizeEventForSentry(_0x26f0de) {
-  if (getErrorType(_0x26f0de)) return {
-    message: _0x26f0de.message,
-    name: _0x26f0de.name,
-    stack: _0x26f0de.stack,
-    ...shallowCopyObject(_0x26f0de)
-  };
-  if (isDomEvent(_0x26f0de)) {
-    let _0x439184 = {
-      type: _0x26f0de.type,
-      target: getObjectDescription(_0x26f0de.target),
-      currentTarget: getObjectDescription(_0x26f0de.currentTarget),
-      ...shallowCopyObject(_0x26f0de)
-    };
-    return typeof CustomEvent < 'u' && safeInstanceOf(_0x26f0de, CustomEvent) && (_0x439184.detail = _0x26f0de.detail), _0x439184;
-  } else return _0x26f0de;
-}
-function getObjectDescription(_0x2cf910) {
-  try {
-    return isDomElement(_0x2cf910) ? buildDomPath(_0x2cf910) : Object.prototype.toString.call(_0x2cf910);
-  } catch {
-    return '<unknown>';
-  }
-}
-function shallowCopyObject(_0x4072e8) {
-  if (typeof _0x4072e8 == 'object' && _0x4072e8 !== null) {
-    let _0x2c2270 = {};
-    for (let key in _0x4072e8) Object.prototype.hasOwnProperty.call(_0x4072e8, key) && (_0x2c2270[key] = _0x4072e8[key]);
-    return _0x2c2270;
-  } else return {};
-}
-var yi = sentry_browser_module.Scope
-/* [unbundle] yi = sentry_browser_module.Scope */;
-
-/* [unbundle] k3e = require('@sentry/browser').withScope */
-
-/* [unbundle] MX = require('@sentry/browser').withIsolationScope */
-
-/* [unbundle] Uc = require('@sentry/browser').getCurrentScope */
-
-/* [unbundle] Vc = require('@sentry/browser').getIsolationScope */
-
-/* [unbundle] mk = require('@sentry/browser').getGlobalScope */
-
-/* [unbundle] _k = require('@sentry/browser').withScope */
-
-/* [unbundle] zr = require('@sentry/browser').getClient */
-
-function normalizeAndSerialize(_0x1da2dd, _0x2cd223 = 100, _0x2e18c8 = 1 / 0) {
-  try {
-    return normalizeObjectForSentry('', _0x1da2dd, _0x2cd223, _0x2e18c8);
-  } catch (_0x41c494) {
-    return {
-      ERROR: "**non-serializable** (" + _0x41c494 + ')'
-    };
-  }
-}
-function normalizeObjectForSentry(_0x2b4bdc, _0x49e62e, _0x57f599 = 1 / 0, _0x19fae0 = 1 / 0, _0x14c9f2 = createMemoizationTracker()) {
-  let [_0x155247, _0x354585] = _0x14c9f2;
-  if (_0x49e62e == null || ['boolean', 'string'].includes(typeof _0x49e62e) || typeof _0x49e62e == 'number' && Number.isFinite(_0x49e62e)) return _0x49e62e;
-  let _0x108b56 = serializeSpecialValue(_0x2b4bdc, _0x49e62e);
-  if (!_0x108b56.startsWith('[object\x20')) return _0x108b56;
-  if (_0x49e62e.__sentry_skip_normalization__) return _0x49e62e;
-  let _0xfff327 = typeof _0x49e62e.__sentry_override_normalization_depth__ == "number" ? _0x49e62e.__sentry_override_normalization_depth__ : _0x57f599;
-  if (_0xfff327 === 0) return _0x108b56.replace('object\x20', '');
-  if (_0x155247(_0x49e62e)) return '[Circular\x20~]';
-  let _0x1b5828 = _0x49e62e;
-  if (_0x1b5828 && typeof _0x1b5828.toJSON == 'function') try {
-    let _0x1450c4 = _0x1b5828.toJSON();
-    return normalizeObjectForSentry('', _0x1450c4, _0xfff327 - 1, _0x19fae0, _0x14c9f2);
-  } catch {}
-  let _0x4656dd = Array.isArray(_0x49e62e) ? [] : {},
-    _0x55081f = 0,
-    _0x39eccf = normalizeEventForSentry(_0x49e62e);
-  for (let key in _0x39eccf) {
-    if (!Object.prototype.hasOwnProperty.call(_0x39eccf, key)) continue;
-    if (_0x55081f >= _0x19fae0) {
-      _0x4656dd[key] = "[MaxProperties ~]";
-      break;
-    }
-    let _0x210146 = _0x39eccf[key];
-    _0x4656dd[key] = normalizeObjectForSentry(key, _0x210146, _0xfff327 - 1, _0x19fae0, _0x14c9f2), _0x55081f++;
-  }
-  return _0x354585(_0x49e62e), _0x4656dd;
-}
-function serializeSpecialValue(_0xe854e0, _0x8801c6) {
-  try {
-    if (_0xe854e0 === 'domain' && _0x8801c6 && typeof _0x8801c6 == 'object' && _0x8801c6._events) return "[Domain]";
-    if (_0xe854e0 === 'domainEmitter') return '[DomainEmitter]';
-    if (typeof global < 'u' && _0x8801c6 === global) return '[Global]';
-    if (typeof window < 'u' && _0x8801c6 === window) return '[Window]';
-    if (typeof document < 'u' && _0x8801c6 === document) return "[Document]";
-    if (isVueInstance(_0x8801c6)) return getVueNodeType(_0x8801c6);
-    if (isSyntheticEvent(_0x8801c6)) return "[SyntheticEvent]";
-    if (typeof _0x8801c6 == "number" && !Number.isFinite(_0x8801c6)) return '[' + _0x8801c6 + ']';
-    if (typeof _0x8801c6 == "function") return "[Function: " + getFunctionName(_0x8801c6) + ']';
-    if (typeof _0x8801c6 == 'symbol') return '[' + String(_0x8801c6) + ']';
-    if (typeof _0x8801c6 == 'bigint') return "[BigInt: " + String(_0x8801c6) + ']';
-    let _0x2a8746 = getPrototypeName(_0x8801c6);
-    return /^HTML(\w*)Element$/.test(_0x2a8746) ? '[HTMLElement:\x20' + _0x2a8746 + ']' : '[object\x20' + _0x2a8746 + ']';
-  } catch (_0xc234c8) {
-    return "**non-serializable** (" + _0xc234c8 + ')';
-  }
-}
-function getPrototypeName(_0x21e378) {
-  let _0x5def3e = Object.getPrototypeOf(_0x21e378);
-  return _0x5def3e?.["constructor"] ? _0x5def3e.constructor.name : "null prototype";
-}
-function createMemoizationTracker() {
-  let _0xa2d701 = new WeakSet();
-  function _0x432e1d(_0x8b072a) {
-    return _0xa2d701.has(_0x8b072a) ? true : (_0xa2d701.add(_0x8b072a), false);
-  }
-  function _0x4c4e1b(_0x5ea40a) {
-    _0xa2d701.delete(_0x5ea40a);
-  }
-  return [_0x432e1d, _0x4c4e1b];
-}
-function createEnvelopeTuple(_0x428483, _0x4ce283 = []) {
-  return [_0x428483, _0x4ce283];
-}
-function iterateEnvelopeItems(_0x3b74d9, _0x56131f) {
-  let _0x16ddaf = _0x3b74d9[1];
-  for (let key of _0x16ddaf) {
-    let _0x57edc4 = key[0].type;
-    if (_0x56131f(key, _0x57edc4)) return true;
-  }
-  return false;
-}
-function encodeTextToBytes(_0x5defa6) {
-  let _0x250ff9 = getSentryCarrier(__globalThis);
-  return _0x250ff9.encodePolyfill ? _0x250ff9.encodePolyfill(_0x5defa6) : new TextEncoder().encode(_0x5defa6);
-}
-function serializeEnvelopeToBuffer(_0x314640) {
-  let [_0x4cabb8, _0x548433] = _0x314640,
-    _0x54c72e = JSON.stringify(_0x4cabb8);
-  function _0x284e2b(_0x2c0232) {
-    typeof _0x54c72e == 'string' ? _0x54c72e = typeof _0x2c0232 == "string" ? _0x54c72e + _0x2c0232 : [encodeTextToBytes(_0x54c72e), _0x2c0232] : _0x54c72e.push(typeof _0x2c0232 == "string" ? encodeTextToBytes(_0x2c0232) : _0x2c0232);
-  }
-  for (let key of _0x548433) {
-    let [_0x47f769, _0x46e4f5] = key;
-    if (_0x284e2b('\x0a' + JSON.stringify(_0x47f769) + '\x0a'), typeof _0x46e4f5 == "string" || _0x46e4f5 instanceof Uint8Array) _0x284e2b(_0x46e4f5);else {
-      let _0x4a2cf4;
-      try {
-        _0x4a2cf4 = JSON.stringify(_0x46e4f5);
-      } catch {
-        _0x4a2cf4 = JSON.stringify(normalizeAndSerialize(_0x46e4f5));
-      }
-      _0x284e2b(_0x4a2cf4);
-    }
-  }
-  return typeof _0x54c72e == 'string' ? _0x54c72e : concatUint8Arrays(_0x54c72e);
-}
-function concatUint8Arrays(_0x32e774) {
-  let _0x390424 = _0x32e774.reduce((_0xb552da, _0x3ef565) => _0xb552da + _0x3ef565.length, 0),
-    _0x1ccabf = new Uint8Array(_0x390424),
-    _0x4f24e7 = 0;
-  for (let key of _0x32e774) _0x1ccabf.set(key, _0x4f24e7), _0x4f24e7 += key.length;
-  return _0x1ccabf;
-}
-function getEnvelopeItemType(_0x25d411) {
-  return rUe[_0x25d411];
-}
-var rUe = {
-  session: 'session',
-  sessions: "session",
-  attachment: 'attachment',
-  transaction: 'transaction',
-  event: 'error',
-  client_report: "internal",
-  user_report: 'default',
-  profile: 'profile',
-  profile_chunk: 'profile',
-  replay_event: 'replay',
-  replay_recording: 'replay',
-  check_in: "monitor",
-  feedback: "feedback",
-  span: 'span',
-  raw_security: "security",
-  log: "log_item",
-  metric: "metric",
-  trace_metric: 'metric'
-};
-function createResolvedSyncPromise(_0x43a8b6) {
-  return new SyncPromise(_0x206660 => {
-    _0x206660(_0x43a8b6);
-  });
-}
-function createRejectedSyncPromise(_0x1d2507) {
-  return new SyncPromise((_0x2ad1b3, _0x3714eb) => {
-    _0x3714eb(_0x1d2507);
-  });
-}
-var _B = 0,
-  fZ = 1,
-  hZ = 2,
-  SyncPromise = class _0x33aaa3 {
-    constructor(_0x4042cd) {
-      this._state = _B, this._handlers = [], this._runExecutor(_0x4042cd);
-    }
-    ["then"](_0x3c0195, _0x36eddc) {
-      return new _0x33aaa3((_0x284e74, _0xe3dd1e) => {
-        this._handlers.push([false, _0x2c4a0f => {
-          if (!_0x3c0195) _0x284e74(_0x2c4a0f);else try {
-            _0x284e74(_0x3c0195(_0x2c4a0f));
-          } catch (_0x3b4708) {
-            _0xe3dd1e(_0x3b4708);
-          }
-        }, _0x47d90a => {
-          if (!_0x36eddc) _0xe3dd1e(_0x47d90a);else try {
-            _0x284e74(_0x36eddc(_0x47d90a));
-          } catch (_0x6ada08) {
-            _0xe3dd1e(_0x6ada08);
-          }
-        }]), this._executeHandlers();
-      });
-    }
-    ["catch"](_0x4b4398) {
-      return this.then(_0x56be7f => _0x56be7f, _0x4b4398);
-    }
-    ["finally"](_0x17484d) {
-      return new _0x33aaa3((_0x68f39e, _0x113d99) => {
-        let _0x19d22d, _0x72e265;
-        return this.then(_0x51c3e0 => {
-          _0x72e265 = false, _0x19d22d = _0x51c3e0, _0x17484d && _0x17484d();
-        }, _0xad844b => {
-          _0x72e265 = true, _0x19d22d = _0xad844b, _0x17484d && _0x17484d();
-        }).then(() => {
-          if (_0x72e265) {
-            _0x113d99(_0x19d22d);
-            return;
-          }
-          _0x68f39e(_0x19d22d);
-        });
-      });
-    }
-    ['_executeHandlers']() {
-      if (this._state === _B) return;
-      let _0x3ca09e = this._handlers.slice();
-      this._handlers = [], _0x3ca09e.forEach(_0x25bdbf => {
-        _0x25bdbf[0] || (this._state === fZ && _0x25bdbf[1](this._value), this._state === hZ && _0x25bdbf[2](this._value), _0x25bdbf[0] = true);
-      });
-    }
-    ['_runExecutor'](_0x1e6f5f) {
-      let _0x25e01f = (_0x5302c1, _0x392ca5) => {
-          if (this._state === _B) {
-            if (isThenable(_0x392ca5)) {
-              _0x392ca5.then(_0x239f81, _0x389498);
-              return;
-            }
-            this._state = _0x5302c1, this._value = _0x392ca5, this._executeHandlers();
-          }
-        },
-        _0x239f81 = _0x49e2ba => {
-          _0x25e01f(fZ, _0x49e2ba);
-        },
-        _0x389498 = _0x4b99fd => {
-          _0x25e01f(hZ, _0x4b99fd);
-        };
-      try {
-        _0x1e6f5f(_0x239f81, _0x389498);
-      } catch (_0x58844d) {
-        _0x389498(_0x58844d);
-      }
-    }
-  };
-
-/* [unbundle] bk = require('@sentry/browser').captureException */
-
-/* [unbundle] yS = require('@sentry/browser').captureEvent */
-
-function createSyncPromise(_0x54eaed = 100) {
-  let _0x4f5f29 = new Set();
-  function _0x574b1f() {
-    return _0x4f5f29.size < _0x54eaed;
-  }
-  function _0x402575(_0x399842) {
-    _0x4f5f29.delete(_0x399842);
-  }
-  function _0x5ba442(_0x4401b8) {
-    if (!_0x574b1f()) return createRejectedSyncPromise(Qy);
-    let _0x45c5d9 = _0x4401b8();
-    return _0x4f5f29.add(_0x45c5d9), _0x45c5d9.then(() => _0x402575(_0x45c5d9), () => _0x402575(_0x45c5d9)), _0x45c5d9;
-  }
-  function _0x24fb9d(_0x29114f) {
-    if (!_0x4f5f29.size) return createResolvedSyncPromise(true);
-    let _0x4257d2 = Promise.allSettled(Array.from(_0x4f5f29)).then(() => true);
-    if (!_0x29114f) return _0x4257d2;
-    let _0x6264e2 = [_0x4257d2, new Promise(_0x580efa => setTimeout(() => _0x580efa(false), _0x29114f))];
-    return Promise.race(_0x6264e2);
-  }
-  return {
-    get $() {
-      return Array.from(_0x4f5f29);
-    },
-    add: _0x5ba442,
-    drain: _0x24fb9d
-  };
-}
-var Qy = Symbol.for('SentryBufferFullError');
-function getRateLimitForCategory(_0x5215f0, _0x276ee4) {
-  return _0x5215f0[_0x276ee4] || _0x5215f0.all || 0;
-}
-function isRateLimited(_0x1cfbdb, _0x176a83, _0x149574 = Date.now()) {
-  return getRateLimitForCategory(_0x1cfbdb, _0x176a83) > _0x149574;
-}
-function updateRateLimits(_0x24f919, {
-  statusCode: _0x4feef5,
-  headers: _0x443d52
-}, _0x56ca46 = Date.now()) {
-  let _0xa41479 = {
-      ..._0x24f919
-    },
-    _0x27ebb3 = _0x443d52?.["x-sentry-rate-limits"],
-    _0xcddbc = _0x443d52?.['retry-after'];
-  if (_0x27ebb3) for (let _0x50f890 of _0x27ebb3.trim().split(',')) {
-    let [_0x3e1f6c, _0x196a39,,, _0x21679b] = _0x50f890.split(':', 5),
-      _0x549020 = parseInt(_0x3e1f6c, 10),
-      _0x18f754 = (isNaN(_0x549020) ? 60 : _0x549020) * 1000;
-    if (!_0x196a39) _0xa41479.all = _0x56ca46 + _0x18f754;else {
-      for (let _0x28cdc7 of _0x196a39.split(';')) _0x28cdc7 === 'metric_bucket' ? (!_0x21679b || _0x21679b.split(';').includes("custom")) && (_0xa41479[_0x28cdc7] = _0x56ca46 + _0x18f754) : _0xa41479[_0x28cdc7] = _0x56ca46 + _0x18f754;
-    }
-  } else _0xcddbc ? _0xa41479.all = _0x56ca46 + CUe(_0xcddbc, _0x56ca46) : _0x4feef5 === 429 && (_0xa41479.all = _0x56ca46 + 60000);
-  return _0xa41479;
-}
-function createSentryTransportWithRateLimit(_0x4e2f52, _0xd55f99, _0x35a7ac = createSyncPromise(_0x4e2f52.bufferSize || PB)) {
-  let _0x5e2121 = {},
-    _0x108f19 = _0x2c6b25 => _0x35a7ac.drain(_0x2c6b25);
-  function _0x2a242f(_0x3b3345) {
-    let _0x497058 = [];
-    if (iterateEnvelopeItems(_0x3b3345, (_0x1feded, _0x55310b) => {
-      let _0x1552b0 = getEnvelopeItemType(_0x55310b);
-      isRateLimited(_0x5e2121, _0x1552b0) ? _0x4e2f52.recordDroppedEvent("ratelimit_backoff", _0x1552b0) : _0x497058.push(_0x1feded);
-    }), _0x497058.length === 0) return Promise.resolve({});
-    let _0x280d2e = createEnvelopeTuple(_0x3b3345[0], _0x497058),
-      _0x54e2ba = _0x458001 => {
-        iterateEnvelopeItems(_0x280d2e, (_0x2865bd, _0x2acd91) => {
-          _0x4e2f52.recordDroppedEvent(_0x458001, getEnvelopeItemType(_0x2acd91));
-        });
-      },
-      _0x1afb65 = () => _0xd55f99({
-        body: serializeEnvelopeToBuffer(_0x280d2e)
-      }).then(_0x44352f => (_0x44352f.statusCode !== void 0 && (_0x44352f.statusCode < 200 || _0x44352f.statusCode >= 300) && SENTRY_DEBUG && logger.warn("Sentry responded with status code " + _0x44352f.statusCode + " to sent event."), _0x5e2121 = updateRateLimits(_0x5e2121, _0x44352f), _0x44352f), _0xb812d5 => {
-        throw _0x54e2ba("network_error"), SENTRY_DEBUG && logger.error('Encountered\x20error\x20running\x20transport\x20request:', _0xb812d5), _0xb812d5;
-      });
-    return _0x35a7ac.add(_0x1afb65).then(_0xe98c46 => _0xe98c46, _0x32f023 => {
-      if (_0x32f023 === Qy) return SENTRY_DEBUG && logger.error('Skipped\x20sending\x20event\x20because\x20buffer\x20is\x20full.'), _0x54e2ba("queue_overflow"), Promise.resolve({});
-      throw _0x32f023;
-    });
-  }
-  return {
-    send: _0x2a242f,
-    flush: _0x108f19
-  };
-}
-var PB = 64;
-/* [unbundle] qc = require('@sentry/browser').addBreadcrumb */
-
-function isNativeFunction(_0x3b559e) {
-  return _0x3b559e && /^function\s+\w+\(\)\s+\{\s+\[native code\]\s+\}$/.test(_0x3b559e.toString());
-}
-var IS = sentry_browser_module.BrowserClient
-  /* [unbundle] IS = sentry_browser_module.BrowserClient */,
-  xee = typeof __SENTRY_DEBUG__ > 'u' || __SENTRY_DEBUG__,
-  jn = __globalThis;
-function createFetchTransport(_0x587d1e) {
-  let _0x451690 = qk[_0x587d1e];
-  if (_0x451690) return _0x451690;
-  let _0x536380 = jn[_0x587d1e];
-  if (isNativeFunction(_0x536380)) return qk[_0x587d1e] = _0x536380.bind(jn);
-  let _0x580852 = jn.document;
-  if (_0x580852 && typeof _0x580852.createElement == 'function') try {
-    let _0x99b07d = _0x580852.createElement("iframe");
-    _0x99b07d.hidden = true, _0x580852.head.appendChild(_0x99b07d);
-    let _0x4b436f = _0x99b07d.contentWindow;
-    _0x4b436f?.[_0x587d1e] && (_0x536380 = _0x4b436f[_0x587d1e]), _0x580852.head.removeChild(_0x99b07d);
-  } catch (_0x38822f) {
-    xee && logger.warn("Could not create sandbox iframe for " + _0x587d1e + " check, bailing to window." + _0x587d1e + ':\x20', _0x38822f);
-  }
-  return _0x536380 && (qk[_0x587d1e] = _0x536380.bind(jn));
-}
-function deleteFromCache(_0x3634c2) {
-  qk[_0x3634c2] = void 0;
-}
-var qk = {};
-function createSentryFetchTransport(_0x231dbb, _0x34cf50 = createFetchTransport('fetch')) {
-  let _0x354909 = 0,
-    _0x1a4e21 = 0;
-  async function _0x35217c(_0x5a0bce) {
-    let _0x2b7464 = _0x5a0bce.body.length;
-    _0x354909 += _0x2b7464, _0x1a4e21++;
-    let _0x18b046 = {
-      body: _0x5a0bce.body,
-      method: 'POST',
-      referrerPolicy: "strict-origin",
-      headers: _0x231dbb.headers,
-      keepalive: _0x354909 <= 60000 && _0x1a4e21 < 15,
-      ..._0x231dbb.fetchOptions
-    };
-    try {
-      let _0x3628ac = await _0x34cf50(_0x231dbb.url, _0x18b046);
-      return {
-        statusCode: _0x3628ac.status,
-        headers: {
-          'x-sentry-rate-limits': _0x3628ac.headers.get("X-Sentry-Rate-Limits"),
-          'retry-after': _0x3628ac.headers.get('Retry-After')
-        }
-      };
-    } catch (_0x49b21a) {
-      throw deleteFromCache('fetch'), _0x49b21a;
-    } finally {
-      _0x354909 -= _0x2b7464, _0x1a4e21--;
-    }
-  }
-  return createSentryTransportWithRateLimit(_0x231dbb, _0x35217c, createSyncPromise(_0x231dbb.bufferSize || NVe));
-}
-var NVe = 40;
-var eq = sentry_browser_module.defaultStackParser
-/* [unbundle] eq = sentry_browser_module.defaultStackParser */;
-/* [unbundle] tq = sentry_browser_module.getDefaultIntegrations */
-var tq = sentry_browser_module.getDefaultIntegrations;
 var HttpStatusError = class extends Error {
     ["statusCode"];
     constructor(_0x1783c7, _0x2a32f8) {
@@ -771,7 +294,7 @@ function ensureBuffer(_0x1cdfc6) {
   }
   return Buffer.from(_0x1cdfc6);
 }
-var CustomSet = class _0xfd2223 {
+class CustomSet {
     ['items'] = [];
     ["equals"];
     constructor(_0x4be53e, _0xee6711) {
@@ -789,17 +312,17 @@ var CustomSet = class _0xfd2223 {
       return [...this.items];
     }
     ['union'](_0x43aea7) {
-      let _0x13a3ff = new _0xfd2223(this.equals);
+      let _0x13a3ff = new CustomSet(this.equals);
       return this.values().forEach(_0x5e6f25 => _0x13a3ff.add(_0x5e6f25)), _0x43aea7.values().forEach(_0x1e3183 => _0x13a3ff.add(_0x1e3183)), _0x13a3ff;
     }
     ['intersection'](_0x2d1e07) {
-      let _0x5eb420 = new _0xfd2223(this.equals);
+      let _0x5eb420 = new CustomSet(this.equals);
       return this.values().forEach(_0x166395 => {
         _0x2d1e07.has(_0x166395) && _0x5eb420.add(_0x166395);
       }), _0x5eb420;
     }
     ['difference'](_0x10342b) {
-      let _0x148bb8 = new _0xfd2223(this.equals);
+      let _0x148bb8 = new CustomSet(this.equals);
       return this.values().forEach(_0x471d31 => {
         _0x10342b.has(_0x471d31) || _0x148bb8.add(_0x471d31);
       }), _0x148bb8;
@@ -813,8 +336,8 @@ var CustomSet = class _0xfd2223 {
     get ["size"]() {
       return this.items.length;
     }
-  },
-  LineRange = class _0x488657 {
+  }
+class LineRange {
     ["startLine"];
     ['count'];
     constructor(_0x448dac, _0x43a6e7) {
@@ -842,37 +365,38 @@ var CustomSet = class _0xfd2223 {
       return this.startLine <= _0x69589b.endLine && _0x69589b.startLine <= this.endLine;
     }
     ["union"](_0x45d6c0) {
-      return _0x488657.fromEndLine(Math.min(this.startLine, _0x45d6c0.startLine), Math.max(this.endLine, _0x45d6c0.endLine));
+      return LineRange.fromEndLine(Math.min(this.startLine, _0x45d6c0.startLine), Math.max(this.endLine, _0x45d6c0.endLine));
     }
     static ["fromCount"](_0x348802, _0x544328) {
-      return new _0x488657(_0x348802, _0x544328);
+      return new LineRange(_0x348802, _0x544328);
     }
     static ["fromEndLine"](_0xa19a67, _0x37cf22) {
-      return new _0x488657(_0xa19a67, _0x37cf22 - _0xa19a67 + 1);
+      return new LineRange(_0xa19a67, _0x37cf22 - _0xa19a67 + 1);
     }
     static ["fromRangeOutput"](_0x42e23a) {
-      return new _0x488657(_0x42e23a.startLine - 1, _0x42e23a.count);
+      return new LineRange(_0x42e23a.startLine - 1, _0x42e23a.count);
     }
     static ['fromOneBased'](_0x131f4b, _0x40dc3d) {
-      return _0x488657.fromEndLine(_0x131f4b - 1, _0x40dc3d - 1);
+      return LineRange.fromEndLine(_0x131f4b - 1, _0x40dc3d - 1);
     }
     static ["fromOneBasedCount"](_0x3c01f2, _0x5d0fdf) {
-      return _0x488657.fromCount(_0x3c01f2 - 1, _0x5d0fdf);
+      return LineRange.fromCount(_0x3c01f2 - 1, _0x5d0fdf);
     }
-  },
-  FilePath = class _0x4bcfe4 {
+  }
+
+class FilePath {
     constructor(_0x115f8a, _0x303cea, _0x5892f8) {
       this._absolutePath = _0x115f8a, this._isDirectory = _0x303cea, this._platform = _0x5892f8, _0x5892f8 === xr.WINDOWS ? this._path = path_module.win32 : this._path = path_module.posix;
     }
     ["_path"];
     static ["getAbsolutePath"](_0x37e0e2, _0x5c4320) {
-      return _0x37e0e2 ? _0x4bcfe4.normalizeToPlatformPath(_0x37e0e2.absolutePath, _0x5c4320) : '';
+      return _0x37e0e2 ? FilePath.normalizeToPlatformPath(_0x37e0e2.absolutePath, _0x5c4320) : '';
     }
     static ["equals"](_0x4a1032, _0x4b10ae) {
       return _0x4a1032.absPath === _0x4b10ae.absPath;
     }
     static ["includes"](_0xb0995b, _0x40a96d) {
-      return _0xb0995b.some(_0x8106da => _0x4bcfe4.equals(_0x8106da, _0x40a96d));
+      return _0xb0995b.some(_0x8106da => FilePath.equals(_0x8106da, _0x40a96d));
     }
     static ['getFileName'](_0x1197c3, _0x3ff18a) {
       let _0x2eb162 = this.normalizeToPlatformPath(_0x1197c3, _0x3ff18a);
@@ -2777,7 +2301,7 @@ var c9e = new Set(Object.values(Ou)),
   initRequestQueue = __esmModule(() => {
     'use strict';
 
-    initLogger(), RequestQueue = class {
+     RequestQueue = class {
       constructor(_0x4e2b69, _0x2c6a5f, _0x4a727a) {
         this.concurrencyLimit = _0x4e2b69, this.breatherDuration = _0x2c6a5f, this.continuousRequestDuration = _0x4a727a, this.breatherDuration = _0x2c6a5f, this.continuousRequestDuration = _0x4a727a, this.inFlightRequests = 0, this.requestQueue = [], this.continuousRequestStart = Date.now(), this.isBreatherActive = false;
       }
@@ -2816,7 +2340,7 @@ var c9e = new Set(Object.values(Ou)),
   initLatestRequestLimiter = __esmModule(() => {
     'use strict';
 
-    initRequestQueue(), initLogger(), LatestRequestLimiter = class extends RequestQueue {
+    initRequestQueue(),  LatestRequestLimiter = class extends RequestQueue {
       constructor() {
         super(1, 1000, 30000), this.currentRequest = null, this.abortController = null;
       }
@@ -2945,13 +2469,13 @@ var H$,
   initSearchUtils = __esmModule(() => {
     'use strict';
 
-    initLatestRequestLimiter(), initSearchConfig(), initWorkspaceInfo(), initLogger(),  /* fce = vscode_module */H$ = 50, I9e = new LatestRequestLimiter();
+    initLatestRequestLimiter(), initSearchConfig(), initWorkspaceInfo(),   /* fce = vscode_module */H$ = 50, I9e = new LatestRequestLimiter();
   }),
   In,
   initDocumentManager = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initRequestQueue(), initLogger(), In = class _0xc6fed {
+    initWorkspaceInfo(), initRequestQueue(),  In = class _0xc6fed {
       static {
         this.concurrencyLimiter = new RequestQueue(5, 200, 2000);
       }
@@ -3636,7 +3160,7 @@ var Gce,
   initLlmCacheHandler = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initDocumentManager(), initWorkspaceInfo(), initLogger(), initSqliteService(), LlmCacheHandler = class _0x31bc7c {
+    initPathModule(), initDocumentManager(), initWorkspaceInfo(),  initSqliteService(), LlmCacheHandler = class _0x31bc7c {
       constructor(_0x46d11a) {
         this.llmCache = _0x46d11a;
       }
@@ -3736,7 +3260,7 @@ async function listFilesFromPathProto(_0x2629da, _0x580829) {
 var initSymbolSearch = __esmModule(() => {
     'use strict';
 
-    initSearchUtils(), initPathModule(), initLogger();
+    initSearchUtils(), initPathModule();
   }),
   WO = {
     DEFINITION: 0,
@@ -3980,12 +3504,12 @@ var Pf,
   },
   /* [unbundle] workerpool 已移至顶部导入区 */
   
-  Km,
-  bi,
+  WorkerType,
+  WorkerPoolManager,
   initStatusBar = __esmModule(() => {
     'use strict';
 
-    initLogger(), initWorkspaceInfo(), Km = (_0x4cce78 => (_0x4cce78.JSON_OPERATIONS = 'json-operations.cjs', _0x4cce78.THREE_WAY_MERGE = 'three-way-merge.cjs', _0x4cce78.RIPGREP_PROCESSOR = 'ripgrep-processor.cjs', _0x4cce78.DIFF_UTILS = "diff-utils.cjs", _0x4cce78.LIST_FILES_PROCESSOR = "list-files-processor.cjs", _0x4cce78))(Km || {}), bi = class _0x5df386 extends ex {
+     initWorkspaceInfo(), WorkerType = (WorkerTypeEnum => (WorkerTypeEnum.JSON_OPERATIONS = 'json-operations.cjs', WorkerTypeEnum.THREE_WAY_MERGE = 'three-way-merge.cjs', WorkerTypeEnum.RIPGREP_PROCESSOR = 'ripgrep-processor.cjs', WorkerTypeEnum.DIFF_UTILS = "diff-utils.cjs", WorkerTypeEnum.LIST_FILES_PROCESSOR = "list-files-processor.cjs", WorkerTypeEnum))(WorkerType || {}), WorkerPoolManager = class WorkerPoolManager extends ex {
       static {
         this._instance = null;
       }
@@ -3997,30 +3521,30 @@ var Pf,
           logger: Logger
         });
       }
-      ['getWorkerPath'](_0x473d98) {
-        return path_module.join(me.getInstance().getResourcesDir(), "workers", _0x473d98);
+      ['getWorkerPath'](workerType) {
+        return path_module.join(me.getInstance().getResourcesDir(), "workers", workerType);
       }
       ['getSupportedWorkerTypes']() {
-        return Object.values(Km);
+        return Object.values(WorkerType);
       }
       static ["getInstance"]() {
-        return _0x5df386._instance || (_0x5df386._instance = new _0x5df386()), _0x5df386._instance;
+        return WorkerPoolManager._instance || (WorkerPoolManager._instance = new WorkerPoolManager()), WorkerPoolManager._instance;
       }
       static async ["initWorkerPool"]() {
-        await _0x5df386.getInstance().initWorkerPool();
+        await WorkerPoolManager.getInstance().initWorkerPool();
       }
-      static async ['exec'](_0x12e4cf, _0x15869b, _0x396d74) {
-        return _0x5df386.getInstance().exec(_0x12e4cf, _0x15869b, _0x396d74);
+      static async ['exec'](workerType, method, args) {
+        return WorkerPoolManager.getInstance().exec(workerType, method, args);
       }
       static async ['cleanup']() {
-        return _0x5df386.getInstance().cleanup();
+        return WorkerPoolManager.getInstance().cleanup();
       }
     };
   }),
   initStatusBarExports = __esmModule(() => {
     'use strict';
 
-    initStatusBar(), initLogger();
+    initStatusBar();
   });
 function formatErrorToString(_0x78ccb6) {
   return _0x78ccb6 instanceof Error ? 'Error\x20Name:\x20' + _0x78ccb6.name + '\x0aError\x20Message:\x20' + _0x78ccb6.message + '\x0aError\x20Stack:\x20' + _0x78ccb6.stack : '' + _0x78ccb6;
@@ -4062,7 +3586,6 @@ async function getAppAssetsDatabasePath() {
 var initFsHelpers = __esmModule(() => {
     'use strict';
 
-    initLogger();
   }),
   BaseStorage = class {
     constructor(_0x33e794, _0x242c47) {
@@ -4096,7 +3619,7 @@ var wfe,
   initProgressReporter = __esmModule(() => {
     'use strict';
 
-     initStatusBarExports(), initLogger(), initFsHelpers(), initSqliteExports(), wfe = sqlite3_module, ox = class _0x22559d {
+     initStatusBarExports(),  initFsHelpers(), initSqliteExports(), wfe = sqlite3_module, ox = class _0x22559d {
       constructor(_0x55ecde) {
         this.reopenConnectionLock = new Mutex(), this._txDb = null, this._db = _0x55ecde, this.writeLock = new Mutex();
       }
@@ -4172,7 +3695,7 @@ var wfe,
         try {
           let _0x52bf28;
           try {
-            _0x52bf28 = await bi.exec("json-operations.cjs", 'parseJSON', [_0x1bedde.json_data, true]);
+            _0x52bf28 = await WorkerPoolManager.exec("json-operations.cjs", 'parseJSON', [_0x1bedde.json_data, true]);
           } catch (_0x16164a) {
             Logger.warn("Worker pool JSON parsing failed for row " + _0x3c6191 + " in table " + _0x459706 + ", falling back to synchronous parsing: " + (_0x16164a instanceof Error ? _0x16164a.message : String(_0x16164a))), _0x52bf28 = JSON.parse(_0x1bedde.json_data);
           }
@@ -4190,7 +3713,7 @@ var wfe,
       async ["upsert"](_0x30f146, _0xc70374, _0x5b6d3d) {
         let _0x120c65;
         try {
-          _0x120c65 = await bi.exec('json-operations.cjs', "stringifyJSON", [_0xc70374]);
+          _0x120c65 = await WorkerPoolManager.exec('json-operations.cjs', "stringifyJSON", [_0xc70374]);
         } catch (_0x4882c8) {
           Logger.warn('Worker\x20pool\x20JSON\x20stringification\x20failed\x20for\x20item\x20' + _0xc70374.id + " in table " + _0x30f146 + ',\x20falling\x20back\x20to\x20synchronous\x20stringification:\x20' + (_0x4882c8 instanceof Error ? _0x4882c8.message : String(_0x4882c8))), _0x120c65 = JSON.stringify(_0xc70374);
         }
@@ -4211,7 +3734,7 @@ var wfe,
         for (let key of _0x2d154b) try {
           let _0x3a78aa;
           try {
-            _0x3a78aa = await bi.exec('json-operations.cjs', "parseJSON", [key.json_data, true]);
+            _0x3a78aa = await WorkerPoolManager.exec('json-operations.cjs', "parseJSON", [key.json_data, true]);
           } catch (_0x26c66c) {
             Logger.warn('Worker\x20pool\x20JSON\x20parsing\x20failed\x20for\x20row\x20' + key.id + '\x20in\x20table\x20' + _0x17b475 + ", falling back to synchronous parsing: " + (_0x26c66c instanceof Error ? _0x26c66c.message : String(_0x26c66c))), _0x3a78aa = JSON.parse(key.json_data);
           }
@@ -4268,7 +3791,7 @@ var wfe,
   initFileOperations = __esmModule(() => {
     'use strict';
 
-    initProgressReporter(), initLogger(), ol = class _0x3815e {
+    initProgressReporter(),  ol = class _0x3815e {
       constructor(_0x593325, _0x401801, _0x54beb4, _0x40747b, _0x3a5601) {
         this.MAX_ITEMS_TO_PRE_FILL_IN_MEMORY_CACHE = 20, this.inMemoryCache = new lru_map_module.LRUMap(this.MAX_ITEMS_TO_PRE_FILL_IN_MEMORY_CACHE), this.context = _0x593325, this.tableName = _0x401801, this.appAssetsDB = _0x54beb4, this.currentVersion = _0x40747b, this.dataValidityDuration = _0x3815e.DATA_VALIDITY_DURATION, this.maxItemsToPersist = _0x3a5601;
       }
@@ -4430,7 +3953,7 @@ var wfe,
   initRepoMappingMigrator = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initLogger(), RepoMappingMigrator = class {
+    initSearchConfig(),  RepoMappingMigrator = class {
       static ['migrate'](_0x256ce0) {
         let _0x11a44a = config.CURRENT_REPO_WORKSPACE_MAPPING_VERSION,
           _0x1d91d8 = _0x256ce0.metadata;
@@ -4924,13 +4447,13 @@ var mze,
   initGitUtils = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initDocumentManager(), initLogger(), initGitOperations(), initRepoMappingManager(), mze = (0, util_module.promisify)(child_process_module.exec);
+    initPathModule(), initDocumentManager(),  initGitOperations(), initRepoMappingManager(), mze = (0, util_module.promisify)(child_process_module.exec);
   }),
   me,
   initWorkspaceInfo = __esmModule(() => {
     'use strict';
 
-    initSearchUtils(), initPathModule(), initWorkspaceAssociation(), initRequestQueue(), initGitUtils(), initLogger(), initRepoMappingManager(),    me = class _0x2ba944 {
+    initSearchUtils(), initPathModule(), initWorkspaceAssociation(), initRequestQueue(), initGitUtils(),  initRepoMappingManager(),    me = class _0x2ba944 {
       constructor() {
         this.wsInfoInitLock = new Mutex(), this._currentWSInfo = void 0, this.concurrencyLimiter = new RequestQueue(10, 200, 5000);
       }
@@ -5178,7 +4701,7 @@ var mze,
   initPosthogAnalytics = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initLogger(), yn = class _0x693982 {
+    initSearchConfig(),  yn = class _0x693982 {
       constructor(_0x3044ab, _0x44cbc2, _0x23f42f = false) {
         this.userId = _0x3044ab, this.userEmail = _0x44cbc2, this.privacyMode = _0x23f42f;
         let _0x2072b2 = config.posthogApiKey,
@@ -5268,7 +4791,7 @@ var mze,
   initFilePathHandler = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initWorkspaceInfo(), initLogger(), initCommentNavigatorDeps(),  kYe = /`file:([^`]+)`|file:([^\s),;`]+)/g, RYe = 100, na = class _0x1552a5 {
+    initPathModule(), initWorkspaceInfo(),  initCommentNavigatorDeps(),  kYe = /`file:([^`]+)`|file:([^\s),;`]+)/g, RYe = 100, na = class _0x1552a5 {
       constructor() {
         this.pathCache = new lru_map_module.LRUMap(RYe);
       }
@@ -5564,7 +5087,7 @@ var mze,
   initWorkspaceSettingsMigrator = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initLogger(), initIdeAgentMigrator(), WorkspaceSettingsMigrator = class {
+    initSearchConfig(),  initIdeAgentMigrator(), WorkspaceSettingsMigrator = class {
       static ["migrate"](_0x2637c7) {
         let _0x4d7892 = config.CURRENT_WORKSPACE_SETTINGS_VERSION,
           _0x1c3c2c = _0x2637c7.metadata;
@@ -7201,7 +6724,7 @@ var Ba = {
   initTaskMigrator = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initLogger(), initWorkspaceMigrator(), TaskMigrator = class {
+    initSearchConfig(),  initWorkspaceMigrator(), TaskMigrator = class {
       static ["migrate"](_0x26699c) {
         let _0x4ecdbd = config.CURRENT_TASK_VERSION,
           _0x223deb = _0x26699c.metadata;
@@ -7421,7 +6944,7 @@ async function listDirectoryWithAgentsMd(_0x1f3609, _0x1b6bb9) {
     Logger.debug("Failed to read agents.md for directory: " + _0x4ab736), _0x22368c = [];
   }
   return {
-    directory: await bi.exec("list-files-processor.cjs", "buildDirectoryTree", [{
+    directory: await WorkerPoolManager.exec("list-files-processor.cjs", "buildDirectoryTree", [{
       filePaths: _0x11bc6a,
       directoryPaths: _0x50b9ad,
       rootAbsolutePath: _0x120891.absPath,
@@ -7435,7 +6958,7 @@ async function listDirectoryWithAgentsMd(_0x1f3609, _0x1b6bb9) {
 var initQueryProcessor = __esmModule(() => {
   'use strict';
 
-  initSearchUtils(), initSearchConfig(), initPathModule(), initStatusBar(), initGitLogModule(), initLogger();
+  initSearchUtils(), initSearchConfig(), initPathModule(), initStatusBar(), initGitLogModule();
 });
 async function parseAndFormatUserQuery(_0x2bd6eb, _0x253e4d) {
   let _0x4b797c = parseUserQueryContent(_0x2bd6eb, _0x253e4d);
@@ -7614,7 +7137,7 @@ function isPathContainedInDirectories(_0x90173f, _0x44af6d) {
 var initPlanContextModule = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initPathModule(), initDocumentManager(), initWorkspaceInfo(), initQueryProcessor(), initLogger(),  initGitLogModule(), initGitUtils(), initLlmCacheHandler();
+    initSearchConfig(), initPathModule(), initDocumentManager(), initWorkspaceInfo(), initQueryProcessor(),   initGitLogModule(), initGitUtils(), initLlmCacheHandler();
   }),
   $Ye = 'Implementation\x20plan\x20not\x20found',
   ImplementationPlanNotFoundError = class extends Error {
@@ -8241,7 +7764,7 @@ var NP = class {
   initTaskExecution = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initLogger(),   initPlanOutputModule(), initPlanEditorDeps(), initImplementationPlanOutput(), initPlanEditor(), initPlanConversation(), Uf = class _0x41754d {
+    initWorkspaceInfo(),    initPlanOutputModule(), initPlanEditorDeps(), initImplementationPlanOutput(), initPlanEditor(), initPlanConversation(), Uf = class _0x41754d {
       constructor(_0x167b0c, _0x15c7b8, _0x325423, _0x5e0628, _0xc66fdd, _0x910f84, _0x314df0, _0x45b3ed = {}) {
         this._parentPlan = _0x167b0c, this._planStorageAdapter = _0x15c7b8, this._planArtifactType = _0x325423, this._generatedPlan = null, this._queryJSONContent = null, this._isExecuted = false, this._executedWithAgent = null, this._isPayAsYouGo = false, this._planOutputHandler = null, this._isQueryExecutedDirectly = false, this._id = _0x45b3ed.id ?? Ut(), this._planConversations = _0x45b3ed.planConversations ?? [], this._executedWithAgent = _0x45b3ed.executedWithAgent ? AgentRegistry.getInstance().getAgentInfoIfExists(_0x45b3ed.executedWithAgent) : null, this._isExecuted = _0x45b3ed.isExecuted ?? false, this._isPayAsYouGo = _0x45b3ed.isPayAsYouGo ?? false, this._logs = _0x45b3ed.logs ?? [], this._hasSentCreationMetrics = _0x45b3ed.hasSentCreationMetrics ?? false, this._generatedPlan = _0x5e0628;
         let {
@@ -9030,7 +8553,7 @@ var TaskCountStorageAPI = class {
   initTaskPlan = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initWorkspaceInfo(), initLogger(), initPlanContextModule(), initTaskExecution(), initStatusBarModule(),   initTaskPlanDeps(), initAnalysisSuggestion(), qa = class _0x46545e {
+    initPathModule(), initWorkspaceInfo(),  initPlanContextModule(), initTaskExecution(), initStatusBarModule(),   initTaskPlanDeps(), initAnalysisSuggestion(), qa = class _0x46545e {
       constructor(_0x103932) {
         this._hasSentCreationMetrics = false, this._abortController = _0x103932.abortController, this._id = _0x103932.id, this._activePlanId = _0x103932.activePlanID, this._title = _0x103932.title, this._creationTime = _0x103932.creationTime, this._lastUpdatedTime = _0x103932.lastUpdatedTime, this._steps = _0x103932.steps, this._plans = _0x103932.plans, this._verification = _0x103932.verification, this._attachmentSummaries = _0x103932.attachmentSummaries, this._storageAPI = _0x103932.storageAPI, this._discardedVerificationComments = _0x103932.discardedVerificationComments, this._retryAfterTimestamp = _0x103932.retryAfterTimestamp;
       }
@@ -9886,7 +9409,7 @@ var xKe = Object.freeze(new Set()),
   initYoloArtifactManager = __esmModule(() => {
     'use strict';
 
-    initLogger(), initFsHelpers(), initFileSystemWatcher(), YoloArtifactManager = class _0x46c1fc {
+     initFsHelpers(), initFileSystemWatcher(), YoloArtifactManager = class _0x46c1fc {
       constructor() {
         this.activeWatchers = new Map(), this.artifactDirectory = path_module.join(os_module.homedir(), ".traycer", "yolo_artifacts");
       }
@@ -10046,7 +9569,7 @@ var PlanGenerationStep,
   initPlanGenerationStep = __esmModule(() => {
     'use strict';
 
-    initLogger(),  initIdeAgentConfig(), initIdeAgentConfigExports(), PlanGenerationStep = class {
+      initIdeAgentConfig(), initIdeAgentConfigExports(), PlanGenerationStep = class {
       async ['execute'](_0x39de75, _0x3199cd) {
         let {
           task: _0x669de,
@@ -10155,7 +9678,7 @@ var PlanGenerationStep,
   initVerificationStepHandler = __esmModule(() => {
     'use strict';
 
-    initLogger(), VerificationStepHandler = class {
+     VerificationStepHandler = class {
       async ["execute"](_0x15e35e, _0x2de60e) {
         let {
           task: _0x3c75ff,
@@ -10204,7 +9727,7 @@ var PlanGenerationStep,
   initVerificationExecutionStep = __esmModule(() => {
     'use strict';
 
-    initLogger(),  initIdeAgentConfigExports(), initIdeAgentConfig(), VerificationExecutionStep = class {
+      initIdeAgentConfigExports(), initIdeAgentConfig(), VerificationExecutionStep = class {
       async ["execute"](_0x107e92) {
         let {
             task: _0x10a04d,
@@ -10411,7 +9934,7 @@ var PlanGenerationStep,
   initTaskOrchestrator = __esmModule(() => {
     'use strict';
 
-    initLogger(), initCommentNavigator(),  initYoloArtifactManager(), initTaskStepProcessorExports(), TaskOrchestrator = class _0x147220 extends events_module.EventEmitter {
+     initCommentNavigator(),  initYoloArtifactManager(), initTaskStepProcessorExports(), TaskOrchestrator = class _0x147220 extends events_module.EventEmitter {
       constructor(_0x481dc1, _0x43034f) {
         super(), this._isRunning = false, this._phaseBreakdownTaskIndex = 0, this._currentStep = null, this._watchedArtifactIds = new Set(), this._lastError = void 0, this._taskIds = [], this._yoloTaskIndex = 0, this._isInitialized = false, this._lastEmittedTaskIndex = -1, this._lastEmittedStep = null, this._actionQueue = [], this._isProcessingQueue = false, this._queueError = null, this._reVerificationAttempts = new Map(), this._phaseBreakdown = _0x481dc1, this._artifactWatcher = YoloArtifactManager.getInstance(), this._taskIds = _0x43034f, this._orchestratorContext = {
           phaseBreakdown: this._phaseBreakdown,
@@ -12117,7 +11640,7 @@ var QUERY_THROTTLE_MS,
   initPlanGenerationHandler = __esmModule(() => {
     'use strict';
 
-    initAnalytics(), initLogger(), initPlanContextModule(), initQueryThrottleConfig(),  initPlanOutputModule(), initWorkspaceInfo(), mD = class {
+    initAnalytics(),  initPlanContextModule(), initQueryThrottleConfig(),  initPlanOutputModule(), initWorkspaceInfo(), mD = class {
       constructor(_0x4b5e6a) {
         this.context = _0x4b5e6a;
       }
@@ -12251,7 +11774,7 @@ var QUERY_THROTTLE_MS,
   initVerificationHandler = __esmModule(() => {
     'use strict';
 
-    initLogger(), initQueryThrottleConfig(), VerificationHandler = class {
+     initQueryThrottleConfig(), VerificationHandler = class {
       constructor(_0x7c96ac) {
         this.context = _0x7c96ac;
       }
@@ -12994,7 +12517,7 @@ var QUERY_THROTTLE_MS,
   initTaskRunner = __esmModule(() => {
     'use strict';
 
-    initTaskChainPersistence(), initLogger(), initTaskPlanExports(), initCommentNavigatorDeps(), initMcpHandler(),  initTaskChainExports(), zn = class _0x17835e {
+    initTaskChainPersistence(),  initTaskPlanExports(), initCommentNavigatorDeps(), initMcpHandler(),  initTaskChainExports(), zn = class _0x17835e {
       constructor(_0x48dab9) {
         this._isBootstrapping = false, this.client = _0x48dab9, this.taskChainMemoryManager = new yD(_0x48dab9);
       }
@@ -13879,7 +13402,7 @@ var QUERY_THROTTLE_MS,
   initWebviewStatusHandler = __esmModule(() => {
     'use strict';
 
-    initSearchUtils(), initPathModule(), initMediaFileSystem(), initDocumentManager(), initWorkspaceInfo(), initGitUtils(), initLogger(), initTaskRunner(), initCommentNavigatorDeps(),  ED = class {
+    initSearchUtils(), initPathModule(), initMediaFileSystem(), initDocumentManager(), initWorkspaceInfo(), initGitUtils(),  initTaskRunner(), initCommentNavigatorDeps(),  ED = class {
       constructor() {}
       ["handle"](_0x191b6f) {
         let _0x46fa50 = zn.getInstance();
@@ -14386,7 +13909,7 @@ var QUERY_THROTTLE_MS,
   initCliAgentService = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initLogger(), initUsageInfoHandler(), initCommentNavigator(), initTaskContext(),   initFileSystemWatcher(), initTemplateErrorManager(), initPromptTemplateFactory(), ii = class _0x3e7e8c {
+    initWorkspaceInfo(),  initUsageInfoHandler(), initCommentNavigator(), initTaskContext(),   initFileSystemWatcher(), initTemplateErrorManager(), initPromptTemplateFactory(), ii = class _0x3e7e8c {
       constructor() {
         this.userCLIAgents = new Map(), this.workspaceCLIAgents = new Map(), this.defaultCLIAgents = new Map(), this.invalidTemplates = new Set(), this.globalWatcher = null;
       }
@@ -14856,7 +14379,7 @@ var QUERY_THROTTLE_MS,
   initUsageTracker = __esmModule(() => {
     'use strict';
 
-    initLogger(), initCommentNavigatorDeps(), initUsageInfoHandler(), UsageTracker = class _0x10574b {
+     initCommentNavigatorDeps(), initUsageInfoHandler(), UsageTracker = class _0x10574b {
       constructor(_0x188c71) {
         this.reFetchTimer = null, this.isFetching = false, this.lastSentMessage = null, this.lastSentFetchStatus = null, this.client = _0x188c71, this._latestRateLimitInfo = {
           remainingTokens: 0,
@@ -14944,7 +14467,7 @@ var QUERY_THROTTLE_MS,
   initSubscriptionHandler = __esmModule(() => {
     'use strict';
 
-    initLogger(), initUsageTracker(), AD = class {
+     initUsageTracker(), AD = class {
       constructor() {}
       async ['handle'](_0x5679fc) {
         switch (_0x5679fc.type) {
@@ -15028,7 +14551,7 @@ var Qe,
   initCommentNavigator = __esmModule(() => {
     'use strict';
 
-     initWorkspaceInfo(), initAnalytics(), initLogger(), initFilePathHandler(), initMetricsHandler(), initTaskSettingsHandler(), initWebviewStatusHandler(), initUsageInfoHandler(), initMcpHandler(),  initPromptTemplateHandler(), initCliAgentHandler(), initGitHubAuthHandler(), initCloudUIAuthHandler(), initSubscriptionHandler(), initExtensionActivationHandler(), initTrackMetricsHandler(), Qe = class _0x23672d {
+     initWorkspaceInfo(), initAnalytics(),  initFilePathHandler(), initMetricsHandler(), initTaskSettingsHandler(), initWebviewStatusHandler(), initUsageInfoHandler(), initMcpHandler(),  initPromptTemplateHandler(), initCliAgentHandler(), initGitHubAuthHandler(), initCloudUIAuthHandler(), initSubscriptionHandler(), initExtensionActivationHandler(), initTrackMetricsHandler(), Qe = class _0x23672d {
       constructor(_0x2c906e) {
         this.context = _0x2c906e;
         let _0x5b9eb1 = vscode_module.window.registerWebviewViewProvider(COMMENT_NAVIGATOR_WEBVIEW_ID, this, {
@@ -15495,7 +15018,7 @@ var oH,
   initPromptTemplateService = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initLogger(), initCommentNavigator(), initTaskContext(),  initFileSystemWatcher(), initTemplateFile(), initTemplateErrorManager(), initPromptMetadata(), initGenericTemplate(), initUserQueryTemplate(), initPlanTemplate(), initReviewTemplate(), initVerificationTemplate(), Sl = class _0x389cf0 {
+    initWorkspaceInfo(),  initCommentNavigator(), initTaskContext(),  initFileSystemWatcher(), initTemplateFile(), initTemplateErrorManager(), initPromptMetadata(), initGenericTemplate(), initUserQueryTemplate(), initPlanTemplate(), initReviewTemplate(), initVerificationTemplate(), Sl = class _0x389cf0 {
       constructor() {
         this.userPromptTemplates = new Map(), this.workspacePromptTemplates = new Map(), this.defaultPromptTemplates = new Map(), this.invalidTemplates = new Set(), this.globalWatcher = null;
       }
@@ -15939,7 +15462,7 @@ var oH,
   initTemplateManagerDeps = __esmModule(() => {
     'use strict';
 
-    initTemplateManager(), /* [unbundle] bN=require('node:fs/promises'), ZEe=require('node:os'), eSe=require('node:path'), tSe=require('node:crypto') 已移至顶部导入区 */ initLogger(), PN = class _0x18a868 extends BasePromptTemplate {
+    initTemplateManager(), /* [unbundle] bN=require('node:fs/promises'), ZEe=require('node:os'), eSe=require('node:path'), tSe=require('node:crypto') 已移至顶部导入区 */  PN = class _0x18a868 extends BasePromptTemplate {
       constructor(_0x58e202, _0x4a74c6, _0x37a2ed, _0x5811bd) {
         super(_0x58e202), this.name = _0x4a74c6, this.title = _0x37a2ed, this.sessionIDs = _0x5811bd;
       }
@@ -16068,7 +15591,7 @@ var oH,
   initExtensionHelper = __esmModule(() => {
     'use strict';
 
-    initLogger(), ExtensionHelper = class _0x1b08c2 {
+     ExtensionHelper = class _0x1b08c2 {
       static async ["getExtension"](_0x32bbbf, _0x3086a8, _0x38b259) {
         let _0x1cc010 = vscode_module.extensions.getExtension(_0x32bbbf);
         if (!_0x1cc010) throw Logger.warn("Extension not found", _0x32bbbf), (await vscode_module.window.showInformationMessage("You have selected to use " + _0x3086a8 + " for execution, but the " + (_0x38b259 ?? _0x3086a8) + '\x20extension\x20is\x20not\x20installed.\x20Would\x20you\x20like\x20to\x20install\x20it\x20from\x20the\x20marketplace?', "View in Marketplace", 'Cancel')) === "View in Marketplace" && (Logger.info('Opening\x20marketplace\x20for\x20extension', _0x32bbbf), await vscode_module.commands.executeCommand("workbench.extensions.search", _0x32bbbf)), new Error(_0x3086a8 + '\x20extension\x20not\x20found');
@@ -16391,127 +15914,14 @@ function getExtensionSettings() {
   };
 }
 /* [unbundle] ripgrepBinaryPath, resolveRipgrepPath 已移至 config.js */
-var config,
-  initSearchConfig = __esmModule(() => {
+var initSearchConfig = __esmModule(() => {
     'use strict';
 
-      initIDEAgentManager(), initStatusBarExports(), initTaskContext(), config = config_module.createExtensionConfig();
+      initIDEAgentManager(), initStatusBarExports(), initTaskContext();
   });
-function getSentryInstance() {
-  return sentryInstance === null && (sentryInstance = new yi()), sentryInstance;
-}
-function initializeSentryClient() {
-  let _0x580b61 = tq({}).filter(_0x3b5607 => !['BrowserApiErrors', 'Breadcrumbs', 'GlobalHandlers'].includes(_0x3b5607.name)),
-    _0x823f87 = new IS({
-      dsn: "https://97263dbc9f614fd87a3a67aea26d1181@o4507249693229056.ingest.us.sentry.io/4507252971798528",
-      integrations: _0x580b61,
-      beforeSend(_0xc069f3) {
-        for (let key of _0xc069f3?.['exception']?.["values"] ?? []) for (let _0x1dfbc6 of key.stacktrace?.['frames'] ?? []) if (_0x1dfbc6.filename?.["includes"](config.extensionName)) return _0xc069f3;
-        return null;
-      },
-      tracesSampleRate: 0.4,
-      sampleRate: 1,
-      attachStacktrace: true,
-      environment: config.nodeEnv,
-      transport: createSentryFetchTransport,
-      stackParser: eq
-    });
-  getSentryInstance().setTag("extention", config.extensionName), getSentryInstance().setClient(_0x823f87), _0x823f87.init();
-}
-function captureExceptionToSentry(_0x4bb160, _0x23a2b2) {
-  return config.nodeEnv === "production" && getSentryInstance().captureException(_0x4bb160, _0x23a2b2), _0x4bb160;
-}
-function setSentryTag(_0x308571, _0x48796e) {
-  getSentryInstance().setTag(_0x308571, _0x48796e);
-}
-async function closeSentryClient() {
-  await getSentryInstance().getClient()?.["close"](200);
-}
-var sentryInstance,
-  initSentryInstance = __esmModule(() => {
-    'use strict';
 
-    initSearchConfig(),  sentryInstance = null;
-  });
-function throttle(_0x2bdefb) {
-  switch (_0x2bdefb) {
-    case 'off':
-      return 0;
-    case 'error':
-      return 1;
-    case 'warn':
-      return 2;
-    case 'info':
-      return 3;
-    case 'debug':
-      return 4;
-    case "trace":
-      return 5;
-    default:
-      return 3;
-  }
-}
-var Logger,
-  initLogger = __esmModule(() => {
-    'use strict';
 
-    initSentryInstance(), Logger = new class {
-      constructor() {
-        this._isDebugging = false, this.level = 0, this._logLevel = "off";
-      }
-      ["configure"](_0x58fb5a, _0x1ce42b, _0x1cedf9 = false) {
-        this.provider = _0x58fb5a, this._isDebugging = _0x1cedf9, this.logLevel = _0x1ce42b;
-      }
-      ['enabled'](_0x60137d) {
-        return this.level >= throttle(_0x60137d);
-      }
-      ['dispose']() {
-        this.output?.["hide"](), this.output?.["clear"](), this.output?.['dispose'](), this.output = void 0;
-      }
-      get ["isDebugging"]() {
-        return this._isDebugging;
-      }
-      get ['logLevel']() {
-        return this._logLevel;
-      }
-      set ['logLevel'](_0x2975b1) {
-        _0x2975b1 === 'off' && (console.log('Traycer:\x20Defaulting\x20log\x20level\x20to\x20\x27error\x27\x20as\x20\x27off\x27\x20is\x20not\x20allowed'), _0x2975b1 = "error"), this.isDebugging && (_0x2975b1 = "trace"), this._logLevel = _0x2975b1, this.level = throttle(this._logLevel), this.output ??= this.provider.createChannel(this.provider.name);
-      }
-      get ['timestamp']() {
-        let _0x10a8c6 = new Date(),
-          _0x377578 = _0x38d502 => (_0x38d502 < 10 ? '0' : '') + _0x38d502,
-          _0x8b7079 = _0x4d95cb => (_0x4d95cb < 100 ? '0' : '') + (_0x4d95cb < 10 ? '00' : '') + _0x4d95cb;
-        return _0x10a8c6.getFullYear() + '-' + _0x377578(_0x10a8c6.getMonth() + 1) + '-' + _0x377578(_0x10a8c6.getDate()) + '\x20' + _0x377578(_0x10a8c6.getHours()) + ':' + _0x377578(_0x10a8c6.getMinutes()) + ':' + _0x377578(_0x10a8c6.getSeconds()) + '.' + _0x8b7079(_0x10a8c6.getMilliseconds());
-      }
-      ["trace"](_0x1c4f12, ..._0x17c1c7) {
-        this.level < 5 || (this.isDebugging && console.trace(this.timestamp, _0x1c4f12 ?? '', ..._0x17c1c7), this.output?.['trace']?.(_0x1c4f12, ..._0x17c1c7));
-      }
-      ["debug"](_0x333991, ..._0x2fd09d) {
-        this.level < 4 || (this.isDebugging && console.debug(this.timestamp, _0x333991 ?? '', ..._0x2fd09d), this.output?.["debug"]?.(_0x333991, ..._0x2fd09d));
-      }
-      ["error"](_0xfc345f, _0x176cd8, ..._0x59cb4c) {
-        if (_0xfc345f ? _0xfc345f instanceof Error && _0xfc345f.message === 'Canceled' || captureExceptionToSentry(new Error("Error: " + String(_0xfc345f) + ',\x20Message:\x20' + (_0x176cd8 ?? '')), {
-          originalException: _0xfc345f
-        }) : _0x176cd8 && captureExceptionToSentry(new Error(_0x176cd8)), !(this.level < 1 && !this.isDebugging)) {
-          if (!_0x176cd8) {
-            let _0x30c0e0 = _0xfc345f instanceof Error ? _0xfc345f.stack : void 0;
-            if (_0x30c0e0) {
-              let _0x414ff8 = /.*\s*?at\s(.+?)\s/.exec(_0x30c0e0);
-              _0x414ff8 != null && (_0x176cd8 = _0x414ff8[1]);
-            }
-          }
-          this.isDebugging && (_0xfc345f != null ? console.error(this.timestamp, _0x176cd8 ?? '', ..._0x59cb4c, _0xfc345f) : console.error(this.timestamp, _0x176cd8 ?? '', ..._0x59cb4c)), this.output?.['error']?.(_0xfc345f, _0x176cd8 ?? '', ..._0x59cb4c);
-        }
-      }
-      ['info'](_0x499546, ..._0x207c22) {
-        this.level < 3 && !this.isDebugging || (this.isDebugging && console.info(this.timestamp, _0x499546 ?? '', ..._0x207c22), this.output?.["info"]?.(_0x499546, ..._0x207c22));
-      }
-      ["warn"](_0x121631, ..._0x335a0f) {
-        this.level < 2 && !this.isDebugging || (this.isDebugging && console.warn(this.timestamp, _0x121631 ?? '', ..._0x335a0f), this.output?.['warn']?.(_0x121631, ..._0x335a0f));
-      }
-    }();
-  }),
-  AuthCallbackHandler = class _0x456dfa {
+var AuthCallbackHandler = class _0x456dfa {
     constructor(_0x35742c) {
       this.credentials = _0x35742c;
     }
@@ -16548,7 +15958,7 @@ var _H,
   initRepoMappingStore = __esmModule(() => {
     'use strict';
 
-    initLogger(), _H = new Map();
+     _H = new Map();
   }),
   RSe,
   Kwr,
@@ -17461,7 +16871,7 @@ async function fetchGoogleIapToken() {
 var initGoogleAuth = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initFsHelpers(), initLogger();
+    initSearchConfig(), initFsHelpers();
   }),
   ult = 'Server\x20disconnected',
   bT = class extends Error {
@@ -17488,7 +16898,7 @@ var initGoogleAuth = __esmModule(() => {
   initRetryExecutor = __esmModule(() => {
     'use strict';
 
-    initLogger(), RetryExecutor = class _0x38d06e {
+     RetryExecutor = class _0x38d06e {
       static {
         this.DEFAULT_RETRIES = 4;
       }
@@ -17524,7 +16934,7 @@ var initGoogleAuth = __esmModule(() => {
   initTokenValidator = __esmModule(() => {
     'use strict';
 
-    initGoogleAuth(), initSearchConfig(),  initLogger(), initRetryExecutor(), IC = class {
+    initGoogleAuth(), initSearchConfig(),   initRetryExecutor(), IC = class {
       constructor(_0x292285) {
         this.authClient = _0x292285;
       }
@@ -17587,7 +16997,7 @@ var initGoogleAuth = __esmModule(() => {
   initTraycerCredentials = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(),  initWorkspaceInfo(), initRepoMappingStore(), initLogger(), initUsageTracker(), initRepoSettingsExports(), initAuthModule(), TraycerCredentials = class TraycerCredentials {
+    initSearchConfig(),  initWorkspaceInfo(), initRepoMappingStore(),  initUsageTracker(), initRepoSettingsExports(), initAuthModule(), TraycerCredentials = class TraycerCredentials {
       constructor(context, onActivation, onDeactivation) {
         this.context = context, this._traycerUser = null, this._traycerToken = null, this.currentAuthController = null, Logger.info("Initializing Traycer credentials"), this.authClient = new TraycerApiClient(new URL(config.authnApiUrl)), this.onActivation = onActivation, this.onDeactivation = onDeactivation, this.authStateManager = new AuthStatusHandlerExports(), this.contextStorageManager = new ContextStorageManager(context), this.tokenManager = new IC(this.authClient);
       }
@@ -17753,7 +17163,7 @@ var initGoogleAuth = __esmModule(() => {
   initGrpcMessageTracker = __esmModule(() => {
     'use strict';
 
-     initLogger(), maxMissedPings = un.MAX_MISSED_PINGS, GrpcMessageTracker = class {
+      maxMissedPings = un.MAX_MISSED_PINGS, GrpcMessageTracker = class {
       constructor() {
         this.messageMap = new Map(), this.grpcConnectionsMap = new Map(), this.messageId = 1;
       }
@@ -17843,7 +17253,7 @@ async function handleGetDiagnosticsRequest(_0x2abd42) {
 var initSymbolSearchExports = __esmModule(() => {
   'use strict';
 
-  initPathModule(), initLogger(), initSymbolSearch();
+  initPathModule(),  initSymbolSearch();
 });
 async function getUncommittedDiffForFile(_0x18bd48) {
   let {
@@ -17964,7 +17374,7 @@ async function throwFolderNotFoundError(_0xea7770) {
 var initSymbolSearchHandler = __esmModule(() => {
   'use strict';
 
-  initSearchUtils(), initPathModule(), initWorkspaceInfo(), initQueryProcessor(), initLogger();
+  initSearchUtils(), initPathModule(), initWorkspaceInfo(), initQueryProcessor();
 });
 async function enqueueLanguageRequest(_0x40b48a, _0x43314f) {
   if (!AC.has(_0x43314f)) {
@@ -18137,7 +17547,7 @@ var initSymbolCache = __esmModule(() => {
   initCodeBlockCache = __esmModule(() => {
     'use strict';
 
-    initLogger(),  INVALID_BLOCK_ID = -1, CodeBlockCache = class {
+      INVALID_BLOCK_ID = -1, CodeBlockCache = class {
       constructor() {
         this.codeBlockCounter = 0, this.codeBlocks = new Map(), this.fullFileAtLastParse = '', this.lineToBlock = [], this.mutex = new Mutex();
       }
@@ -18299,7 +17709,7 @@ var initSymbolCache = __esmModule(() => {
   initTreeSitterParser = __esmModule(() => {
     'use strict';
 
-    initDocumentManager(), initStatusBar(), initLogger(),  initCodeBlockCache(), TreeSitterFileParser = class {
+    initDocumentManager(), initStatusBar(),   initCodeBlockCache(), TreeSitterFileParser = class {
       constructor(uri, grammarFileName) {
         this.initMutex = new Mutex(), this.treeSitterCache = new lru_map_module.LRUMap(100), this.analyzedBlocks = new lru_map_module.LRUMap(200), this.uri = uri, this.grammarFileName = grammarFileName;
       }
@@ -18392,7 +17802,7 @@ var initSymbolCache = __esmModule(() => {
           _0x3a876e = await _0x4605da.acquireMutex();
         try {
           if (_0xfdb72f === _0x4605da.getFullFileAtLastParse()) return _0x4605da;
-          let _0x43597d = await bi.exec("diff-utils.cjs", 'getChanges', [_0x4605da.getFullFileAtLastParse(), _0xfdb72f]),
+          let _0x43597d = await WorkerPoolManager.exec("diff-utils.cjs", 'getChanges', [_0x4605da.getFullFileAtLastParse(), _0xfdb72f]),
             _0x549cea = _0x4605da.syncCache(_0x43597d, _0xfdb72f),
             _0xa14fc0 = await this.getUpdatedDecomposedSnippets(_0xfdb72f, _0x4ad5e9);
           _0x4605da.updateFileAndBlocks(_0xfdb72f, _0xa14fc0, _0x549cea.updatedLineToBlock, _0x549cea.codeBlockIDsToInvalidate);
@@ -18458,14 +17868,12 @@ function createLineRangeFromTreeNode(_0x27680e) {
 }
 var initParserBase = __esmModule(() => {
     'use strict';
-
-    initLogger();
   }),
   MT,
   initGoParser = __esmModule(() => {
     'use strict';
 
-    initLogger(), initLanguageParsers(), initTreeSitterParser(), initParserBase(), MT = class _0x1b3373 extends TreeSitterFileParser {
+     initLanguageParsers(), initTreeSitterParser(), initParserBase(), MT = class _0x1b3373 extends TreeSitterFileParser {
       constructor(_0x4ec59a) {
         super(_0x4ec59a, "tree-sitter-go.wasm");
       }
@@ -18506,7 +17914,7 @@ var initParserBase = __esmModule(() => {
   initJavaScriptParser = __esmModule(() => {
     'use strict';
 
-    initLogger(), initLanguageParsers(), initTreeSitterParser(), initParserBase(), DT = class _0x800683 extends TreeSitterFileParser {
+     initLanguageParsers(), initTreeSitterParser(), initParserBase(), DT = class _0x800683 extends TreeSitterFileParser {
       constructor(_0xceea01) {
         super(_0xceea01, 'tree-sitter-javascript.wasm');
       }
@@ -18593,7 +18001,7 @@ var initParserBase = __esmModule(() => {
   initPythonParser = __esmModule(() => {
     'use strict';
 
-    initLogger(), initLanguageParsers(), initTreeSitterParser(), initParserBase(), Cg = class _0x47a743 extends TreeSitterFileParser {
+     initLanguageParsers(), initTreeSitterParser(), initParserBase(), Cg = class _0x47a743 extends TreeSitterFileParser {
       static {
         this.fileExtensions = ['py', 'pyw'];
       }
@@ -18650,7 +18058,7 @@ var initParserBase = __esmModule(() => {
   initRustParser = __esmModule(() => {
     'use strict';
 
-    initLogger(), initLanguageParsers(), initTreeSitterParser(), initParserBase(), NT = class _0x26957b extends TreeSitterFileParser {
+     initLanguageParsers(), initTreeSitterParser(), initParserBase(), NT = class _0x26957b extends TreeSitterFileParser {
       constructor(_0x327978) {
         super(_0x327978, "tree-sitter-rust.wasm");
       }
@@ -18706,7 +18114,7 @@ var initParserBase = __esmModule(() => {
   initTypeScriptParser = __esmModule(() => {
     'use strict';
 
-    initLogger(), initLanguageParsers(), initTreeSitterParser(), initParserBase(), hh = class _0x3507b7 extends TreeSitterFileParser {
+     initLanguageParsers(), initTreeSitterParser(), initParserBase(), hh = class _0x3507b7 extends TreeSitterFileParser {
       constructor(_0x545b0c, _0x13a498 = 'tree-sitter-typescript.wasm') {
         super(_0x545b0c, _0x13a498);
       }
@@ -18871,7 +18279,7 @@ async function findSymbolReferencesInFile(_0x349e72, _0x1ad2d6, _0x3d75d2, _0x5c
 var initFileReadModule = __esmModule(() => {
   'use strict';
 
-  initFileCache(), initDirCache(), initSymbolCache(), initPathModule(), initDocumentManager(), initLanguageParsers(), initLogger();
+  initFileCache(), initDirCache(), initSymbolCache(), initPathModule(), initDocumentManager(), initLanguageParsers();
 });
 async function handleReadFilesRequest(_0x264761) {
   if (!_0x264761.fileRequests.length) throw new Error("Need at least one file path to read");
@@ -18946,7 +18354,7 @@ async function handleRipgrepSearchRequest(_0x2dfbb8) {
 async function executeRipgrepSearch(_0x69db30, _0x52ce70, _0x2c2ca8, _0x4e227c) {
   let _0x5a92ab = await config.getRipgrepBinPath();
   if (!_0x5a92ab) throw new Error('ripgrep\x20binary\x20not\x20found');
-  let _0x4b7770 = async (_0x37fa24, _0x1a4055, _0xa9ab3a) => bi.exec("ripgrep-processor.cjs", "processRipgrepOutput", [_0x37fa24, _0x1a4055, _0xa9ab3a]);
+  let _0x4b7770 = async (_0x37fa24, _0x1a4055, _0xa9ab3a) => WorkerPoolManager.exec("ripgrep-processor.cjs", "processRipgrepOutput", [_0x37fa24, _0x1a4055, _0xa9ab3a]);
   return formatCodeBlockContent(me.getInstance(), _0x5a92ab, _0x69db30, _0x52ce70, _0x2c2ca8, _0x4e227c, me.getInstance().getPlatform(), _0x4b7770);
 }
 var initRipgrepSearchModule = __esmModule(() => {
@@ -18960,7 +18368,7 @@ var initRipgrepSearchModule = __esmModule(() => {
   initGrpcClient = __esmModule(() => {
     'use strict';
 
-    initGoogleAuth(), initGrpcMessageTracker(), initSearchConfig(),  initStatusBarExports(), initLogger(), initFsHelpers(), initLlmCacheHandler(), initSymbolSearchModule(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initRipgrepSearchModule(), initTaskRunner(), initUsageTracker(), initTaskContext(),   MAX_WRITE_RETRIES = un.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
+    initGoogleAuth(), initGrpcMessageTracker(), initSearchConfig(),  initStatusBarExports(),  initFsHelpers(), initLlmCacheHandler(), initSymbolSearchModule(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initRipgrepSearchModule(), initTaskRunner(), initUsageTracker(), initTaskContext(),   MAX_WRITE_RETRIES = un.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
       constructor(_0x30dd48, _0x34bdfa) {
         super(_0x30dd48, Logger), this.grpcConnection = null, this.id = null, this.client = _0x34bdfa;
       }
@@ -19093,7 +18501,7 @@ var initRipgrepSearchModule = __esmModule(() => {
         }
       }
       async ['chunkMessage'](_0x54200b) {
-        let _0x1ab69f = await bi.exec('json-operations.cjs', 'stringifyJSON', [_0x54200b]);
+        let _0x1ab69f = await WorkerPoolManager.exec('json-operations.cjs', 'stringifyJSON', [_0x54200b]);
         return Buffer.from(_0x1ab69f, "utf-8");
       }
       async ['handleReverseRPC'](_0x2fcb7c) {
@@ -19456,7 +18864,7 @@ async function registerExtensionCommands(_0x2ed719) {
 var initExtensionCommands = __esmModule(() => {
   'use strict';
 
-   initRepoMappingStore(), initCommentNavigatorDeps(),  initPathModule(), initLogger();
+   initRepoMappingStore(), initCommentNavigatorDeps(),  initPathModule();
 });
 async function registerShowTemplateErrorsCommand(_0x50b7bd) {
   await registerVscodeCommand(_0x50b7bd, SHOW_TEMPLATE_ERRORS_COMMAND, (..._0x5ead29) => {
@@ -19537,7 +18945,7 @@ var initRepoMappingHelper = __esmModule(() => {
   initTaskChainManager = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initTicketLoadingNotifier(), initAnalytics(), initPersistedTicketLoading(), initLogger(), initRepoMappingManager(), initTaskRunner(), initCommentNavigatorDeps(),  Nh = class _0x21dae1 {
+    initWorkspaceInfo(), initTicketLoadingNotifier(), initAnalytics(), initPersistedTicketLoading(),  initRepoMappingManager(), initTaskRunner(), initCommentNavigatorDeps(),  Nh = class _0x21dae1 {
       constructor(_0xaabdf) {
         this.client = _0xaabdf, this.uiNotifier = new TicketLoadingNotifier();
       }
@@ -19710,7 +19118,7 @@ var initTaskChainCommands = __esmModule(() => {
   initSqliteMigrator = __esmModule(() => {
     'use strict';
 
-    initLogger(),  SqliteMigrator = class {
+      SqliteMigrator = class {
       static async ['migrateToSqlite'](_0x8fe694, _0x25e734) {
         for (let key of Object.values(MementoKey)) {
           let _0x44c703 = _0x8fe694.globalState.get(key);
@@ -19754,7 +19162,7 @@ var initTaskChainCommands = __esmModule(() => {
   initPersistenceManager = __esmModule(() => {
     'use strict';
 
-    initPersistedTicketLoading(), initGitOperationsExports(), initProgressReporter(), initSqliteMigrator(), initTaskChainPersistence(), initLogger(), initTaskRunner(), initWorkspaceSettingsPersistence(), PersistenceManager = class _0x445c6c {
+    initPersistedTicketLoading(), initGitOperationsExports(), initProgressReporter(), initSqliteMigrator(), initTaskChainPersistence(),  initTaskRunner(), initWorkspaceSettingsPersistence(), PersistenceManager = class _0x445c6c {
       constructor(_0x3cadc4, _0x3a4ec8, _0x195da7, _0x32a455, _0x1ea497) {
         this._taskHistory = _0x3cadc4, this._repoWorkspaceMappings = _0x3a4ec8, this._appAssetsDB = _0x32a455, this._importTicket = _0x195da7, this._workspaceSettings = _0x1ea497;
       }
@@ -19839,7 +19247,7 @@ var initTaskChainCommands = __esmModule(() => {
   initMigrationLogger = __esmModule(() => {
     'use strict';
 
-     initLogger(), U3 = class {
+      U3 = class {
       async ["handleUri"](_0x416157) {
         if (_0x416157.scheme !== vscode_module.env.uriScheme) return;
         let _0x20eab0 = _0x416157.path.slice(1),
@@ -19866,7 +19274,7 @@ var initTaskChainCommands = __esmModule(() => {
   initConfigWatcher = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(),  initLogger(), initUsageInfoHandler(), ConfigWatcher = class {
+    initSearchConfig(),   initUsageInfoHandler(), ConfigWatcher = class {
       constructor(_0xc8ac36) {
         this.auth = _0xc8ac36;
       }
@@ -19910,7 +19318,7 @@ var initTaskChainCommands = __esmModule(() => {
   initDocsWatcher = __esmModule(() => {
     'use strict';
 
-     initLanguageParsers(), initTreeSitterParser(), initLogger(), DocsWatcher = class {
+     initLanguageParsers(), initTreeSitterParser(),  DocsWatcher = class {
       constructor() {
         this.pendingRequests = new Set(), this.inflightRequests = new Map();
       }
@@ -19960,7 +19368,7 @@ var initTaskChainCommands = __esmModule(() => {
   initFileWatcher = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initGitUtils(), initLogger(), initCliAgentService(), initPromptTemplateService(), initFilePathHandler(),  FileWatcher = class {
+    initPathModule(), initGitUtils(),  initCliAgentService(), initPromptTemplateService(), initFilePathHandler(),  FileWatcher = class {
       constructor() {
         this.ignoreFilePatterns = getGlobalIgnoreInstance().add(rue);
       }
@@ -20080,8 +19488,7 @@ function generateReleaseNotesHtml(_0x56f4a6) {
 }
 var initExtensionExports = __esmModule(() => {
     'use strict';
-
-     initWorkspaceInfo(), initLogger();
+     initWorkspaceInfo();
   }),
   /* [unbundle] semver 已移至顶部导入区 */
   xQ = {};
@@ -20089,33 +19496,38 @@ __export(xQ, {
   activateExtension: () => initializeExtensionWithAuth,
   deactivateExtension: () => cleanupExtensionResources
 });
-async function initializeExtensionWithAuth(_0x5e3633) {
-  initializeSentryClient(), Logger.configure({
-    name: '' + _0x5e3633.extension.packageJSON.displayName,
+async function initializeExtensionWithAuth(vscode_context) {
+  initializeSentryClient();
+  Logger.configure({
+    name: '' + vscode_context.extension.packageJSON.displayName,
     createChannel: function (_0x1940f1) {
       return vscode_module.window.createOutputChannel(_0x1940f1, {
         log: true
       });
     }
-  }, config.logLevel, _0x5e3633.extensionMode === vscode_module.ExtensionMode.Development), _0x5e3633.subscriptions.push(Logger), config.version = _0x5e3633.extension.packageJSON.version, setSentryTag('Traycer\x20Version', config.version);
+  },config.logLevel, vscode_context.extensionMode === vscode_module.ExtensionMode.Development);
+  vscode_context.subscriptions.push(Logger);
+  config.version = vscode_context.extension.packageJSON.version;
+  setSentryTag('Traycer\x20Version', config.version);
+  
   let _0x17e4bf = async () => {
-      Logger.debug('Initializing\x20Traycer\x20subscriptions'), await H_.getInstance().sendWorkspaceStatus(), disposables.length || (await initializeExtensionServices(_0x5e3633, _0x2feb83));
+      Logger.debug('Initializing\x20Traycer\x20subscriptions'), await H_.getInstance().sendWorkspaceStatus(), disposables.length || (await initializeExtensionServices(vscode_context, _0x2feb83));
     },
     _0x41b689 = async () => {
       Logger.debug('Disposing\x20Traycer\x20subscriptions'), vscode_module.Disposable.from(...disposables).dispose(), disposables = [];
     },
-    _0x2feb83 = new TraycerCredentials(_0x5e3633, _0x17e4bf, _0x41b689);
+    _0x2feb83 = new TraycerCredentials(vscode_context, _0x17e4bf, _0x41b689);
   AuthCallbackHandler.getInstance(_0x2feb83);
   let _0x1655f7 = vscode_module.window.registerUriHandler(new U3());
-  _0x5e3633.subscriptions.push(_0x1655f7), extensionContext = _0x2feb83;
-  let _0x39ac3c = Qe.getInstance(_0x5e3633, _0x2feb83);
-  await H_.getInstance().sendWorkspaceStatus(), (vscode_module.workspace.workspaceFolders?.['length'] ?? 0) !== 0 && (_0x5e3633.subscriptions.push(_0x39ac3c), _0x2feb83.setupAuth().catch(_0x3728ea => {
+  vscode_context.subscriptions.push(_0x1655f7), extensionContext = _0x2feb83;
+  let _0x39ac3c = Qe.getInstance(vscode_context, _0x2feb83);
+  await H_.getInstance().sendWorkspaceStatus(), (vscode_module.workspace.workspaceFolders?.['length'] ?? 0) !== 0 && (vscode_context.subscriptions.push(_0x39ac3c), _0x2feb83.setupAuth().catch(_0x3728ea => {
     Logger.error(_0x3728ea, "Failed to activate Traycer"), vscode_module.Disposable.from(...disposables).dispose(), disposables = [];
   }));
 }
 async function cleanupExtensionResources() {
   try {
-    await bi.cleanup(), Logger.trace("Worker pool cleanup completed");
+    await WorkerPoolManager.cleanup(), Logger.trace("Worker pool cleanup completed");
   } catch (_0x271e46) {
     Logger.error(_0x271e46, "Failed to cleanup worker pool");
   }
@@ -20137,7 +19549,7 @@ async function initializeExtensionServices(_0x6b8fd4, _0x12fddd) {
   if (!_0x166796 || !_0x40cd3c) return;
   checkAndShowReleaseNotes(_0x6b8fd4, _0x40cd3c), loadLastSelectedAgent(_0x6b8fd4);
   let _0xcce45f = _0x40cd3c.user.providerHandle;
-  _0xcce45f || (_0xcce45f = _0x40cd3c.user.providerHandle), setSentryTag("User", _0xcce45f), await bi.initWorkerPool(), yn.getInstance(_0xcce45f, _0x40cd3c.user.email ?? void 0, _0x40cd3c.user.privacyMode);
+  _0xcce45f || (_0xcce45f = _0x40cd3c.user.providerHandle), setSentryTag("User", _0xcce45f), await WorkerPoolManager.initWorkerPool(), yn.getInstance(_0xcce45f, _0x40cd3c.user.email ?? void 0, _0x40cd3c.user.privacyMode);
   let _0x5917e5 = config.nodeEnv !== 'local' ? grpc_module.ChannelCredentials.createSsl() : grpc_module.credentials.createSsl(null, null, null, {
       rejectUnauthorized: false,
       checkServerIdentity: () => {}
@@ -20259,13 +19671,13 @@ var disposables,
   initExtension = __esmModule(() => {
     'use strict';
 
-    initTraycerCredentials(), initGrpcClient(), initExtensionCommands(), initRepoMappingHelper(), initTaskChainCommands(), initSearchConfig(),  initStorageMigrationHelper(), initMediaFileSystem(), initTraycerFileSystem(), initTaskChainManager(), initAnalytics(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initStatusBarExports(), initLogger(), initSentryInstance(), initLlmCacheHandler(), initRepoMappingManager(), initTaskRunner(), initYoloArtifactManager(), initTemplateManager(), initMigrationLogger(), initUsageTracker(), initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initFileSystemProviders(), initWorkspaceWatcher(), initCommentNavigatorDeps(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(), initExtensionExports(), initTaskContext(),  disposables = [], extensionContext = null;
+    initTraycerCredentials(), initGrpcClient(), initExtensionCommands(), initRepoMappingHelper(), initTaskChainCommands(), initSearchConfig(),  initStorageMigrationHelper(), initMediaFileSystem(), initTraycerFileSystem(), initTaskChainManager(), initAnalytics(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initStatusBarExports(),  initLlmCacheHandler(), initRepoMappingManager(), initTaskRunner(), initYoloArtifactManager(), initTemplateManager(), initMigrationLogger(), initUsageTracker(), initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initFileSystemProviders(), initWorkspaceWatcher(), initCommentNavigatorDeps(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(), initExtensionExports(), initTaskContext(),  disposables = [], extensionContext = null;
   }),
   sSt = {};
 __export(sSt, {
   activate: () => activateExtension,
   deactivate: () => deactivateExtension
-}), module.exports = __toCommonJS(sSt), initLogger();
+}), module.exports = __toCommonJS(sSt);
 async function activateExtensionAsync(_0x426cfb) {
   let {
     activateExtension: _0x3cce95
