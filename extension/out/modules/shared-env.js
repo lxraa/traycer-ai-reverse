@@ -35,9 +35,9 @@ var __hasOwn = Object.prototype.hasOwnProperty,
   __toCommonJS = exports => __copyProps(Object.defineProperty({}, "__esModule", {
     value: true
   }), exports),
-  SENTRY_DEBUG = typeof __SENTRY_DEBUG__ > 'u' || __SENTRY_DEBUG__,
-  __globalThis = globalThis,
-  SENTRY_VERSION = "10.30.0";
+  
+  __globalThis = globalThis
+  
 
 // ============== Exports ==============
 module.exports = {
@@ -49,7 +49,5 @@ module.exports = {
   __reExport,
   __toESM,
   __toCommonJS,
-  SENTRY_DEBUG,
   __globalThis,
-  SENTRY_VERSION
 };

@@ -57,9 +57,7 @@ var {
   __reExport,
   __toESM,
   __toCommonJS,
-  SENTRY_DEBUG,
   __globalThis,
-  SENTRY_VERSION
 } = require('./modules/shared-env.js');
 
 // ============== 从外部模块导入常量 ==============
@@ -93,12 +91,15 @@ var {
 const { ex } = require("./modules/workerpool.js");
 
 // ============== 导入区结束====================================
-
-
 var prisma = __toESM(prismaClient(), 1);
 
 
-resolveRipgrepPath().catch(() => Logger.error("Failed to resolve ripgrep binary path"))
+
+resolveRipgrepPath().catch(() => Logger.error("Failed to resolve ripgrep binary path"));
+
+
+var SENTRY_DEBUG = typeof __SENTRY_DEBUG__ > 'u' || __SENTRY_DEBUG__;
+var SENTRY_VERSION = "10.30.0";
 
 function getSentryCarrier(carrier) {
   let sentryGlobal = carrier.__SENTRY__ = carrier.__SENTRY__ || {};
@@ -146,7 +147,7 @@ function logError(...args) {
 }
 function sentryLog(level, ...args) {
   SENTRY_DEBUG && isLoggerEnabled() && consoleSandbox(() => {
-    __globalThis.console[level](LOGGER_PREFIX + '[' + level + ']:', ...args);
+    __globalThis.console[level]('Sentry\x20Logger\x20' + '[' + level + ']:', ...args);
   });
 }
 function getLoggerSettings() {
@@ -156,8 +157,7 @@ function getLoggerSettings() {
     enabled: false
   };
 }
-var LOGGER_PREFIX = 'Sentry\x20Logger\x20',
-  originalConsoleMethods = {},
+var originalConsoleMethods = {},
   logger = {
     enable: enableLogger,
     disable: disableLogger,
@@ -168,17 +168,17 @@ var LOGGER_PREFIX = 'Sentry\x20Logger\x20',
   };
 function getFunctionName(_0x5e67d9) {
   try {
-    return !_0x5e67d9 || typeof _0x5e67d9 != "function" ? DV : _0x5e67d9.name || DV;
+    return !_0x5e67d9 || typeof _0x5e67d9 != "function" ? "<anonymous>" : _0x5e67d9.name || "<anonymous>";
   } catch {
-    return DV;
+    return "<anonymous>";
   }
 }
 function getVueNodeType(_0x378561) {
   return "__v_isVNode" in _0x378561 && _0x378561.__v_isVNode ? '[VueVNode]' : "[VueViewModel]";
 }
-var DV = "<anonymous>";
+
 function getErrorType(_0x1efecb) {
-  switch (EX.call(_0x1efecb)) {
+  switch (Object.prototype.toString.call(_0x1efecb)) {
     case "[object Error]":
     case "[object Exception]":
     case "[object DOMException]":
@@ -189,7 +189,7 @@ function getErrorType(_0x1efecb) {
   }
 }
 function isObjectType(_0x117468, _0xea0583) {
-  return EX.call(_0x117468) === "[object " + _0xea0583 + ']';
+  return Object.prototype.toString.call(_0x117468) === "[object " + _0xea0583 + ']';
 }
 function isString(_0x534b1a) {
   return isObjectType(_0x534b1a, "String");
@@ -219,7 +219,6 @@ function safeInstanceOf(_0x160087, _0x195195) {
 function isVueInstance(_0x2293cc) {
   return !!(typeof _0x2293cc == "object" && _0x2293cc !== null && (_0x2293cc.__isVue || _0x2293cc._isVue || _0x2293cc.__v_isVNode));
 }
-var EX = Object.prototype.toString;
 function buildDomPath(_0x509178, _0x7472c3 = {}) {
   if (!_0x509178) return "<unknown>";
   try {
@@ -232,7 +231,7 @@ function buildDomPath(_0x509178, _0x7472c3 = {}) {
       _0x1b4298 = '\x20>\x20'.length,
       _0x22663c,
       _0x25ec69 = Array.isArray(_0x7472c3) ? _0x7472c3 : _0x7472c3.keyAttrs,
-      _0x70e294 = !Array.isArray(_0x7472c3) && _0x7472c3.maxStringLength || E3e;
+      _0x70e294 = !Array.isArray(_0x7472c3) && _0x7472c3.maxStringLength || 80;
     for (; _0x3731a6 && _0x523f5a++ < 5 && (_0x22663c = buildDomSelector(_0x3731a6, _0x25ec69), !(_0x22663c === 'html' || _0x523f5a > 1 && _0x4832c3 + _0x1924f3.length * _0x1b4298 + _0x22663c.length >= _0x70e294));) _0x1924f3.push(_0x22663c), _0x4832c3 += _0x22663c.length, _0x3731a6 = _0x3731a6.parentNode;
     return _0x1924f3.reverse().join('\x20>\x20');
   } catch {
@@ -243,7 +242,7 @@ function buildDomSelector(_0x774290, _0x2262de) {
   let _0x5b31a6 = _0x774290,
     _0x502630 = [];
   if (!_0x5b31a6?.['tagName']) return '';
-  if (jV.HTMLElement && _0x5b31a6 instanceof HTMLElement && _0x5b31a6.dataset) {
+  if (__globalThis.HTMLElement && _0x5b31a6 instanceof HTMLElement && _0x5b31a6.dataset) {
     if (_0x5b31a6.dataset.sentryComponent) return _0x5b31a6.dataset.sentryComponent;
     if (_0x5b31a6.dataset.sentryElement) return _0x5b31a6.dataset.sentryElement;
   }
@@ -266,8 +265,7 @@ function buildDomSelector(_0x774290, _0x2262de) {
   }
   return _0x502630.join('');
 }
-var jV = __globalThis,
-  E3e = 80;
+
 function normalizeEventForSentry(_0x26f0de) {
   if (getErrorType(_0x26f0de)) return {
     message: _0x26f0de.message,
@@ -2947,7 +2945,7 @@ var H$,
   initSearchUtils = __esmModule(() => {
     'use strict';
 
-    initLatestRequestLimiter(), initSearchConfig(), initWorkspaceInfo(), initLogger(), initRipgrepModule(), /* fce = vscode_module */H$ = 50, I9e = new LatestRequestLimiter();
+    initLatestRequestLimiter(), initSearchConfig(), initWorkspaceInfo(), initLogger(),  /* fce = vscode_module */H$ = 50, I9e = new LatestRequestLimiter();
   }),
   In,
   initDocumentManager = __esmModule(() => {
@@ -18954,7 +18952,7 @@ async function executeRipgrepSearch(_0x69db30, _0x52ce70, _0x2c2ca8, _0x4e227c) 
 var initRipgrepSearchModule = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initPathModule(), initWorkspaceInfo(), initStatusBarExports(), initRipgrepModule();
+    initSearchConfig(), initPathModule(), initWorkspaceInfo(), initStatusBarExports();
   }),
   MAX_WRITE_RETRIES,
   GrpcStreamHandler,
