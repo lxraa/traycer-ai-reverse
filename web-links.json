@@ -1,0 +1,19 @@
+{
+  "mainWebsite": "https://traycer.ai",
+  "mainWebsitePricing": "https://traycer.ai/#pricing1",
+  "mainWebsiteFAQ": "https://traycer.ai/#faq",
+  "mainWebsiteTasks": "https://traycer.ai/tasks",
+  "mainWebsiteReviews": "https://traycer.ai/reviews",
+  "platformWebsite": "https://platform.traycer.ai",
+  "platformWebsiteSettings": "https://platform.traycer.ai/settings",
+  "openVsxMarketplaceWebsite": "https://open-vsx.org/extension/Traycer/traycer-vscode",
+  "vscMarketplaceWebsite": "https://marketplace.visualstudio.com/items?itemName=traycer.traycer-vscode",
+  "privacyPolicy": "https://traycer.ai/privacy-policy",
+  "termsOfService": "https://traycer.ai/terms-of-service",
+  "twitter": "https://x.com/traycerai",
+  "twitterFollowIntent": "https://x.com/intent/follow?screen_name=traycerai",
+  "github": "https://github.com/traycerai",
+  "supportEmail": "support@traycer.ai",
+  "discord": "https://traycer.ai/discord",
+  "linkedin": "https://www.linkedin.com/company/traycer"
+}

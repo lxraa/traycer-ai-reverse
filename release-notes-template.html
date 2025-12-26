@@ -1,0 +1,309 @@
+
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+              body {
+                padding: 10px 20px;
+                line-height: 22px;
+                max-width: 850px;
+                margin: 0 auto;
+            }
+
+            body *:last-child {
+                margin-bottom: 0;
+            }
+
+            img {
+                max-width: 100%;
+                max-height: 100%;
+            }
+
+            a {
+                text-decoration: var(--text-link-decoration);
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+            a:focus,
+            input:focus,
+            select:focus,
+            textarea:focus {
+                outline: 1px solid -webkit-focus-ring-color;
+                outline-offset: -1px;
+            }
+
+            hr {
+                border: 0;
+                height: 1px;
+                border-bottom: 2px solid;
+            }
+
+            h1 {
+                padding-bottom: 0.3em;
+                line-height: 1.2;
+                border-bottom-width: 1px;
+                border-bottom-style: solid;
+                display: flex;
+                align-items: center;
+                gap: 2px;
+            }
+
+            h1, h2, h3 {
+                font-weight: normal;
+            }
+
+            table {
+                border-collapse: collapse;
+            }
+
+            th {
+                text-align: left;
+                border-bottom: 1px solid;
+            }
+
+            th,
+            td {
+                padding: 5px 10px;
+            }
+
+            table > tbody > tr + tr > td {
+                border-top-width: 1px;
+                border-top-style: solid;
+            }
+
+            blockquote {
+                margin: 0 7px 0 5px;
+                padding: 0 16px 0 10px;
+                border-left-width: 5px;
+                border-left-style: solid;
+            }
+
+            code {
+                font-family: "SF Mono", Monaco, Menlo, Consolas, "Ubuntu Mono", "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
+            }
+
+            pre {
+                padding: 16px;
+                border-radius: 3px;
+                overflow: auto;
+            }
+
+            pre code {
+                font-family: var(--vscode-editor-font-family);
+                font-weight: var(--vscode-editor-font-weight);
+                font-size: var(--vscode-editor-font-size);
+                line-height: 1.5;
+                color: var(--vscode-editor-foreground);
+                tab-size: 4;
+            }
+
+            .monaco-tokenized-source {
+                white-space: pre;
+            }
+
+            /** Theming */
+
+            .pre {
+                background-color: var(--vscode-textCodeBlock-background);
+            }
+
+            .vscode-high-contrast h1 {
+                border-color: rgb(0, 0, 0);
+            }
+
+            .vscode-light th {
+                border-color: rgba(0, 0, 0, 0.69);
+            }
+
+            .vscode-dark th {
+                border-color: rgba(255, 255, 255, 0.69);
+            }
+
+            .vscode-light h1,
+            .vscode-light hr,
+            .vscode-light td {
+                border-color: rgba(0, 0, 0, 0.18);
+            }
+
+            .vscode-dark h1,
+            .vscode-dark hr,
+            .vscode-dark td {
+                border-color: rgba(255, 255, 255, 0.18);
+            }
+
+            @media (forced-colors: active) and (prefers-color-scheme: light){
+                body {
+                    forced-color-adjust: none;
+                }
+            }
+
+            @media (forced-colors: active) and (prefers-color-scheme: dark){
+                body {
+                    forced-color-adjust: none;
+                }
+            }
+
+
+            .mtk1 { color: #d4d4d4; }
+            .mtk2 { color: #1e1e1e; }
+            .mtk3 { color: #000080; }
+            .mtk4 { color: #6a9955; }
+            .mtk5 { color: #569cd6; }
+            .mtk6 { color: #b5cea8; }
+            .mtk7 { color: #646695; }
+            .mtk8 { color: #d7ba7d; }
+            .mtk9 { color: #9cdcfe; }
+            .mtk10 { color: #f44747; }
+            .mtk11 { color: #ce9178; }
+            .mtk12 { color: #6796e6; }
+            .mtk13 { color: #808080; }
+            .mtk14 { color: #d16969; }
+            .mtk15 { color: #dcdcaa; }
+            .mtk16 { color: #4ec9b0; }
+            .mtk17 { color: #c586c0; }
+            .mtk18 { color: #4fc1ff; }
+            .mtk19 { color: #c8c8c8; }
+            .mtk20 { color: #cd9731; }
+            .mtk21 { color: #b267e6; }
+            .mtki { font-style: italic; }
+            .mtkb { font-weight: bold; }
+            .mtku { text-decoration: underline; text-underline-position: under; }
+            .mtks { text-decoration: line-through; }
+            .mtks.mtku { text-decoration: underline line-through; text-underline-position: under; }
+
+            /* codesetting */
+
+            code:has(.codesetting)+code:not(:has(.codesetting)) {
+                display: none;
+            }
+
+            code:has(.codesetting) {
+                background-color: var(--vscode-textPreformat-background);
+                color: var(--vscode-textPreformat-foreground);
+                padding-left: 1px;
+                margin-right: 3px;
+                padding-right: 0px;
+            }
+
+            code:has(.codesetting):focus {
+                border: 1px solid var(--vscode-button-border, transparent);
+            }
+
+            .codesetting {
+                color: var(--vscode-textPreformat-foreground);
+                padding: 0px 1px 1px 0px;
+                font-size: 0px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                outline-offset: 2px !important;
+                box-sizing: border-box;
+                text-align: center;
+                cursor: pointer;
+                display: inline;
+                margin-right: 3px;
+            }
+            .codesetting svg {
+                font-size: 12px;
+                text-align: center;
+                cursor: pointer;
+                border: 1px solid var(--vscode-button-secondaryBorder, transparent);
+                outline: 1px solid transparent;
+                line-height: 9px;
+                margin-bottom: -5px;
+                padding-left: 0px;
+                padding-top: 2px;
+                padding-bottom: 2px;
+                padding-right: 2px;
+                display: inline-block;
+                text-decoration: none;
+                text-rendering: auto;
+                text-transform: none;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .codesetting .setting-name {
+                font-size: 13px;
+                padding-left: 2px;
+                padding-right: 3px;
+                padding-top: 1px;
+                padding-bottom: 1px;
+                margin-left: -5px;
+                margin-top: -3px;
+            }
+            .codesetting:hover {
+                color: var(--vscode-textPreformat-foreground) !important;
+                text-decoration: none !important;
+            }
+            code:has(.codesetting):hover {
+                filter: brightness(140%);
+                text-decoration: none !important;
+            }
+            .codesetting:focus {
+                outline: 0 !important;
+                text-decoration: none !important;
+                color: var(--vscode-button-hoverForeground) !important;
+            }
+            .codesetting .separator {
+                width: 1px;
+                height: 14px;
+                margin-bottom: -3px;
+                display: inline-block;
+                background-color: var(--vscode-editor-background);
+                font-size: 12px;
+                margin-right: 8px;
+            }
+
+            header { display: flex; align-items: center; padding-top: 1em; }
+
+            .experimental-tag {
+                background-color: #4d4d4d;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-family: monospace;
+                font-size: 0.9em;
+            }
+
+            .coupon-code {
+                display: inline-block;
+                background-color: #3794ff;
+                color: #fff;
+                padding: 4px 8px;
+                border-radius: 3px;
+                font-family: monospace;
+                cursor: pointer;
+            }
+
+            .copied-message {
+                color: #73c991;
+                margin-left: 8px;
+                opacity: 0;
+                transition: opacity 0.2s;
+            }
+
+            .copied-message.active {
+                opacity: 1;
+            }
+
+            footer {
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 1px solid #3d3d3d;
+                color: #888888;
+            }
+            .footer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            }
+          </style>
+      </head>
+        <body class="vscode-dark">
+            <div class="content">
+                
