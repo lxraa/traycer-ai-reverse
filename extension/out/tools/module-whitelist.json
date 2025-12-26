@@ -1,0 +1,15 @@
+{
+  "description": "已拆分的模块白名单 - 只包含 __commonJS() 或 __esmModule() 定义的模块",
+  "whitelist": [
+    "diffMatchPatchModule",
+    "diff3Merge",
+    "initDiff3",
+    "nodeIgnore",
+    "ripgrepPath",
+    "nodeSqlite3",
+    "fuzzysortModule"
+  ],
+  "simplified": [
+    "retryModule -> retry_module"
+  ]
+}

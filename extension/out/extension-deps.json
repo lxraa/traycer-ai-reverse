@@ -1,0 +1,4856 @@
+{
+  "meta": {
+    "inputFile": "E:\\traycer-ai-3\\extension\\out\\extension.js",
+    "analyzedAt": "2025-12-25T10:10:25.545Z",
+    "fileSize": 1200026
+  },
+  "stats": {
+    "totalModules": 226,
+    "liveModules": 225,
+    "deadModules": 1,
+    "commonjsModules": 28,
+    "esmModules": 198,
+    "commonjsClosure": "__commonJS",
+    "esmClosure": "__esmModule",
+    "totalCodeSize": 787691,
+    "liveCodeSize": 787669
+  },
+  "modules": {
+    "initTraycerConstants": {
+      "type": "__esmModule",
+      "startLine": 637,
+      "endLine": 641,
+      "codeSize": 847,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initProgressReporter",
+        "initGitOperationsExports",
+        "initWorkspaceInfo",
+        "initWorkspaceSettingsPersistence",
+        "initTaskChainPersistence",
+        "initMediaFileSystem",
+        "initCommentStatus",
+        "initTraycerFileSystem",
+        "initPromptTemplate",
+        "initCommentNavigator",
+        "initGenericTemplate",
+        "initUserQueryTemplate",
+        "initPlanTemplate",
+        "initReviewTemplate",
+        "initVerificationTemplate",
+        "initIDEAgentManager",
+        "initSearchConfig",
+        "initSentryInstance",
+        "initContextStorageManager",
+        "initTokenValidator",
+        "initTraycerCredentials",
+        "initGrpcClient",
+        "initExtensionCommands",
+        "initRepoMappingHelper",
+        "initPersistedTicketLoading",
+        "initStorageMigrationHelper",
+        "initSqliteMigrator",
+        "initMigrationLogger",
+        "initConfigWatcher",
+        "initDocsWatcher",
+        "initExtension"
+      ]
+    },
+    "diffMatchPatchModule": {
+      "type": "__commonJS",
+      "startLine": 883,
+      "endLine": 886,
+      "codeSize": 165,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initDiffMatchPatch"
+      ]
+    },
+    "initDiffUtils": {
+      "type": "__esmModule",
+      "startLine": 926,
+      "endLine": 928,
+      "codeSize": 43,
+      "isDead": false,
+      "dependencies": [
+        "initCoreModules"
+      ],
+      "dependents": [
+        "initDiffMatchPatch",
+        "initSnippetContextProvider",
+        "initCodeBlockCache",
+        "initTreeSitterParser"
+      ]
+    },
+    "initDiffMatchPatch": {
+      "type": "__esmModule",
+      "startLine": 1004,
+      "endLine": 1006,
+      "codeSize": 83,
+      "isDead": false,
+      "dependencies": [
+        "diffMatchPatchModule",
+        "initDiffUtils"
+      ],
+      "dependents": [
+        "initDiffExports"
+      ]
+    },
+    "initDiffExports": {
+      "type": "__esmModule",
+      "startLine": 1007,
+      "endLine": 1009,
+      "codeSize": 46,
+      "isDead": false,
+      "dependencies": [
+        "initDiffMatchPatch"
+      ],
+      "dependents": [
+        "initCoreModules"
+      ]
+    },
+    "Yne": {
+      "type": "__commonJS",
+      "startLine": 1439,
+      "endLine": 1439,
+      "codeSize": 22,
+      "isDead": true,
+      "dependencies": [],
+      "dependents": [
+        "initMarkdownIt"
+      ]
+    },
+    "initMarkdownIt": {
+      "type": "__esmModule",
+      "startLine": 1474,
+      "endLine": 1526,
+      "codeSize": 3756,
+      "isDead": false,
+      "dependencies": [
+        "Yne"
+      ],
+      "dependents": [
+        "initMarkdownItExports"
+      ]
+    },
+    "initMarkdownItExports": {
+      "type": "__esmModule",
+      "startLine": 1527,
+      "endLine": 1529,
+      "codeSize": 42,
+      "isDead": false,
+      "dependencies": [
+        "initMarkdownIt"
+      ],
+      "dependents": [
+        "initMarkdownItWrapper",
+        "initExtensionExports"
+      ]
+    },
+    "initMarkdownItWrapper": {
+      "type": "__esmModule",
+      "startLine": 1786,
+      "endLine": 1788,
+      "codeSize": 49,
+      "isDead": false,
+      "dependencies": [
+        "initMarkdownItExports"
+      ],
+      "dependents": [
+        "initCoreModules"
+      ]
+    },
+    "diff3Merge": {
+      "type": "__commonJS",
+      "startLine": 1843,
+      "endLine": 1846,
+      "codeSize": 143,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initDiff3"
+      ]
+    },
+    "initDiff3": {
+      "type": "__esmModule",
+      "startLine": 1848,
+      "endLine": 1850,
+      "codeSize": 56,
+      "isDead": false,
+      "dependencies": [
+        "diff3Merge"
+      ],
+      "dependents": [
+        "initCoreModules"
+      ]
+    },
+    "prismaClientRuntime": {
+      "type": "__commonJS",
+      "startLine": 1877,
+      "endLine": 1880,
+      "codeSize": 185,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "prismaClient"
+      ]
+    },
+    "prismaClient": {
+      "type": "__commonJS",
+      "startLine": 1881,
+      "endLine": 2138,
+      "codeSize": 67141,
+      "isDead": false,
+      "dependencies": [
+        "prismaClientRuntime"
+      ],
+      "dependents": [
+        "initPrismaExports",
+        "initRepoSettingsSchema",
+        "initExtensionExports"
+      ]
+    },
+    "initPrismaExports": {
+      "type": "__esmModule",
+      "startLine": 2167,
+      "endLine": 2169,
+      "codeSize": 57,
+      "isDead": false,
+      "dependencies": [
+        "prismaClient"
+      ],
+      "dependents": [
+        "initCoreModules"
+      ]
+    },
+    "retryOperation": {
+      "type": "__commonJS",
+      "startLine": 2417,
+      "endLine": 2466,
+      "codeSize": 3547,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "retryModule"
+      ]
+    },
+    "retryModule": {
+      "type": "__commonJS",
+      "startLine": 2467,
+      "endLine": 2515,
+      "codeSize": 2526,
+      "isDead": false,
+      "dependencies": [
+        "retryOperation"
+      ],
+      "dependents": [
+        "retryExports"
+      ]
+    },
+    "retryExports": {
+      "type": "__commonJS",
+      "startLine": 2516,
+      "endLine": 2518,
+      "codeSize": 78,
+      "isDead": false,
+      "dependencies": [
+        "retryModule"
+      ],
+      "dependents": [
+        "initPRetry"
+      ]
+    },
+    "initPRetry": {
+      "type": "__esmModule",
+      "startLine": 2570,
+      "endLine": 2581,
+      "codeSize": 584,
+      "isDead": false,
+      "dependencies": [
+        "retryExports"
+      ],
+      "dependents": []
+    },
+    "nodeIgnore": {
+      "type": "__commonJS",
+      "startLine": 2632,
+      "endLine": 2635,
+      "codeSize": 145,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initIgnorePatterns"
+      ]
+    },
+    "initIgnorePatterns": {
+      "type": "__esmModule",
+      "startLine": 2644,
+      "endLine": 2646,
+      "codeSize": 1945,
+      "isDead": false,
+      "dependencies": [
+        "nodeIgnore"
+      ],
+      "dependents": [
+        "initCoreModules",
+        "initRipgrepConfig",
+        "initFileWatcher"
+      ]
+    },
+    "initCoreModules": {
+      "type": "__esmModule",
+      "startLine": 2841,
+      "endLine": 2843,
+      "codeSize": 124,
+      "isDead": false,
+      "dependencies": [
+        "initDiffExports",
+        "initMarkdownItWrapper",
+        "initDiff3",
+        "initPrismaExports",
+        "initIgnorePatterns"
+      ],
+      "dependents": [
+        "initDiffUtils",
+        "initSymbolSearch",
+        "initPathModule",
+        "initGitOperations",
+        "initWorkspaceInfo",
+        "initIdeAgentMigrator",
+        "initWorkspaceMigrator",
+        "initPlanContextModule",
+        "initUserQueryMessage",
+        "initPlanConversation",
+        "initTaskExecution",
+        "initTaskPlan",
+        "initTaskPlanExports",
+        "initPlanConversationHandler",
+        "initTaskOrchestrator",
+        "initCliAgentService",
+        "initGrpcMessageTracker",
+        "initCodeBlockCache",
+        "initTreeSitterParser",
+        "initParserBase",
+        "initLanguageParsers",
+        "initFileReadModule",
+        "initFileReadHandler",
+        "initGrpcClient",
+        "initFileWatcher",
+        "initExtensionExports"
+      ]
+    },
+    "ripgrepPath": {
+      "type": "__commonJS",
+      "startLine": 2955,
+      "endLine": 2960,
+      "codeSize": 209,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initRipgrepConfig"
+      ]
+    },
+    "initRipgrepConfig": {
+      "type": "__esmModule",
+      "startLine": 2987,
+      "endLine": 2989,
+      "codeSize": 821,
+      "isDead": false,
+      "dependencies": [
+        "initIgnorePatterns",
+        "ripgrepPath"
+      ],
+      "dependents": [
+        "initRipgrepCommandBuilder",
+        "initRipgrepExecutor",
+        "initSearchUtils",
+        "initGitUtils",
+        "initPromptTemplate",
+        "initCliAgentService",
+        "initSearchConfig"
+      ]
+    },
+    "initTicketType": {
+      "type": "__esmModule",
+      "startLine": 3239,
+      "endLine": 3241,
+      "codeSize": 145,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initTicketTypeExport"
+      ]
+    },
+    "initTicketTypeExport": {
+      "type": "__esmModule",
+      "startLine": 3242,
+      "endLine": 3244,
+      "codeSize": 42,
+      "isDead": false,
+      "dependencies": [
+        "initTicketType"
+      ],
+      "dependents": [
+        "initTicketModule"
+      ]
+    },
+    "initTicketModule": {
+      "type": "__esmModule",
+      "startLine": 3269,
+      "endLine": 3271,
+      "codeSize": 48,
+      "isDead": false,
+      "dependencies": [
+        "initTicketTypeExport"
+      ],
+      "dependents": [
+        "initWorkspaceInfo",
+        "initFilePathHandler",
+        "initMetricsHandler",
+        "initPlanEditor",
+        "initTaskExecution",
+        "initTaskPlanDeps",
+        "initTaskPlan",
+        "initIdeAgentConfig",
+        "initIdeAgentConfigExports",
+        "initTicketExports",
+        "initPlanGenerationStep",
+        "initPlanExecutionStep",
+        "initVerificationExecutionStep",
+        "initVerificationTaskStepProcessor",
+        "initTaskOrchestrator",
+        "initTaskChainDeps",
+        "initPlanOutputHandler",
+        "initPlanGenerationHandler",
+        "initTaskChain",
+        "initTaskChainExports",
+        "initTaskRunner",
+        "initTaskContext",
+        "initUsageInfoHandler",
+        "initTaskSettingsHandler",
+        "initWebviewStatusHandler",
+        "initPromptTemplate",
+        "initPromptTemplateFactory",
+        "initCliAgentService",
+        "initPromptTemplateHandler",
+        "initCliAgentHandler",
+        "initGitHubAuthHandler",
+        "initCloudUIAuthHandler",
+        "initExtensionActivationHandler",
+        "initTrackMetricsHandler",
+        "initCommentNavigator",
+        "initPromptMetadata",
+        "initGenericTemplate",
+        "initUserQueryTemplate",
+        "initPlanTemplate",
+        "initReviewTemplate",
+        "initVerificationTemplate",
+        "initPromptTemplateService",
+        "initSearchConfig",
+        "initRepoSettingsSchema",
+        "initAuthStatusHandler",
+        "initGrpcClient",
+        "initExtensionCommands",
+        "initTicketLoadingNotifier",
+        "initTaskChainManager",
+        "initExtension"
+      ]
+    },
+    "initRequestQueue": {
+      "type": "__esmModule",
+      "startLine": 3323,
+      "endLine": 3360,
+      "codeSize": 1648,
+      "isDead": false,
+      "dependencies": [
+        "initLogger"
+      ],
+      "dependents": [
+        "initLatestRequestLimiter",
+        "initDocumentManager",
+        "initWorkspaceInfo",
+        "initRequestQueueHelper"
+      ]
+    },
+    "initLatestRequestLimiter": {
+      "type": "__esmModule",
+      "startLine": 3362,
+      "endLine": 3388,
+      "codeSize": 1453,
+      "isDead": false,
+      "dependencies": [
+        "initRequestQueue",
+        "initLogger"
+      ],
+      "dependents": [
+        "initSearchUtils"
+      ]
+    },
+    "initRipgrepCommandBuilder": {
+      "type": "__esmModule",
+      "startLine": 3390,
+      "endLine": 3429,
+      "codeSize": 1370,
+      "isDead": false,
+      "dependencies": [
+        "initRipgrepConfig"
+      ],
+      "dependents": [
+        "initRipgrepSearch",
+        "initRipgrepModule"
+      ]
+    },
+    "initRipgrepExecutor": {
+      "type": "__esmModule",
+      "startLine": 3432,
+      "endLine": 3463,
+      "codeSize": 1461,
+      "isDead": false,
+      "dependencies": [
+        "initRipgrepConfig"
+      ],
+      "dependents": [
+        "initRipgrepSearch",
+        "initRipgrepModule"
+      ]
+    },
+    "initRipgrepSearch": {
+      "type": "__esmModule",
+      "startLine": 3476,
+      "endLine": 3478,
+      "codeSize": 96,
+      "isDead": false,
+      "dependencies": [
+        "initRipgrepCommandBuilder",
+        "initRipgrepExecutor"
+      ],
+      "dependents": [
+        "initRipgrepModule"
+      ]
+    },
+    "initRipgrepModule": {
+      "type": "__esmModule",
+      "startLine": 3479,
+      "endLine": 3481,
+      "codeSize": 97,
+      "isDead": false,
+      "dependencies": [
+        "initRipgrepSearch",
+        "initRipgrepCommandBuilder",
+        "initRipgrepExecutor"
+      ],
+      "dependents": [
+        "initSearchUtils",
+        "initRipgrepSearchModule"
+      ]
+    },
+    "initSearchUtils": {
+      "type": "__esmModule",
+      "startLine": 3575,
+      "endLine": 3579,
+      "codeSize": 274,
+      "isDead": false,
+      "dependencies": [
+        "initLatestRequestLimiter",
+        "initSearchConfig",
+        "initWorkspaceInfo",
+        "initLogger",
+        "initRipgrepModule",
+        "initRipgrepConfig"
+      ],
+      "dependents": [
+        "initSymbolSearch",
+        "initWorkspaceInfo",
+        "initQueryProcessor",
+        "initWebviewStatusHandler",
+        "initSymbolSearchHandler",
+        "initFileReadHandler"
+      ]
+    },
+    "initDocumentManager": {
+      "type": "__esmModule",
+      "startLine": 3582,
+      "endLine": 3636,
+      "codeSize": 2519,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initRequestQueue",
+        "initLogger"
+      ],
+      "dependents": [
+        "initLlmCacheHandler",
+        "initGitUtils",
+        "initPlanContextModule",
+        "initWebviewStatusHandler",
+        "initSnippetContextProvider",
+        "initTreeSitterParser",
+        "initFileReadModule",
+        "initFileReadHandler"
+      ]
+    },
+    "formatErrorModule": {
+      "type": "__commonJS",
+      "startLine": 3809,
+      "endLine": 3825,
+      "codeSize": 599,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "workerpoolErrorHandler",
+        "sqliteDatabase"
+      ]
+    },
+    "workerpoolErrorHandler": {
+      "type": "__commonJS",
+      "startLine": 3826,
+      "endLine": 3912,
+      "codeSize": 3125,
+      "isDead": false,
+      "dependencies": [
+        "formatErrorModule"
+      ],
+      "dependents": [
+        "sqliteDatabase",
+        "initSqliteExports"
+      ]
+    },
+    "sqliteMigrate": {
+      "type": "__commonJS",
+      "startLine": 3913,
+      "endLine": 3975,
+      "codeSize": 3609,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "sqliteDatabase"
+      ]
+    },
+    "sqliteToSqlParams": {
+      "type": "__commonJS",
+      "startLine": 3976,
+      "endLine": 3992,
+      "codeSize": 405,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "sqliteDatabase"
+      ]
+    },
+    "sqliteDatabase": {
+      "type": "__commonJS",
+      "startLine": 3993,
+      "endLine": 4129,
+      "codeSize": 5704,
+      "isDead": false,
+      "dependencies": [
+        "workerpoolErrorHandler",
+        "sqliteMigrate",
+        "sqliteToSqlParams",
+        "formatErrorModule"
+      ],
+      "dependents": [
+        "initSqliteExports"
+      ]
+    },
+    "initSqliteExports": {
+      "type": "__esmModule",
+      "startLine": 4139,
+      "endLine": 4141,
+      "codeSize": 160,
+      "isDead": false,
+      "dependencies": [
+        "workerpoolErrorHandler",
+        "sqliteDatabase"
+      ],
+      "dependents": [
+        "initSqliteService",
+        "initProgressReporter"
+      ]
+    },
+    "nodeSqlite3": {
+      "type": "__commonJS",
+      "startLine": 4142,
+      "endLine": 4145,
+      "codeSize": 147,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initSqliteService",
+        "initProgressReporter"
+      ]
+    },
+    "initSqliteService": {
+      "type": "__esmModule",
+      "startLine": 4176,
+      "endLine": 4247,
+      "codeSize": 3668,
+      "isDead": false,
+      "dependencies": [
+        "initSqliteExports",
+        "nodeSqlite3"
+      ],
+      "dependents": [
+        "initLlmCacheHandler"
+      ]
+    },
+    "initLlmCacheHandler": {
+      "type": "__esmModule",
+      "startLine": 4276,
+      "endLine": 4319,
+      "codeSize": 1601,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initDocumentManager",
+        "initWorkspaceInfo",
+        "initLogger",
+        "initSqliteService"
+      ],
+      "dependents": [
+        "initPathModule",
+        "initPlanContextModule",
+        "initFileReadHandler",
+        "initGrpcClient",
+        "initExtension"
+      ]
+    },
+    "initSymbolSearch": {
+      "type": "__esmModule",
+      "startLine": 4379,
+      "endLine": 4383,
+      "codeSize": 199,
+      "isDead": false,
+      "dependencies": [
+        "initSearchUtils",
+        "initPathModule",
+        "initLogger",
+        "initCoreModules"
+      ],
+      "dependents": [
+        "initPathModule",
+        "initSymbolSearchModule",
+        "initSymbolSearchExports",
+        "initFileReadHandler"
+      ]
+    },
+    "initPathModule": {
+      "type": "__esmModule",
+      "startLine": 4468,
+      "endLine": 4547,
+      "codeSize": 3484,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initLlmCacheHandler",
+        "initSymbolSearch",
+        "initCoreModules"
+      ],
+      "dependents": [
+        "initLlmCacheHandler",
+        "initSymbolSearch",
+        "initWorkspaceAssociation",
+        "initRepoMappingManager",
+        "initGitUtils",
+        "initWorkspaceInfo",
+        "initFilePathHandler",
+        "initWorkspaceMigrator",
+        "initGitLogModule",
+        "initQueryProcessor",
+        "initPlanContextModule",
+        "initAnalysisFinding",
+        "initReviewOutput",
+        "initAnalysisSuggestion",
+        "initVerificationOutput",
+        "initTaskPlan",
+        "initTaskOrchestrator",
+        "initWebviewStatusHandler",
+        "initSymbolSearchExports",
+        "initGitInfoModule",
+        "initGitInfoExports",
+        "initSymbolSearchHandler",
+        "initFileCache",
+        "initDirCache",
+        "initSymbolCache",
+        "initFileReadModule",
+        "initFileReadHandler",
+        "initRipgrepSearchModule",
+        "initExtensionCommands",
+        "initFileWatcher"
+      ]
+    },
+    "initWorkspaceAssociation": {
+      "type": "__esmModule",
+      "startLine": 4593,
+      "endLine": 4621,
+      "codeSize": 1234,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initPathModule"
+      ],
+      "dependents": [
+        "initWorkspaceInfo",
+        "initTaskPlanExports",
+        "initTaskChain"
+      ]
+    },
+    "workerpoolExports": {
+      "type": "__commonJS",
+      "startLine": 4627,
+      "endLine": 4630,
+      "codeSize": 149,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initWorkerPoolManager"
+      ]
+    },
+    "initWorkerPoolManager": {
+      "type": "__esmModule",
+      "startLine": 4641,
+      "endLine": 4696,
+      "codeSize": 3194,
+      "isDead": false,
+      "dependencies": [
+        "workerpoolExports"
+      ],
+      "dependents": [
+        "initWorkerPoolExports"
+      ]
+    },
+    "initWorkerPoolExports": {
+      "type": "__esmModule",
+      "startLine": 4697,
+      "endLine": 4699,
+      "codeSize": 49,
+      "isDead": false,
+      "dependencies": [
+        "initWorkerPoolManager"
+      ],
+      "dependents": [
+        "initStatusBar"
+      ]
+    },
+    "initStatusBar": {
+      "type": "__esmModule",
+      "startLine": 4703,
+      "endLine": 4737,
+      "codeSize": 1340,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initWorkerPoolExports",
+        "initWorkspaceInfo"
+      ],
+      "dependents": [
+        "initStatusBarExports",
+        "initQueryProcessor",
+        "initTreeSitterParser"
+      ]
+    },
+    "initStatusBarExports": {
+      "type": "__esmModule",
+      "startLine": 4738,
+      "endLine": 4742,
+      "codeSize": 72,
+      "isDead": false,
+      "dependencies": [
+        "initStatusBar",
+        "initLogger"
+      ],
+      "dependents": [
+        "initProgressReporter",
+        "initStatusBarModule",
+        "initReviewOutput",
+        "initVerificationOutput",
+        "initPlanExecutionStep",
+        "initTaskOrchestrator",
+        "initTaskChainExports",
+        "initTaskContext",
+        "initSearchConfig",
+        "initRipgrepSearchModule",
+        "initGrpcClient",
+        "initExtension"
+      ]
+    },
+    "initFsHelpers": {
+      "type": "__esmModule",
+      "startLine": 4783,
+      "endLine": 4787,
+      "codeSize": 172,
+      "isDead": false,
+      "dependencies": [
+        "initLogger"
+      ],
+      "dependents": [
+        "initProgressReporter",
+        "initYoloArtifactManager",
+        "initGoogleAuth",
+        "initGrpcClient"
+      ]
+    },
+    "initProgressReporter": {
+      "type": "__esmModule",
+      "startLine": 4818,
+      "endLine": 4988,
+      "codeSize": 8321,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initStatusBarExports",
+        "initLogger",
+        "initFsHelpers",
+        "initSqliteExports",
+        "nodeSqlite3"
+      ],
+      "dependents": [
+        "initFileOperations",
+        "initPersistenceManager"
+      ]
+    },
+    "lruMapModule": {
+      "type": "__commonJS",
+      "startLine": 4989,
+      "endLine": 5118,
+      "codeSize": 6431,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initFileOperations",
+        "initFilePathHandler",
+        "initTaskChainExports",
+        "initTreeSitterParser"
+      ]
+    },
+    "initFileOperations": {
+      "type": "__esmModule",
+      "startLine": 5122,
+      "endLine": 5282,
+      "codeSize": 7605,
+      "isDead": false,
+      "dependencies": [
+        "initProgressReporter",
+        "initLogger",
+        "lruMapModule"
+      ],
+      "dependents": [
+        "initGitOperationsExports",
+        "initWorkspaceSettingsPersistence",
+        "initTaskChainPersistence",
+        "initPersistedTicketLoading"
+      ]
+    },
+    "initRepoMappingMigrator": {
+      "type": "__esmModule",
+      "startLine": 5284,
+      "endLine": 5303,
+      "codeSize": 737,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initLogger"
+      ],
+      "dependents": [
+        "initGitOperationsExports"
+      ]
+    },
+    "initGitOperationsExports": {
+      "type": "__esmModule",
+      "startLine": 5305,
+      "endLine": 5335,
+      "codeSize": 1048,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initTraycerConstants",
+        "initFileOperations",
+        "initRepoMappingMigrator"
+      ],
+      "dependents": [
+        "initGitOperations",
+        "initPersistenceManager"
+      ]
+    },
+    "initGitOperations": {
+      "type": "__esmModule",
+      "startLine": 5337,
+      "endLine": 5378,
+      "codeSize": 1449,
+      "isDead": false,
+      "dependencies": [
+        "initGitOperationsExports",
+        "initCoreModules"
+      ],
+      "dependents": [
+        "initRepoMappingManager",
+        "initGitUtils"
+      ]
+    },
+    "initRepoMappingManager": {
+      "type": "__esmModule",
+      "startLine": 5380,
+      "endLine": 5409,
+      "codeSize": 1275,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initWorkspaceInfo",
+        "initGitUtils",
+        "initGitOperations"
+      ],
+      "dependents": [
+        "initGitUtils",
+        "initWorkspaceInfo",
+        "initGitLogModule",
+        "initTaskChainManager",
+        "initExtension"
+      ]
+    },
+    "initGitUtils": {
+      "type": "__esmModule",
+      "startLine": 5782,
+      "endLine": 5786,
+      "codeSize": 310,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initDocumentManager",
+        "initLogger",
+        "initGitOperations",
+        "initRepoMappingManager",
+        "initRipgrepConfig"
+      ],
+      "dependents": [
+        "initRepoMappingManager",
+        "initWorkspaceInfo",
+        "initPlanContextModule",
+        "initWebviewStatusHandler",
+        "initGitInfoModule",
+        "initGitInfoExports",
+        "initFileWatcher"
+      ]
+    },
+    "initWorkspaceInfo": {
+      "type": "__esmModule",
+      "startLine": 5791,
+      "endLine": 5987,
+      "codeSize": 8235,
+      "isDead": false,
+      "dependencies": [
+        "initSearchUtils",
+        "initPathModule",
+        "initWorkspaceAssociation",
+        "initRequestQueue",
+        "initGitUtils",
+        "initLogger",
+        "initRepoMappingManager",
+        "initCoreModules",
+        "initTicketModule",
+        "initTraycerConstants"
+      ],
+      "dependents": [
+        "initSearchUtils",
+        "initDocumentManager",
+        "initLlmCacheHandler",
+        "initPathModule",
+        "initWorkspaceAssociation",
+        "initStatusBar",
+        "initRepoMappingManager",
+        "initFilePathHandler",
+        "initGitLogModule",
+        "initPlanContextModule",
+        "initPlanOutputModule",
+        "initUserQueryMessage",
+        "initPlanConversation",
+        "initTaskExecution",
+        "initTaskPlan",
+        "initTaskPlanExports",
+        "initPlanConversationHandler",
+        "initTaskOrchestrator",
+        "initPlanGenerationHandler",
+        "initTaskChain",
+        "initTaskChainExports",
+        "initTaskContext",
+        "initWebviewStatusHandler",
+        "initPromptTemplateFactory",
+        "initCliAgentService",
+        "initTrackMetricsHandler",
+        "initCommentNavigator",
+        "initTemplateFile",
+        "initPromptMetadata",
+        "initPromptTemplateService",
+        "initExportHandler",
+        "initIDEAgentManager",
+        "initTraycerCredentials",
+        "initSymbolSearchHandler",
+        "initFileReadHandler",
+        "initRipgrepSearchModule",
+        "initPersistedTicketLoading",
+        "initTaskChainManager",
+        "initWorkspaceWatcher",
+        "initExtensionExports"
+      ]
+    },
+    "posthogJsLite": {
+      "type": "__commonJS",
+      "startLine": 6077,
+      "endLine": 6080,
+      "codeSize": 159,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initPosthogAnalytics"
+      ]
+    },
+    "initPosthogAnalytics": {
+      "type": "__esmModule",
+      "startLine": 6083,
+      "endLine": 6140,
+      "codeSize": 2249,
+      "isDead": false,
+      "dependencies": [
+        "posthogJsLite",
+        "initSearchConfig",
+        "initLogger"
+      ],
+      "dependents": [
+        "initAnalytics"
+      ]
+    },
+    "initAnalytics": {
+      "type": "__esmModule",
+      "startLine": 6141,
+      "endLine": 6145,
+      "codeSize": 65,
+      "isDead": false,
+      "dependencies": [
+        "initPosthogAnalytics"
+      ],
+      "dependents": [
+        "initMetricsHandler",
+        "initTaskOrchestrator",
+        "initPlanGenerationHandler",
+        "initTaskChainExports",
+        "initCommentNavigator",
+        "initTaskChainManager",
+        "initExtension"
+      ]
+    },
+    "initCommentNavigatorDeps": {
+      "type": "__esmModule",
+      "startLine": 6165,
+      "endLine": 6169,
+      "codeSize": 65,
+      "isDead": false,
+      "dependencies": [
+        "initCommentNavigator"
+      ],
+      "dependents": [
+        "initFilePathHandler",
+        "initTaskChain",
+        "initTaskRunner",
+        "initUsageInfoHandler",
+        "initTaskSettingsHandler",
+        "initWebviewStatusHandler",
+        "initUsageTracker",
+        "initAuthStatusHandler",
+        "initExtensionCommands",
+        "initPersistedTicketLoading",
+        "initTaskChainManager",
+        "initExtension"
+      ]
+    },
+    "initFilePathHandler": {
+      "type": "__esmModule",
+      "startLine": 6175,
+      "endLine": 6302,
+      "codeSize": 4981,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initWorkspaceInfo",
+        "initLogger",
+        "initCommentNavigatorDeps",
+        "initTicketModule",
+        "lruMapModule"
+      ],
+      "dependents": [
+        "initImplementationPlanOutput",
+        "initCommentNavigator",
+        "initFileWatcher",
+        "initWorkspaceWatcher"
+      ]
+    },
+    "initMetricsHandler": {
+      "type": "__esmModule",
+      "startLine": 6328,
+      "endLine": 6341,
+      "codeSize": 311,
+      "isDead": false,
+      "dependencies": [
+        "initTicketModule",
+        "initAnalytics"
+      ],
+      "dependents": [
+        "initCommentNavigator"
+      ]
+    },
+    "initIdeAgentMigrator": {
+      "type": "__esmModule",
+      "startLine": 6370,
+      "endLine": 6395,
+      "codeSize": 731,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initCoreModules"
+      ],
+      "dependents": [
+        "initWorkspaceSettingsMigrator"
+      ]
+    },
+    "initWorkspaceSettingsMigrator": {
+      "type": "__esmModule",
+      "startLine": 6471,
+      "endLine": 6506,
+      "codeSize": 2048,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initLogger",
+        "initIdeAgentMigrator"
+      ],
+      "dependents": [
+        "initWorkspaceSettingsPersistence"
+      ]
+    },
+    "initWorkspaceSettingsPersistence": {
+      "type": "__esmModule",
+      "startLine": 6508,
+      "endLine": 6538,
+      "codeSize": 1086,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initTraycerConstants",
+        "initFileOperations",
+        "initWorkspaceSettingsMigrator"
+      ],
+      "dependents": [
+        "initTaskContext",
+        "initPersistenceManager"
+      ]
+    },
+    "initWorkspaceMigrator": {
+      "type": "__esmModule",
+      "startLine": 7584,
+      "endLine": 7598,
+      "codeSize": 390,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initCoreModules"
+      ],
+      "dependents": [
+        "initTaskMigrator"
+      ]
+    },
+    "initTaskMigrator": {
+      "type": "__esmModule",
+      "startLine": 8110,
+      "endLine": 8243,
+      "codeSize": 7924,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initLogger",
+        "initWorkspaceMigrator"
+      ],
+      "dependents": [
+        "initTaskChainPersistence"
+      ]
+    },
+    "initTaskChainPersistence": {
+      "type": "__esmModule",
+      "startLine": 8245,
+      "endLine": 8272,
+      "codeSize": 1157,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initTraycerConstants",
+        "initFileOperations",
+        "initTaskMigrator"
+      ],
+      "dependents": [
+        "initTaskChain",
+        "initTaskChainExports",
+        "initTaskRunner",
+        "initPersistenceManager"
+      ]
+    },
+    "initGitLogModule": {
+      "type": "__esmModule",
+      "startLine": 8314,
+      "endLine": 8318,
+      "codeSize": 179,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initWorkspaceInfo",
+        "initRepoMappingManager"
+      ],
+      "dependents": [
+        "initQueryProcessor",
+        "initPlanContextModule",
+        "initFileReadHandler"
+      ]
+    },
+    "initQueryProcessor": {
+      "type": "__esmModule",
+      "startLine": 8347,
+      "endLine": 8351,
+      "codeSize": 196,
+      "isDead": false,
+      "dependencies": [
+        "initSearchUtils",
+        "initSearchConfig",
+        "initPathModule",
+        "initStatusBar",
+        "initGitLogModule",
+        "initLogger"
+      ],
+      "dependents": [
+        "initPlanContextModule",
+        "initQueryThrottleConfig",
+        "initSymbolSearchHandler"
+      ]
+    },
+    "initPlanContextModule": {
+      "type": "__esmModule",
+      "startLine": 8527,
+      "endLine": 8531,
+      "codeSize": 276,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initPathModule",
+        "initDocumentManager",
+        "initWorkspaceInfo",
+        "initQueryProcessor",
+        "initLogger",
+        "initCoreModules",
+        "initGitLogModule",
+        "initGitUtils",
+        "initLlmCacheHandler"
+      ],
+      "dependents": [
+        "initPlanOutputModule",
+        "initTaskPlan",
+        "initTaskOrchestrator",
+        "initPlanGenerationHandler"
+      ]
+    },
+    "initStatusBarModule": {
+      "type": "__esmModule",
+      "startLine": 8564,
+      "endLine": 8568,
+      "codeSize": 65,
+      "isDead": false,
+      "dependencies": [
+        "initStatusBarExports"
+      ],
+      "dependents": [
+        "initTaskPlan",
+        "initTaskChainDeps",
+        "initTaskChainCommands"
+      ]
+    },
+    "initPlanOutputModule": {
+      "type": "__esmModule",
+      "startLine": 8649,
+      "endLine": 8653,
+      "codeSize": 87,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initPlanContextModule"
+      ],
+      "dependents": [
+        "initTaskExecution",
+        "initPlanConversationHandler",
+        "initPlanOutputHandler",
+        "initPlanGenerationHandler"
+      ]
+    },
+    "initImplementationPlanOutput": {
+      "type": "__esmModule",
+      "startLine": 8667,
+      "endLine": 8708,
+      "codeSize": 1424,
+      "isDead": false,
+      "dependencies": [
+        "initFilePathHandler"
+      ],
+      "dependents": [
+        "initPlanEditorDeps",
+        "initTaskExecution"
+      ]
+    },
+    "initAnalysisFinding": {
+      "type": "__esmModule",
+      "startLine": 8710,
+      "endLine": 8782,
+      "codeSize": 2531,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule"
+      ],
+      "dependents": [
+        "initReviewOutput"
+      ]
+    },
+    "initReviewOutput": {
+      "type": "__esmModule",
+      "startLine": 8784,
+      "endLine": 8850,
+      "codeSize": 2543,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initStatusBarExports",
+        "initAnalysisFinding"
+      ],
+      "dependents": [
+        "initPlanEditor"
+      ]
+    },
+    "initPlanEditor": {
+      "type": "__esmModule",
+      "startLine": 8853,
+      "endLine": 8960,
+      "codeSize": 5134,
+      "isDead": false,
+      "dependencies": [
+        "initIDEAgentManager",
+        "initTemplateManager",
+        "initTicketModule",
+        "initReviewOutput",
+        "initTaskContext"
+      ],
+      "dependents": [
+        "initPlanEditorDeps",
+        "initTaskExecution"
+      ]
+    },
+    "initPlanEditorDeps": {
+      "type": "__esmModule",
+      "startLine": 8963,
+      "endLine": 8981,
+      "codeSize": 1357,
+      "isDead": false,
+      "dependencies": [
+        "initImplementationPlanOutput",
+        "initPlanEditor"
+      ],
+      "dependents": [
+        "initTaskExecution"
+      ]
+    },
+    "initUserQueryMessage": {
+      "type": "__esmModule",
+      "startLine": 8983,
+      "endLine": 9024,
+      "codeSize": 1586,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initCoreModules"
+      ],
+      "dependents": [
+        "initPlanConversation",
+        "initPlanConversationHandler"
+      ]
+    },
+    "initPlanConversation": {
+      "type": "__esmModule",
+      "startLine": 9026,
+      "endLine": 9111,
+      "codeSize": 3493,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initCoreModules",
+        "initUserQueryMessage"
+      ],
+      "dependents": [
+        "initTaskExecution"
+      ]
+    },
+    "initTaskExecution": {
+      "type": "__esmModule",
+      "startLine": 9154,
+      "endLine": 9483,
+      "codeSize": 16521,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initLogger",
+        "initCoreModules",
+        "initTicketModule",
+        "initPlanOutputModule",
+        "initPlanEditorDeps",
+        "initImplementationPlanOutput",
+        "initPlanEditor",
+        "initPlanConversation"
+      ],
+      "dependents": [
+        "initTaskPlan",
+        "initGenericTemplate"
+      ]
+    },
+    "initAnalysisSuggestion": {
+      "type": "__esmModule",
+      "startLine": 9526,
+      "endLine": 9603,
+      "codeSize": 2861,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule"
+      ],
+      "dependents": [
+        "initSuggestionThread",
+        "initVerificationOutput",
+        "initTaskPlan"
+      ]
+    },
+    "initSuggestionThread": {
+      "type": "__esmModule",
+      "startLine": 9605,
+      "endLine": 9649,
+      "codeSize": 1333,
+      "isDead": false,
+      "dependencies": [
+        "initAnalysisSuggestion"
+      ],
+      "dependents": [
+        "initVerificationOutput"
+      ]
+    },
+    "initVerificationOutput": {
+      "type": "__esmModule",
+      "startLine": 9651,
+      "endLine": 9741,
+      "codeSize": 3650,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initStatusBarExports",
+        "initAnalysisSuggestion",
+        "initSuggestionThread"
+      ],
+      "dependents": [
+        "initTaskPlanDeps"
+      ]
+    },
+    "initTaskPlanDeps": {
+      "type": "__esmModule",
+      "startLine": 9748,
+      "endLine": 9907,
+      "codeSize": 8623,
+      "isDead": false,
+      "dependencies": [
+        "initIDEAgentManager",
+        "initTicketModule",
+        "initTemplateManager",
+        "initTaskContext",
+        "initVerificationOutput"
+      ],
+      "dependents": [
+        "initTaskPlan"
+      ]
+    },
+    "initTaskPlan": {
+      "type": "__esmModule",
+      "startLine": 9943,
+      "endLine": 10517,
+      "codeSize": 28226,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initWorkspaceInfo",
+        "initLogger",
+        "initPlanContextModule",
+        "initTaskExecution",
+        "initStatusBarModule",
+        "initCoreModules",
+        "initTicketModule",
+        "initTaskPlanDeps",
+        "initAnalysisSuggestion"
+      ],
+      "dependents": [
+        "initTaskPlanExports",
+        "initTaskOrchestrator"
+      ]
+    },
+    "initTaskPlanExports": {
+      "type": "__esmModule",
+      "startLine": 10519,
+      "endLine": 10587,
+      "codeSize": 3142,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceAssociation",
+        "initCoreModules",
+        "initWorkspaceInfo",
+        "initTaskPlan"
+      ],
+      "dependents": [
+        "initTaskRunner"
+      ]
+    },
+    "initMcpHandler": {
+      "type": "__esmModule",
+      "startLine": 10662,
+      "endLine": 10687,
+      "codeSize": 1091,
+      "isDead": false,
+      "dependencies": [
+        "initCommentNavigator"
+      ],
+      "dependents": [
+        "initTaskRunner",
+        "initExtensionActivationHandler",
+        "initCommentNavigator"
+      ]
+    },
+    "initFileSystemWatcher": {
+      "type": "__esmModule",
+      "startLine": 10860,
+      "endLine": 11153,
+      "codeSize": 15076,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initYoloArtifactManager",
+        "initCliAgentService",
+        "initPromptTemplateService"
+      ]
+    },
+    "initYoloArtifactManager": {
+      "type": "__esmModule",
+      "startLine": 11158,
+      "endLine": 11254,
+      "codeSize": 4753,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initFsHelpers",
+        "initFileSystemWatcher"
+      ],
+      "dependents": [
+        "initTaskOrchestrator",
+        "initExtension"
+      ]
+    },
+    "initIdeAgentConfig": {
+      "type": "__esmModule",
+      "startLine": 11271,
+      "endLine": 11275,
+      "codeSize": 80,
+      "isDead": false,
+      "dependencies": [
+        "initTaskContext",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initPlanGenerationStep",
+        "initPlanExecutionStep",
+        "initVerificationExecutionStep"
+      ]
+    },
+    "initIdeAgentConfigExports": {
+      "type": "__esmModule",
+      "startLine": 11292,
+      "endLine": 11296,
+      "codeSize": 80,
+      "isDead": false,
+      "dependencies": [
+        "initTaskContext",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initPlanGenerationStep",
+        "initPlanExecutionStep",
+        "initVerificationExecutionStep"
+      ]
+    },
+    "initTicketExports": {
+      "type": "__esmModule",
+      "startLine": 11317,
+      "endLine": 11321,
+      "codeSize": 61,
+      "isDead": false,
+      "dependencies": [
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initPlanGenerationStep",
+        "initPlanExecutionStep",
+        "initVerificationExecutionStep"
+      ]
+    },
+    "initPlanGenerationStep": {
+      "type": "__esmModule",
+      "startLine": 11323,
+      "endLine": 11377,
+      "codeSize": 2859,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initTicketModule",
+        "initIdeAgentConfig",
+        "initIdeAgentConfigExports",
+        "initTicketExports"
+      ],
+      "dependents": [
+        "initOrchestratorSteps"
+      ]
+    },
+    "initPlanExecutionStep": {
+      "type": "__esmModule",
+      "startLine": 11379,
+      "endLine": 11430,
+      "codeSize": 2982,
+      "isDead": false,
+      "dependencies": [
+        "initTicketModule",
+        "initIdeAgentConfigExports",
+        "initIdeAgentConfig",
+        "initTicketExports",
+        "initStatusBarExports"
+      ],
+      "dependents": [
+        "initOrchestratorSteps"
+      ]
+    },
+    "initVerificationStepHandler": {
+      "type": "__esmModule",
+      "startLine": 11432,
+      "endLine": 11479,
+      "codeSize": 2480,
+      "isDead": false,
+      "dependencies": [
+        "initLogger"
+      ],
+      "dependents": [
+        "initOrchestratorSteps"
+      ]
+    },
+    "initVerificationExecutionStep": {
+      "type": "__esmModule",
+      "startLine": 11481,
+      "endLine": 11523,
+      "codeSize": 2488,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initTicketModule",
+        "initIdeAgentConfigExports",
+        "initIdeAgentConfig",
+        "initTicketExports"
+      ],
+      "dependents": [
+        "initOrchestratorSteps"
+      ]
+    },
+    "initOrchestratorSteps": {
+      "type": "__esmModule",
+      "startLine": 11524,
+      "endLine": 11528,
+      "codeSize": 156,
+      "isDead": false,
+      "dependencies": [
+        "initPlanGenerationStep",
+        "initPlanExecutionStep",
+        "initVerificationStepHandler",
+        "initVerificationExecutionStep"
+      ],
+      "dependents": [
+        "initTaskStepProcessor",
+        "initVerificationTaskStepProcessor"
+      ]
+    },
+    "initTaskStepProcessor": {
+      "type": "__esmModule",
+      "startLine": 11530,
+      "endLine": 11598,
+      "codeSize": 2607,
+      "isDead": false,
+      "dependencies": [
+        "initOrchestratorSteps"
+      ],
+      "dependents": [
+        "initVerificationTaskStepProcessor",
+        "initSimpleTaskStepProcessor",
+        "initTaskStepProcessorExports"
+      ]
+    },
+    "initVerificationTaskStepProcessor": {
+      "type": "__esmModule",
+      "startLine": 11600,
+      "endLine": 11664,
+      "codeSize": 3017,
+      "isDead": false,
+      "dependencies": [
+        "initTicketModule",
+        "initOrchestratorSteps",
+        "initTaskStepProcessor"
+      ],
+      "dependents": [
+        "initTaskStepProcessorExports"
+      ]
+    },
+    "initSimpleTaskStepProcessor": {
+      "type": "__esmModule",
+      "startLine": 11666,
+      "endLine": 11681,
+      "codeSize": 375,
+      "isDead": false,
+      "dependencies": [
+        "initTaskStepProcessor"
+      ],
+      "dependents": [
+        "initTaskStepProcessorExports"
+      ]
+    },
+    "initTaskStepProcessorExports": {
+      "type": "__esmModule",
+      "startLine": 11682,
+      "endLine": 11686,
+      "codeSize": 134,
+      "isDead": false,
+      "dependencies": [
+        "initTaskStepProcessor",
+        "initVerificationTaskStepProcessor",
+        "initSimpleTaskStepProcessor"
+      ],
+      "dependents": [
+        "initTaskOrchestrator"
+      ]
+    },
+    "initTaskOrchestrator": {
+      "type": "__esmModule",
+      "startLine": 12326,
+      "endLine": 13127,
+      "codeSize": 42261,
+      "isDead": false,
+      "dependencies": [
+        "initIDEAgentManager",
+        "initPathModule",
+        "initWorkspaceInfo",
+        "initAnalytics",
+        "initStatusBarExports",
+        "initPlanContextModule",
+        "initTemplateManager",
+        "initTaskSettingsHandler",
+        "initUsageInfoHandler",
+        "initTaskContext",
+        "initCoreModules",
+        "initTicketModule",
+        "initTaskPlan",
+        "initYoloArtifactManager",
+        "initPlanConversationHandler"
+      ],
+      "dependents": [
+        "initTaskChainDeps",
+        "initTaskChain"
+      ]
+    },
+    "initPlanConversationHandler": {
+      "type": "__esmModule",
+      "startLine": 12126,
+      "endLine": 12283,
+      "codeSize": 6782,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initCoreModules",
+        "initUserQueryMessage",
+        "initPlanOutputModule"
+      ],
+      "dependents": [
+        "initTaskOrchestrator"
+      ]
+    },
+    "initTaskChainDeps": {
+      "type": "__esmModule",
+      "startLine": 13169,
+      "endLine": 13225,
+      "codeSize": 2145,
+      "isDead": false,
+      "dependencies": [
+        "initStatusBarModule",
+        "initTicketModule",
+        "initTaskOrchestrator"
+      ],
+      "dependents": [
+        "initTaskChain"
+      ]
+    },
+    "initQueryThrottleConfig": {
+      "type": "__esmModule",
+      "startLine": 13333,
+      "endLine": 13337,
+      "codeSize": 88,
+      "isDead": false,
+      "dependencies": [
+        "initQueryProcessor"
+      ],
+      "dependents": [
+        "initPlanOutputHandler",
+        "initPlanGenerationHandler",
+        "initVerificationHandler"
+      ]
+    },
+    "initPlanOutputHandler": {
+      "type": "__esmModule",
+      "startLine": 13339,
+      "endLine": 13393,
+      "codeSize": 2832,
+      "isDead": false,
+      "dependencies": [
+        "initQueryThrottleConfig",
+        "initTicketModule",
+        "initPlanOutputModule"
+      ],
+      "dependents": [
+        "initTaskChain"
+      ]
+    },
+    "initPlanGenerationHandler": {
+      "type": "__esmModule",
+      "startLine": 13395,
+      "endLine": 13527,
+      "codeSize": 7758,
+      "isDead": false,
+      "dependencies": [
+        "initAnalytics",
+        "initLogger",
+        "initPlanContextModule",
+        "initQueryThrottleConfig",
+        "initTicketModule",
+        "initPlanOutputModule",
+        "initWorkspaceInfo"
+      ],
+      "dependents": [
+        "initTaskChain"
+      ]
+    },
+    "initVerificationHandler": {
+      "type": "__esmModule",
+      "startLine": 13529,
+      "endLine": 13609,
+      "codeSize": 5116,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initQueryThrottleConfig"
+      ],
+      "dependents": [
+        "initTaskChain"
+      ]
+    },
+    "initTaskChain": {
+      "type": "__esmModule",
+      "startLine": 13613,
+      "endLine": 14132,
+      "codeSize": 30549,
+      "isDead": false,
+      "dependencies": [
+        "initIDEAgentManager",
+        "initWorkspaceAssociation",
+        "initWorkspaceInfo",
+        "initTaskChainPersistence",
+        "initCommentNavigatorDeps",
+        "initTaskContext",
+        "initTicketModule",
+        "initTaskOrchestrator",
+        "initTaskChainDeps",
+        "initPlanOutputHandler",
+        "initPlanGenerationHandler",
+        "initVerificationHandler"
+      ],
+      "dependents": [
+        "initTaskChainExports"
+      ]
+    },
+    "initTaskChainExports": {
+      "type": "__esmModule",
+      "startLine": 14135,
+      "endLine": 14272,
+      "codeSize": 6959,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initAnalytics",
+        "initStatusBarExports",
+        "initTicketModule",
+        "lruMapModule",
+        "initTaskChainPersistence",
+        "initTaskChain"
+      ],
+      "dependents": [
+        "initTaskRunner"
+      ]
+    },
+    "initTaskRunner": {
+      "type": "__esmModule",
+      "startLine": 14275,
+      "endLine": 14777,
+      "codeSize": 21831,
+      "isDead": false,
+      "dependencies": [
+        "initTaskChainPersistence",
+        "initLogger",
+        "initTaskPlanExports",
+        "initCommentNavigatorDeps",
+        "initMcpHandler",
+        "initTicketModule",
+        "initTaskChainExports"
+      ],
+      "dependents": [
+        "initTaskContext",
+        "initWebviewStatusHandler",
+        "initGrpcClient",
+        "initTaskChainManager",
+        "initPersistenceManager",
+        "initExtension"
+      ]
+    },
+    "initTaskContext": {
+      "type": "__esmModule",
+      "startLine": 14779,
+      "endLine": 14966,
+      "codeSize": 9338,
+      "isDead": false,
+      "dependencies": [
+        "initIDEAgentManager",
+        "initWorkspaceInfo",
+        "initWorkspaceSettingsPersistence",
+        "initStatusBarExports",
+        "initTaskRunner",
+        "initTemplateManager",
+        "initUsageInfoHandler",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initPlanEditor",
+        "initTaskPlanDeps",
+        "initIdeAgentConfig",
+        "initIdeAgentConfigExports",
+        "initTaskOrchestrator",
+        "initTaskChain",
+        "initUsageInfoHandler",
+        "initCliAgentService",
+        "initGitHubAuthHandler",
+        "initPromptTemplateService",
+        "initSearchConfig",
+        "initGrpcClient",
+        "initExtension"
+      ]
+    },
+    "initUsageInfoHandler": {
+      "type": "__esmModule",
+      "startLine": 14969,
+      "endLine": 15045,
+      "codeSize": 3053,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initTaskContext",
+        "initTicketModule",
+        "initCommentNavigatorDeps"
+      ],
+      "dependents": [
+        "initTaskOrchestrator",
+        "initTaskContext",
+        "initTaskSettingsHandler",
+        "initCliAgentService",
+        "initUsageTracker",
+        "initCommentNavigator",
+        "initConfigWatcher",
+        "initExtension"
+      ]
+    },
+    "initTaskSettingsHandler": {
+      "type": "__esmModule",
+      "startLine": 15047,
+      "endLine": 15099,
+      "codeSize": 2328,
+      "isDead": false,
+      "dependencies": [
+        "initCommentNavigatorDeps",
+        "initTicketModule",
+        "initUsageInfoHandler"
+      ],
+      "dependents": [
+        "initTaskOrchestrator",
+        "initCommentNavigator",
+        "initExtension"
+      ]
+    },
+    "initMediaFileSystem": {
+      "type": "__esmModule",
+      "startLine": 15102,
+      "endLine": 15160,
+      "codeSize": 1904,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants"
+      ],
+      "dependents": [
+        "initWebviewStatusHandler",
+        "initFileSystemProviders",
+        "initExtension"
+      ]
+    },
+    "initWebviewStatusHandler": {
+      "type": "__esmModule",
+      "startLine": 15163,
+      "endLine": 15322,
+      "codeSize": 7300,
+      "isDead": false,
+      "dependencies": [
+        "initSearchUtils",
+        "initPathModule",
+        "initMediaFileSystem",
+        "initDocumentManager",
+        "initWorkspaceInfo",
+        "initGitUtils",
+        "initLogger",
+        "initTaskRunner",
+        "initCommentNavigatorDeps",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initCommentNavigator"
+      ]
+    },
+    "initCommentStatus": {
+      "type": "__esmModule",
+      "startLine": 15325,
+      "endLine": 15371,
+      "codeSize": 1717,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants"
+      ],
+      "dependents": [
+        "initTemplateErrorManager"
+      ]
+    },
+    "initTemplateErrorManager": {
+      "type": "__esmModule",
+      "startLine": 15374,
+      "endLine": 15410,
+      "codeSize": 1319,
+      "isDead": false,
+      "dependencies": [
+        "initCommentStatus"
+      ],
+      "dependents": [
+        "initCliAgentService",
+        "initPromptTemplateService"
+      ]
+    },
+    "initTraycerFileSystem": {
+      "type": "__esmModule",
+      "startLine": 15458,
+      "endLine": 15492,
+      "codeSize": 1149,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants"
+      ],
+      "dependents": [
+        "initPromptTemplateFactory",
+        "initPromptMetadata",
+        "initFileSystemProviders",
+        "initExtension"
+      ]
+    },
+    "initPromptTemplate": {
+      "type": "__esmModule",
+      "startLine": 15496,
+      "endLine": 15598,
+      "codeSize": 7832,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initRipgrepConfig",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initPromptTemplateFactory"
+      ]
+    },
+    "initPromptTemplateFactory": {
+      "type": "__esmModule",
+      "startLine": 15603,
+      "endLine": 15676,
+      "codeSize": 3829,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerFileSystem",
+        "initWorkspaceInfo",
+        "initTicketModule",
+        "initPromptTemplate"
+      ],
+      "dependents": [
+        "initCliAgentService"
+      ]
+    },
+    "initCliAgentService": {
+      "type": "__esmModule",
+      "startLine": 15682,
+      "endLine": 15964,
+      "codeSize": 16270,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initLogger",
+        "initUsageInfoHandler",
+        "initCommentNavigator",
+        "initTaskContext",
+        "initCoreModules",
+        "initTicketModule",
+        "initFileSystemWatcher",
+        "initTemplateErrorManager",
+        "initPromptTemplateFactory",
+        "initRipgrepConfig"
+      ],
+      "dependents": [
+        "initPromptTemplateHandler",
+        "initTemplateManager",
+        "initFileWatcher"
+      ]
+    },
+    "initPromptTemplateHandler": {
+      "type": "__esmModule",
+      "startLine": 15966,
+      "endLine": 16017,
+      "codeSize": 2212,
+      "isDead": false,
+      "dependencies": [
+        "initCliAgentService",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initCommentNavigator"
+      ]
+    },
+    "initCliAgentHandler": {
+      "type": "__esmModule",
+      "startLine": 16019,
+      "endLine": 16039,
+      "codeSize": 570,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initTicketModule",
+        "initCommentNavigator"
+      ],
+      "dependents": [
+        "initCommentNavigator",
+        "initExtension"
+      ]
+    },
+    "initGitHubAuthHandler": {
+      "type": "__esmModule",
+      "startLine": 16041,
+      "endLine": 16079,
+      "codeSize": 1332,
+      "isDead": false,
+      "dependencies": [
+        "initTaskContext",
+        "initTicketModule",
+        "initCommentNavigator"
+      ],
+      "dependents": [
+        "initCommentNavigator"
+      ]
+    },
+    "initCloudUIAuthHandler": {
+      "type": "__esmModule",
+      "startLine": 16081,
+      "endLine": 16150,
+      "codeSize": 2935,
+      "isDead": false,
+      "dependencies": [
+        "initTemplateManager",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initCommentNavigator"
+      ]
+    },
+    "lodashModule": {
+      "type": "__commonJS",
+      "startLine": 16151,
+      "endLine": 16154,
+      "codeSize": 145,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initUsageTracker"
+      ]
+    },
+    "initUsageTracker": {
+      "type": "__esmModule",
+      "startLine": 16157,
+      "endLine": 16243,
+      "codeSize": 3979,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initCommentNavigatorDeps",
+        "initUsageInfoHandler",
+        "lodashModule"
+      ],
+      "dependents": [
+        "initSubscriptionHandler",
+        "initTraycerCredentials",
+        "initGrpcClient",
+        "initExtension"
+      ]
+    },
+    "initSubscriptionHandler": {
+      "type": "__esmModule",
+      "startLine": 16245,
+      "endLine": 16269,
+      "codeSize": 771,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initUsageTracker"
+      ],
+      "dependents": [
+        "initCommentNavigator"
+      ]
+    },
+    "initExtensionActivationHandler": {
+      "type": "__esmModule",
+      "startLine": 16271,
+      "endLine": 16285,
+      "codeSize": 408,
+      "isDead": false,
+      "dependencies": [
+        "initTicketModule",
+        "initMcpHandler"
+      ],
+      "dependents": [
+        "initCommentNavigator"
+      ]
+    },
+    "initTrackMetricsHandler": {
+      "type": "__esmModule",
+      "startLine": 16288,
+      "endLine": 16322,
+      "codeSize": 1148,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initTicketModule",
+        "initCommentNavigator"
+      ],
+      "dependents": [
+        "initCommentNavigator",
+        "initExtension"
+      ]
+    },
+    "initCommentNavigator": {
+      "type": "__esmModule",
+      "startLine": 16331,
+      "endLine": 16439,
+      "codeSize": 7950,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initWorkspaceInfo",
+        "initAnalytics",
+        "initLogger",
+        "initFilePathHandler",
+        "initMetricsHandler",
+        "initTaskSettingsHandler",
+        "initWebviewStatusHandler",
+        "initUsageInfoHandler",
+        "initMcpHandler",
+        "initTicketModule",
+        "initPromptTemplateHandler",
+        "initCliAgentHandler",
+        "initGitHubAuthHandler",
+        "initCloudUIAuthHandler",
+        "initSubscriptionHandler",
+        "initExtensionActivationHandler",
+        "initTrackMetricsHandler"
+      ],
+      "dependents": [
+        "initCommentNavigatorDeps",
+        "initMcpHandler",
+        "initTaskOrchestrator",
+        "initCliAgentService",
+        "initCliAgentHandler",
+        "initGitHubAuthHandler",
+        "initTrackMetricsHandler",
+        "initPromptTemplateService",
+        "initTicketLoadingNotifier"
+      ]
+    },
+    "ajvModule": {
+      "type": "__commonJS",
+      "startLine": 16507,
+      "endLine": 16510,
+      "codeSize": 139,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initTemplateFile"
+      ]
+    },
+    "grayMatter": {
+      "type": "__commonJS",
+      "startLine": 16541,
+      "endLine": 16544,
+      "codeSize": 155,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initTemplateFile",
+        "initPromptMetadata"
+      ]
+    },
+    "initTemplateFile": {
+      "type": "__esmModule",
+      "startLine": 16554,
+      "endLine": 16604,
+      "codeSize": 2665,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "ajvModule",
+        "grayMatter"
+      ],
+      "dependents": [
+        "initTemplateFileBase",
+        "initPromptTemplateService"
+      ]
+    },
+    "initPromptMetadata": {
+      "type": "__esmModule",
+      "startLine": 16607,
+      "endLine": 16659,
+      "codeSize": 2761,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initTicketModule",
+        "grayMatter",
+        "initTraycerFileSystem"
+      ],
+      "dependents": [
+        "initPromptTemplateService"
+      ]
+    },
+    "initTemplateFileBase": {
+      "type": "__esmModule",
+      "startLine": 16661,
+      "endLine": 16700,
+      "codeSize": 1745,
+      "isDead": false,
+      "dependencies": [
+        "initTemplateFile"
+      ],
+      "dependents": [
+        "initGenericTemplate",
+        "initUserQueryTemplate",
+        "initPlanTemplate",
+        "initReviewTemplate",
+        "initVerificationTemplate"
+      ]
+    },
+    "initGenericTemplate": {
+      "type": "__esmModule",
+      "startLine": 16703,
+      "endLine": 16730,
+      "codeSize": 997,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initTaskExecution",
+        "initTicketModule",
+        "initTemplateFileBase"
+      ],
+      "dependents": [
+        "initPromptTemplateService"
+      ]
+    },
+    "initUserQueryTemplate": {
+      "type": "__esmModule",
+      "startLine": 16733,
+      "endLine": 16756,
+      "codeSize": 1042,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initTicketModule",
+        "initTemplateFileBase"
+      ],
+      "dependents": [
+        "initPromptTemplateService"
+      ]
+    },
+    "initPlanTemplate": {
+      "type": "__esmModule",
+      "startLine": 16759,
+      "endLine": 16788,
+      "codeSize": 1438,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initTicketModule",
+        "initTemplateFileBase"
+      ],
+      "dependents": [
+        "initPromptTemplateService"
+      ]
+    },
+    "initReviewTemplate": {
+      "type": "__esmModule",
+      "startLine": 16791,
+      "endLine": 16814,
+      "codeSize": 986,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initTicketModule",
+        "initTemplateFileBase"
+      ],
+      "dependents": [
+        "initPromptTemplateService"
+      ]
+    },
+    "initVerificationTemplate": {
+      "type": "__esmModule",
+      "startLine": 16817,
+      "endLine": 16840,
+      "codeSize": 1099,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initTicketModule",
+        "initTemplateFileBase"
+      ],
+      "dependents": [
+        "initPromptTemplateService"
+      ]
+    },
+    "initPromptTemplateService": {
+      "type": "__esmModule",
+      "startLine": 16846,
+      "endLine": 17198,
+      "codeSize": 18960,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initLogger",
+        "initCommentNavigator",
+        "initTaskContext",
+        "initTicketModule",
+        "initFileSystemWatcher",
+        "initTemplateFile",
+        "initTemplateErrorManager",
+        "initPromptMetadata",
+        "initGenericTemplate",
+        "initUserQueryTemplate",
+        "initPlanTemplate",
+        "initReviewTemplate",
+        "initVerificationTemplate"
+      ],
+      "dependents": [
+        "initTemplateManager",
+        "initFileWatcher"
+      ]
+    },
+    "initTemplateManager": {
+      "type": "__esmModule",
+      "startLine": 17200,
+      "endLine": 17283,
+      "codeSize": 3892,
+      "isDead": false,
+      "dependencies": [
+        "initPromptTemplateService",
+        "initCliAgentService"
+      ],
+      "dependents": [
+        "initPlanEditor",
+        "initTaskPlanDeps",
+        "initTaskOrchestrator",
+        "initTaskContext",
+        "initCloudUIAuthHandler",
+        "initTemplateManagerDeps",
+        "initExtension"
+      ]
+    },
+    "initTemplateManagerDeps": {
+      "type": "__esmModule",
+      "startLine": 17295,
+      "endLine": 17349,
+      "codeSize": 2730,
+      "isDead": false,
+      "dependencies": [
+        "initTemplateManager",
+        "initLogger"
+      ],
+      "dependents": [
+        "initIDEAgentManager"
+      ]
+    },
+    "initExportHandler": {
+      "type": "__esmModule",
+      "startLine": 17360,
+      "endLine": 17405,
+      "codeSize": 2060,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo"
+      ],
+      "dependents": [
+        "initExportHandlerExports"
+      ]
+    },
+    "initExportHandlerExports": {
+      "type": "__esmModule",
+      "startLine": 17408,
+      "endLine": 17427,
+      "codeSize": 476,
+      "isDead": false,
+      "dependencies": [
+        "initExportHandler"
+      ],
+      "dependents": [
+        "initIDEAgentManager"
+      ]
+    },
+    "initExtensionHelper": {
+      "type": "__esmModule",
+      "startLine": 17430,
+      "endLine": 17444,
+      "codeSize": 1127,
+      "isDead": false,
+      "dependencies": [
+        "initLogger"
+      ],
+      "dependents": [
+        "initExtensionTaskHandler",
+        "initClineHandler",
+        "initAiderHandler",
+        "initCopilotHandler",
+        "initContinueHandler",
+        "initRooHandler"
+      ]
+    },
+    "initExtensionTaskHandler": {
+      "type": "__esmModule",
+      "startLine": 17447,
+      "endLine": 17459,
+      "codeSize": 565,
+      "isDead": false,
+      "dependencies": [
+        "initExtensionHelper"
+      ],
+      "dependents": [
+        "initWindsurfHandler",
+        "initCursorHandler",
+        "initZedHandler"
+      ]
+    },
+    "initWindsurfHandler": {
+      "type": "__esmModule",
+      "startLine": 17461,
+      "endLine": 17476,
+      "codeSize": 414,
+      "isDead": false,
+      "dependencies": [
+        "initExtensionTaskHandler"
+      ],
+      "dependents": [
+        "initIDEAgentManager"
+      ]
+    },
+    "initCursorHandler": {
+      "type": "__esmModule",
+      "startLine": 17478,
+      "endLine": 17497,
+      "codeSize": 503,
+      "isDead": false,
+      "dependencies": [
+        "initExtensionTaskHandler"
+      ],
+      "dependents": [
+        "initIDEAgentManager"
+      ]
+    },
+    "initZedHandler": {
+      "type": "__esmModule",
+      "startLine": 17499,
+      "endLine": 17518,
+      "codeSize": 509,
+      "isDead": false,
+      "dependencies": [
+        "initExtensionTaskHandler"
+      ],
+      "dependents": [
+        "initIDEAgentManager"
+      ]
+    },
+    "initClineHandler": {
+      "type": "__esmModule",
+      "startLine": 17531,
+      "endLine": 17549,
+      "codeSize": 561,
+      "isDead": false,
+      "dependencies": [
+        "initExtensionHelper"
+      ],
+      "dependents": [
+        "initIDEAgentManager"
+      ]
+    },
+    "initAiderHandler": {
+      "type": "__esmModule",
+      "startLine": 17551,
+      "endLine": 17569,
+      "codeSize": 565,
+      "isDead": false,
+      "dependencies": [
+        "initExtensionHelper"
+      ],
+      "dependents": [
+        "initIDEAgentManager"
+      ]
+    },
+    "initCopilotHandler": {
+      "type": "__esmModule",
+      "startLine": 17571,
+      "endLine": 17589,
+      "codeSize": 606,
+      "isDead": false,
+      "dependencies": [
+        "initExtensionHelper"
+      ],
+      "dependents": [
+        "initIDEAgentManager"
+      ]
+    },
+    "initContinueHandler": {
+      "type": "__esmModule",
+      "startLine": 17591,
+      "endLine": 17609,
+      "codeSize": 580,
+      "isDead": false,
+      "dependencies": [
+        "initExtensionHelper"
+      ],
+      "dependents": [
+        "initIDEAgentManager"
+      ]
+    },
+    "initRooHandler": {
+      "type": "__esmModule",
+      "startLine": 17644,
+      "endLine": 17662,
+      "codeSize": 581,
+      "isDead": false,
+      "dependencies": [
+        "initExtensionHelper"
+      ],
+      "dependents": [
+        "initIDEAgentManager"
+      ]
+    },
+    "initIDEAgentManager": {
+      "type": "__esmModule",
+      "startLine": 17737,
+      "endLine": 17741,
+      "codeSize": 331,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initWorkspaceInfo",
+        "initTemplateManagerDeps",
+        "initExportHandlerExports",
+        "initWindsurfHandler",
+        "initCursorHandler",
+        "initZedHandler",
+        "initClineHandler",
+        "initAiderHandler",
+        "initCopilotHandler",
+        "initContinueHandler",
+        "initRooHandler"
+      ],
+      "dependents": [
+        "initPlanEditor",
+        "initTaskPlanDeps",
+        "initTaskOrchestrator",
+        "initTaskChain",
+        "initTaskContext",
+        "initSearchConfig"
+      ]
+    },
+    "initSearchConfig": {
+      "type": "__esmModule",
+      "startLine": 17845,
+      "endLine": 17849,
+      "codeSize": 497,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initRipgrepConfig",
+        "initTicketModule",
+        "initIDEAgentManager",
+        "initStatusBarExports",
+        "initTaskContext"
+      ],
+      "dependents": [
+        "initSearchUtils",
+        "initRepoMappingMigrator",
+        "initGitOperationsExports",
+        "initPosthogAnalytics",
+        "initIdeAgentMigrator",
+        "initWorkspaceSettingsMigrator",
+        "initWorkspaceSettingsPersistence",
+        "initTaskMigrator",
+        "initTaskChainPersistence",
+        "initQueryProcessor",
+        "initPlanContextModule",
+        "initUsageInfoHandler",
+        "initCliAgentHandler",
+        "initSentryInstance",
+        "initContextStorageManager",
+        "initGoogleAuth",
+        "initTokenValidator",
+        "initTraycerCredentials",
+        "initFileReadHandler",
+        "initRipgrepSearchModule",
+        "initGrpcClient",
+        "initPersistedTicketLoading",
+        "initConfigWatcher",
+        "initExtension"
+      ]
+    },
+    "initSentryInstance": {
+      "type": "__esmModule",
+      "startLine": 17881,
+      "endLine": 17885,
+      "codeSize": 108,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initTraycerConstants"
+      ],
+      "dependents": [
+        "initLogger",
+        "initExtension"
+      ]
+    },
+    "initLogger": {
+      "type": "__esmModule",
+      "startLine": 17905,
+      "endLine": 17963,
+      "codeSize": 3433,
+      "isDead": false,
+      "dependencies": [
+        "initSentryInstance"
+      ],
+      "dependents": [
+        "initRequestQueue",
+        "initLatestRequestLimiter",
+        "initSearchUtils",
+        "initDocumentManager",
+        "initLlmCacheHandler",
+        "initSymbolSearch",
+        "initStatusBar",
+        "initStatusBarExports",
+        "initFsHelpers",
+        "initProgressReporter",
+        "initFileOperations",
+        "initRepoMappingMigrator",
+        "initGitUtils",
+        "initWorkspaceInfo",
+        "initPosthogAnalytics",
+        "initFilePathHandler",
+        "initWorkspaceSettingsMigrator",
+        "initTaskMigrator",
+        "initQueryProcessor",
+        "initPlanContextModule",
+        "initTaskExecution",
+        "initTaskPlan",
+        "initYoloArtifactManager",
+        "initPlanGenerationStep",
+        "initVerificationStepHandler",
+        "initVerificationExecutionStep",
+        "initTaskOrchestrator",
+        "initPlanGenerationHandler",
+        "initVerificationHandler",
+        "initTaskRunner",
+        "initWebviewStatusHandler",
+        "initCliAgentService",
+        "initUsageTracker",
+        "initSubscriptionHandler",
+        "initCommentNavigator",
+        "initPromptTemplateService",
+        "initTemplateManagerDeps",
+        "initExtensionHelper",
+        "initRepoMappingStore",
+        "initGoogleAuth",
+        "initRetryExecutor",
+        "initTokenValidator",
+        "initTraycerCredentials",
+        "initGrpcMessageTracker",
+        "initSymbolSearchExports",
+        "initSymbolSearchHandler",
+        "initCodeBlockCache",
+        "initTreeSitterParser",
+        "initParserBase",
+        "initGoParser",
+        "initJavaScriptParser",
+        "initPythonParser",
+        "initRustParser",
+        "initTypeScriptParser",
+        "initFileReadModule",
+        "initGrpcClient",
+        "initExtensionCommands",
+        "initTaskChainManager",
+        "initSqliteMigrator",
+        "initPersistenceManager",
+        "initMigrationLogger",
+        "initConfigWatcher",
+        "initDocsWatcher",
+        "initFileWatcher",
+        "initExtensionExports",
+        "initExtension"
+      ]
+    },
+    "initRepoMappingStore": {
+      "type": "__esmModule",
+      "startLine": 18000,
+      "endLine": 18004,
+      "codeSize": 95,
+      "isDead": false,
+      "dependencies": [
+        "initLogger"
+      ],
+      "dependents": [
+        "initTraycerCredentials",
+        "initExtensionCommands",
+        "initRepoMappingHelper",
+        "initTaskChainCommands"
+      ]
+    },
+    "initRepoSettingsSchema": {
+      "type": "__esmModule",
+      "startLine": 18007,
+      "endLine": 18043,
+      "codeSize": 855,
+      "isDead": false,
+      "dependencies": [
+        "prismaClient",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initRepoSettingsExports"
+      ]
+    },
+    "initRepoSettingsExports": {
+      "type": "__esmModule",
+      "startLine": 18391,
+      "endLine": 18393,
+      "codeSize": 50,
+      "isDead": false,
+      "dependencies": [
+        "initRepoSettingsSchema"
+      ],
+      "dependents": [
+        "initTraycerCredentials"
+      ]
+    },
+    "initAuthStatusHandler": {
+      "type": "__esmModule",
+      "startLine": 18396,
+      "endLine": 18426,
+      "codeSize": 1045,
+      "isDead": false,
+      "dependencies": [
+        "initCommentNavigatorDeps",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initAuthStatusHandlerExports",
+        "initAuthModule"
+      ]
+    },
+    "initAuthStatusHandlerExports": {
+      "type": "__esmModule",
+      "startLine": 18428,
+      "endLine": 18462,
+      "codeSize": 963,
+      "isDead": false,
+      "dependencies": [
+        "initAuthStatusHandler"
+      ],
+      "dependents": [
+        "initAuthModule"
+      ]
+    },
+    "initContextStorageManager": {
+      "type": "__esmModule",
+      "startLine": 18464,
+      "endLine": 18493,
+      "codeSize": 918,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initTraycerConstants"
+      ],
+      "dependents": [
+        "initAuthModule"
+      ]
+    },
+    "googleAuthLibrary": {
+      "type": "__commonJS",
+      "startLine": 18956,
+      "endLine": 18959,
+      "codeSize": 167,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initGoogleAuth"
+      ]
+    },
+    "initGoogleAuth": {
+      "type": "__esmModule",
+      "startLine": 18980,
+      "endLine": 18984,
+      "codeSize": 128,
+      "isDead": false,
+      "dependencies": [
+        "googleAuthLibrary",
+        "initSearchConfig",
+        "initFsHelpers",
+        "initLogger"
+      ],
+      "dependents": [
+        "initTokenValidator",
+        "initGrpcClient"
+      ]
+    },
+    "initRetryExecutor": {
+      "type": "__esmModule",
+      "startLine": 19007,
+      "endLine": 19041,
+      "codeSize": 1291,
+      "isDead": false,
+      "dependencies": [
+        "initLogger"
+      ],
+      "dependents": [
+        "initTokenValidator"
+      ]
+    },
+    "initTokenValidator": {
+      "type": "__esmModule",
+      "startLine": 19043,
+      "endLine": 19098,
+      "codeSize": 3157,
+      "isDead": false,
+      "dependencies": [
+        "initGoogleAuth",
+        "initSearchConfig",
+        "initTraycerConstants",
+        "initLogger",
+        "initRetryExecutor"
+      ],
+      "dependents": [
+        "initAuthModule"
+      ]
+    },
+    "initAuthModule": {
+      "type": "__esmModule",
+      "startLine": 19099,
+      "endLine": 19103,
+      "codeSize": 149,
+      "isDead": false,
+      "dependencies": [
+        "initAuthStatusHandlerExports",
+        "initContextStorageManager",
+        "initTokenValidator",
+        "initAuthStatusHandler"
+      ],
+      "dependents": [
+        "initTraycerCredentials"
+      ]
+    },
+    "initTraycerCredentials": {
+      "type": "__esmModule",
+      "startLine": 19107,
+      "endLine": 19265,
+      "codeSize": 8530,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initTraycerConstants",
+        "initWorkspaceInfo",
+        "initRepoMappingStore",
+        "initLogger",
+        "initUsageTracker",
+        "initRepoSettingsExports",
+        "initAuthModule"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initGrpcMessageTracker": {
+      "type": "__esmModule",
+      "startLine": 19273,
+      "endLine": 19311,
+      "codeSize": 1811,
+      "isDead": false,
+      "dependencies": [
+        "initCoreModules",
+        "initLogger"
+      ],
+      "dependents": [
+        "initGrpcClient"
+      ]
+    },
+    "initSymbolSearchModule": {
+      "type": "__esmModule",
+      "startLine": 19326,
+      "endLine": 19330,
+      "codeSize": 61,
+      "isDead": false,
+      "dependencies": [
+        "initSymbolSearch"
+      ],
+      "dependents": [
+        "initGrpcClient"
+      ]
+    },
+    "initSymbolSearchExports": {
+      "type": "__esmModule",
+      "startLine": 19363,
+      "endLine": 19367,
+      "codeSize": 93,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initLogger",
+        "initSymbolSearch"
+      ],
+      "dependents": [
+        "initGrpcClient"
+      ]
+    },
+    "initGitInfoModule": {
+      "type": "__esmModule",
+      "startLine": 19416,
+      "endLine": 19420,
+      "codeSize": 75,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initGitUtils"
+      ],
+      "dependents": [
+        "initGrpcClient"
+      ]
+    },
+    "initGitInfoExports": {
+      "type": "__esmModule",
+      "startLine": 19448,
+      "endLine": 19452,
+      "codeSize": 75,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initGitUtils"
+      ],
+      "dependents": [
+        "initGrpcClient"
+      ]
+    },
+    "fuzzysortModule": {
+      "type": "__commonJS",
+      "startLine": 19453,
+      "endLine": 19456,
+      "codeSize": 151,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initSymbolSearchHandler",
+        "initFileReadHandler"
+      ]
+    },
+    "initSymbolSearchHandler": {
+      "type": "__esmModule",
+      "startLine": 19488,
+      "endLine": 19492,
+      "codeSize": 187,
+      "isDead": false,
+      "dependencies": [
+        "initSearchUtils",
+        "initPathModule",
+        "initWorkspaceInfo",
+        "initQueryProcessor",
+        "initLogger",
+        "fuzzysortModule"
+      ],
+      "dependents": [
+        "initGrpcClient"
+      ]
+    },
+    "initRequestQueueHelper": {
+      "type": "__esmModule",
+      "startLine": 19505,
+      "endLine": 19509,
+      "codeSize": 101,
+      "isDead": false,
+      "dependencies": [
+        "initRequestQueue"
+      ],
+      "dependents": [
+        "initFileCache",
+        "initDirCache",
+        "initSymbolCache"
+      ]
+    },
+    "initFileCache": {
+      "type": "__esmModule",
+      "startLine": 19548,
+      "endLine": 19552,
+      "codeSize": 109,
+      "isDead": false,
+      "dependencies": [
+        "initRequestQueueHelper",
+        "initPathModule"
+      ],
+      "dependents": [
+        "initFileReadModule"
+      ]
+    },
+    "initDirCache": {
+      "type": "__esmModule",
+      "startLine": 19592,
+      "endLine": 19596,
+      "codeSize": 109,
+      "isDead": false,
+      "dependencies": [
+        "initRequestQueueHelper",
+        "initPathModule"
+      ],
+      "dependents": [
+        "initFileReadModule"
+      ]
+    },
+    "initSymbolCache": {
+      "type": "__esmModule",
+      "startLine": 19626,
+      "endLine": 19630,
+      "codeSize": 109,
+      "isDead": false,
+      "dependencies": [
+        "initRequestQueueHelper",
+        "initPathModule"
+      ],
+      "dependents": [
+        "initFileReadModule"
+      ]
+    },
+    "initSnippetContextProvider": {
+      "type": "__esmModule",
+      "startLine": 19632,
+      "endLine": 19656,
+      "codeSize": 800,
+      "isDead": false,
+      "dependencies": [
+        "initDocumentManager",
+        "initDiffUtils"
+      ],
+      "dependents": [
+        "initLanguageParsers",
+        "initExtension"
+      ]
+    },
+    "treeSitterWasm": {
+      "type": "__commonJS",
+      "startLine": 19662,
+      "endLine": 21626,
+      "codeSize": 134029,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initTreeSitterParser"
+      ]
+    },
+    "initCodeBlockCache": {
+      "type": "__esmModule",
+      "startLine": 21629,
+      "endLine": 21789,
+      "codeSize": 7762,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initDiffUtils",
+        "initCoreModules"
+      ],
+      "dependents": [
+        "initTreeSitterParser"
+      ]
+    },
+    "initTreeSitterParser": {
+      "type": "__esmModule",
+      "startLine": 21795,
+      "endLine": 21936,
+      "codeSize": 6881,
+      "isDead": false,
+      "dependencies": [
+        "initDocumentManager",
+        "initStatusBar",
+        "initLogger",
+        "initDiffUtils",
+        "initCoreModules",
+        "lruMapModule",
+        "treeSitterWasm",
+        "initCodeBlockCache"
+      ],
+      "dependents": [
+        "initGoParser",
+        "initJavaScriptParser",
+        "initPythonParser",
+        "initRustParser",
+        "initTypeScriptParser",
+        "initDocsWatcher"
+      ]
+    },
+    "initParserBase": {
+      "type": "__esmModule",
+      "startLine": 21955,
+      "endLine": 21959,
+      "codeSize": 74,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initCoreModules"
+      ],
+      "dependents": [
+        "initGoParser",
+        "initJavaScriptParser",
+        "initPythonParser",
+        "initRustParser",
+        "initTypeScriptParser"
+      ]
+    },
+    "initGoParser": {
+      "type": "__esmModule",
+      "startLine": 21961,
+      "endLine": 22000,
+      "codeSize": 1734,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initLanguageParsers",
+        "initTreeSitterParser",
+        "initParserBase"
+      ],
+      "dependents": [
+        "initLanguageParsers",
+        "initExtension"
+      ]
+    },
+    "initJavaScriptParser": {
+      "type": "__esmModule",
+      "startLine": 22002,
+      "endLine": 22087,
+      "codeSize": 4211,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initLanguageParsers",
+        "initTreeSitterParser",
+        "initParserBase"
+      ],
+      "dependents": [
+        "initLanguageParsers",
+        "initExtension"
+      ]
+    },
+    "initPythonParser": {
+      "type": "__esmModule",
+      "startLine": 22089,
+      "endLine": 22144,
+      "codeSize": 2732,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initLanguageParsers",
+        "initTreeSitterParser",
+        "initParserBase"
+      ],
+      "dependents": [
+        "initLanguageParsers",
+        "initExtension"
+      ]
+    },
+    "initRustParser": {
+      "type": "__esmModule",
+      "startLine": 22146,
+      "endLine": 22200,
+      "codeSize": 2674,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initLanguageParsers",
+        "initTreeSitterParser",
+        "initParserBase"
+      ],
+      "dependents": [
+        "initLanguageParsers",
+        "initExtension"
+      ]
+    },
+    "initTypeScriptParser": {
+      "type": "__esmModule",
+      "startLine": 22202,
+      "endLine": 22254,
+      "codeSize": 2942,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initLanguageParsers",
+        "initTreeSitterParser",
+        "initParserBase"
+      ],
+      "dependents": [
+        "initTypeScriptParserExports",
+        "initLanguageParsers",
+        "initExtension"
+      ]
+    },
+    "initTypeScriptParserExports": {
+      "type": "__esmModule",
+      "startLine": 22256,
+      "endLine": 22271,
+      "codeSize": 442,
+      "isDead": false,
+      "dependencies": [
+        "initTypeScriptParser"
+      ],
+      "dependents": [
+        "initLanguageParsers",
+        "initExtension"
+      ]
+    },
+    "initLanguageParsers": {
+      "type": "__esmModule",
+      "startLine": 22299,
+      "endLine": 22303,
+      "codeSize": 223,
+      "isDead": false,
+      "dependencies": [
+        "initCoreModules",
+        "initSnippetContextProvider",
+        "initGoParser",
+        "initJavaScriptParser",
+        "initPythonParser",
+        "initRustParser",
+        "initTypeScriptParserExports",
+        "initTypeScriptParser"
+      ],
+      "dependents": [
+        "initGoParser",
+        "initJavaScriptParser",
+        "initPythonParser",
+        "initRustParser",
+        "initTypeScriptParser",
+        "initFileReadModule",
+        "initDocsWatcher"
+      ]
+    },
+    "initFileReadModule": {
+      "type": "__esmModule",
+      "startLine": 22367,
+      "endLine": 22371,
+      "codeSize": 190,
+      "isDead": false,
+      "dependencies": [
+        "initFileCache",
+        "initDirCache",
+        "initSymbolCache",
+        "initPathModule",
+        "initDocumentManager",
+        "initLanguageParsers",
+        "initLogger",
+        "initCoreModules"
+      ],
+      "dependents": [
+        "initGrpcClient"
+      ]
+    },
+    "initFileReadHandler": {
+      "type": "__esmModule",
+      "startLine": 22427,
+      "endLine": 22431,
+      "codeSize": 272,
+      "isDead": false,
+      "dependencies": [
+        "initSearchUtils",
+        "initSearchConfig",
+        "initPathModule",
+        "initDocumentManager",
+        "initWorkspaceInfo",
+        "initGitLogModule",
+        "initLlmCacheHandler",
+        "initCoreModules",
+        "fuzzysortModule",
+        "initSymbolSearch"
+      ],
+      "dependents": [
+        "initGrpcClient"
+      ]
+    },
+    "initRipgrepSearchModule": {
+      "type": "__esmModule",
+      "startLine": 22449,
+      "endLine": 22453,
+      "codeSize": 145,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initPathModule",
+        "initWorkspaceInfo",
+        "initStatusBarExports",
+        "initRipgrepModule"
+      ],
+      "dependents": [
+        "initGrpcClient"
+      ]
+    },
+    "protoLoaderModule": {
+      "type": "__commonJS",
+      "startLine": 22454,
+      "endLine": 22457,
+      "codeSize": 162,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initGrpcClient"
+      ]
+    },
+    "grpcJsModule": {
+      "type": "__commonJS",
+      "startLine": 22474,
+      "endLine": 22477,
+      "codeSize": 155,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initGrpcClient",
+        "initExtension"
+      ]
+    },
+    "initGrpcClient": {
+      "type": "__esmModule",
+      "startLine": 22483,
+      "endLine": 22849,
+      "codeSize": 19946,
+      "isDead": false,
+      "dependencies": [
+        "initGoogleAuth",
+        "initGrpcMessageTracker",
+        "initSearchConfig",
+        "initTraycerConstants",
+        "initStatusBarExports",
+        "initLogger",
+        "initFsHelpers",
+        "initLlmCacheHandler",
+        "initSymbolSearchModule",
+        "initSymbolSearchExports",
+        "initGitInfoModule",
+        "initGitInfoExports",
+        "initSymbolSearchHandler",
+        "initFileReadModule",
+        "initFileReadHandler",
+        "initRipgrepSearchModule",
+        "initTaskRunner",
+        "initUsageTracker",
+        "initTaskContext",
+        "grpcJsModule",
+        "protoLoaderModule",
+        "initCoreModules",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initExtensionCommands": {
+      "type": "__esmModule",
+      "startLine": 22980,
+      "endLine": 22984,
+      "codeSize": 205,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initRepoMappingStore",
+        "initCommentNavigatorDeps",
+        "initTicketModule",
+        "initPathModule",
+        "initLogger"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initRepoMappingHelper": {
+      "type": "__esmModule",
+      "startLine": 22991,
+      "endLine": 22995,
+      "codeSize": 114,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initRepoMappingStore"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initTicketLoadingNotifier": {
+      "type": "__esmModule",
+      "startLine": 22997,
+      "endLine": 23017,
+      "codeSize": 548,
+      "isDead": false,
+      "dependencies": [
+        "initCommentNavigator",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initTaskChainManager"
+      ]
+    },
+    "initPersistedTicketLoading": {
+      "type": "__esmModule",
+      "startLine": 23019,
+      "endLine": 23060,
+      "codeSize": 1651,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initTraycerConstants",
+        "initWorkspaceInfo",
+        "initTaskChainManager",
+        "initFileOperations",
+        "initCommentNavigatorDeps"
+      ],
+      "dependents": [
+        "initTaskChainManager",
+        "initPersistenceManager"
+      ]
+    },
+    "initTaskChainManager": {
+      "type": "__esmModule",
+      "startLine": 23063,
+      "endLine": 23171,
+      "codeSize": 5326,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initTicketLoadingNotifier",
+        "initAnalytics",
+        "initPersistedTicketLoading",
+        "initLogger",
+        "initRepoMappingManager",
+        "initTaskRunner",
+        "initCommentNavigatorDeps",
+        "initTicketModule"
+      ],
+      "dependents": [
+        "initPersistedTicketLoading",
+        "initTaskChainCommands",
+        "initExtension"
+      ]
+    },
+    "initTaskChainCommands": {
+      "type": "__esmModule",
+      "startLine": 23181,
+      "endLine": 23185,
+      "codeSize": 112,
+      "isDead": false,
+      "dependencies": [
+        "initTaskChainManager",
+        "initRepoMappingStore",
+        "initStatusBarModule"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initStorageMigrationHelper": {
+      "type": "__esmModule",
+      "startLine": 23188,
+      "endLine": 23233,
+      "codeSize": 1716,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants"
+      ],
+      "dependents": [
+        "initFileSystemProviders",
+        "initExtension"
+      ]
+    },
+    "initSqliteMigrator": {
+      "type": "__esmModule",
+      "startLine": 23237,
+      "endLine": 23279,
+      "codeSize": 1837,
+      "isDead": false,
+      "dependencies": [
+        "initLogger",
+        "initTraycerConstants"
+      ],
+      "dependents": [
+        "initPersistenceManager"
+      ]
+    },
+    "initPersistenceManager": {
+      "type": "__esmModule",
+      "startLine": 23281,
+      "endLine": 23364,
+      "codeSize": 3770,
+      "isDead": false,
+      "dependencies": [
+        "initPersistedTicketLoading",
+        "initGitOperationsExports",
+        "initProgressReporter",
+        "initSqliteMigrator",
+        "initTaskChainPersistence",
+        "initLogger",
+        "initTaskRunner",
+        "initWorkspaceSettingsPersistence"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initMigrationLogger": {
+      "type": "__esmModule",
+      "startLine": 23367,
+      "endLine": 23392,
+      "codeSize": 894,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initLogger"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initConfigWatcher": {
+      "type": "__esmModule",
+      "startLine": 23395,
+      "endLine": 23437,
+      "codeSize": 3340,
+      "isDead": false,
+      "dependencies": [
+        "initSearchConfig",
+        "initTraycerConstants",
+        "initLogger",
+        "initUsageInfoHandler"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initDocsWatcher": {
+      "type": "__esmModule",
+      "startLine": 23440,
+      "endLine": 23488,
+      "codeSize": 2349,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerConstants",
+        "initLanguageParsers",
+        "initTreeSitterParser",
+        "initLogger"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initFileWatcher": {
+      "type": "__esmModule",
+      "startLine": 23492,
+      "endLine": 23528,
+      "codeSize": 2920,
+      "isDead": false,
+      "dependencies": [
+        "initPathModule",
+        "initGitUtils",
+        "initLogger",
+        "initCliAgentService",
+        "initPromptTemplateService",
+        "initFilePathHandler",
+        "initCoreModules",
+        "initIgnorePatterns"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initFileSystemProviders": {
+      "type": "__esmModule",
+      "startLine": 23531,
+      "endLine": 23554,
+      "codeSize": 1059,
+      "isDead": false,
+      "dependencies": [
+        "initStorageMigrationHelper",
+        "initMediaFileSystem",
+        "initTraycerFileSystem"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initWorkspaceWatcher": {
+      "type": "__esmModule",
+      "startLine": 23557,
+      "endLine": 23571,
+      "codeSize": 596,
+      "isDead": false,
+      "dependencies": [
+        "initWorkspaceInfo",
+        "initFilePathHandler"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initExtensionExports": {
+      "type": "__esmModule",
+      "startLine": 23618,
+      "endLine": 23622,
+      "codeSize": 263,
+      "isDead": false,
+      "dependencies": [
+        "prismaClient",
+        "initCoreModules",
+        "initMarkdownItExports",
+        "initWorkspaceInfo",
+        "initLogger"
+      ],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "semverModule": {
+      "type": "__commonJS",
+      "startLine": 23623,
+      "endLine": 23626,
+      "codeSize": 145,
+      "isDead": false,
+      "dependencies": [],
+      "dependents": [
+        "initExtension"
+      ]
+    },
+    "initExtension": {
+      "type": "__esmModule",
+      "startLine": 23802,
+      "endLine": 23806,
+      "codeSize": 1187,
+      "isDead": false,
+      "dependencies": [
+        "initTraycerCredentials",
+        "initGrpcClient",
+        "initExtensionCommands",
+        "initRepoMappingHelper",
+        "initTaskChainCommands",
+        "initSearchConfig",
+        "initTraycerConstants",
+        "initStorageMigrationHelper",
+        "initMediaFileSystem",
+        "initTraycerFileSystem",
+        "initTaskChainManager",
+        "initAnalytics",
+        "initSnippetContextProvider",
+        "initGoParser",
+        "initJavaScriptParser",
+        "initPythonParser",
+        "initRustParser",
+        "initTypeScriptParserExports",
+        "initTypeScriptParser",
+        "initPersistenceManager",
+        "initStatusBarExports",
+        "initLogger",
+        "initSentryInstance",
+        "initLlmCacheHandler",
+        "initRepoMappingManager",
+        "initTaskRunner",
+        "initYoloArtifactManager",
+        "initTemplateManager",
+        "initMigrationLogger",
+        "initUsageTracker",
+        "initConfigWatcher",
+        "initDocsWatcher",
+        "initFileWatcher",
+        "initFileSystemProviders",
+        "initWorkspaceWatcher",
+        "initCommentNavigatorDeps",
+        "initCliAgentHandler",
+        "initTaskSettingsHandler",
+        "initUsageInfoHandler",
+        "initTrackMetricsHandler",
+        "initExtensionExports",
+        "initTaskContext",
+        "grpcJsModule",
+        "initTicketModule",
+        "semverModule"
+      ],
+      "dependents": []
+    }
+  },
+  "analysis": {
+    "topLevelModules": [
+      {
+        "name": "initExtension",
+        "type": "__esmModule",
+        "codeSize": 1187,
+        "dependencies": [
+          "initTraycerCredentials",
+          "initGrpcClient",
+          "initExtensionCommands",
+          "initRepoMappingHelper",
+          "initTaskChainCommands",
+          "initSearchConfig",
+          "initTraycerConstants",
+          "initStorageMigrationHelper",
+          "initMediaFileSystem",
+          "initTraycerFileSystem",
+          "initTaskChainManager",
+          "initAnalytics",
+          "initSnippetContextProvider",
+          "initGoParser",
+          "initJavaScriptParser",
+          "initPythonParser",
+          "initRustParser",
+          "initTypeScriptParserExports",
+          "initTypeScriptParser",
+          "initPersistenceManager",
+          "initStatusBarExports",
+          "initLogger",
+          "initSentryInstance",
+          "initLlmCacheHandler",
+          "initRepoMappingManager",
+          "initTaskRunner",
+          "initYoloArtifactManager",
+          "initTemplateManager",
+          "initMigrationLogger",
+          "initUsageTracker",
+          "initConfigWatcher",
+          "initDocsWatcher",
+          "initFileWatcher",
+          "initFileSystemProviders",
+          "initWorkspaceWatcher",
+          "initCommentNavigatorDeps",
+          "initCliAgentHandler",
+          "initTaskSettingsHandler",
+          "initUsageInfoHandler",
+          "initTrackMetricsHandler",
+          "initExtensionExports",
+          "initTaskContext",
+          "grpcJsModule",
+          "initTicketModule",
+          "semverModule"
+        ]
+      },
+      {
+        "name": "initPRetry",
+        "type": "__esmModule",
+        "codeSize": 584,
+        "dependencies": [
+          "retryExports"
+        ]
+      }
+    ],
+    "mostDepended": [
+      {
+        "name": "initLogger",
+        "count": 66
+      },
+      {
+        "name": "initTicketModule",
+        "count": 50
+      },
+      {
+        "name": "initWorkspaceInfo",
+        "count": 40
+      },
+      {
+        "name": "initTraycerConstants",
+        "count": 31
+      },
+      {
+        "name": "initPathModule",
+        "count": 30
+      },
+      {
+        "name": "initCoreModules",
+        "count": 26
+      },
+      {
+        "name": "initSearchConfig",
+        "count": 24
+      },
+      {
+        "name": "initTaskContext",
+        "count": 13
+      },
+      {
+        "name": "initStatusBarExports",
+        "count": 12
+      },
+      {
+        "name": "initCommentNavigatorDeps",
+        "count": 12
+      },
+      {
+        "name": "initCommentNavigator",
+        "count": 9
+      },
+      {
+        "name": "initDocumentManager",
+        "count": 8
+      },
+      {
+        "name": "initUsageInfoHandler",
+        "count": 8
+      },
+      {
+        "name": "initRipgrepConfig",
+        "count": 7
+      },
+      {
+        "name": "initGitUtils",
+        "count": 7
+      },
+      {
+        "name": "initAnalytics",
+        "count": 7
+      },
+      {
+        "name": "initTemplateManager",
+        "count": 7
+      },
+      {
+        "name": "initLanguageParsers",
+        "count": 7
+      },
+      {
+        "name": "initSearchUtils",
+        "count": 6
+      },
+      {
+        "name": "initIDEAgentManager",
+        "count": 6
+      },
+      {
+        "name": "initTaskRunner",
+        "count": 6
+      },
+      {
+        "name": "initExtensionHelper",
+        "count": 6
+      },
+      {
+        "name": "initTreeSitterParser",
+        "count": 6
+      },
+      {
+        "name": "initLlmCacheHandler",
+        "count": 5
+      },
+      {
+        "name": "initRepoMappingManager",
+        "count": 5
+      },
+      {
+        "name": "initTemplateFileBase",
+        "count": 5
+      },
+      {
+        "name": "initParserBase",
+        "count": 5
+      },
+      {
+        "name": "initDiffUtils",
+        "count": 4
+      },
+      {
+        "name": "initRequestQueue",
+        "count": 4
+      },
+      {
+        "name": "initSymbolSearch",
+        "count": 4
+      }
+    ],
+    "modulesBySize": [
+      {
+        "name": "treeSitterWasm",
+        "type": "__commonJS",
+        "codeSize": 134029,
+        "dependents": 1,
+        "dependencies": 0
+      },
+      {
+        "name": "prismaClient",
+        "type": "__commonJS",
+        "codeSize": 67141,
+        "dependents": 3,
+        "dependencies": 1
+      },
+      {
+        "name": "initTaskOrchestrator",
+        "type": "__esmModule",
+        "codeSize": 42261,
+        "dependents": 2,
+        "dependencies": 15
+      },
+      {
+        "name": "initTaskChain",
+        "type": "__esmModule",
+        "codeSize": 30549,
+        "dependents": 1,
+        "dependencies": 12
+      },
+      {
+        "name": "initTaskPlan",
+        "type": "__esmModule",
+        "codeSize": 28226,
+        "dependents": 2,
+        "dependencies": 10
+      },
+      {
+        "name": "initTaskRunner",
+        "type": "__esmModule",
+        "codeSize": 21831,
+        "dependents": 6,
+        "dependencies": 7
+      },
+      {
+        "name": "initGrpcClient",
+        "type": "__esmModule",
+        "codeSize": 19946,
+        "dependents": 1,
+        "dependencies": 23
+      },
+      {
+        "name": "initPromptTemplateService",
+        "type": "__esmModule",
+        "codeSize": 18960,
+        "dependents": 2,
+        "dependencies": 14
+      },
+      {
+        "name": "initTaskExecution",
+        "type": "__esmModule",
+        "codeSize": 16521,
+        "dependents": 2,
+        "dependencies": 9
+      },
+      {
+        "name": "initCliAgentService",
+        "type": "__esmModule",
+        "codeSize": 16270,
+        "dependents": 3,
+        "dependencies": 11
+      },
+      {
+        "name": "initFileSystemWatcher",
+        "type": "__esmModule",
+        "codeSize": 15076,
+        "dependents": 3,
+        "dependencies": 0
+      },
+      {
+        "name": "initTaskContext",
+        "type": "__esmModule",
+        "codeSize": 9338,
+        "dependents": 13,
+        "dependencies": 8
+      },
+      {
+        "name": "initTaskPlanDeps",
+        "type": "__esmModule",
+        "codeSize": 8623,
+        "dependents": 1,
+        "dependencies": 5
+      },
+      {
+        "name": "initTraycerCredentials",
+        "type": "__esmModule",
+        "codeSize": 8530,
+        "dependents": 1,
+        "dependencies": 8
+      },
+      {
+        "name": "initProgressReporter",
+        "type": "__esmModule",
+        "codeSize": 8321,
+        "dependents": 2,
+        "dependencies": 6
+      },
+      {
+        "name": "initWorkspaceInfo",
+        "type": "__esmModule",
+        "codeSize": 8235,
+        "dependents": 40,
+        "dependencies": 10
+      },
+      {
+        "name": "initCommentNavigator",
+        "type": "__esmModule",
+        "codeSize": 7950,
+        "dependents": 9,
+        "dependencies": 18
+      },
+      {
+        "name": "initTaskMigrator",
+        "type": "__esmModule",
+        "codeSize": 7924,
+        "dependents": 1,
+        "dependencies": 3
+      },
+      {
+        "name": "initPromptTemplate",
+        "type": "__esmModule",
+        "codeSize": 7832,
+        "dependents": 1,
+        "dependencies": 3
+      },
+      {
+        "name": "initCodeBlockCache",
+        "type": "__esmModule",
+        "codeSize": 7762,
+        "dependents": 1,
+        "dependencies": 3
+      },
+      {
+        "name": "initPlanGenerationHandler",
+        "type": "__esmModule",
+        "codeSize": 7758,
+        "dependents": 1,
+        "dependencies": 7
+      },
+      {
+        "name": "initFileOperations",
+        "type": "__esmModule",
+        "codeSize": 7605,
+        "dependents": 4,
+        "dependencies": 3
+      },
+      {
+        "name": "initWebviewStatusHandler",
+        "type": "__esmModule",
+        "codeSize": 7300,
+        "dependents": 1,
+        "dependencies": 10
+      },
+      {
+        "name": "initTaskChainExports",
+        "type": "__esmModule",
+        "codeSize": 6959,
+        "dependents": 1,
+        "dependencies": 7
+      },
+      {
+        "name": "initTreeSitterParser",
+        "type": "__esmModule",
+        "codeSize": 6881,
+        "dependents": 6,
+        "dependencies": 8
+      },
+      {
+        "name": "initPlanConversationHandler",
+        "type": "__esmModule",
+        "codeSize": 6782,
+        "dependents": 1,
+        "dependencies": 4
+      },
+      {
+        "name": "lruMapModule",
+        "type": "__commonJS",
+        "codeSize": 6431,
+        "dependents": 4,
+        "dependencies": 0
+      },
+      {
+        "name": "sqliteDatabase",
+        "type": "__commonJS",
+        "codeSize": 5704,
+        "dependents": 1,
+        "dependencies": 4
+      },
+      {
+        "name": "initTaskChainManager",
+        "type": "__esmModule",
+        "codeSize": 5326,
+        "dependents": 3,
+        "dependencies": 9
+      },
+      {
+        "name": "initPlanEditor",
+        "type": "__esmModule",
+        "codeSize": 5134,
+        "dependents": 2,
+        "dependencies": 5
+      },
+      {
+        "name": "initVerificationHandler",
+        "type": "__esmModule",
+        "codeSize": 5116,
+        "dependents": 1,
+        "dependencies": 2
+      },
+      {
+        "name": "initFilePathHandler",
+        "type": "__esmModule",
+        "codeSize": 4981,
+        "dependents": 4,
+        "dependencies": 6
+      },
+      {
+        "name": "initYoloArtifactManager",
+        "type": "__esmModule",
+        "codeSize": 4753,
+        "dependents": 2,
+        "dependencies": 3
+      },
+      {
+        "name": "initJavaScriptParser",
+        "type": "__esmModule",
+        "codeSize": 4211,
+        "dependents": 2,
+        "dependencies": 4
+      },
+      {
+        "name": "initUsageTracker",
+        "type": "__esmModule",
+        "codeSize": 3979,
+        "dependents": 4,
+        "dependencies": 4
+      },
+      {
+        "name": "initTemplateManager",
+        "type": "__esmModule",
+        "codeSize": 3892,
+        "dependents": 7,
+        "dependencies": 2
+      },
+      {
+        "name": "initPromptTemplateFactory",
+        "type": "__esmModule",
+        "codeSize": 3829,
+        "dependents": 1,
+        "dependencies": 4
+      },
+      {
+        "name": "initPersistenceManager",
+        "type": "__esmModule",
+        "codeSize": 3770,
+        "dependents": 1,
+        "dependencies": 8
+      },
+      {
+        "name": "initMarkdownIt",
+        "type": "__esmModule",
+        "codeSize": 3756,
+        "dependents": 1,
+        "dependencies": 1
+      },
+      {
+        "name": "initSqliteService",
+        "type": "__esmModule",
+        "codeSize": 3668,
+        "dependents": 1,
+        "dependencies": 2
+      },
+      {
+        "name": "initVerificationOutput",
+        "type": "__esmModule",
+        "codeSize": 3650,
+        "dependents": 1,
+        "dependencies": 4
+      },
+      {
+        "name": "sqliteMigrate",
+        "type": "__commonJS",
+        "codeSize": 3609,
+        "dependents": 1,
+        "dependencies": 0
+      },
+      {
+        "name": "retryOperation",
+        "type": "__commonJS",
+        "codeSize": 3547,
+        "dependents": 1,
+        "dependencies": 0
+      },
+      {
+        "name": "initPlanConversation",
+        "type": "__esmModule",
+        "codeSize": 3493,
+        "dependents": 1,
+        "dependencies": 3
+      },
+      {
+        "name": "initPathModule",
+        "type": "__esmModule",
+        "codeSize": 3484,
+        "dependents": 30,
+        "dependencies": 4
+      },
+      {
+        "name": "initLogger",
+        "type": "__esmModule",
+        "codeSize": 3433,
+        "dependents": 66,
+        "dependencies": 1
+      },
+      {
+        "name": "initConfigWatcher",
+        "type": "__esmModule",
+        "codeSize": 3340,
+        "dependents": 1,
+        "dependencies": 4
+      },
+      {
+        "name": "initWorkerPoolManager",
+        "type": "__esmModule",
+        "codeSize": 3194,
+        "dependents": 1,
+        "dependencies": 1
+      },
+      {
+        "name": "initTokenValidator",
+        "type": "__esmModule",
+        "codeSize": 3157,
+        "dependents": 1,
+        "dependencies": 5
+      },
+      {
+        "name": "initTaskPlanExports",
+        "type": "__esmModule",
+        "codeSize": 3142,
+        "dependents": 1,
+        "dependencies": 4
+      },
+      {
+        "name": "workerpoolErrorHandler",
+        "type": "__commonJS",
+        "codeSize": 3125,
+        "dependents": 2,
+        "dependencies": 1
+      },
+      {
+        "name": "initUsageInfoHandler",
+        "type": "__esmModule",
+        "codeSize": 3053,
+        "dependents": 8,
+        "dependencies": 4
+      },
+      {
+        "name": "initVerificationTaskStepProcessor",
+        "type": "__esmModule",
+        "codeSize": 3017,
+        "dependents": 1,
+        "dependencies": 3
+      },
+      {
+        "name": "initPlanExecutionStep",
+        "type": "__esmModule",
+        "codeSize": 2982,
+        "dependents": 1,
+        "dependencies": 5
+      },
+      {
+        "name": "initTypeScriptParser",
+        "type": "__esmModule",
+        "codeSize": 2942,
+        "dependents": 3,
+        "dependencies": 4
+      },
+      {
+        "name": "initCloudUIAuthHandler",
+        "type": "__esmModule",
+        "codeSize": 2935,
+        "dependents": 1,
+        "dependencies": 2
+      },
+      {
+        "name": "initFileWatcher",
+        "type": "__esmModule",
+        "codeSize": 2920,
+        "dependents": 1,
+        "dependencies": 8
+      },
+      {
+        "name": "initAnalysisSuggestion",
+        "type": "__esmModule",
+        "codeSize": 2861,
+        "dependents": 3,
+        "dependencies": 1
+      },
+      {
+        "name": "initPlanGenerationStep",
+        "type": "__esmModule",
+        "codeSize": 2859,
+        "dependents": 1,
+        "dependencies": 5
+      },
+      {
+        "name": "initPlanOutputHandler",
+        "type": "__esmModule",
+        "codeSize": 2832,
+        "dependents": 1,
+        "dependencies": 3
+      },
+      {
+        "name": "initPromptMetadata",
+        "type": "__esmModule",
+        "codeSize": 2761,
+        "dependents": 1,
+        "dependencies": 4
+      },
+      {
+        "name": "initPythonParser",
+        "type": "__esmModule",
+        "codeSize": 2732,
+        "dependents": 2,
+        "dependencies": 4
+      },
+      {
+        "name": "initTemplateManagerDeps",
+        "type": "__esmModule",
+        "codeSize": 2730,
+        "dependents": 1,
+        "dependencies": 2
+      },
+      {
+        "name": "initRustParser",
+        "type": "__esmModule",
+        "codeSize": 2674,
+        "dependents": 2,
+        "dependencies": 4
+      },
+      {
+        "name": "initTemplateFile",
+        "type": "__esmModule",
+        "codeSize": 2665,
+        "dependents": 2,
+        "dependencies": 3
+      },
+      {
+        "name": "initTaskStepProcessor",
+        "type": "__esmModule",
+        "codeSize": 2607,
+        "dependents": 3,
+        "dependencies": 1
+      },
+      {
+        "name": "initReviewOutput",
+        "type": "__esmModule",
+        "codeSize": 2543,
+        "dependents": 1,
+        "dependencies": 3
+      },
+      {
+        "name": "initAnalysisFinding",
+        "type": "__esmModule",
+        "codeSize": 2531,
+        "dependents": 1,
+        "dependencies": 1
+      },
+      {
+        "name": "retryModule",
+        "type": "__commonJS",
+        "codeSize": 2526,
+        "dependents": 1,
+        "dependencies": 1
+      },
+      {
+        "name": "initDocumentManager",
+        "type": "__esmModule",
+        "codeSize": 2519,
+        "dependents": 8,
+        "dependencies": 3
+      },
+      {
+        "name": "initVerificationExecutionStep",
+        "type": "__esmModule",
+        "codeSize": 2488,
+        "dependents": 1,
+        "dependencies": 5
+      },
+      {
+        "name": "initVerificationStepHandler",
+        "type": "__esmModule",
+        "codeSize": 2480,
+        "dependents": 1,
+        "dependencies": 1
+      },
+      {
+        "name": "initDocsWatcher",
+        "type": "__esmModule",
+        "codeSize": 2349,
+        "dependents": 1,
+        "dependencies": 4
+      },
+      {
+        "name": "initTaskSettingsHandler",
+        "type": "__esmModule",
+        "codeSize": 2328,
+        "dependents": 3,
+        "dependencies": 3
+      },
+      {
+        "name": "initPosthogAnalytics",
+        "type": "__esmModule",
+        "codeSize": 2249,
+        "dependents": 1,
+        "dependencies": 3
+      },
+      {
+        "name": "initPromptTemplateHandler",
+        "type": "__esmModule",
+        "codeSize": 2212,
+        "dependents": 1,
+        "dependencies": 2
+      },
+      {
+        "name": "initTaskChainDeps",
+        "type": "__esmModule",
+        "codeSize": 2145,
+        "dependents": 1,
+        "dependencies": 3
+      },
+      {
+        "name": "initExportHandler",
+        "type": "__esmModule",
+        "codeSize": 2060,
+        "dependents": 1,
+        "dependencies": 1
+      },
+      {
+        "name": "initWorkspaceSettingsMigrator",
+        "type": "__esmModule",
+        "codeSize": 2048,
+        "dependents": 1,
+        "dependencies": 3
+      },
+      {
+        "name": "initIgnorePatterns",
+        "type": "__esmModule",
+        "codeSize": 1945,
+        "dependents": 3,
+        "dependencies": 1
+      },
+      {
+        "name": "initMediaFileSystem",
+        "type": "__esmModule",
+        "codeSize": 1904,
+        "dependents": 3,
+        "dependencies": 1
+      },
+      {
+        "name": "initSqliteMigrator",
+        "type": "__esmModule",
+        "codeSize": 1837,
+        "dependents": 1,
+        "dependencies": 2
+      },
+      {
+        "name": "initGrpcMessageTracker",
+        "type": "__esmModule",
+        "codeSize": 1811,
+        "dependents": 1,
+        "dependencies": 2
+      },
+      {
+        "name": "initTemplateFileBase",
+        "type": "__esmModule",
+        "codeSize": 1745,
+        "dependents": 5,
+        "dependencies": 1
+      },
+      {
+        "name": "initGoParser",
+        "type": "__esmModule",
+        "codeSize": 1734,
+        "dependents": 2,
+        "dependencies": 4
+      },
+      {
+        "name": "initCommentStatus",
+        "type": "__esmModule",
+        "codeSize": 1717,
+        "dependents": 1,
+        "dependencies": 1
+      },
+      {
+        "name": "initStorageMigrationHelper",
+        "type": "__esmModule",
+        "codeSize": 1716,
+        "dependents": 2,
+        "dependencies": 1
+      },
+      {
+        "name": "initPersistedTicketLoading",
+        "type": "__esmModule",
+        "codeSize": 1651,
+        "dependents": 2,
+        "dependencies": 6
+      },
+      {
+        "name": "initRequestQueue",
+        "type": "__esmModule",
+        "codeSize": 1648,
+        "dependents": 4,
+        "dependencies": 1
+      },
+      {
+        "name": "initLlmCacheHandler",
+        "type": "__esmModule",
+        "codeSize": 1601,
+        "dependents": 5,
+        "dependencies": 5
+      },
+      {
+        "name": "initUserQueryMessage",
+        "type": "__esmModule",
+        "codeSize": 1586,
+        "dependents": 2,
+        "dependencies": 2
+      },
+      {
+        "name": "initRipgrepExecutor",
+        "type": "__esmModule",
+        "codeSize": 1461,
+        "dependents": 2,
+        "dependencies": 1
+      },
+      {
+        "name": "initLatestRequestLimiter",
+        "type": "__esmModule",
+        "codeSize": 1453,
+        "dependents": 1,
+        "dependencies": 2
+      },
+      {
+        "name": "initGitOperations",
+        "type": "__esmModule",
+        "codeSize": 1449,
+        "dependents": 2,
+        "dependencies": 2
+      },
+      {
+        "name": "initPlanTemplate",
+        "type": "__esmModule",
+        "codeSize": 1438,
+        "dependents": 1,
+        "dependencies": 3
+      },
+      {
+        "name": "initImplementationPlanOutput",
+        "type": "__esmModule",
+        "codeSize": 1424,
+        "dependents": 2,
+        "dependencies": 1
+      },
+      {
+        "name": "initRipgrepCommandBuilder",
+        "type": "__esmModule",
+        "codeSize": 1370,
+        "dependents": 2,
+        "dependencies": 1
+      },
+      {
+        "name": "initPlanEditorDeps",
+        "type": "__esmModule",
+        "codeSize": 1357,
+        "dependents": 1,
+        "dependencies": 2
+      },
+      {
+        "name": "initStatusBar",
+        "type": "__esmModule",
+        "codeSize": 1340,
+        "dependents": 3,
+        "dependencies": 3
+      },
+      {
+        "name": "initSuggestionThread",
+        "type": "__esmModule",
+        "codeSize": 1333,
+        "dependents": 1,
+        "dependencies": 1
+      }
+    ],
+    "independentModules": [
+      "initTraycerConstants",
+      "diffMatchPatchModule",
+      "diff3Merge",
+      "prismaClientRuntime",
+      "retryOperation",
+      "nodeIgnore",
+      "ripgrepPath",
+      "initTicketType",
+      "formatErrorModule",
+      "sqliteMigrate",
+      "sqliteToSqlParams",
+      "nodeSqlite3",
+      "workerpoolExports",
+      "lruMapModule",
+      "posthogJsLite",
+      "initFileSystemWatcher",
+      "lodashModule",
+      "ajvModule",
+      "grayMatter",
+      "googleAuthLibrary",
+      "fuzzysortModule",
+      "treeSitterWasm",
+      "protoLoaderModule",
+      "grpcJsModule",
+      "semverModule"
+    ]
+  }
+}

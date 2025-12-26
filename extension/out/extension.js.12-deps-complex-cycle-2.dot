@@ -1,0 +1,39 @@
+digraph Cycle_16 {
+  rankdir=LR;
+  node [shape=box, style="rounded,filled", fillcolor=lightcoral];
+  edge [color=darkred, penwidth=2];
+
+  "initCommentNavigator" [label="initCommentNavigator\n7.8KB"];
+  "initTaskSettingsHandler" [label="initTaskSettingsHandler\n2.3KB"];
+  "initUsageInfoHandler" [label="initUsageInfoHandler\n3.0KB"];
+  "initTaskContext" [label="initTaskContext\n9.1KB"];
+  "initTaskRunner" [label="initTaskRunner\n21.3KB"];
+  "initTaskChainExports" [label="initTaskChainExports\n6.8KB"];
+  "initTaskChain" [label="initTaskChain\n29.8KB"];
+  "initTaskOrchestrator" [label="initTaskOrchestrator\n41.3KB"];
+  "initYoloArtifactManager" [label="initYoloArtifactManager\n4.5KB"];
+  "initLogger" [label="initLogger\n3.4KB"];
+  "initSentryInstance" [label="initSentryInstance\n0.1KB"];
+  "initSearchConfig" [label="initSearchConfig\n0.4KB"];
+  "initIDEAgentManager" [label="initIDEAgentManager\n0.3KB"];
+  "initTemplateManagerDeps" [label="initTemplateManagerDeps\n2.7KB"];
+  "initTemplateManager" [label="initTemplateManager\n3.8KB"];
+  "initPromptTemplateService" [label="initPromptTemplateService\n18.6KB"];
+
+  "initCommentNavigator" -> "initTaskSettingsHandler";
+  "initTaskSettingsHandler" -> "initUsageInfoHandler";
+  "initUsageInfoHandler" -> "initTaskContext";
+  "initTaskContext" -> "initTaskRunner";
+  "initTaskRunner" -> "initTaskChainExports";
+  "initTaskChainExports" -> "initTaskChain";
+  "initTaskChain" -> "initTaskOrchestrator";
+  "initTaskOrchestrator" -> "initYoloArtifactManager";
+  "initYoloArtifactManager" -> "initLogger";
+  "initLogger" -> "initSentryInstance";
+  "initSentryInstance" -> "initSearchConfig";
+  "initSearchConfig" -> "initIDEAgentManager";
+  "initIDEAgentManager" -> "initTemplateManagerDeps";
+  "initTemplateManagerDeps" -> "initTemplateManager";
+  "initTemplateManager" -> "initPromptTemplateService";
+  "initPromptTemplateService" -> "initCommentNavigator";
+}

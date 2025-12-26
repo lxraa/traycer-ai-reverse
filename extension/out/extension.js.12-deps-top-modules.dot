@@ -1,0 +1,46 @@
+digraph TopCyclicModules {
+  rankdir=TB;
+  node [shape=box, style="rounded,filled"];
+  edge [color=red];
+
+  "initIDEAgentManager" [label="initIDEAgentManager\n54个循环\n0.3KB", fillcolor=red];
+  "initSearchConfig" [label="initSearchConfig\n49个循环\n0.4KB", fillcolor=red];
+  "initCommentNavigator" [label="initCommentNavigator\n43个循环\n7.8KB", fillcolor=red];
+  "initTemplateManager" [label="initTemplateManager\n38个循环\n3.8KB", fillcolor=orange];
+  "initPromptTemplateService" [label="initPromptTemplateService\n38个循环\n18.6KB", fillcolor=orange];
+  "initLogger" [label="initLogger\n36个循环\n3.4KB", fillcolor=orange];
+  "initSentryInstance" [label="initSentryInstance\n36个循环\n0.1KB", fillcolor=orange];
+  "initTemplateManagerDeps" [label="initTemplateManagerDeps\n34个循环\n2.7KB", fillcolor=orange];
+  "initTaskContext" [label="initTaskContext\n34个循环\n9.1KB", fillcolor=orange];
+  "initUsageInfoHandler" [label="initUsageInfoHandler\n31个循环\n3.0KB", fillcolor=orange];
+  "initTaskSettingsHandler" [label="initTaskSettingsHandler\n29个循环\n2.3KB", fillcolor=yellow];
+  "initTaskRunner" [label="initTaskRunner\n27个循环\n21.3KB", fillcolor=yellow];
+  "initWorkspaceInfo" [label="initWorkspaceInfo\n26个循环\n8.2KB", fillcolor=yellow];
+  "initGitUtils" [label="initGitUtils\n12个循环\n0.2KB", fillcolor=lightblue];
+  "initTaskPlanExports" [label="initTaskPlanExports\n12个循环\n3.1KB", fillcolor=lightblue];
+
+  "initIDEAgentManager" -> "initWorkspaceInfo" [penwidth=5, label="19"];
+  "initLogger" -> "initSentryInstance" [penwidth=5, label="36"];
+  "initSentryInstance" -> "initSearchConfig" [penwidth=5, label="36"];
+  "initSearchConfig" -> "initIDEAgentManager" [penwidth=5, label="49"];
+  "initGitUtils" -> "initLogger" [penwidth=1.5, label="1"];
+  "initWorkspaceInfo" -> "initGitUtils" [penwidth=5, label="11"];
+  "initWorkspaceInfo" -> "initLogger" [penwidth=1.5, label="1"];
+  "initIDEAgentManager" -> "initTemplateManagerDeps" [penwidth=5, label="34"];
+  "initTemplateManagerDeps" -> "initTemplateManager" [penwidth=5, label="33"];
+  "initTemplateManager" -> "initPromptTemplateService" [penwidth=5, label="38"];
+  "initPromptTemplateService" -> "initLogger" [penwidth=1.5, label="1"];
+  "initPromptTemplateService" -> "initCommentNavigator" [penwidth=5, label="37"];
+  "initCommentNavigator" -> "initLogger" [penwidth=1.5, label="1"];
+  "initCommentNavigator" -> "initTaskSettingsHandler" [penwidth=5, label="28"];
+  "initTaskSettingsHandler" -> "initUsageInfoHandler" [penwidth=5, label="29"];
+  "initUsageInfoHandler" -> "initSearchConfig" [penwidth=1.5, label="1"];
+  "initUsageInfoHandler" -> "initTaskContext" [penwidth=5, label="30"];
+  "initTaskContext" -> "initIDEAgentManager" [penwidth=1.5, label="1"];
+  "initTaskContext" -> "initTaskRunner" [penwidth=5, label="27"];
+  "initTaskRunner" -> "initLogger" [penwidth=1.5, label="1"];
+  "initTaskRunner" -> "initTaskPlanExports" [penwidth=5, label="12"];
+  "initTaskContext" -> "initTemplateManager" [penwidth=1.5, label="1"];
+  "initTaskContext" -> "initUsageInfoHandler" [penwidth=1.5, label="1"];
+  "initTemplateManagerDeps" -> "initLogger" [penwidth=1.5, label="1"];
+}

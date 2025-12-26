@@ -1,0 +1,25 @@
+{
+  "extensionName": "traycer",
+  "authnApiUrl": "https://authn.traycer.ai",
+  "cloudUIUrl": "https://platform.traycer.ai",
+  "nodeEnv": "production",
+  "iapTargetAudience": "985975675177-9vq36tj5j8ojfki30c77rdq5gmdh25p9.apps.googleusercontent.com",
+  "serverUrl": "app.traycer.ai:443",
+  "posthogApiKey": "phc_7M4my70A5ECTUvzII9I6rByKxacKe1oRddkABkmchq4",
+  "posthogApiUri": "https://us.i.posthog.com",
+  "voyageApiKey": "pa-Epu_rlvQctohUjIfyt_WJfkl5W5zu5Q9IXeNwZ11Szg",
+  "CURRENT_REVIEW_THREADS_VERSION": 5,
+  "CURRENT_ANALYSIS_HISTORY_VERSION": 3,
+  "CURRENT_REPO_WORKSPACE_MAPPING_VERSION": 1,
+  "CURRENT_WORKSPACE_SETTINGS_VERSION": 7,
+  "CURRENT_TASK_VERSION": 40,
+  "CURRENT_IMPORT_TICKET_VERSION": 1,
+  "MAX_FILES_TO_PERSIST": 50,
+  "ANALYSIS_HISTORY_SIZE": 200,
+  "REPO_WORKSPACE_MAPPING_SIZE": 100,
+  "WORKSPACE_SETTINGS_SIZE": 100,
+  "TASK_HISTORY_SIZE": 100,
+  "IMPORT_TICKET_SIZE": 100,
+  "PERSISTENT_DATA_INVALIDATION_TIME_PERIOD": 604800000
+}
+

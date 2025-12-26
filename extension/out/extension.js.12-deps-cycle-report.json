@@ -1,0 +1,1567 @@
+{
+  "summary": {
+    "totalCycles": 89,
+    "cyclesByLength": {
+      "2": [
+        {
+          "key": "initSearchUtils -> initWorkspaceInfo",
+          "path": [
+            "initSearchUtils",
+            "initWorkspaceInfo",
+            "initSearchUtils"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initPathModule -> initWorkspaceInfo",
+          "path": [
+            "initPathModule",
+            "initWorkspaceInfo",
+            "initPathModule"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initLlmCacheHandler -> initPathModule",
+          "path": [
+            "initLlmCacheHandler",
+            "initPathModule",
+            "initLlmCacheHandler"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initPathModule -> initSymbolSearch",
+          "path": [
+            "initPathModule",
+            "initSymbolSearch",
+            "initPathModule"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initWorkspaceAssociation -> initWorkspaceInfo",
+          "path": [
+            "initWorkspaceAssociation",
+            "initWorkspaceInfo",
+            "initWorkspaceAssociation"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initGitUtils -> initRepoMappingManager",
+          "path": [
+            "initGitUtils",
+            "initRepoMappingManager",
+            "initGitUtils"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initTaskContext -> initUsageInfoHandler",
+          "path": [
+            "initTaskContext",
+            "initUsageInfoHandler",
+            "initTaskContext"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initCliAgentHandler -> initCommentNavigator",
+          "path": [
+            "initCliAgentHandler",
+            "initCommentNavigator",
+            "initCliAgentHandler"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initCommentNavigator -> initGitHubAuthHandler",
+          "path": [
+            "initCommentNavigator",
+            "initGitHubAuthHandler",
+            "initCommentNavigator"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initCommentNavigator -> initTrackMetricsHandler",
+          "path": [
+            "initCommentNavigator",
+            "initTrackMetricsHandler",
+            "initCommentNavigator"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initGoParser -> initLanguageParsers",
+          "path": [
+            "initGoParser",
+            "initLanguageParsers",
+            "initGoParser"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initJavaScriptParser -> initLanguageParsers",
+          "path": [
+            "initJavaScriptParser",
+            "initLanguageParsers",
+            "initJavaScriptParser"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initLanguageParsers -> initPythonParser",
+          "path": [
+            "initLanguageParsers",
+            "initPythonParser",
+            "initLanguageParsers"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initLanguageParsers -> initRustParser",
+          "path": [
+            "initLanguageParsers",
+            "initRustParser",
+            "initLanguageParsers"
+          ],
+          "length": 2
+        },
+        {
+          "key": "initPersistedTicketLoading -> initTaskChainManager",
+          "path": [
+            "initPersistedTicketLoading",
+            "initTaskChainManager",
+            "initPersistedTicketLoading"
+          ],
+          "length": 2
+        }
+      ],
+      "3": [
+        {
+          "key": "initLlmCacheHandler -> initWorkspaceInfo -> initPathModule",
+          "path": [
+            "initLlmCacheHandler",
+            "initWorkspaceInfo",
+            "initPathModule",
+            "initLlmCacheHandler"
+          ],
+          "length": 3
+        },
+        {
+          "key": "initGitUtils -> initRepoMappingManager -> initWorkspaceInfo",
+          "path": [
+            "initGitUtils",
+            "initRepoMappingManager",
+            "initWorkspaceInfo",
+            "initGitUtils"
+          ],
+          "length": 3
+        },
+        {
+          "key": "initCommentNavigator -> initFilePathHandler -> initCommentNavigatorDeps",
+          "path": [
+            "initCommentNavigator",
+            "initFilePathHandler",
+            "initCommentNavigatorDeps",
+            "initCommentNavigator"
+          ],
+          "length": 3
+        },
+        {
+          "key": "initCliAgentService -> initCommentNavigator -> initPromptTemplateHandler",
+          "path": [
+            "initCliAgentService",
+            "initCommentNavigator",
+            "initPromptTemplateHandler",
+            "initCliAgentService"
+          ],
+          "length": 3
+        },
+        {
+          "key": "initLanguageParsers -> initTypeScriptParserExports -> initTypeScriptParser",
+          "path": [
+            "initLanguageParsers",
+            "initTypeScriptParserExports",
+            "initTypeScriptParser",
+            "initLanguageParsers"
+          ],
+          "length": 3
+        }
+      ],
+      "4": [
+        {
+          "key": "initCoreModules -> initDiffExports -> initDiffMatchPatch -> initDiffUtils",
+          "path": [
+            "initCoreModules",
+            "initDiffExports",
+            "initDiffMatchPatch",
+            "initDiffUtils",
+            "initCoreModules"
+          ],
+          "length": 4
+        },
+        {
+          "key": "initIDEAgentManager -> initWorkspaceInfo -> initSearchUtils -> initSearchConfig",
+          "path": [
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initSearchUtils",
+            "initSearchConfig",
+            "initIDEAgentManager"
+          ],
+          "length": 4
+        },
+        {
+          "key": "initDocumentManager -> initWorkspaceInfo -> initPathModule -> initLlmCacheHandler",
+          "path": [
+            "initDocumentManager",
+            "initWorkspaceInfo",
+            "initPathModule",
+            "initLlmCacheHandler",
+            "initDocumentManager"
+          ],
+          "length": 4
+        },
+        {
+          "key": "initTaskChain -> initTaskContext -> initTaskRunner -> initTaskChainExports",
+          "path": [
+            "initTaskChain",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainExports",
+            "initTaskChain"
+          ],
+          "length": 4
+        },
+        {
+          "key": "initCloudUIAuthHandler -> initTemplateManager -> initPromptTemplateService -> initCommentNavigator",
+          "path": [
+            "initCloudUIAuthHandler",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator",
+            "initCloudUIAuthHandler"
+          ],
+          "length": 4
+        }
+      ],
+      "5": [
+        {
+          "key": "initIDEAgentManager -> initWorkspaceInfo -> initLogger -> initSentryInstance -> initSearchConfig",
+          "path": [
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager"
+          ],
+          "length": 5
+        },
+        {
+          "key": "initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initTaskPlanDeps",
+          "path": [
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initTaskPlanDeps",
+            "initTaskContext"
+          ],
+          "length": 5
+        },
+        {
+          "key": "initTaskChain -> initTaskOrchestrator -> initTaskContext -> initTaskRunner -> initTaskChainExports",
+          "path": [
+            "initTaskChain",
+            "initTaskOrchestrator",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainExports",
+            "initTaskChain"
+          ],
+          "length": 5
+        },
+        {
+          "key": "initIDEAgentManager -> initTemplateManagerDeps -> initLogger -> initSentryInstance -> initSearchConfig",
+          "path": [
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager"
+          ],
+          "length": 5
+        }
+      ],
+      "6": [
+        {
+          "key": "initIDEAgentManager -> initWorkspaceInfo -> initSearchUtils -> initLogger -> initSentryInstance -> initSearchConfig",
+          "path": [
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initSearchUtils",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager"
+          ],
+          "length": 6
+        },
+        {
+          "key": "initIDEAgentManager -> initWorkspaceInfo -> initRequestQueue -> initLogger -> initSentryInstance -> initSearchConfig",
+          "path": [
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initRequestQueue",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager"
+          ],
+          "length": 6
+        },
+        {
+          "key": "initGitUtils -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initWorkspaceInfo",
+          "path": [
+            "initGitUtils",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initGitUtils"
+          ],
+          "length": 6
+        },
+        {
+          "key": "initGitOperations -> initGitOperationsExports -> initSearchConfig -> initIDEAgentManager -> initWorkspaceInfo -> initGitUtils",
+          "path": [
+            "initGitOperations",
+            "initGitOperationsExports",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initGitUtils",
+            "initGitOperations"
+          ],
+          "length": 6
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initMcpHandler",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initMcpHandler",
+            "initCommentNavigator"
+          ],
+          "length": 6
+        },
+        {
+          "key": "initTaskChain -> initTaskOrchestrator -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskChainExports",
+          "path": [
+            "initTaskChain",
+            "initTaskOrchestrator",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainExports",
+            "initTaskChain"
+          ],
+          "length": 6
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 6
+        }
+      ],
+      "7": [
+        {
+          "key": "initIDEAgentManager -> initWorkspaceInfo -> initSearchUtils -> initLatestRequestLimiter -> initLogger -> initSentryInstance -> initSearchConfig",
+          "path": [
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initSearchUtils",
+            "initLatestRequestLimiter",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager"
+          ],
+          "length": 7
+        },
+        {
+          "key": "initIDEAgentManager -> initWorkspaceInfo -> initPathModule -> initLlmCacheHandler -> initLogger -> initSentryInstance -> initSearchConfig",
+          "path": [
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initPathModule",
+            "initLlmCacheHandler",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager"
+          ],
+          "length": 7
+        },
+        {
+          "key": "initIDEAgentManager -> initWorkspaceInfo -> initPathModule -> initSymbolSearch -> initLogger -> initSentryInstance -> initSearchConfig",
+          "path": [
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initPathModule",
+            "initSymbolSearch",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager"
+          ],
+          "length": 7
+        },
+        {
+          "key": "initGitOperations -> initGitOperationsExports -> initRepoMappingMigrator -> initSearchConfig -> initIDEAgentManager -> initWorkspaceInfo -> initGitUtils",
+          "path": [
+            "initGitOperations",
+            "initGitOperationsExports",
+            "initRepoMappingMigrator",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initGitUtils",
+            "initGitOperations"
+          ],
+          "length": 7
+        },
+        {
+          "key": "initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService -> initLogger -> initSentryInstance -> initSearchConfig",
+          "path": [
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager"
+          ],
+          "length": 7
+        },
+        {
+          "key": "initPlanEditor -> initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initTaskExecution -> initPlanEditorDeps",
+          "path": [
+            "initPlanEditor",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initTaskExecution",
+            "initPlanEditorDeps",
+            "initPlanEditor"
+          ],
+          "length": 7
+        },
+        {
+          "key": "initTaskChain -> initTaskOrchestrator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskChainExports",
+          "path": [
+            "initTaskChain",
+            "initTaskOrchestrator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainExports",
+            "initTaskChain"
+          ],
+          "length": 7
+        },
+        {
+          "key": "initCliAgentHandler -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService -> initCommentNavigator",
+          "path": [
+            "initCliAgentHandler",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator",
+            "initCliAgentHandler"
+          ],
+          "length": 7
+        },
+        {
+          "key": "initExtensionHelper -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initWindsurfHandler -> initExtensionTaskHandler",
+          "path": [
+            "initExtensionHelper",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWindsurfHandler",
+            "initExtensionTaskHandler",
+            "initExtensionHelper"
+          ],
+          "length": 7
+        }
+      ],
+      "8": [
+        {
+          "key": "initIDEAgentManager -> initWorkspaceInfo -> initSearchUtils -> initLatestRequestLimiter -> initRequestQueue -> initLogger -> initSentryInstance -> initSearchConfig",
+          "path": [
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initSearchUtils",
+            "initLatestRequestLimiter",
+            "initRequestQueue",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager"
+          ],
+          "length": 8
+        },
+        {
+          "key": "initDocumentManager -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initWorkspaceInfo -> initPathModule -> initLlmCacheHandler",
+          "path": [
+            "initDocumentManager",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initPathModule",
+            "initLlmCacheHandler",
+            "initDocumentManager"
+          ],
+          "length": 8
+        },
+        {
+          "key": "initFileOperations -> initProgressReporter -> initStatusBarExports -> initStatusBar -> initWorkspaceInfo -> initGitUtils -> initGitOperations -> initGitOperationsExports",
+          "path": [
+            "initFileOperations",
+            "initProgressReporter",
+            "initStatusBarExports",
+            "initStatusBar",
+            "initWorkspaceInfo",
+            "initGitUtils",
+            "initGitOperations",
+            "initGitOperationsExports",
+            "initFileOperations"
+          ],
+          "length": 8
+        },
+        {
+          "key": "initAnalytics -> initPosthogAnalytics -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService -> initCommentNavigator",
+          "path": [
+            "initAnalytics",
+            "initPosthogAnalytics",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator",
+            "initAnalytics"
+          ],
+          "length": 8
+        },
+        {
+          "key": "initCommentNavigator -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 8
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 8
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 8
+        }
+      ],
+      "9": [
+        {
+          "key": "initDocumentManager -> initRequestQueue -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initWorkspaceInfo -> initPathModule -> initLlmCacheHandler",
+          "path": [
+            "initDocumentManager",
+            "initRequestQueue",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initPathModule",
+            "initLlmCacheHandler",
+            "initDocumentManager"
+          ],
+          "length": 9
+        },
+        {
+          "key": "initFileOperations -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initWorkspaceInfo -> initGitUtils -> initGitOperations -> initGitOperationsExports",
+          "path": [
+            "initFileOperations",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initGitUtils",
+            "initGitOperations",
+            "initGitOperationsExports",
+            "initFileOperations"
+          ],
+          "length": 9
+        },
+        {
+          "key": "initGitOperations -> initGitOperationsExports -> initRepoMappingMigrator -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initWorkspaceInfo -> initGitUtils",
+          "path": [
+            "initGitOperations",
+            "initGitOperationsExports",
+            "initRepoMappingMigrator",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initGitUtils",
+            "initGitOperations"
+          ],
+          "length": 9
+        },
+        {
+          "key": "initCommentNavigator -> initFilePathHandler -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initFilePathHandler",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 9
+        },
+        {
+          "key": "initCommentNavigator -> initWebviewStatusHandler -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initWebviewStatusHandler",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 9
+        },
+        {
+          "key": "initCommentNavigator -> initSubscriptionHandler -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initSubscriptionHandler",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 9
+        }
+      ],
+      "10": [
+        {
+          "key": "initFileOperations -> initProgressReporter -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initWorkspaceInfo -> initGitUtils -> initGitOperations -> initGitOperationsExports",
+          "path": [
+            "initFileOperations",
+            "initProgressReporter",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initGitUtils",
+            "initGitOperations",
+            "initGitOperationsExports",
+            "initFileOperations"
+          ],
+          "length": 10
+        },
+        {
+          "key": "initAnalytics -> initPosthogAnalytics -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService -> initCommentNavigator",
+          "path": [
+            "initAnalytics",
+            "initPosthogAnalytics",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator",
+            "initAnalytics"
+          ],
+          "length": 10
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initWorkspaceSettingsPersistence -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initWorkspaceSettingsPersistence",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 10
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initTaskPlanDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initTaskPlanDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 10
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskChainExports -> initTaskChain -> initTaskOrchestrator -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainExports",
+            "initTaskChain",
+            "initTaskOrchestrator",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 10
+        },
+        {
+          "key": "initCliAgentService -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService -> initCommentNavigator -> initPromptTemplateHandler",
+          "path": [
+            "initCliAgentService",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator",
+            "initPromptTemplateHandler",
+            "initCliAgentService"
+          ],
+          "length": 10
+        },
+        {
+          "key": "initCommentNavigator -> initSubscriptionHandler -> initUsageTracker -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initSubscriptionHandler",
+            "initUsageTracker",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 10
+        }
+      ],
+      "11": [
+        {
+          "key": "initFileOperations -> initProgressReporter -> initStatusBarExports -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initWorkspaceInfo -> initGitUtils -> initGitOperations -> initGitOperationsExports",
+          "path": [
+            "initFileOperations",
+            "initProgressReporter",
+            "initStatusBarExports",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initGitUtils",
+            "initGitOperations",
+            "initGitOperationsExports",
+            "initFileOperations"
+          ],
+          "length": 11
+        },
+        {
+          "key": "initFileOperations -> initProgressReporter -> initFsHelpers -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initWorkspaceInfo -> initGitUtils -> initGitOperations -> initGitOperationsExports",
+          "path": [
+            "initFileOperations",
+            "initProgressReporter",
+            "initFsHelpers",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initGitUtils",
+            "initGitOperations",
+            "initGitOperationsExports",
+            "initFileOperations"
+          ],
+          "length": 11
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initWorkspaceSettingsPersistence -> initWorkspaceSettingsMigrator -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initWorkspaceSettingsPersistence",
+            "initWorkspaceSettingsMigrator",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 11
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskChainPersistence -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainPersistence",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 11
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskChainExports -> initTaskChain -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainExports",
+            "initTaskChain",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 11
+        }
+      ],
+      "12": [
+        {
+          "key": "initFileOperations -> initProgressReporter -> initStatusBarExports -> initStatusBar -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initWorkspaceInfo -> initGitUtils -> initGitOperations -> initGitOperationsExports",
+          "path": [
+            "initFileOperations",
+            "initProgressReporter",
+            "initStatusBarExports",
+            "initStatusBar",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initWorkspaceInfo",
+            "initGitUtils",
+            "initGitOperations",
+            "initGitOperationsExports",
+            "initFileOperations"
+          ],
+          "length": 12
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initWorkspaceSettingsPersistence -> initWorkspaceSettingsMigrator -> initIdeAgentMigrator -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initWorkspaceSettingsPersistence",
+            "initWorkspaceSettingsMigrator",
+            "initIdeAgentMigrator",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 12
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskChainPersistence -> initTaskMigrator -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainPersistence",
+            "initTaskMigrator",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 12
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 12
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initTaskExecution -> initPlanEditorDeps -> initPlanEditor -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initTaskExecution",
+            "initPlanEditorDeps",
+            "initPlanEditor",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 12
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initTaskPlanDeps -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initTaskPlanDeps",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 12
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskChainExports -> initTaskChain -> initTaskOrchestrator -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainExports",
+            "initTaskChain",
+            "initTaskOrchestrator",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 12
+        }
+      ],
+      "13": [
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initWorkspaceSettingsPersistence -> initWorkspaceSettingsMigrator -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initWorkspaceSettingsPersistence",
+            "initWorkspaceSettingsMigrator",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 13
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initPlanContextModule -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initPlanContextModule",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 13
+        }
+      ],
+      "14": [
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskChainPersistence -> initTaskMigrator -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainPersistence",
+            "initTaskMigrator",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 14
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 14
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initPlanContextModule -> initQueryProcessor -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initPlanContextModule",
+            "initQueryProcessor",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 14
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initTaskExecution -> initPlanEditorDeps -> initPlanEditor -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initTaskExecution",
+            "initPlanEditorDeps",
+            "initPlanEditor",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 14
+        }
+      ],
+      "15": [
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initPlanContextModule -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initPlanContextModule",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 15
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initTaskExecution -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initTaskExecution",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 15
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskChainExports -> initTaskChain -> initPlanGenerationHandler -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainExports",
+            "initTaskChain",
+            "initPlanGenerationHandler",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 15
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskChainExports -> initTaskChain -> initVerificationHandler -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainExports",
+            "initTaskChain",
+            "initVerificationHandler",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 15
+        }
+      ],
+      "16": [
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskPlanExports -> initTaskPlan -> initPlanContextModule -> initQueryProcessor -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskPlanExports",
+            "initTaskPlan",
+            "initPlanContextModule",
+            "initQueryProcessor",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 16
+        },
+        {
+          "key": "initCommentNavigator -> initTaskSettingsHandler -> initUsageInfoHandler -> initTaskContext -> initTaskRunner -> initTaskChainExports -> initTaskChain -> initTaskOrchestrator -> initYoloArtifactManager -> initLogger -> initSentryInstance -> initSearchConfig -> initIDEAgentManager -> initTemplateManagerDeps -> initTemplateManager -> initPromptTemplateService",
+          "path": [
+            "initCommentNavigator",
+            "initTaskSettingsHandler",
+            "initUsageInfoHandler",
+            "initTaskContext",
+            "initTaskRunner",
+            "initTaskChainExports",
+            "initTaskChain",
+            "initTaskOrchestrator",
+            "initYoloArtifactManager",
+            "initLogger",
+            "initSentryInstance",
+            "initSearchConfig",
+            "initIDEAgentManager",
+            "initTemplateManagerDeps",
+            "initTemplateManager",
+            "initPromptTemplateService",
+            "initCommentNavigator"
+          ],
+          "length": 16
+        }
+      ]
+    }
+  },
+  "topCyclicModules": [
+    {
+      "name": "initIDEAgentManager",
+      "count": 54,
+      "type": "__esmModule",
+      "codeSize": 306,
+      "totalDeps": 11,
+      "totalDependents": 6
+    },
+    {
+      "name": "initSearchConfig",
+      "count": 49,
+      "type": "__esmModule",
+      "codeSize": 446,
+      "totalDeps": 5,
+      "totalDependents": 24
+    },
+    {
+      "name": "initCommentNavigator",
+      "count": 43,
+      "type": "__esmModule",
+      "codeSize": 8003,
+      "totalDeps": 17,
+      "totalDependents": 9
+    },
+    {
+      "name": "initTemplateManager",
+      "count": 38,
+      "type": "__esmModule",
+      "codeSize": 3892,
+      "totalDeps": 2,
+      "totalDependents": 7
+    },
+    {
+      "name": "initPromptTemplateService",
+      "count": 38,
+      "type": "__esmModule",
+      "codeSize": 19011,
+      "totalDeps": 14,
+      "totalDependents": 2
+    },
+    {
+      "name": "initLogger",
+      "count": 36,
+      "type": "__esmModule",
+      "codeSize": 3433,
+      "totalDeps": 1,
+      "totalDependents": 66
+    },
+    {
+      "name": "initSentryInstance",
+      "count": 36,
+      "type": "__esmModule",
+      "codeSize": 108,
+      "totalDeps": 1,
+      "totalDependents": 2
+    },
+    {
+      "name": "initTemplateManagerDeps",
+      "count": 34,
+      "type": "__esmModule",
+      "codeSize": 2811,
+      "totalDeps": 2,
+      "totalDependents": 1
+    },
+    {
+      "name": "initTaskContext",
+      "count": 34,
+      "type": "__esmModule",
+      "codeSize": 9338,
+      "totalDeps": 8,
+      "totalDependents": 13
+    },
+    {
+      "name": "initUsageInfoHandler",
+      "count": 31,
+      "type": "__esmModule",
+      "codeSize": 3038,
+      "totalDeps": 4,
+      "totalDependents": 8
+    },
+    {
+      "name": "initTaskSettingsHandler",
+      "count": 29,
+      "type": "__esmModule",
+      "codeSize": 2328,
+      "totalDeps": 3,
+      "totalDependents": 3
+    },
+    {
+      "name": "initTaskRunner",
+      "count": 27,
+      "type": "__esmModule",
+      "codeSize": 21816,
+      "totalDeps": 7,
+      "totalDependents": 6
+    },
+    {
+      "name": "initWorkspaceInfo",
+      "count": 26,
+      "type": "__esmModule",
+      "codeSize": 8412,
+      "totalDeps": 9,
+      "totalDependents": 40
+    },
+    {
+      "name": "initGitUtils",
+      "count": 12,
+      "type": "__esmModule",
+      "codeSize": 225,
+      "totalDeps": 6,
+      "totalDependents": 7
+    },
+    {
+      "name": "initTaskPlanExports",
+      "count": 12,
+      "type": "__esmModule",
+      "codeSize": 3142,
+      "totalDeps": 4,
+      "totalDependents": 1
+    },
+    {
+      "name": "initTaskPlan",
+      "count": 12,
+      "type": "__esmModule",
+      "codeSize": 28226,
+      "totalDeps": 10,
+      "totalDependents": 2
+    },
+    {
+      "name": "initTaskChainExports",
+      "count": 10,
+      "type": "__esmModule",
+      "codeSize": 6939,
+      "totalDeps": 6,
+      "totalDependents": 1
+    },
+    {
+      "name": "initTaskChain",
+      "count": 10,
+      "type": "__esmModule",
+      "codeSize": 30534,
+      "totalDeps": 12,
+      "totalDependents": 1
+    },
+    {
+      "name": "initPathModule",
+      "count": 9,
+      "type": "__esmModule",
+      "codeSize": 3397,
+      "totalDeps": 4,
+      "totalDependents": 30
+    },
+    {
+      "name": "initGitOperations",
+      "count": 9,
+      "type": "__esmModule",
+      "codeSize": 1449,
+      "totalDeps": 2,
+      "totalDependents": 2
+    }
+  ],
+  "shortestCycles": [
+    {
+      "module1": "initSearchUtils",
+      "module2": "initWorkspaceInfo"
+    },
+    {
+      "module1": "initPathModule",
+      "module2": "initWorkspaceInfo"
+    },
+    {
+      "module1": "initLlmCacheHandler",
+      "module2": "initPathModule"
+    },
+    {
+      "module1": "initPathModule",
+      "module2": "initSymbolSearch"
+    },
+    {
+      "module1": "initWorkspaceAssociation",
+      "module2": "initWorkspaceInfo"
+    },
+    {
+      "module1": "initGitUtils",
+      "module2": "initRepoMappingManager"
+    },
+    {
+      "module1": "initTaskContext",
+      "module2": "initUsageInfoHandler"
+    },
+    {
+      "module1": "initCliAgentHandler",
+      "module2": "initCommentNavigator"
+    },
+    {
+      "module1": "initCommentNavigator",
+      "module2": "initGitHubAuthHandler"
+    },
+    {
+      "module1": "initCommentNavigator",
+      "module2": "initTrackMetricsHandler"
+    },
+    {
+      "module1": "initGoParser",
+      "module2": "initLanguageParsers"
+    },
+    {
+      "module1": "initJavaScriptParser",
+      "module2": "initLanguageParsers"
+    },
+    {
+      "module1": "initLanguageParsers",
+      "module2": "initPythonParser"
+    },
+    {
+      "module1": "initLanguageParsers",
+      "module2": "initRustParser"
+    },
+    {
+      "module1": "initPersistedTicketLoading",
+      "module2": "initTaskChainManager"
+    }
+  ]
+}

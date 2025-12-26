@@ -1,0 +1,224 @@
+{
+  "summary": {
+    "totalCycles": 89,
+    "shortCycles": 15,
+    "analyzedModules": 201
+  },
+  "cycleEdges": [
+    {
+      "module1": "initSearchUtils",
+      "module2": "initWorkspaceInfo",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initPathModule",
+      "module2": "initWorkspaceInfo",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initLlmCacheHandler",
+      "module2": "initPathModule",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initPathModule",
+      "module2": "initSymbolSearch",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initWorkspaceAssociation",
+      "module2": "initWorkspaceInfo",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initGitUtils",
+      "module2": "initRepoMappingManager",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initTaskContext",
+      "module2": "initUsageInfoHandler",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initCliAgentHandler",
+      "module2": "initCommentNavigator",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initCommentNavigator",
+      "module2": "initGitHubAuthHandler",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initCommentNavigator",
+      "module2": "initTrackMetricsHandler",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initGoParser",
+      "module2": "initLanguageParsers",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initJavaScriptParser",
+      "module2": "initLanguageParsers",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initLanguageParsers",
+      "module2": "initPythonParser",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initLanguageParsers",
+      "module2": "initRustParser",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      }
+    },
+    {
+      "module1": "initPersistedTicketLoading",
+      "module2": "initTaskChainManager",
+      "module1Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": []
+      },
+      "module2Exports": {
+        "functions": [],
+        "classes": [],
+        "reExports": [
+          {
+            "name": "ticketSource",
+            "ref": "_0x8f5394"
+          }
+        ]
+      }
+    }
+  ]
+}
