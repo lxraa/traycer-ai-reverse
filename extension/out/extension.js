@@ -2636,10 +2636,8 @@ async function ensureDirectoryExists(_0x3dd03b) {
 async function getAppAssetsDatabasePath() {
   return path_module.join(await ensureAppAssetsFolder(), 'app-assets.db');
 }
-var initFsHelpers = __esmModule(() => {
-    'use strict';
-  }),
-  BaseStorage = class {
+
+class BaseStorage{
     constructor(_0x33e794, _0x242c47) {
       this.id = _0x242c47, this.baseStorage = _0x33e794;
     }
@@ -2655,13 +2653,13 @@ var initFsHelpers = __esmModule(() => {
     async ["delete"](_0x2fc842) {
       return this.baseStorage.delete(this.id, _0x2fc842);
     }
-  },
-  ThreadStorage = class extends BaseStorage {},
-  ConversationStorage = class extends BaseStorage {},
-  TaskStorage = class extends BaseStorage {},
-  PlanStorage = class extends BaseStorage {},
-  AttachmentStorage = class extends BaseStorage {},
-  EmptyStorage = class {};
+  }
+  class ThreadStorage extends BaseStorage {}
+  class ConversationStorage extends BaseStorage {}
+  class TaskStorage extends BaseStorage {}
+  class PlanStorage extends BaseStorage {}
+  class AttachmentStorage extends BaseStorage {}
+  class EmptyStorage {}
 function isSqliteBusyError(_0xbf95bf) {
   return String(_0xbf95bf).includes('SQLITE_BUSY') ? true : _0xbf95bf instanceof Error ? getContextFilePath(_0xbf95bf) : false;
 }
@@ -2670,7 +2668,7 @@ var ox,
   initProgressReporter = __esmModule(() => {
     'use strict';
 
-    initStatusBarExports(), initFsHelpers(), ox = class _0x22559d {
+    initStatusBarExports(), ox = class _0x22559d {
       constructor(_0x55ecde) {
         this.reopenConnectionLock = new Mutex(), this._txDb = null, this._db = _0x55ecde, this.writeLock = new Mutex();
       }
@@ -8460,7 +8458,7 @@ var xKe = Object.freeze(new Set()),
   initYoloArtifactManager = __esmModule(() => {
     'use strict';
 
-    initFsHelpers(), initFileSystemWatcher(), YoloArtifactManager = class _0x46c1fc {
+    initFileSystemWatcher(), YoloArtifactManager = class _0x46c1fc {
       constructor() {
         this.activeWatchers = new Map(), this.artifactDirectory = path_module.join(os_module.homedir(), ".traycer", "yolo_artifacts");
       }
@@ -15520,7 +15518,7 @@ async function fetchGoogleIapToken() {
 var initGoogleAuth = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initFsHelpers();
+    initSearchConfig();
   }),
   ult = 'Server disconnected',
   bT = class extends Error {
@@ -17017,7 +17015,7 @@ var initRipgrepSearchModule = __esmModule(() => {
   initGrpcClient = __esmModule(() => {
     'use strict';
 
-    initGoogleAuth(), initGrpcMessageTracker(), initSearchConfig(), initStatusBarExports(), initFsHelpers(), initLlmCacheHandler(), initSymbolSearchModule(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initRipgrepSearchModule(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = un.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
+    initGoogleAuth(), initGrpcMessageTracker(), initSearchConfig(), initStatusBarExports(), initLlmCacheHandler(), initSymbolSearchModule(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initRipgrepSearchModule(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = un.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
       constructor(_0x30dd48, _0x34bdfa) {
         super(_0x30dd48, Logger), this.grpcConnection = null, this.id = null, this.client = _0x34bdfa;
       }
