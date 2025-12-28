@@ -125,6 +125,24 @@ const {
   FilePath,
   TraycerPath
 } = require("./modules/path_types.js");
+const {
+  ExtensionHelper,
+  ExtensionTaskHandler,
+  ClipboardPromptHandler,
+  ClineHandler,
+  KiloCodeHandler,
+  RooCodeHandler,
+  AmpHandler,
+  AugmentHandler,
+  ClaudeCodeHandler,
+  ChatGPTHandler,
+  ZenCoderHandler,
+  CopilotPromptHandler,
+  CursorPromptHandler,
+  AugmentPromptHandler,
+  WindsurfPromptHandler,
+  AntigravityPromptHandler
+} = require("./modules/prompt_handlers.js");
 
 // [unbundle] 声明辅助函数，稍后在主文件中定义后，需要注入到 WorkspaceMigrator
 // extractWorkspacePathsFromPhases 依赖主文件中的 extractFilesFromPhaseBreakdowns、CustomSet、TraycerPath 等
@@ -1935,7 +1953,7 @@ async function readFilesWithSummary(_0x14bfc8, _0x5b961d) {
     failedPaths: _0x48d500
   };
 }
-/* [unbundle] TraycerPath �?initPathModule 已移�?modules/path_types.js */
+/* [unbundle] TraycerPath 和 initPathModule 已移至 modules/path_types.js */
 function isConnected() {
   return process.platform.includes("win32") ? xr.WINDOWS : xr.POSIX;
 }
@@ -13348,242 +13366,7 @@ var oH,
         await vscode_module.workspace.fs.writeFile(vscode_module.Uri.file(_0x3ec67f), Buffer.from(_0x103353, "utf8"));
       }
     };
-  }),
-  ExtensionHelper,
-  initExtensionHelper = __esmModule(() => {
-    'use strict';
-
-    ExtensionHelper = class _0x1b08c2 {
-      static async ["getExtension"](_0x32bbbf, _0x3086a8, _0x38b259) {
-        let _0x1cc010 = vscode_module.extensions.getExtension(_0x32bbbf);
-        if (!_0x1cc010) throw Logger.warn("Extension not found", _0x32bbbf), (await vscode_module.window.showInformationMessage("You have selected to use " + _0x3086a8 + " for execution, but the " + (_0x38b259 ?? _0x3086a8) + ' extension is not installed. Would you like to install it from the marketplace?', "View in Marketplace", 'Cancel')) === "View in Marketplace" && (Logger.info('Opening marketplace for extension', _0x32bbbf), await vscode_module.commands.executeCommand("workbench.extensions.search", _0x32bbbf)), new Error(_0x3086a8 + ' extension not found');
-        return _0x1cc010;
-      }
-      static async ["activateExtension"](_0x11bb96, _0x7fdf14, _0x35625d) {
-        let _0x4e762c = await _0x1b08c2.getExtension(_0x11bb96, _0x7fdf14, _0x35625d);
-        return await _0x4e762c.activate(), _0x4e762c;
-      }
-    };
-  }),
-  ExtensionTaskHandler,
-  initExtensionTaskHandler = __esmModule(() => {
-    'use strict';
-
-    initExtensionHelper(), ExtensionTaskHandler = class extends BasePromptTemplate {
-      constructor(_0xfc2970, _0x106908) {
-        super(_0xfc2970), this.config = _0x106908;
-      }
-      async ['handle']() {
-        let _0x28df03 = await ExtensionHelper.getExtension(this.config.extensionId, this.config.displayName, this.config.extensionName);
-        await this.startTask(_0x28df03.exports), this.config.sidebarCommand && (await vscode_module.commands.executeCommand(this.config.sidebarCommand));
-      }
-    };
-  }),
-  xN,
-  initWindsurfHandler = __esmModule(() => {
-    'use strict';
-
-    initExtensionTaskHandler(), xN = class extends ExtensionTaskHandler {
-      constructor(_0x631674) {
-        super(_0x631674, {
-          extensionId: 'saoudrizwan.claude-dev',
-          displayName: 'Cline',
-          sidebarCommand: 'claude-dev.SidebarProvider.focus'
-        });
-      }
-      async ['startTask'](_0x328db1) {
-        await _0x328db1.startNewTask(this.prompt);
-      }
-    };
-  }),
-  MN,
-  initCursorHandler = __esmModule(() => {
-    'use strict';
-
-    initExtensionTaskHandler(), MN = class extends ExtensionTaskHandler {
-      constructor(_0x497b60) {
-        super(_0x497b60, {
-          extensionId: "kilocode.Kilo-Code",
-          displayName: "Kilo Code",
-          extensionName: 'Kilo Code',
-          sidebarCommand: "kilo-code.SidebarProvider.focus"
-        });
-      }
-      async ['startTask'](_0x411c91) {
-        await _0x411c91.startNewTask({
-          configuration: {},
-          text: this.prompt
-        });
-      }
-    };
-  }),
-  DN,
-  initZedHandler = __esmModule(() => {
-    'use strict';
-
-    initExtensionTaskHandler(), DN = class extends ExtensionTaskHandler {
-      constructor(_0x94a6f0) {
-        super(_0x94a6f0, {
-          extensionId: "RooVeterinaryInc.roo-cline",
-          displayName: 'Roo Code',
-          extensionName: "Roo Code",
-          sidebarCommand: "roo-cline.SidebarProvider.focus"
-        });
-      }
-      async ["startTask"](_0x161c28) {
-        await _0x161c28.startNewTask({
-          configuration: {},
-          text: this.prompt
-        });
-      }
-    };
-  }),
-  ClipboardPromptHandler = class extends BasePromptTemplate {
-    constructor() {
-      super(...arguments), this.customDelay = 100;
-    }
-    async ["handle"]() {
-      let _0x347f85 = await vscode_module.env.clipboard.readText();
-      for (let key of this.getPreCommandsToRun()) await vscode_module.commands.executeCommand(key), await new Promise(_0x28b0d7 => setTimeout(_0x28b0d7, this.customDelay));
-      await vscode_module.env.clipboard.writeText(this.prompt), await vscode_module.commands.executeCommand("editor.action.clipboardPasteAction"), await new Promise(_0x1245aa => setTimeout(_0x1245aa, 200)), await vscode_module.env.clipboard.writeText(_0x347f85);
-    }
-  },
-  NN,
-  initClineHandler = __esmModule(() => {
-    'use strict';
-
-    initExtensionHelper(), NN = class extends ClipboardPromptHandler {
-      constructor() {
-        super(...arguments), this.customDelay = 400, this.config = {
-          extensionId: 'sourcegraph.amp',
-          displayName: 'Amp',
-          extensionName: 'Amp'
-        };
-      }
-      ["getPreCommandsToRun"]() {
-        return ["amp.agent.newThread"];
-      }
-      async ['handle']() {
-        return await ExtensionHelper.getExtension(this.config.extensionId, this.config.displayName, this.config.extensionName), super.handle();
-      }
-    };
-  }),
-  LN,
-  initAiderHandler = __esmModule(() => {
-    'use strict';
-
-    initExtensionHelper(), LN = class extends ClipboardPromptHandler {
-      constructor() {
-        super(...arguments), this.config = {
-          extensionId: "augment.vscode-augment",
-          displayName: "Augment",
-          extensionName: "Augment"
-        };
-      }
-      ['getPreCommandsToRun']() {
-        return ["vscode-augment.startNewChat"];
-      }
-      async ['handle']() {
-        return await ExtensionHelper.activateExtension(this.config.extensionId, this.config.displayName, this.config.extensionName), super.handle();
-      }
-    };
-  }),
-  FN,
-  initCopilotHandler = __esmModule(() => {
-    'use strict';
-
-    initExtensionHelper(), FN = class extends ClipboardPromptHandler {
-      constructor() {
-        super(...arguments), this.customDelay = 2000, this.config = {
-          extensionId: 'anthropic.claude-code',
-          displayName: 'Claude Code Extension',
-          extensionName: "Claude Code"
-        };
-      }
-      ["getPreCommandsToRun"]() {
-        return ["claude-vscode.editor.open"];
-      }
-      async ['handle']() {
-        return await ExtensionHelper.getExtension(this.config.extensionId, this.config.displayName, this.config.extensionName), super.handle();
-      }
-    };
-  }),
-  UN,
-  initContinueHandler = __esmModule(() => {
-    'use strict';
-
-    initExtensionHelper(), UN = class extends ClipboardPromptHandler {
-      constructor() {
-        super(...arguments), this.customDelay = 2000, this.config = {
-          extensionId: "openai.chatgpt",
-          displayName: 'Codex Extension',
-          extensionName: "Codex"
-        };
-      }
-      ["getPreCommandsToRun"]() {
-        return ['chatgpt.newCodexPanel'];
-      }
-      async ['handle']() {
-        return await ExtensionHelper.getExtension(this.config.extensionId, this.config.displayName, this.config.extensionName), super.handle();
-      }
-    };
-  }),
-  CopilotPromptHandler = class extends ClipboardPromptHandler {
-    ['getPreCommandsToRun']() {
-      return [];
-    }
-    async ["handle"]() {
-      await vscode_module.commands.executeCommand("workbench.action.chat.open", {
-        mode: 'agent',
-        query: this.prompt,
-        isPartialQuery: false
-      });
-    }
-  },
-  CursorPromptHandler = class extends ClipboardPromptHandler {
-    ["getPreCommandsToRun"]() {
-      return ["composer.createNewComposerTab", "composerMode.agent", "aichat.newfollowupaction"];
-    }
-  },
-  AugmentPromptHandler = class extends ClipboardPromptHandler {
-    ["getPreCommandsToRun"]() {
-      return ['workbench.action.chat.icube.open', "workbench.action.icube.aiChatSidebar.createNewSession", "workbench.panel.chat.view.ai-chat.focus"];
-    }
-  },
-  WindsurfPromptHandler = class extends ClipboardPromptHandler {
-    ["getPreCommandsToRun"]() {
-      return ['windsurf.prioritized.chat.openNewConversation'];
-    }
-    async ['handle']() {
-      for (let key of this.getPreCommandsToRun()) await vscode_module.commands.executeCommand(key), await new Promise(_0x51eca3 => setTimeout(_0x51eca3, 200));
-      await vscode_module.env.clipboard.writeText(this.prompt), vscode_module.window.showInformationMessage("Prompt copied to clipboard. Paste it into Cascade to start the execution.");
-    }
-  },
-  $N,
-  initRooHandler = __esmModule(() => {
-    'use strict';
-
-    initExtensionHelper(), $N = class extends ClipboardPromptHandler {
-      constructor() {
-        super(...arguments), this.customDelay = 400, this.config = {
-          extensionId: "zencoderai.zencoder",
-          displayName: "ZenCoder",
-          extensionName: 'ZenCoder'
-        };
-      }
-      ["getPreCommandsToRun"]() {
-        return ["zencoder.insert-into-chat"];
-      }
-      async ["handle"]() {
-        return await ExtensionHelper.getExtension(this.config.extensionId, this.config.displayName, this.config.extensionName), super.handle();
-      }
-    };
-  }),
-  AntigravityPromptHandler = class extends ClipboardPromptHandler {
-    ['getPreCommandsToRun']() {
-      return ['antigravity.prioritized.chat.open', 'antigravity.prioritized.chat.openNewConversation'];
-    }
-  };
+  });
 async function debounce(_0xad5586, _0x184124, _0x2514c4, _0x227745) {
   if (!AgentRegistry.getInstance().getAgent(_0x2514c4.id)) throw new Error("Agent or handler not found: " + _0x2514c4);
   let _0xacd5a9;
@@ -13603,19 +13386,19 @@ async function debounce(_0xad5586, _0x184124, _0x2514c4, _0x227745) {
       _0xacd5a9 = new AugmentPromptHandler(_0xad5586);
       break;
     case 'claude-code-extension':
-      _0xacd5a9 = new FN(_0xad5586);
+      _0xacd5a9 = new ClaudeCodeHandler(_0xad5586);
       break;
     case "codex-extension":
-      _0xacd5a9 = new UN(_0xad5586);
+      _0xacd5a9 = new ChatGPTHandler(_0xad5586);
       break;
     case "kilo-code":
-      _0xacd5a9 = new MN(_0xad5586);
+      _0xacd5a9 = new KiloCodeHandler(_0xad5586);
       break;
     case "roo-code":
-      _0xacd5a9 = new DN(_0xad5586);
+      _0xacd5a9 = new RooCodeHandler(_0xad5586);
       break;
     case "cline":
-      _0xacd5a9 = new xN(_0xad5586);
+      _0xacd5a9 = new ClineHandler(_0xad5586);
       break;
     case "copy":
       _0xacd5a9 = new CopyToClipboardHandler(_0xad5586);
@@ -13624,13 +13407,13 @@ async function debounce(_0xad5586, _0x184124, _0x2514c4, _0x227745) {
       _0xacd5a9 = new kN(_0xad5586, _0x184124);
       break;
     case 'augment':
-      _0xacd5a9 = new LN(_0xad5586);
+      _0xacd5a9 = new AugmentHandler(_0xad5586);
       break;
     case "zencoder":
-      _0xacd5a9 = new $N(_0xad5586);
+      _0xacd5a9 = new ZenCoderHandler(_0xad5586);
       break;
     case "amp":
-      _0xacd5a9 = new NN(_0xad5586);
+      _0xacd5a9 = new AmpHandler(_0xad5586);
       break;
     case "antigravity":
       _0xacd5a9 = new AntigravityPromptHandler(_0xad5586);
@@ -13655,7 +13438,7 @@ function getAllAvailableAgents() {
 var initIDEAgentManager = __esmModule(() => {
   'use strict';
 
-  initWorkspaceInfo(), initTemplateManagerDeps(), initExportHandlerExports(), initWindsurfHandler(), initCursorHandler(), initZedHandler(), initClineHandler(), initAiderHandler(), initCopilotHandler(), initContinueHandler(), initRooHandler();
+  initWorkspaceInfo(), initTemplateManagerDeps(), initExportHandlerExports();
 });
 function getExtensionSettings() {
   let _0x24a484 = Vt.getInstance();
