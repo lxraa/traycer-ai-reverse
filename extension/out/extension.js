@@ -69,6 +69,9 @@ const {
   closeSentryClient,
   getSentryInstance
 } = require("./modules/logger.js");
+const {
+  RequestQueue
+} = require("./modules/request_queue.js");
 // ============== 从外部模块导入运行时辅助函数 ==============
 var {
   __esmModule,
@@ -1588,50 +1591,11 @@ var c9e = new Set(Object.values(Ou)),
       return this.getAgentsBySource('builtin').find(_0x360e25 => _0x360e25.id === _0x3824d6 || _0x360e25.displayName.toLowerCase() === _0x3824d6.toLowerCase()) || null;
     }
   },
-  RequestQueue,
-  initRequestQueue = __esmModule(() => {
-    'use strict';
-
-    RequestQueue = class {
-      constructor(_0x4e2b69, _0x2c6a5f, _0x4a727a) {
-        this.concurrencyLimit = _0x4e2b69, this.breatherDuration = _0x2c6a5f, this.continuousRequestDuration = _0x4a727a, this.breatherDuration = _0x2c6a5f, this.continuousRequestDuration = _0x4a727a, this.inFlightRequests = 0, this.requestQueue = [], this.continuousRequestStart = Date.now(), this.isBreatherActive = false;
-      }
-      ["enqueueRequest"](_0x509ae7) {
-        return new Promise((_0x58d202, _0x2e0025) => {
-          this.requestQueue.push(async () => {
-            try {
-              let _0x23d3ee = await _0x509ae7();
-              _0x58d202(_0x23d3ee);
-            } catch (_0x13a262) {
-              _0x2e0025(_0x13a262);
-            } finally {
-              this.inFlightRequests--, this.processQueue();
-            }
-          }), this.processQueue();
-        });
-      }
-      ['processQueue']() {
-        if (this.isBreatherActive) {
-          if (this.inFlightRequests === 0) this.continuousRequestStart = Date.now(), this.isBreatherActive = false;else return;
-        }
-        if (Date.now() - this.continuousRequestStart >= this.continuousRequestDuration) {
-          Logger.debug('Give VS Code a breather before scheduling more requests'), this.isBreatherActive = true, setTimeout(() => {
-            this.processQueue();
-          }, this.breatherDuration);
-          return;
-        }
-        for (; this.inFlightRequests < this.concurrencyLimit && this.requestQueue.length > 0;) {
-          let _0x422b46 = this.requestQueue.shift();
-          _0x422b46 && (this.inFlightRequests++, _0x422b46());
-        }
-      }
-    };
-  }),
   LatestRequestLimiter,
   initLatestRequestLimiter = __esmModule(() => {
     'use strict';
 
-    initRequestQueue(), LatestRequestLimiter = class extends RequestQueue {
+    LatestRequestLimiter = class extends RequestQueue {
       constructor() {
         super(1, 1000, 30000), this.currentRequest = null, this.abortController = null;
       }
@@ -1765,7 +1729,7 @@ var H$,
   initDocumentManager = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initRequestQueue(), In = class _0xc6fed {
+    initWorkspaceInfo(), In = class _0xc6fed {
       static {
         this.concurrencyLimiter = new RequestQueue(5, 200, 2000);
       }
@@ -3404,7 +3368,7 @@ var mze,
   initWorkspaceInfo = __esmModule(() => {
     'use strict';
 
-    initSearchUtils(), initPathModule(), initWorkspaceAssociation(), initRequestQueue(), initGitUtils(), initRepoMappingManager(), me = class _0x2ba944 {
+    initSearchUtils(), initPathModule(), initWorkspaceAssociation(), initGitUtils(), initRepoMappingManager(), me = class _0x2ba944 {
       constructor() {
         this.wsInfoInitLock = new Mutex(), this._currentWSInfo = void 0, this.concurrencyLimiter = new RequestQueue(10, 200, 5000);
       }
@@ -15670,7 +15634,7 @@ var AC,
   initRequestQueueHelper = __esmModule(() => {
     'use strict';
 
-    initRequestQueue(), AC = new Map();
+    AC = new Map();
   });
 async function enqueueDefinitionRequest(_0x5144cc, _0x34e08b) {
   return enqueueLanguageRequest(() => getDefinitionLocation(_0x5144cc), _0x34e08b);
