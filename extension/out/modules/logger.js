@@ -1,9 +1,14 @@
-// 初始化Logger
+// 导入依赖
+const sentry_browser_module = require("@sentry/browser");
+const { config } = require("./config.js");
+
+// 初始化Logger和Sentry
 var sentryInstance = null;
 
 function getSentryInstance() {
   return sentryInstance === null && (sentryInstance = new sentry_browser_module.Scope()), sentryInstance;
 }
+
 function initializeSentryClient() {
   let _0x580b61 = sentry_browser_module.getDefaultIntegrations({}).filter(_0x3b5607 => !['BrowserApiErrors', 'Breadcrumbs', 'GlobalHandlers'].includes(_0x3b5607.name)),
     _0x823f87 = new sentry_browser_module.BrowserClient({
@@ -22,18 +27,21 @@ function initializeSentryClient() {
     });
   getSentryInstance().setTag("extention", config.extensionName), getSentryInstance().setClient(_0x823f87), _0x823f87.init();
 }
-function captureExceptionToSentry(_0x4bb160, _0x23a2b2) {
-  return config.nodeEnv === "production" && getSentryInstance().captureException(_0x4bb160, _0x23a2b2), _0x4bb160;
+
+function captureExceptionToSentry(exceptionError, captureContext) {
+  return config.nodeEnv === "production" && getSentryInstance().captureException(exceptionError, captureContext), exceptionError;
 }
-function setSentryTag(_0x308571, _0x48796e) {
-  getSentryInstance().setTag(_0x308571, _0x48796e);
+
+function setSentryTag(tagName, tagValue) {
+  getSentryInstance().setTag(tagName, tagValue);
 }
+
 async function closeSentryClient() {
   await getSentryInstance().getClient()?.["close"](200);
 }
 
-function throttle(_0x2bdefb) {
-  switch (_0x2bdefb) {
+function throttle(logLevelStr) {
+  switch (logLevelStr) {
     case 'off':
       return 0;
     case 'error':
@@ -70,14 +78,14 @@ var Logger = new class {
   get ['logLevel']() {
     return this._logLevel;
   }
-  set ['logLevel'](_0x2975b1) {
-    _0x2975b1 === 'off' && (console.log('Traycer:\x20Defaulting\x20log\x20level\x20to\x20\x27error\x27\x20as\x20\x27off\x27\x20is\x20not\x20allowed'), _0x2975b1 = "error"), this.isDebugging && (_0x2975b1 = "trace"), this._logLevel = _0x2975b1, this.level = throttle(this._logLevel), this.output ??= this.provider.createChannel(this.provider.name);
+  set ['logLevel'](newLogLevel) {
+    newLogLevel === 'off' && (console.log('Traycer: Defaulting log level to \x27error\x27 as \x27off\x27 is not allowed'), newLogLevel = "error"), this.isDebugging && (newLogLevel = "trace"), this._logLevel = newLogLevel, this.level = throttle(this._logLevel), this.output ??= this.provider.createChannel(this.provider.name);
   }
   get ['timestamp']() {
     let _0x10a8c6 = new Date(),
-      _0x377578 = _0x38d502 => (_0x38d502 < 10 ? '0' : '') + _0x38d502,
-      _0x8b7079 = _0x4d95cb => (_0x4d95cb < 100 ? '0' : '') + (_0x4d95cb < 10 ? '00' : '') + _0x4d95cb;
-    return _0x10a8c6.getFullYear() + '-' + _0x377578(_0x10a8c6.getMonth() + 1) + '-' + _0x377578(_0x10a8c6.getDate()) + '\x20' + _0x377578(_0x10a8c6.getHours()) + ':' + _0x377578(_0x10a8c6.getMinutes()) + ':' + _0x377578(_0x10a8c6.getSeconds()) + '.' + _0x8b7079(_0x10a8c6.getMilliseconds());
+      _0x377578 = numValue => (numValue < 10 ? '0' : '') + numValue,
+      _0x8b7079 = numValue => (numValue < 100 ? '0' : '') + (numValue < 10 ? '00' : '') + numValue;
+    return _0x10a8c6.getFullYear() + '-' + _0x377578(_0x10a8c6.getMonth() + 1) + '-' + _0x377578(_0x10a8c6.getDate()) + ' ' + _0x377578(_0x10a8c6.getHours()) + ':' + _0x377578(_0x10a8c6.getMinutes()) + ':' + _0x377578(_0x10a8c6.getSeconds()) + '.' + _0x8b7079(_0x10a8c6.getMilliseconds());
   }
   ["trace"](_0x1c4f12, ..._0x17c1c7) {
     this.level < 5 || (this.isDebugging && console.trace(this.timestamp, _0x1c4f12 ?? '', ..._0x17c1c7), this.output?.['trace']?.(_0x1c4f12, ..._0x17c1c7));
@@ -86,7 +94,7 @@ var Logger = new class {
     this.level < 4 || (this.isDebugging && console.debug(this.timestamp, _0x333991 ?? '', ..._0x2fd09d), this.output?.["debug"]?.(_0x333991, ..._0x2fd09d));
   }
   ["error"](_0xfc345f, _0x176cd8, ..._0x59cb4c) {
-    if (_0xfc345f ? _0xfc345f instanceof Error && _0xfc345f.message === 'Canceled' || captureExceptionToSentry(new Error("Error: " + String(_0xfc345f) + ',\x20Message:\x20' + (_0x176cd8 ?? '')), {
+    if (_0xfc345f ? _0xfc345f instanceof Error && _0xfc345f.message === 'Canceled' || captureExceptionToSentry(new Error("Error: " + String(_0xfc345f) + ', Message: ' + (_0x176cd8 ?? '')), {
       originalException: _0xfc345f
     }) : _0x176cd8 && captureExceptionToSentry(new Error(_0x176cd8)), !(this.level < 1 && !this.isDebugging)) {
       if (!_0x176cd8) {
@@ -107,8 +115,11 @@ var Logger = new class {
   }
 }();
 
-
 module.exports = {
     Logger,
     initializeSentryClient,
+    captureExceptionToSentry,
+    setSentryTag,
+    closeSentryClient,
+    getSentryInstance
 };

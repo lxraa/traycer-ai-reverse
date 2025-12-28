@@ -221,8 +221,12 @@ function createExtensionConfig() {
   return config;
 }
 
+// 创建并导出全局 config 实例
+const config = createExtensionConfig();
+
 module.exports = {
   createExtensionConfig,
+  config, // 导出全局 config 实例
   // Language exports
   LANGUAGE_NAME_TO_ENUM,
   parseLanguagePreference,
