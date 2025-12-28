@@ -7628,11 +7628,6 @@ function formatStackTrace(_0xebb9d3, _0x4b2e47, _0x49d1b7) {
       throw new Error('Invalid prompt template type: ' + _0x4b2e47);
   }
 }
-var initIdeAgentConfig = __esmModule(() => {
-  'use strict';
-
-  initTaskContext();
-});
 function parseStackFrame(_0x291b2d, _0x503e19, _0x570885) {
   let _0x457944 = _0x291b2d.phaseBreakdown.getTaskExecutionConfig(_0x503e19),
     _0x3504ba = Vt.getInstance().lastUsedIDEAgents;
@@ -7649,11 +7644,7 @@ function parseStackFrame(_0x291b2d, _0x503e19, _0x570885) {
       throw new Error('Invalid context type: ' + _0x570885);
   }
 }
-var initIdeAgentConfigExports = __esmModule(() => {
-  'use strict';
 
-  initTaskContext();
-});
 function extractFunctionName(_0x2fff9b, _0x348bbf, _0x1afc5d) {
   let _0x19b273;
   switch (_0x348bbf) {
@@ -7678,7 +7669,7 @@ var PlanGenerationStep,
   initPlanGenerationStep = __esmModule(() => {
     'use strict';
 
-    initIdeAgentConfig(), initIdeAgentConfigExports(), PlanGenerationStep = class {
+    initTaskContext(), PlanGenerationStep = class {
       async ['execute'](_0x39de75, _0x3199cd) {
         let {
           task: _0x669de,
@@ -7734,7 +7725,7 @@ var PlanGenerationStep,
   initPlanExecutionStep = __esmModule(() => {
     'use strict';
 
-    initIdeAgentConfigExports(), initIdeAgentConfig(), initStatusBar(), PlanExecutionStep = class {
+    initTaskContext(), initStatusBar(), PlanExecutionStep = class {
       async ['execute'](_0xd8c756) {
         let {
           task: _0x111859,
@@ -7836,7 +7827,7 @@ var PlanGenerationStep,
   initVerificationExecutionStep = __esmModule(() => {
     'use strict';
 
-    initIdeAgentConfigExports(), initIdeAgentConfig(), VerificationExecutionStep = class {
+    initTaskContext(), VerificationExecutionStep = class {
       async ["execute"](_0x107e92) {
         let {
             task: _0x10a04d,
