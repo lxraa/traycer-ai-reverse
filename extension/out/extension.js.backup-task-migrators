@@ -90,22 +90,7 @@ const {
   SummaryCacheService
 } = require("./modules/sqlite_service.js");
 const {
-  // 枚举
-  TaskStepStatus,
-  PlanArtifactType,
-  CommentSeverity,
-  AgentMode,
-  PhaseSize,
-  FileOperation,
-  // 辅助函数
-  setCreateUuid,
-  createTextDocNode,
-  convertQueryToDocNode,
-  formatPlanStepToMarkdown,
-  getActiveWorkspacePath,
-  // 迁移器类
   WorkspaceMigrator,
-  StorageSerializer,
   TaskMigratorV0,
   TaskMigratorV1,
   TaskMigratorV2,
@@ -288,10 +273,16 @@ var HttpStatusError = class extends Error {
     PING_TIMEOUT: 2,
     EXTENSION_CLOSED: 3
   },
-  /* [unbundle] $c (PhaseSize) 已移至 modules/task_migrators.js */
-  $c = PhaseSize,
-  /* [unbundle] tv (CommentSeverity) 已移至 modules/task_migrators.js */
-  tv = CommentSeverity;
+  $c = {
+    ISSUE: 0,
+    STORY: 1,
+    EPIC: 2
+  },
+  tv = {
+    MINOR: 0,
+    MAJOR: 1,
+    CRITICAL: 2
+  };
   /* [unbundle] Ht, r9e 已移至 config.js */
   /* [unbundle] yo (TICKET_SOURCE) 已移至 github_ticket_query_builder.js */
 function ensureBuffer(inputData) {
@@ -917,12 +908,8 @@ var w5e = 'Stream drain timed out',
   };
 /* [unbundle] createUuidWithFallback = uuid_module.v4 */
 var createUuidWithFallback = uuid_module.v4;
-var Ut = createUuidWithFallback;
-
-// [unbundle] 注入 createUuid 函数到 task_migrators 模块
-setCreateUuid(createUuidWithFallback);
-
-var un = {
+var Ut = createUuidWithFallback,
+  un = {
     QUEUE_CAPACITY: 512,
     HIGH_WATER_MARK: 512,
     BACKPRESSURE_THRESHOLD: 256,
@@ -1381,8 +1368,17 @@ var il = {
   PO = {
     CONVERT_FILE_PATH: 'convertFilePath'
   },
-  /* [unbundle] o9e (TaskStepStatus) 已移至 modules/task_migrators.js */
-  o9e = TaskStepStatus,
+  o9e = {
+    NOT_STARTED: 0,
+    RATE_LIMITED: 1,
+    IN_PROGRESS: 2,
+    COMPLETED: 3,
+    FAILED: 4,
+    ABORTING: 5,
+    ABORTED: 6,
+    SKIPPED: 7,
+    WAITING_FOR_EXECUTION: 8
+  },
   pe = o9e,
   Ru = {
     CREATE_USER_CLI_AGENT: 'createUserCLIAgent',
@@ -3719,9 +3715,889 @@ var workspace_info,
       super(_0x3cb44e);
     }
   },
-  /* [unbundle] TaskMigratorV0-V36, formatPlanStepToMarkdown, createTextDocNode, convertQueryToDocNode, 
-     getActiveWorkspacePath, StorageSerializer, Ba (FileOperation), uM (AgentMode), tv (CommentSeverity), 
-     $c (PhaseSize) 等已移至 modules/task_migrators.js (共约 1350 行代码已删除) */
+  TaskMigratorV0 = class _0x21a617 {
+    static ["migrate"](_0x50ed38) {
+      let _0x2acfde = _0x21a617.migrateTask(_0x50ed38);
+      return {
+        id: _0x50ed38.id,
+        tasks: [_0x2acfde],
+        title: _0x50ed38.title
+      };
+    }
+    static ['migrateTask'](_0x1690c0) {
+      let _0x113a09 = _0x1690c0.plans?.['map'](_0x21a617.migratePlan) || [];
+      return {
+        id: Ut(),
+        title: _0x1690c0.title,
+        threads: _0x1690c0.threads,
+        steps: _0x1690c0.steps,
+        plans: _0x113a09,
+        creationTime: _0x1690c0.creationTime,
+        lastUpdated: _0x1690c0.lastUpdated,
+        retryAfterTimestamp: _0x1690c0.retryAfterTimestamp,
+        isPayAsYouGo: _0x1690c0.isPayAsYouGo,
+        isActive: true,
+        fileSummaries: []
+      };
+    }
+    static ["migratePlan"](_0x186d62) {
+      return {
+        planID: Ut(),
+        isActive: _0x186d62.isActive,
+        logs: _0x186d62.logs,
+        generatedPlan: _0x186d62.generatedPlan,
+        userModifiedPlan: _0x186d62.userModifiedPlan,
+        queryJsonContent: _0x186d62.userQuery
+      };
+    }
+  };
+function formatPlanStepToMarkdown(_0x271e9e) {
+  let _0x1481b7 = _0x271e9e.traycerResponse,
+    _0x218a18;
+  return _0x1481b7 && (_0x218a18 = {
+    ..._0x1481b7,
+    afterApply: _0x1481b7?.['commentProto']['codeComment']?.['fileEdit']?.['newFileContent'] || '',
+    beforeApply: _0x1481b7?.["commentProto"]['codeComment']?.["fileEdit"]?.['oldFileContent'] || ''
+  }), {
+    ..._0x271e9e,
+    traycerResponse: _0x218a18
+  };
+}
+var TaskMigratorV1 = class _0x1cd3bf {
+    static ['migrate'](_0x42dcac) {
+      return {
+        id: _0x42dcac.id,
+        tasks: _0x42dcac.tasks.map(_0x1cd3bf.migrateTask),
+        title: _0x42dcac.title
+      };
+    }
+    static ["migrateTask"](_0x452276) {
+      return {
+        ..._0x452276,
+        threads: _0x452276.threads.map(_0x2b5137 => _0x1cd3bf.migrateThread(_0x2b5137))
+      };
+    }
+    static ["migrateThread"](_0xa23d43) {
+      return {
+        ..._0xa23d43,
+        conversation: _0xa23d43.conversation.map(_0x1cc0a7 => formatPlanStepToMarkdown(_0x1cc0a7))
+      };
+    }
+  },
+  TaskMigratorV2 = class _0xd5f595 {
+    static ['migrate'](_0x25ac86) {
+      return {
+        ..._0x25ac86,
+        tasks: _0x25ac86.tasks.map(_0xd5f595.migrateTask)
+      };
+    }
+    static ["migrateTask"](_0x3d2b69) {
+      return {
+        ..._0x3d2b69,
+        plans: _0x3d2b69.plans?.['map'](_0xd5f595.migratePlan) ?? void 0
+      };
+    }
+    static ['migratePlan'](_0x5a1aac) {
+      return {
+        ..._0x5a1aac,
+        logs: _0x5a1aac.logs.map(_0x543fbb => ({
+          id: Ut(),
+          title: _0x543fbb,
+          thinking: ''
+        }))
+      };
+    }
+  };
+function createTextDocNode(_0x35aba3) {
+  return {
+    type: 'doc',
+    content: [{
+      type: 'paragraph',
+      content: [{
+        type: "text",
+        text: _0x35aba3
+      }]
+    }]
+  };
+}
+function convertQueryToDocNode(_0xec56d7) {
+  let _0x38e096 = _0xec56d7.userQuery,
+    _0x19e292 = _0x38e096 ? createTextDocNode(_0x38e096) : {
+      type: 'doc',
+      content: []
+    };
+  return {
+    ..._0xec56d7,
+    userQuery: _0x19e292
+  };
+}
+var TaskMigratorV3 = class _0x2b15cc {
+    static ['migrate'](_0x4f86f2) {
+      return {
+        id: _0x4f86f2.id,
+        tasks: _0x4f86f2.tasks.map(_0x2b15cc.migrateTask),
+        title: _0x4f86f2.title
+      };
+    }
+    static ['migrateTask'](_0x1a6dd2) {
+      return {
+        ..._0x1a6dd2,
+        threads: _0x1a6dd2.threads.map(_0x3c133e => _0x2b15cc.migrateThread(_0x3c133e))
+      };
+    }
+    static ["migrateThread"](_0x47f583) {
+      return {
+        ..._0x47f583,
+        conversation: _0x47f583.conversation.map(_0x436934 => convertQueryToDocNode(_0x436934))
+      };
+    }
+  },
+  TaskMigratorV4 = class _0x421eff {
+    static ['migrate'](_0x2300b1) {
+      return {
+        ..._0x2300b1,
+        tasks: _0x2300b1.tasks.map(_0x421eff.migrateTask)
+      };
+    }
+    static ['migrateTask'](_0x5e620a) {
+      let _0x2f6701 = _0x5e620a.plans || [];
+      return {
+        ..._0x5e620a,
+        plans: _0x2f6701.map(_0xde2e8 => _0x421eff.migratePlan(_0xde2e8))
+      };
+    }
+    static ['migratePlan'](_0x5e0cf3) {
+      return {
+        ..._0x5e0cf3,
+        generatedPlan: _0x5e0cf3.generatedPlan ? {
+          ..._0x5e0cf3.generatedPlan,
+          observations: _0x5e0cf3.generatedPlan.summary,
+          approach: '',
+          howDidIGetHere: '',
+          joke: '',
+          mermaid: ''
+        } : void 0,
+        userModifiedPlan: _0x5e0cf3.userModifiedPlan ? {
+          ..._0x5e0cf3.userModifiedPlan,
+          observations: _0x5e0cf3.userModifiedPlan.summary,
+          approach: '',
+          howDidIGetHere: '',
+          joke: '',
+          mermaid: ''
+        } : void 0
+      };
+    }
+  },
+  TaskMigratorV5 = class {
+    static ["migrate"](_0x256a2a) {
+      return {
+        ..._0x256a2a,
+        tasks: _0x256a2a.tasks.map(_0x5e16f6 => this.migrateTask(_0x5e16f6))
+      };
+    }
+    static ['migrateTask'](_0x584401) {
+      return {
+        ..._0x584401,
+        plans: _0x584401.plans.map(_0x1b7364 => this.migratePlan(_0x1b7364))
+      };
+    }
+    static ["migratePlan"](_0x428818) {
+      return {
+        ..._0x428818,
+        generatedPlan: _0x428818.generatedPlan ? {
+          ..._0x428818.generatedPlan,
+          implementationPlan: _0x428818.generatedPlan.implementationPlan ? {
+            ..._0x428818.generatedPlan.implementationPlan,
+            fileChanges: _0x428818.generatedPlan.implementationPlan.fileChanges.map(_0x177056 => ({
+              ..._0x177056,
+              referredAttachmentNames: _0x177056.referredAttachments.map(_0x46aa64 => _0x46aa64.fileAttachments ? _0x46aa64.fileAttachments.fileName : _0x46aa64.urlAttachments ? _0x46aa64.urlAttachments.url : '').filter(_0x5a139a => _0x5a139a !== '')
+            }))
+          } : null
+        } : void 0,
+        userModifiedPlan: _0x428818.userModifiedPlan ? {
+          ..._0x428818.userModifiedPlan,
+          implementationPlan: _0x428818.userModifiedPlan.implementationPlan ? {
+            ..._0x428818.userModifiedPlan.implementationPlan,
+            fileChanges: _0x428818.userModifiedPlan.implementationPlan.fileChanges.map(_0x55f442 => ({
+              ..._0x55f442,
+              referredAttachmentNames: _0x55f442.referredAttachments.map(_0x4f0c47 => _0x4f0c47.fileAttachments ? _0x4f0c47.fileAttachments.fileName : _0x4f0c47.urlAttachments ? _0x4f0c47.urlAttachments.url : '').filter(_0x59d7cd => _0x59d7cd !== '')
+            }))
+          } : null
+        } : void 0
+      };
+    }
+  },
+  TaskMigratorV6 = class {
+    static ["migrate"](_0x2cdcbc) {
+      return {
+        ..._0x2cdcbc,
+        tasks: _0x2cdcbc.tasks.map(_0x157479 => this.migrateTask(_0x157479))
+      };
+    }
+    static ["migrateTask"](_0x5a2530) {
+      return {
+        ..._0x5a2530,
+        plans: _0x5a2530.plans.map(_0x497d5e => this.migratePlan(_0x497d5e))
+      };
+    }
+    static ['migratePlan'](_0x147948) {
+      return {
+        ..._0x147948,
+        llmInput: null
+      };
+    }
+  },
+  TaskMigratorV7 = class {
+    static ["migrate"](_0x1d7ea8) {
+      return {
+        ..._0x1d7ea8,
+        tasks: _0x1d7ea8.tasks.map(_0xa8d0c8 => this.migrateTask(_0xa8d0c8))
+      };
+    }
+    static ["migrateTask"](_0x443399) {
+      return {
+        ..._0x443399,
+        plans: _0x443399.plans.map(_0x325064 => this.migratePlan(_0x325064))
+      };
+    }
+    static ["migratePlan"](_0x3ceb4f) {
+      return {
+        ..._0x3ceb4f,
+        planConversations: []
+      };
+    }
+  },
+  TaskMigratorV8 = class {
+    static ["migrate"](_0x141f98) {
+      return {
+        ..._0x141f98,
+        tasks: _0x141f98.tasks.map(_0x30c6dd => this.migrateTask(_0x30c6dd))
+      };
+    }
+    static ['migrateTask'](_0x30c1c7) {
+      return {
+        ..._0x30c1c7,
+        plans: _0x30c1c7.plans.map(_0x44d465 => this.migratePlan(_0x44d465))
+      };
+    }
+    static ["migratePlan"](_0x14900a) {
+      let {
+        planID: _0x4ad758,
+        ..._0x340f9c
+      } = _0x14900a;
+      return {
+        id: _0x4ad758,
+        ..._0x340f9c
+      };
+    }
+  },
+  TaskMigratorV9 = class {
+    static ["migrate"](_0x5244d3) {
+      let _0xbac57d = _0x5244d3.tasks.find(_0x3beb27 => _0x3beb27.isActive),
+        _0x4a34fe = _0xbac57d ? _0xbac57d.id : null;
+      return _0x4a34fe || (_0x4a34fe = _0x5244d3.tasks[_0x5244d3.tasks.length - 1].id), {
+        ..._0x5244d3,
+        activeTaskId: _0x4a34fe,
+        tasks: _0x5244d3.tasks.map(_0x4485a4 => this.migrateTask(_0x4485a4))
+      };
+    }
+    static ["migrateTask"](_0x2617d0) {
+      let _0x46ad8a = _0x2617d0.plans.find(_0x52fced => _0x52fced.isActive),
+        _0x33d42e = _0x46ad8a ? _0x46ad8a.id : null;
+      _0x33d42e || (_0x33d42e = _0x2617d0.plans[_0x2617d0.plans.length - 1].id);
+      let {
+        isActive: _0x949731,
+        ..._0x40948c
+      } = _0x2617d0;
+      return {
+        ..._0x40948c,
+        activePlanId: _0x33d42e,
+        plans: _0x2617d0.plans.map(_0x4b8e4c => this.migratePlan(_0x4b8e4c))
+      };
+    }
+    static ["migratePlan"](_0x5c64ec) {
+      let {
+        isActive: _0x2ed021,
+        ..._0x895d40
+      } = _0x5c64ec;
+      return _0x895d40;
+    }
+  };
+function getActiveWorkspacePath(_0x33bf28) {
+  return pe[_0x33bf28];
+}
+var TaskMigratorV16 = class {
+    static ["migrate"](_0x4fdfce) {
+      let _0x27a32b = _0x4fdfce.tasks.map(_0x5d7792 => this.migrateTask(_0x5d7792)),
+        _0x5496fc = _0x27a32b[0]?.['creationTime'] ?? Date.now();
+      return {
+        ..._0x4fdfce,
+        tasks: _0x27a32b,
+        prePhaseConversations: [],
+        displayState: "SHOW_ACTIVE_TASK",
+        creationTimestamp: _0x5496fc
+      };
+    }
+    static ["migrateTask"](_0x6fb3b4) {
+      return {
+        ..._0x6fb3b4,
+        plans: _0x6fb3b4.plans.map(_0x385cd9 => this.migratePlan(_0x385cd9, _0x6fb3b4.activePlanId, _0x6fb3b4.steps.code_changes)),
+        verification: null,
+        steps: {
+          userQuery: getActiveWorkspacePath(_0x6fb3b4.steps.user_query),
+          planGeneration: getActiveWorkspacePath(_0x6fb3b4.steps.plan_generation),
+          codeChanges: getActiveWorkspacePath(_0x6fb3b4.steps.code_changes),
+          verification: pe.NOT_STARTED
+        }
+      };
+    }
+    static ['migratePlan'](_0x48185b, _0x449604, _0x4a7364) {
+      return {
+        ..._0x48185b,
+        planConversations: _0x48185b.planConversations.map(_0x1946f8 => this.migratePlanConversation(_0x1946f8)),
+        isExecuted: _0x48185b.id === _0x449604 && _0x4a7364 === 'COMPLETED'
+      };
+    }
+    static ['migratePlanConversation'](_0x22f484) {
+      return {
+        ..._0x22f484,
+        llmInput: void 0
+      };
+    }
+  },
+  StorageSerializer = class {
+    static ["toStorage"](_0x2b1c02) {
+      return _0x2b1c02 ? {
+        data: ensureBuffer(_0x2b1c02.data).toString("base64"),
+        version: _0x2b1c02.version
+      } : null;
+    }
+    static ["fromStorage"](_0x2d146d) {
+      if (!_0x2d146d) return null;
+      let _0x652d84 = /^[A-Za-z0-9+/]*={0,2}$/.test(_0x2d146d.data) ? "base64" : 'utf-8';
+      return {
+        data: Buffer.from(_0x2d146d.data, _0x652d84),
+        version: _0x2d146d.version
+      };
+    }
+  },
+  TaskMigratorV17 = class {
+    static ["migrate"](_0x3ddbbf) {
+      let _0x2b197b = _0x3ddbbf.tasks.map(_0x448166 => this.migrateTask(_0x448166)),
+        _0x189066 = Ut();
+      return {
+        creationTimestamp: _0x3ddbbf.creationTimestamp,
+        displayState: _0x3ddbbf.displayState,
+        id: _0x3ddbbf.id,
+        title: _0x3ddbbf.title,
+        phaseBreakdowns: [{
+          id: _0x189066,
+          prePhaseConversations: _0x3ddbbf.prePhaseConversations,
+          tasks: _0x2b197b,
+          activeTaskId: _0x3ddbbf.activeTaskId
+        }],
+        activePhaseBreakdownId: _0x189066,
+        lastUpdatedTime: _0x2b197b.find(_0x3f4e42 => _0x3f4e42.id === _0x3ddbbf.activeTaskId)?.["lastUpdated"] ?? Date.now()
+      };
+    }
+    static ["migrateTask"](_0x1dd33c) {
+      return {
+        activePlanId: _0x1dd33c.activePlanId,
+        id: _0x1dd33c.id,
+        steps: _0x1dd33c.steps,
+        threads: _0x1dd33c.threads,
+        title: _0x1dd33c.title,
+        plans: _0x1dd33c.plans.map(_0x1c78cc => this.migratePlan(_0x1c78cc)),
+        attachmentSummaries: _0x1dd33c.attachmentSummaries,
+        creationTime: _0x1dd33c.creationTime,
+        fileSummaries: _0x1dd33c.fileSummaries,
+        lastUpdated: _0x1dd33c.lastUpdated,
+        verification: _0x1dd33c.verification
+      };
+    }
+    static ["migratePlan"](_0x3a0fb3) {
+      return {
+        ..._0x3a0fb3,
+        generatedPlan: _0x3a0fb3.userModifiedPlan ?? _0x3a0fb3.generatedPlan,
+        executedWithAgent: null,
+        llmInput: _0x3a0fb3.llmInput ? StorageSerializer.toStorage(_0x3a0fb3.llmInput) : null
+      };
+    }
+  },
+  TaskMigratorV18 = class {
+    static ['migrate'](_0x1eacf6) {
+      let _0x590ebf = _0x1eacf6.phaseBreakdowns.map(_0x27656e => this.migratePhaseBreakdown(_0x27656e));
+      return {
+        ..._0x1eacf6,
+        phaseBreakdowns: _0x590ebf
+      };
+    }
+    static ["migratePhaseBreakdown"](_0x108352) {
+      let _0x4a8f6d = _0x108352.tasks.map(_0x5f49a6 => this.migrateTask(_0x5f49a6));
+      return {
+        ..._0x108352,
+        tasks: _0x4a8f6d
+      };
+    }
+    static ['migrateTask'](_0x4eb50f) {
+      let _0x5852ca = _0x4eb50f.verification ? this.migrateVerification(_0x4eb50f.verification) : null;
+      return {
+        ..._0x4eb50f,
+        verification: _0x5852ca
+      };
+    }
+    static ['migrateVerification'](_0x179efe) {
+      let _0xd2dd87 = _0x179efe.verificationOutput ? {
+        ..._0x179efe.verificationOutput,
+        comments: _0x179efe.verificationOutput.comments.map(_0xca4f8 => ({
+          ..._0xca4f8,
+          isApplied: false
+        }))
+      } : null;
+      return {
+        ..._0x179efe,
+        verificationOutput: _0xd2dd87
+      };
+    }
+  },
+  uM = {
+    SINGLE_AGENT: 0,
+    MULTI_AGENT: 1,
+    QUICK_AGENT: 2
+  },
+  TaskMigratorV19 = class {
+    static ['migrate'](_0x215f36) {
+      let _0x4cabc5 = _0x215f36.phaseBreakdowns.map(_0x34c551 => this.migratePhaseBreakdown(_0x34c551));
+      return {
+        ..._0x215f36,
+        phaseBreakdowns: _0x4cabc5
+      };
+    }
+    static ['migratePhaseBreakdown'](_0x4ac882) {
+      let _0x363e39 = _0x4ac882.tasks.map(_0x4d4a80 => this.migrateTask(_0x4d4a80));
+      return {
+        ..._0x4ac882,
+        tasks: _0x363e39
+      };
+    }
+    static ["migrateTask"](_0x142f55) {
+      return {
+        ..._0x142f55,
+        plans: _0x142f55.plans.map(_0x2a7e8a => this.migratePlan(_0x2a7e8a))
+      };
+    }
+    static ['migratePlan'](_0x3daf7c) {
+      return {
+        ..._0x3daf7c,
+        agentMode: uM.SINGLE_AGENT
+      };
+    }
+  },
+  TaskMigratorV20 = class {
+    static ['migrate'](_0x1230be) {
+      let _0x171b6e = _0x1230be.phaseBreakdowns.map(_0x214a65 => this.migratePhaseBreakdown(_0x214a65));
+      return {
+        ..._0x1230be,
+        phaseBreakdowns: _0x171b6e
+      };
+    }
+    static ["migratePhaseBreakdown"](_0x361e04) {
+      let _0x4775f3 = _0x361e04.tasks.map(_0x3515b1 => this.migrateTask(_0x3515b1));
+      return {
+        ..._0x361e04,
+        tasks: _0x4775f3
+      };
+    }
+    static ['migrateTask'](_0x1dae80) {
+      return {
+        ..._0x1dae80,
+        plans: _0x1dae80.plans.map(_0x338b66 => this.migratePlan(_0x338b66))
+      };
+    }
+    static ["migratePlan"](_0x9d065e) {
+      let _0x18eede = _0x9d065e.planConversations.map(_0x166e8b => this.migratePlanConversation(_0x166e8b));
+      return {
+        ..._0x9d065e,
+        generatedPlan: _0x9d065e.generatedPlan ? this.migratePlanProto(_0x9d065e.generatedPlan) : void 0,
+        planConversations: _0x18eede
+      };
+    }
+    static ["migratePlanConversation"](_0x37696b) {
+      let _0x3d5d03 = null;
+      return _0x37696b.plan && (_0x3d5d03 = this.migratePlanProto(_0x37696b.plan)), {
+        ..._0x37696b,
+        plan: _0x3d5d03
+      };
+    }
+    static ['migratePlanProto'](_0x26a1a4) {
+      return _0x26a1a4.implementationPlan?.['summary'] && !_0x26a1a4.implementationPlan.fileChanges.length ? {
+        explanationPlan: {
+          text: _0x26a1a4.implementationPlan.summary,
+          mermaid: _0x26a1a4.implementationPlan.mermaid,
+          canProposePlan: false
+        },
+        implementationPlan: null
+      } : {
+        ..._0x26a1a4,
+        explanationPlan: null
+      };
+    }
+  }
+
+function extractWorkspacePathsFromPhases(_0x45d362) {
+  let _0x1dacec = new Set(),
+    _0x310fb8 = extractFilesFromPhaseBreakdowns(_0x45d362);
+  for (let key of _0x310fb8) key.workspacePath && _0x1dacec.add(key.workspacePath);
+  return Array.from(_0x1dacec.values()).map(_0x3fb4e0 => ({
+    relPath: '',
+    workspacePath: _0x3fb4e0,
+    isDirectory: true
+  }));
+}
+function extractFilesFromPhaseBreakdowns(_0x64eb96) {
+  let _0x3901d2 = new CustomSet(TraycerPath.equals);
+  for (let _0x171272 of _0x64eb96.phaseBreakdowns) for (let _0x286a0d of _0x171272.tasks) {
+    let _0x5452b5 = _0x286a0d.plans?.["find"](_0x4a0dee => _0x4a0dee.id === _0x286a0d.activePlanId)?.["generatedPlan"]?.["implementationPlan"]?.['fileChanges'] ?? [];
+    for (let _0x5b2078 of _0x5452b5) {
+      let _0x550422 = TraycerPath.deserializeFromWire({
+          absolutePath: path_module.join(_0x5b2078.path?.['workspacePath'] ?? '', _0x5b2078.path?.['relPath'] ?? ''),
+          isDirectory: _0x5b2078.path?.['isDirectory'] ?? false
+        }),
+        _0x5d8ef2 = _0x5b2078.referredFiles.map(_0x5412c1 => TraycerPath.deserializeFromWire({
+          absolutePath: path_module.join(_0x5412c1.workspacePath ?? '', _0x5412c1.relPath ?? ''),
+          isDirectory: _0x5412c1.isDirectory ?? false
+        }));
+      _0x3901d2.add(_0x550422);
+      for (let _0x2039f9 of _0x5d8ef2) _0x3901d2.add(_0x2039f9);
+    }
+  }
+  return Array.from(_0x3901d2.values());
+}
+
+// [unbundle] 注入辅助函数到 WorkspaceMigrator，因为该函数依赖主文件中的其他类和函数
+WorkspaceMigrator.setExtractFunction(extractWorkspacePathsFromPhases);
+
+function formatMermaidDiagram(_0xdd130) {
+  let _0x379b60 = '';
+  return _0x379b60 += '\x0a\x0a## Mermaid Diagram\x0a\x0a', _0x379b60 += _0xdd130, _0x379b60;
+}
+function formatImplementationPlanToMarkdown(_0x25621f) {
+  let _0x2710af = '';
+  if (!_0x25621f?.["fileChanges"]?.['length']) return _0x2710af += '\x0a\x0a### Summary\x0a\x0a' + (_0x25621f?.['summary'] || ''), _0x2710af;
+  if (_0x2710af += "\n\n### Observations\n\n" + (_0x25621f?.["observations"] || ''), _0x2710af += '\x0a\x0a### Approach\x0a\x0a' + (_0x25621f?.["approach"] || ''), _0x2710af += '\x0a\x0a### Reasoning\x0a\x0a' + (_0x25621f?.["howDidIGetHere"] || ''), _0x2710af += formatMermaidDiagram(_0x25621f.mermaid || ''), _0x25621f?.['fileChanges']?.["length"]) {
+    _0x2710af += '\x0a\x0a## Proposed File Changes\x0a\x0a';
+    let _0x3bdddd = _0x25621f.fileChanges.map(_0x23d24a => {
+      let _0x370cc4 = formatFileChangeHeader(_0x23d24a).trimEnd(),
+        _0x350137 = formatCommitMessageWithReferences(_0x23d24a, _0x25621f?.['fileChanges'] || []).trim();
+      return _0x370cc4 + '\x0a\x0a' + _0x350137;
+    });
+    _0x2710af += _0x3bdddd.join('\x0a\x0a');
+  }
+  return _0x2710af.trim();
+}
+function formatFileChangeHeader(_0x5ee29a) {
+  if (!_0x5ee29a.path) return '';
+  let _0x4aee38 = '';
+  return _0x5ee29a.operation === Ba.RENAME && _0x5ee29a.newPath?.['relPath'] ? _0x4aee38 += formatRenameOperation(_0x5ee29a) : (_0x4aee38 += '### file:' + _0x5ee29a.path.relPath, _0x4aee38 += getFileChangeTypeSuffix(_0x5ee29a.operation)), _0x4aee38 += '\x0a', _0x4aee38;
+}
+function formatCommitMessageWithReferences(_0x5ba613, _0x44494f) {
+  let _0x1c0a7a = '',
+    _0x104542 = '',
+    _0x463ebc = '';
+  return _0x5ba613.referredFiles.length > 0 && (_0x104542 = formatReferredFilesList(_0x5ba613.referredFiles, _0x44494f)), _0x5ba613.referredAttachmentNames.length > 0 && (_0x463ebc = _0x5ba613.referredAttachmentNames.map(_0xb9af02 => "- [" + _0xb9af02 + ']').join('\x0a')), (_0x104542 || _0x463ebc) && (_0x1c0a7a += ('\x0a\x0aReferences: \x0a\x0a' + _0x104542 + '\x0a\x0a' + _0x463ebc).trimEnd()), _0x1c0a7a += '\x0a\x0a' + _0x5ba613.changes, _0x1c0a7a;
+}
+function formatReferredFilesList(_0x3dcd9d, _0x15115a) {
+  if (_0x3dcd9d.length === 0) return '';
+  let {
+    newFiles: _0x36f273,
+    deleteFiles: _0x3073a0,
+    renameFiles: _0x8bac7b,
+    modifyFiles: _0x374ee7
+  } = categorizeFileChangesByOperation(_0x15115a);
+  return _0x3dcd9d.map(_0x8a5189 => {
+    let _0x4ea2ad = 'file:' + _0x8a5189.relPath,
+      _0x4dedd7 = '';
+    return _0x36f273.some(_0x5a941b => pathProtoEquals(_0x5a941b.path, _0x8a5189)) ? _0x4dedd7 = getFileChangeTypeSuffix(Ba.NEW) : _0x3073a0.some(_0x2d44d4 => pathProtoEquals(_0x2d44d4.path, _0x8a5189)) ? _0x4dedd7 = getFileChangeTypeSuffix(Ba.DELETE) : _0x8bac7b.some(_0x3ac767 => pathProtoEquals(_0x3ac767.path, _0x8a5189)) ? _0x4dedd7 = getFileChangeTypeSuffix(Ba.RENAME) : _0x374ee7.some(_0x58ac76 => pathProtoEquals(_0x58ac76.path, _0x8a5189)) && (_0x4dedd7 = getFileChangeTypeSuffix(Ba.MODIFY)), '- ' + _0x4ea2ad + _0x4dedd7;
+  }).join('\x0a');
+}
+function getFileChangeTypeSuffix(_0xf3d6b2) {
+  switch (_0xf3d6b2) {
+    case Ba.MODIFY:
+      return ' (Modify)';
+    case Ba.NEW:
+      return " (New)";
+    case Ba.DELETE:
+      return ' (Delete)';
+    case Ba.RENAME:
+      return " (Rename)";
+    default:
+      return '';
+  }
+}
+function formatRenameOperation(_0x51cd4a) {
+  return !_0x51cd4a.path || !_0x51cd4a.newPath ? '' : '### file:' + _0x51cd4a.path.relPath + " �?file:" + _0x51cd4a.newPath.relPath;
+}
+function pathProtoEquals(_0x25d18c, _0x2157e8) {
+  if (!_0x25d18c || !_0x2157e8) throw new Error("Path is null");
+  return _0x25d18c.relPath === _0x2157e8.relPath && _0x25d18c.workspacePath === _0x2157e8.workspacePath && _0x25d18c.isDirectory === _0x2157e8.isDirectory;
+}
+function categorizeFileChangesByOperation(_0x446fa9) {
+  let _0x102098 = {
+    newFiles: [],
+    deleteFiles: [],
+    renameFiles: [],
+    modifyFiles: []
+  };
+  return _0x446fa9.forEach(_0x41b155 => {
+    let _0x38ed67 = {
+      webviewPath: _0x41b155.path,
+      path: _0x41b155.path
+    };
+    switch (_0x41b155.operation) {
+      case Ba.NEW:
+        {
+          _0x102098.newFiles.push(_0x38ed67);
+          break;
+        }
+      case Ba.DELETE:
+        {
+          _0x102098.deleteFiles.push(_0x38ed67);
+          break;
+        }
+      case Ba.RENAME:
+        {
+          _0x102098.renameFiles.push(_0x38ed67);
+          break;
+        }
+      case Ba.MODIFY:
+        {
+          _0x102098.modifyFiles.push(_0x38ed67);
+          break;
+        }
+    }
+  }), _0x102098;
+}
+var Ba = {
+    MODIFY: 0,
+    NEW: 1,
+    DELETE: 2,
+    RENAME: 3
+  },
+  TaskMigratorV35 = class {
+    static ["migrate"](_0x43458e) {
+      return {
+        ..._0x43458e,
+        workspaces: this.migrateWorkspaces(_0x43458e.workspaces),
+        phaseBreakdowns: _0x43458e.phaseBreakdowns.map(_0x364421 => this.migratePhaseBreakdown(_0x364421))
+      };
+    }
+    static ['migrateWorkspaces'](_0x5be71a) {
+      return {
+        workspaceFile: _0x5be71a.workspaceFile ? this.migratePathV2ToV3(_0x5be71a.workspaceFile) : void 0,
+        workspaceFolders: _0x5be71a.workspaceFolders.map(_0x2327a5 => this.migratePathV2ToV3(_0x2327a5))
+      };
+    }
+    static ['migratePhaseBreakdown'](_0x57ebd1) {
+      return {
+        ..._0x57ebd1,
+        tasks: _0x57ebd1.tasks.map(_0x6c739 => this.migrateTask(_0x6c739)),
+        prePhaseConversations: _0x57ebd1.prePhaseConversations.map(_0xcf8be => this.migratePhaseConversation(_0xcf8be))
+      };
+    }
+    static ['migratePhaseConversation'](_0x10de37) {
+      return {
+        ..._0x10de37,
+        logs: _0x10de37.logs.map(_0x4feb7a => this.migrateThinkingOutput(_0x4feb7a))
+      };
+    }
+    static ['migrateTask'](_0x4892e4) {
+      return {
+        ..._0x4892e4,
+        plans: _0x4892e4.plans.map(_0x415efb => this.migratePlan(_0x415efb)),
+        verification: _0x4892e4.verification ? this.migrateVerification(_0x4892e4.verification) : null,
+        discardedVerificationComments: _0x4892e4.discardedVerificationComments.map(_0x5c3217 => this.migrateVerificationComment(_0x5c3217)),
+        failedPlanIterationQuery: _0x4892e4.failedPlanIterationQuery ? this.migrateFailedPlanIterationQuery(_0x4892e4.failedPlanIterationQuery) : void 0,
+        attachmentSummaries: _0x4892e4.attachmentSummaries.map(_0x3369a8 => this.migrateAttachmentSummary(_0x3369a8))
+      };
+    }
+    static ['migratePlan'](_0x4860d5) {
+      let {
+        agentMode: _0x4b97c2,
+        ..._0x1e2a66
+      } = _0x4860d5;
+      return {
+        ..._0x1e2a66,
+        planConversations: _0x4860d5.planConversations.map(_0x35f7c3 => this.migratePlanConversation(_0x35f7c3)),
+        generatedPlan: _0x4860d5.generatedPlan ? this.migrateAllPlanOutput(_0x4860d5.generatedPlan) : null,
+        logs: _0x4860d5.logs.map(_0x206950 => this.migrateThinkingOutput(_0x206950))
+      };
+    }
+    static ["migratePlanConversation"](_0x507b15) {
+      return {
+        ..._0x507b15,
+        plan: _0x507b15.plan ? this.migrateAllPlanOutput(_0x507b15.plan) : null,
+        logs: _0x507b15.logs.map(_0x51d56e => this.migrateThinkingOutput(_0x51d56e))
+      };
+    }
+    static ["migrateAllPlanOutput"](_0x5e0417) {
+      return {
+        implementationPlan: _0x5e0417.implementationPlan ? this.migrateImplementationPlan(_0x5e0417.implementationPlan) : _0x5e0417.explanationPlan ? this.migrateExplanationPlan(_0x5e0417.explanationPlan) : null,
+        reviewOutput: _0x5e0417.reviewOutput ? this.migrateReviewOutput(_0x5e0417.reviewOutput) : null
+      };
+    }
+    static ['migrateExplanationPlan'](_0x60e2c4) {
+      return {
+        output: _0x60e2c4.text,
+        summary: void 0
+      };
+    }
+    static ['migrateImplementationPlan'](_0x41110f) {
+      return {
+        output: formatImplementationPlanToMarkdown(_0x41110f),
+        summary: _0x41110f.summary
+      };
+    }
+    static ["migrateReviewOutput"](_0x14f6e2) {
+      return {
+        ..._0x14f6e2,
+        comments: _0x14f6e2.comments.map(_0x3ff865 => this.migrateReviewComment(_0x3ff865))
+      };
+    }
+    static ["migrateReviewComment"](_0x86506a) {
+      return {
+        ..._0x86506a,
+        relevantFiles: _0x86506a.relevantFiles.map(_0x1dbd73 => this.migratePathV2ToV3(_0x1dbd73))
+      };
+    }
+    static ['migrateVerification'](_0x1eacee) {
+      return {
+        ..._0x1eacee,
+        logs: _0x1eacee.logs.map(_0x6f3fb8 => this.migrateThinkingOutput(_0x6f3fb8)),
+        verificationOutput: _0x1eacee.verificationOutput ? this.migrateVerificationOutput(_0x1eacee.verificationOutput) : null
+      };
+    }
+    static ["migrateVerificationOutput"](_0x2c43bf) {
+      return {
+        ..._0x2c43bf,
+        threads: _0x2c43bf.threads.map(_0x11b9d0 => this.migrateVerificationThread(_0x11b9d0))
+      };
+    }
+    static ["migrateVerificationThread"](_0x5627c3) {
+      return {
+        ..._0x5627c3,
+        comments: _0x5627c3.comments.map(_0x1e2f9d => this.migrateVerificationComment(_0x1e2f9d))
+      };
+    }
+    static ["migrateVerificationComment"](_0x51abe7) {
+      return {
+        ..._0x51abe7,
+        referredFiles: _0x51abe7.referredFiles.map(_0x3162a0 => this.migratePathV2ToV3(_0x3162a0))
+      };
+    }
+    static ["migrateFailedPlanIterationQuery"](_0x5cbecd) {
+      let {
+        mode: _0x27ab9f,
+        ..._0x155257
+      } = _0x5cbecd;
+      return _0x155257;
+    }
+    static ['migrateAttachmentSummary'](_0x1e490d) {
+      return _0x1e490d.fileAttachment ? {
+        fileAttachmentSummary: {
+          fileName: _0x1e490d.fileAttachment.fileName,
+          summary: _0x1e490d.fileAttachment.summary
+        }
+      } : _0x1e490d.urlAttachment ? {
+        fileAttachmentSummary: {
+          fileName: _0x1e490d.urlAttachment.url,
+          summary: _0x1e490d.urlAttachment.summary
+        }
+      } : {
+        fileAttachmentSummary: null
+      };
+    }
+    static ["migratePathV2ToV3"](_0x50fc42) {
+      return {
+        absolutePath: _0x50fc42.workspacePath ? path_module.join(_0x50fc42.workspacePath, _0x50fc42.relPath) : _0x50fc42.relPath,
+        isDirectory: _0x50fc42.isDirectory ?? false
+      };
+    }
+    static ['migrateThinkingOutput'](_0x175354) {
+      return {
+        id: Ut(),
+        childrenThinkings: [],
+        content: {
+          codeExplorationToolCallInfo: _0x175354.toolCallInfo ? null : {
+            title: "Thought",
+            subTitle: '',
+            description: _0x175354.title + '\x0a\x0a' + _0x175354.thinking,
+            result: ''
+          },
+          mcpToolCallInfo: _0x175354.toolCallInfo ? {
+            toolName: _0x175354.toolCallInfo.toolName,
+            parameters: _0x175354.toolCallInfo.parameters,
+            result: _0x175354.toolCallInfo.result
+          } : null
+        },
+        isCompleted: true
+      };
+    }
+  },
+  TaskMigratorV36 = class {
+    static ["migrate"](_0x6156a2) {
+      return {
+        ..._0x6156a2,
+        phaseBreakdowns: _0x6156a2.phaseBreakdowns.map(_0x5c5335 => this.migratePhaseBreakdown(_0x5c5335))
+      };
+    }
+    static ["migratePhaseBreakdown"](_0x15c61e) {
+      return {
+        ..._0x15c61e,
+        tasks: _0x15c61e.tasks.map(_0x387d16 => this.migrateTask(_0x387d16))
+      };
+    }
+    static ["migrateTask"](_0xae610f) {
+      return {
+        ..._0xae610f,
+        plans: _0xae610f.plans.map(_0x16230c => this.migratePlan(_0x16230c))
+      };
+    }
+    static ['migratePlan'](_0x5d9ec6) {
+      return {
+        ..._0x5d9ec6,
+        planConversations: _0x5d9ec6.planConversations.map(_0x4cfaad => this.migratePlanConversation(_0x4cfaad)),
+        generatedPlan: _0x5d9ec6.generatedPlan ? this.migrateAllPlanOutput(_0x5d9ec6.generatedPlan) : null
+      };
+    }
+    static ["migratePlanConversation"](_0x3f6362) {
+      return {
+        ..._0x3f6362,
+        plan: _0x3f6362.plan ? this.migrateAllPlanOutput(_0x3f6362.plan) : null
+      };
+    }
+    static ["migrateAllPlanOutput"](_0x20586d) {
+      return {
+        implementationPlan: _0x20586d.implementationPlan ? this.migrateImplementationPlan(_0x20586d.implementationPlan) : null,
+        reviewOutput: _0x20586d.reviewOutput ? this.migrateReviewOutput(_0x20586d.reviewOutput) : null
+      };
+    }
+    static ["migrateImplementationPlan"](_0x4540d6) {
+      let {
+        summary: _0x50e734,
+        ..._0x22467e
+      } = _0x4540d6;
+      return {
+        ..._0x22467e,
+        aiGeneratedSummary: _0x50e734
+      };
+    }
+    static ["migrateReviewOutput"](_0x2ba5bf) {
+      return {
+        ..._0x2ba5bf,
+        aiGeneratedSummary: void 0
+      };
+    }
+  },
   TaskMigrator,
   initTaskMigrator = __esmModule(() => {
     'use strict';
