@@ -72,6 +72,52 @@ const {
 const {
   RequestQueue
 } = require("./modules/request_queue.js");
+const {
+  LatestRequestLimiter
+} = require("./modules/latest_request_limiter.js");
+const {
+  Semaphore,
+  Mutex
+} = require("./modules/mutex.js");
+const {
+  commandRegistry
+} = require("./modules/command_registry.js");
+const {
+  MediaFileSystem
+} = require("./modules/media_file_system.js");
+const {
+  SqliteService,
+  SummaryCacheService
+} = require("./modules/sqlite_service.js");
+const {
+  WorkspaceMigrator,
+  TaskMigratorV10,
+  TaskMigratorV11,
+  TaskMigratorV12,
+  TaskMigratorV13,
+  TaskMigratorV14,
+  TaskMigratorV15
+} = require("./modules/task_migrators.js");
+const {
+  EditableFileSystem
+} = require("./modules/editable_file_system.js");
+const {
+  SqliteMigrator,
+  MementoKey,
+  MementoToTableMapping
+} = require("./modules/storage_migrator.js");
+const {
+  FileSystemWatcher
+} = require("./modules/file_system_watcher.js");
+const {
+  YoloArtifactManager,
+  injectYoloArtifactManagerHelpers
+} = require("./modules/yolo_artifact_manager.js");
+
+// [unbundle] 声明辅助函数，稍后在主文件中定义后，需要注入到 WorkspaceMigrator
+// extractWorkspacePathsFromPhases 依赖主文件中的 extractFilesFromPhaseBreakdowns、CustomSet、TraycerPath 等
+// 因此保留在主文件中，并在定义后注入到 WorkspaceMigrator
+
 // ============== 从外部模块导入运行时辅助函数 ==============
 var {
   __esmModule,
@@ -1590,35 +1636,7 @@ var c9e = new Set(Object.values(Ou)),
     ["getConflictingWithBuiltInAgent"](_0x3824d6) {
       return this.getAgentsBySource('builtin').find(_0x360e25 => _0x360e25.id === _0x3824d6 || _0x360e25.displayName.toLowerCase() === _0x3824d6.toLowerCase()) || null;
     }
-  },
-  LatestRequestLimiter,
-  initLatestRequestLimiter = __esmModule(() => {
-    'use strict';
-
-    LatestRequestLimiter = class extends RequestQueue {
-      constructor() {
-        super(1, 1000, 30000), this.currentRequest = null, this.abortController = null;
-      }
-      ['enqueueRequest'](_0x2c82ea) {
-        Logger.debug("LatestRequestLimiter: New request received"), this.abortController && (Logger.debug("LatestRequestLimiter: Cancelling previous request"), this.abortController.abort(), this.abortController = null), this.abortController = new AbortController();
-        let _0x48cd32 = async () => {
-          try {
-            let _0x5b0847 = this.abortController.signal,
-              _0x469b7d = new Promise((_0x4e244a, _0x8134b7) => {
-                _0x5b0847.addEventListener("abort", () => {
-                  _0x8134b7(new Error('Request cancelled'));
-                });
-              }),
-              _0x194141 = await Promise.race([_0x2c82ea(this.abortController), _0x469b7d]);
-            return Logger.debug('LatestRequestLimiter: Request completed successfully'), _0x194141;
-          } catch (_0x5ca370) {
-            throw _0x5ca370 instanceof Error && _0x5ca370.message === 'Request cancelled' ? Logger.debug('LatestRequestLimiter: Request was cancelled') : Logger.warn('LatestRequestLimiter: Request failed', _0x5ca370), _0x5ca370;
-          }
-        };
-        return this.currentRequest = super.enqueueRequest(_0x48cd32), this.currentRequest;
-      }
-    };
-  });
+  };
 async function formatCodeBlockContent(_0xaeb101, _0x36e209, _0x4fbe28, _0xb33b6, _0xef23c3, _0x136f81, _0x11d8e6, _0xcd99b2) {
   if (!(await _0xaeb101.fileExists(_0xb33b6.absPath))) throw new Error("Directory not found");
   let _0x35c95e = new RipgrepCommandBuilder(_0x36e209).withMaxResults(300).withIncludePatterns(_0xef23c3 ? [_0xef23c3] : []).withIgnorePatterns(_0x136f81).withAdditionalArgs(['--json', '--context=' + 3, _0xb33b6.absPath]).withRegex(_0x4fbe28).build(),
@@ -1629,10 +1647,10 @@ async function formatCodeBlockContent(_0xaeb101, _0x36e209, _0x4fbe28, _0xb33b6,
     matchingFileSnippets: await _0xcd99b2(_0x3c19f5, _0xb33b6.proto, _0x11d8e6)
   };
 }
-async function searchFilesWithRipgrep(_0x5639f8, _0x5cdd49, _0x4b2c47, _0x4d5e92, _0x401908 = H$, _0x2cee82 = true) {
+async function searchFilesWithRipgrep(_0x5639f8, _0x5cdd49, _0x4b2c47, _0x4d5e92, _0x401908 = 50, _0x2cee82 = true) {
   let _0x4eeab0 = await config.getRipgrepBinPath();
   if (!_0x4eeab0) throw new Error('ripgrep binary not found');
-  if (!(await me.getInstance().fileExists(_0x5639f8))) return Logger.warn('Path to list files in does not exist', _0x5639f8), '';
+  if (!(await workspace_info.getInstance().fileExists(_0x5639f8))) return Logger.warn('Path to list files in does not exist', _0x5639f8), '';
   let _0xa9f861 = isWindows ? '[^\x5c\x5c]*' : "[^/]*",
     _0x5a2f9 = [...DEFAULT_RG_ARGS];
   _0x2cee82 || _0x5a2f9.push('--max-depth', '1');
@@ -1645,10 +1663,10 @@ async function searchFilesWithRipgrep(_0x5639f8, _0x5cdd49, _0x4b2c47, _0x4d5e92
     abortSignal: _0x4d5e92?.['signal']
   });
 }
-async function searchFoldersWithRipgrep(_0x10d4d2, _0x249521, _0x1d3546, _0x4ffec6 = H$, _0x1850be = true) {
+async function searchFoldersWithRipgrep(_0x10d4d2, _0x249521, _0x1d3546, _0x4ffec6 = 50, _0x1850be = true) {
   let _0x1ff9c5 = await config.getRipgrepBinPath();
   if (!_0x1ff9c5) throw new Error('ripgrep binary not found');
-  if (!(await me.getInstance().fileExists(_0x10d4d2))) return Logger.warn("Path to list folders in does not exist", _0x10d4d2), [];
+  if (!(await workspace_info.getInstance().fileExists(_0x10d4d2))) return Logger.warn("Path to list folders in does not exist", _0x10d4d2), [];
   let _0x17afb1 = isWindows ? ['-o', "^.*\\\\"] : ['-o', "'^.*/'"],
     _0x1f39ac = [...DEFAULT_RG_ARGS];
   _0x1850be || _0x1f39ac.push('--max-depth', '2');
@@ -1671,7 +1689,7 @@ async function searchFilesAndFoldersInWorkspace(_0x41dcf1, _0x326761, _0x438a88)
     },
     _0x40d284 = vscode_module.workspace.workspaceFolders;
   if (_0x40d284?.["length"]) {
-    let _0x1c0187 = Math.ceil(H$ / _0x40d284.length);
+    let _0x1c0187 = Math.ceil(50 / _0x40d284.length);
     _0x326761 === 'mix' && (_0x1c0187 = Math.ceil(_0x1c0187 / 2));
     let _0x236178 = async _0x579343 => {
         try {
@@ -1718,12 +1736,11 @@ async function searchFilesAndFoldersQueued(_0x3ad6d4, _0x4205d2) {
     }), _0x571111;
   }
 }
-var H$,
-  I9e,
+var I9e,
   initSearchUtils = __esmModule(() => {
     'use strict';
 
-    initLatestRequestLimiter(), initSearchConfig(), initWorkspaceInfo(), /* fce = vscode_module */H$ = 50, I9e = new LatestRequestLimiter();
+    initSearchConfig(), initWorkspaceInfo(), /* fce = vscode_module */ I9e = new LatestRequestLimiter();
   }),
   In,
   initDocumentManager = __esmModule(() => {
@@ -1735,7 +1752,7 @@ var H$,
       }
       static async ["getSourceCode"](_0x37304d) {
         let _0x40d5e7 = await _0xc6fed.getCachedTextDocument(_0x37304d);
-        return _0x40d5e7 ? _0x40d5e7.getText() : me.getInstance().readFile(_0x37304d, false);
+        return _0x40d5e7 ? _0x40d5e7.getText() : workspace_info.getInstance().readFile(_0x37304d, false);
       }
       static async ['saveDocument'](_0xe4fa0a) {
         let _0x18ba5d = await _0xc6fed.getTextDocument(_0xe4fa0a);
@@ -1781,314 +1798,20 @@ var H$,
       }
     };
   });
-function insertByPriority(_0x59a373, _0x1b15dc) {
-  let _0x17f22b = formatDirectoryContent(_0x59a373, _0x5bf12d => _0x1b15dc.priority <= _0x5bf12d.priority);
-  _0x59a373.splice(_0x17f22b + 1, 0, _0x1b15dc);
-}
-function formatDirectoryContent(_0x1f61aa, _0x1e68b7) {
-  for (let _0x14b15f = _0x1f61aa.length - 1; _0x14b15f >= 0; _0x14b15f--) if (_0x1e68b7(_0x1f61aa[_0x14b15f])) return _0x14b15f;
-  return -1;
-}
-var k9e = new Error("request for lock canceled"),
-  R9e = function (_0x280674, _0x48f92c, _0x1ec16a, _0x343adc) {
-    function _0x3f6858(_0x2f94f5) {
-      return _0x2f94f5 instanceof _0x1ec16a ? _0x2f94f5 : new _0x1ec16a(function (_0x568be9) {
-        _0x568be9(_0x2f94f5);
-      });
-    }
-    return new (_0x1ec16a || (_0x1ec16a = Promise))(function (_0x17ff9e, _0x1b1325) {
-      function _0x4be22c(_0x345ba6) {
-        try {
-          _0x544b51(_0x343adc.next(_0x345ba6));
-        } catch (_0x1181f4) {
-          _0x1b1325(_0x1181f4);
-        }
-      }
-      function _0x69b6e7(_0xa98fbb) {
-        try {
-          _0x544b51(_0x343adc.throw(_0xa98fbb));
-        } catch (_0x4a3a6f) {
-          _0x1b1325(_0x4a3a6f);
-        }
-      }
-      function _0x544b51(_0x8bc1b8) {
-        _0x8bc1b8.done ? _0x17ff9e(_0x8bc1b8.value) : _0x3f6858(_0x8bc1b8.value).then(_0x4be22c, _0x69b6e7);
-      }
-      _0x544b51((_0x343adc = _0x343adc.apply(_0x280674, _0x48f92c || [])).next());
-    });
-  },
-  Semaphore = class {
-    constructor(_0x4025fa, _0x17f399 = k9e) {
-      this._value = _0x4025fa, this._cancelError = _0x17f399, this._queue = [], this._weightedWaiters = [];
-    }
-    ['acquire'](_0x33d309 = 1, _0xcab634 = 0) {
-      if (_0x33d309 <= 0) throw new Error("invalid weight " + _0x33d309 + ": must be positive");
-      return new Promise((_0x4c7173, _0x141022) => {
-        let _0x5cfbf2 = {
-            resolve: _0x4c7173,
-            reject: _0x141022,
-            weight: _0x33d309,
-            priority: _0xcab634
-          },
-          _0x332b32 = formatDirectoryContent(this._queue, _0x556405 => _0xcab634 <= _0x556405.priority);
-        _0x332b32 === -1 && _0x33d309 <= this._value ? this._dispatchItem(_0x5cfbf2) : this._queue.splice(_0x332b32 + 1, 0, _0x5cfbf2);
-      });
-    }
-    ['runExclusive'](_0x5b826d) {
-      return R9e(this, arguments, void 0, function* (_0x34ebcd, _0x2f2cc5 = 1, _0x470ca6 = 0) {
-        let [_0x2529ec, _0x39757e] = yield this.acquire(_0x2f2cc5, _0x470ca6);
-        try {
-          return yield _0x34ebcd(_0x2529ec);
-        } finally {
-          _0x39757e();
-        }
-      });
-    }
-    ["waitForUnlock"](_0x1f5c66 = 1, _0x59a49e = 0) {
-      if (_0x1f5c66 <= 0) throw new Error("invalid weight " + _0x1f5c66 + ': must be positive');
-      return this._couldLockImmediately(_0x1f5c66, _0x59a49e) ? Promise.resolve() : new Promise(_0x1c2e70 => {
-        this._weightedWaiters[_0x1f5c66 - 1] || (this._weightedWaiters[_0x1f5c66 - 1] = []), insertByPriority(this._weightedWaiters[_0x1f5c66 - 1], {
-          resolve: _0x1c2e70,
-          priority: _0x59a49e
-        });
-      });
-    }
-    ["isLocked"]() {
-      return this._value <= 0;
-    }
-    ['getValue']() {
-      return this._value;
-    }
-    ["setValue"](_0x50f692) {
-      this._value = _0x50f692, this._dispatchQueue();
-    }
-    ["release"](_0x150d6e = 1) {
-      if (_0x150d6e <= 0) throw new Error("invalid weight " + _0x150d6e + ': must be positive');
-      this._value += _0x150d6e, this._dispatchQueue();
-    }
-    ["cancel"]() {
-      this._queue.forEach(_0xdfbf8d => _0xdfbf8d.reject(this._cancelError)), this._queue = [];
-    }
-    ["_dispatchQueue"]() {
-      for (this._drainUnlockWaiters(); this._queue.length > 0 && this._queue[0].weight <= this._value;) this._dispatchItem(this._queue.shift()), this._drainUnlockWaiters();
-    }
-    ["_dispatchItem"](_0x5b1201) {
-      let _0x33ba64 = this._value;
-      this._value -= _0x5b1201.weight, _0x5b1201.resolve([_0x33ba64, this._newReleaser(_0x5b1201.weight)]);
-    }
-    ['_newReleaser'](_0x4faebe) {
-      let _0x3596cb = false;
-      return () => {
-        _0x3596cb || (_0x3596cb = true, this.release(_0x4faebe));
-      };
-    }
-    ['_drainUnlockWaiters']() {
-      if (this._queue.length === 0) for (let _0x2f2947 = this._value; _0x2f2947 > 0; _0x2f2947--) {
-        let _0x473b46 = this._weightedWaiters[_0x2f2947 - 1];
-        _0x473b46 && (_0x473b46.forEach(_0x1ead18 => _0x1ead18.resolve()), this._weightedWaiters[_0x2f2947 - 1] = []);
-      } else {
-        let _0x492173 = this._queue[0].priority;
-        for (let _0x24debb = this._value; _0x24debb > 0; _0x24debb--) {
-          let _0x38eeb0 = this._weightedWaiters[_0x24debb - 1];
-          if (!_0x38eeb0) continue;
-          let _0x2b8de1 = _0x38eeb0.findIndex(_0x24b5b7 => _0x24b5b7.priority <= _0x492173);
-          (_0x2b8de1 === -1 ? _0x38eeb0 : _0x38eeb0.splice(0, _0x2b8de1)).forEach(_0x5f41d2 => _0x5f41d2.resolve());
-        }
-      }
-    }
-    ['_couldLockImmediately'](_0x29ff0c, _0xeeb3fe) {
-      return (this._queue.length === 0 || this._queue[0].priority < _0xeeb3fe) && _0x29ff0c <= this._value;
-    }
-  },
-  x9e = function (_0x23dec5, _0x382a51, _0x3fccb9, _0x393b37) {
-    function _0x21f58f(_0x3f67cf) {
-      return _0x3f67cf instanceof _0x3fccb9 ? _0x3f67cf : new _0x3fccb9(function (_0x7ba1ac) {
-        _0x7ba1ac(_0x3f67cf);
-      });
-    }
-    return new (_0x3fccb9 || (_0x3fccb9 = Promise))(function (_0x68f9, _0x129c6b) {
-      function _0x147510(_0x1f32ec) {
-        try {
-          _0x542c3c(_0x393b37.next(_0x1f32ec));
-        } catch (_0x2d580b) {
-          _0x129c6b(_0x2d580b);
-        }
-      }
-      function _0x569aea(_0x29dcf5) {
-        try {
-          _0x542c3c(_0x393b37.throw(_0x29dcf5));
-        } catch (_0x4583e1) {
-          _0x129c6b(_0x4583e1);
-        }
-      }
-      function _0x542c3c(_0x398914) {
-        _0x398914.done ? _0x68f9(_0x398914.value) : _0x21f58f(_0x398914.value).then(_0x147510, _0x569aea);
-      }
-      _0x542c3c((_0x393b37 = _0x393b37.apply(_0x23dec5, _0x382a51 || [])).next());
-    });
-  },
-  Mutex = class {
-    constructor(_0x49c31a) {
-      this._semaphore = new Semaphore(1, _0x49c31a);
-    }
-    ["acquire"]() {
-      return x9e(this, arguments, void 0, function* (_0x2d5c6e = 0) {
-        let [, _0x3ae295] = yield this._semaphore.acquire(1, _0x2d5c6e);
-        return _0x3ae295;
-      });
-    }
-    ["runExclusive"](_0x1ecb0d, _0x4cd478 = 0) {
-      return this._semaphore.runExclusive(() => _0x1ecb0d(), 1, _0x4cd478);
-    }
-    ['isLocked']() {
-      return this._semaphore.isLocked();
-    }
-    ["waitForUnlock"](_0x3f0aa9 = 0) {
-      return this._semaphore.waitForUnlock(1, _0x3f0aa9);
-    }
-    ['release']() {
-      this._semaphore.isLocked() && this._semaphore.release();
-    }
-    ["cancel"]() {
-      return this._semaphore.cancel();
-    }
-  };
 /* [unbundle] sqlite3 已移至顶部导入区 */
-async function ensureFolderExists(_0x5d3f77, _0x2d922b) {
-  try {
-    await (0, fs_promises_module.stat)(_0x5d3f77);
-  } catch (_0x4f35d6) {
-    _0x2d922b.debug("Creating folder", _0x4f35d6);
-    try {
-      await (0, fs_promises_module.mkdir)(_0x5d3f77);
-    } catch (_0x1f090a) {
-      if (_0x1f090a.code !== 'EEXIST') throw _0x2d922b.warn("Error creating folder", _0x1f090a), _0x1f090a;
-    }
-  }
-}
-async function ensureOutputFolder(_0x26fdd1) {
-  let _0x17fea5 = path_module.join(os_module.homedir(), ".traycer");
-  return await ensureFolderExists(_0x17fea5, _0x26fdd1), _0x17fea5;
-}
-async function ensureCacheFolder(_0xdf9916) {
-  let _0x27c1aa = path_module.join(await ensureOutputFolder(_0xdf9916), 'cache');
-  return await ensureFolderExists(_0x27c1aa, _0xdf9916), _0x27c1aa;
-}
-async function getCacheDatabasePath(_0x161dc6) {
-  return path_module.join(await ensureCacheFolder(_0x161dc6), "cache.db");
-}
-var GO,
-  initSqliteService = __esmModule(() => {
-    GO = class _0xe8f64e {
-      static ['instance'];
-      ["dbConnection"] = null;
-      ["logger"];
-      ["mutex"] = new Mutex();
-      ['isShuttingDown'] = false;
-      constructor(_0x1f239a) {
-        this.logger = _0x1f239a;
-      }
-      static ['getInstance'](_0x248aba) {
-        return _0xe8f64e.instance || (_0xe8f64e.instance = new _0xe8f64e(_0x248aba)), _0xe8f64e.instance;
-      }
-      async ["getConnection"]() {
-        let _0x142273 = await this.mutex.acquire();
-        try {
-          return await (0, fs_promises_module.stat)(await getCacheDatabasePath(this.logger)), this.dbConnection ? this.dbConnection : (this.dbConnection = await this.openConnection(this.logger), this.dbConnection);
-        } catch (_0x231d6e) {
-          return this.logger.debug("Database file not found or connection error, creating new connection: " + _0x231d6e), this.dbConnection = await this.openConnection(this.logger), this.dbConnection;
-        } finally {
-          _0x142273();
-        }
-      }
-      async ['shutdown']() {
-        this.isShuttingDown = true;
-        let _0x230dcd = await this.mutex.acquire();
-        try {
-          this.dbConnection && (await this.dbConnection.close(), this.dbConnection = null);
-        } finally {
-          _0x230dcd();
-        }
-      }
-      async ['openConnection'](_0x33ed51) {
-        let _0x21f3db = await sqlite_module.open({
-          filename: await getCacheDatabasePath(_0x33ed51),
-          driver: sqlite3_module.Database
-        });
-        return await _0xe8f64e.createTables(_0x21f3db), _0x21f3db;
-      }
-      async ['withRecovery'](_0x17b3a4) {
-        let _0x48a58e = await this.getConnection();
-        try {
-          return await _0x17b3a4(_0x48a58e);
-        } catch (_0x18d110) {
-          throw _0x18d110 instanceof Error && isDatabaseError(_0x18d110) && !this.isShuttingDown && (await _0x48a58e.close(), this.dbConnection = null), _0x18d110;
-        }
-      }
-      ["execute"](_0x243a41, _0x2e79c4 = []) {
-        return this.withRecovery(_0x3fe82a => _0x3fe82a.run(_0x243a41, _0x2e79c4));
-      }
-      ['query'](_0x216f91, _0x4b77b1 = []) {
-        return this.withRecovery(_0x412511 => _0x412511.get(_0x216f91, _0x4b77b1));
-      }
-      static async ["createTables"](_0x43b0bb) {
-        await _0x43b0bb.exec("PRAGMA busy_timeout=10000;"), await _0x43b0bb.exec('PRAGMA journal_mode=WAL;'), await _0x43b0bb.exec("PRAGMA synchronous=NORMAL;"), await _0x43b0bb.exec("PRAGMA cache_size=-2048;"), await _0x43b0bb.exec("\n      CREATE TABLE IF NOT EXISTS summary_cache (\n        id INTEGER PRIMARY KEY AUTOINCREMENT,\n        cacheKey TEXT NOT NULL UNIQUE,\n        value TEXT NOT NULL,\n        hash TEXT NOT NULL,\n        created_at DATETIME DEFAULT CURRENT_TIMESTAMP\n      )\n    ");
-      }
-      async ["getSummaryFromCache"](_0x47a268) {
-        let _0x48acf4 = await this.query('SELECT value, hash FROM summary_cache WHERE cacheKey = ?', [_0x47a268]);
-        return _0x48acf4 ? {
-          cacheKey: _0x47a268,
-          value: _0x48acf4.value,
-          hash: _0x48acf4.hash
-        } : (this.logger.debug('No summary found for cacheKey: ' + _0x47a268), null);
-      }
-      async ['setSummaryToCache'](_0x4719d2, _0x34812d, _0x37f1e2) {
-        await this.execute('INSERT INTO summary_cache (cacheKey, value, hash) VALUES (?, ?, ?)\x0a       ON CONFLICT(cacheKey) DO UPDATE SET value = excluded.value, hash = excluded.hash', [_0x4719d2, _0x34812d, _0x37f1e2]);
-      }
-      async ['invalidateCache'](_0x44c5f0) {
-        await this.execute("DELETE FROM summary_cache WHERE cacheKey = ?", [_0x44c5f0]);
-      }
-    };
-  }),
-  /* [unbundle] Wce = require('node:crypto') 已移至顶部导入区 crypto_module */
-  SummaryCacheService = class _0x2aacb8 {
-    ["dbService"];
-    constructor(_0x250e31) {
-      this.dbService = _0x250e31;
-    }
-    async ['shutdown']() {
-      await this.dbService.shutdown();
-    }
-    async ['getSummaryFromCache'](_0x323614, _0x5e924a) {
-      let _0x348058 = await this.dbService.getSummaryFromCache(_0x323614);
-      if (_0x348058) {
-        if ((await _0x2aacb8.calculateHashAsync(_0x5e924a)) === _0x348058.hash) return _0x348058.value;
-        await this.dbService.invalidateCache(_0x323614);
-      }
-      return '';
-    }
-    async ["setSummaryToCache"](_0x59dfbb, _0x1f1aa9, _0x398501, _0x4cd420) {
-      let _0x4c87b3 = await _0x2aacb8.calculateHashAsync(_0x398501);
-      await this.dbService.setSummaryToCache(_0x59dfbb, _0x1f1aa9, _0x4c87b3, _0x4cd420);
-    }
-    static async ["calculateHashAsync"](_0x3c5e7b) {
-      let _0x125191 = new TextEncoder().encode(_0x3c5e7b),
-        _0x4e817a = await crypto_module.webcrypto.subtle.digest('SHA-256', _0x125191);
-      return Array.from(new Uint8Array(_0x4e817a)).map(_0x3df838 => _0x3df838.toString(16).padStart(2, '0')).join('');
-    }
-  },
-  LlmCacheHandler,
+/* [unbundle] SqliteService 和 SummaryCacheService 已移至 modules/sqlite_service.js */
+var LlmCacheHandler,
   initLlmCacheHandler = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initDocumentManager(), initWorkspaceInfo(), initSqliteService(), LlmCacheHandler = class _0x31bc7c {
+    initPathModule(), initDocumentManager(), initWorkspaceInfo(), LlmCacheHandler = class _0x31bc7c {
       constructor(_0x46d11a) {
         this.llmCache = _0x46d11a;
       }
       static async ["getInstance"]() {
         if (!_0x31bc7c.instance) {
-          let _0x4fae2a = me.getInstance(),
-            _0x48aa46 = GO.getInstance(_0x4fae2a.getLogger()),
+          let _0x4fae2a = workspace_info.getInstance(),
+            _0x48aa46 = SqliteService.getInstance(_0x4fae2a.getLogger()),
             _0xba957a = new SummaryCacheService(_0x48aa46);
           _0x31bc7c.instance = new _0x31bc7c(_0xba957a);
         }
@@ -2225,7 +1948,7 @@ async function readFilesWithSummary(_0x14bfc8, _0x5b961d) {
   let _0x3a46ec = new CustomSet((_0x50d723, _0x45e05a) => TraycerPath.equals(_0x50d723, _0x45e05a), _0x14bfc8).values(),
     _0x1bbcec = await LlmCacheHandler.getInstance(),
     _0x23b4ac = await Promise.allSettled(_0x3a46ec.map(async _0x58a509 => {
-      let _0x499f42 = await me.getInstance().readFile(_0x58a509.absPath),
+      let _0x499f42 = await workspace_info.getInstance().readFile(_0x58a509.absPath),
         _0x106904 = await _0x1bbcec.getSummaryFromCache(_0x58a509.absPath, _0x499f42),
         _0x7b4eba = {
           path: _0x58a509.proto,
@@ -2271,7 +1994,7 @@ var TraycerPath,
     initWorkspaceInfo(), initLlmCacheHandler(), initSymbolSearch(), TraycerPath = class TraycerPath extends FilePath {
       static ["fromPathProto"](pathProto) {
         if (!pathProto) throw new Error('PathProto is null');
-        let platform = me.getInstance().getPlatform();
+        let platform = workspace_info.getInstance().getPlatform();
         return new TraycerPath(pathProto.absolutePath, pathProto.isDirectory, platform);
       }
       get ["absUri"]() {
@@ -2302,7 +2025,7 @@ var TraycerPath,
         };
       }
       static ["pathEquals"](path1, path2) {
-        let platform = me.getInstance().getPlatform(),
+        let platform = workspace_info.getInstance().getPlatform(),
           normalizedPath1 = TraycerPath.normalizeToPlatformPath(path1, platform),
           normalizedPath2 = TraycerPath.normalizeToPlatformPath(path2, platform);
         return normalizedPath1.toLocaleLowerCase() === normalizedPath2.toLocaleLowerCase();
@@ -2314,7 +2037,7 @@ var TraycerPath,
         return TraycerPath.fromPathProto(wirePath);
       }
       static ['normalizePath'](inputPath) {
-        return me.getInstance().getPlatform() === xr.WINDOWS ? path_module.win32.normalize(inputPath) : path_module.posix.normalize(inputPath);
+        return workspace_info.getInstance().getPlatform() === xr.WINDOWS ? path_module.win32.normalize(inputPath) : path_module.posix.normalize(inputPath);
       }
       static ["findWorkspaceForPath"](absolutePath) {
         let workspaceFolders = vscode_module.workspace.workspaceFolders;
@@ -2332,8 +2055,8 @@ var TraycerPath,
       }
       static async ["fromPath"](inputPath) {
         let normalizedPath = TraycerPath.normalizePath(inputPath),
-          isDir = await me.getInstance().isDirectory(normalizedPath);
-        return new TraycerPath(normalizedPath, isDir, me.getInstance().getPlatform());
+          isDir = await workspace_info.getInstance().isDirectory(normalizedPath);
+        return new TraycerPath(normalizedPath, isDir, workspace_info.getInstance().getPlatform());
       }
       static async ["pathExistsInWorkspace"](pathProto) {
         let absolutePath = pathProto.absolutePath,
@@ -2365,7 +2088,7 @@ function createRemoteOrLocalUri(_0x3faf3f) {
 function formatRangeSnippet(_0x352b00, _0xbfbdb3) {
   if (_0x352b00.workspaceFile === void 0) {
     let _0x257eec = new Set(_0x352b00.workspaceFolders.map(_0x1a8e0a => _0x1a8e0a.absPath)),
-      _0x53c0f3 = new Set(me.getInstance().getWorkspaceDirs()),
+      _0x53c0f3 = new Set(workspace_info.getInstance().getWorkspaceDirs()),
       _0x3602d8 = true;
     for (let key of _0x257eec) if (!_0x53c0f3.has(key)) {
       _0x3602d8 = false;
@@ -2405,10 +2128,10 @@ var Pf,
       static async ["deserialize"](_0x31cc89) {
         let _0x3664a8 = await Promise.all(_0x31cc89.workspaceFolders.map(_0x5c524c => TraycerPath.fromPath(_0x5c524c.absolutePath))),
           _0x3657dc = _0x31cc89.workspaceFile ? TraycerPath.deserializeFromStorage(_0x31cc89.workspaceFile) : void 0;
-        return _0x3657dc && !(await me.getInstance().fileExists(_0x3657dc.absPath)) && (_0x3657dc = void 0), new _0x2ee32b(_0x3657dc, _0x3664a8);
+        return _0x3657dc && !(await workspace_info.getInstance().fileExists(_0x3657dc.absPath)) && (_0x3657dc = void 0), new _0x2ee32b(_0x3657dc, _0x3664a8);
       }
       async ["determineWorkspaceScope"]() {
-        return formatRangeSnippet(this, (await me.getInstance().getCurrentWSInfo()).WSAssociation.workspaceFile);
+        return formatRangeSnippet(this, (await workspace_info.getInstance().getCurrentWSInfo()).WSAssociation.workspaceFile);
       }
       ["serializeToStorage"]() {
         return {
@@ -2442,7 +2165,7 @@ var Pf,
         });
       }
       ['getWorkerPath'](workerType) {
-        return path_module.join(me.getInstance().getResourcesDir(), "workers", workerType);
+        return path_module.join(workspace_info.getInstance().getResourcesDir(), "workers", workerType);
       }
       ['getSupportedWorkerTypes']() {
         return ['json-operations.cjs', 'three-way-merge.cjs', 'ripgrep-processor.cjs', 'diff-utils.cjs', 'list-files-processor.cjs'];
@@ -2500,6 +2223,10 @@ async function ensureDirectoryExists(_0x3dd03b) {
     }
   }
 }
+
+// [unbundle] 注入 YoloArtifactManager 需要的全局辅助函数
+injectYoloArtifactManagerHelpers({ ensureDirectoryExists });
+
 async function getAppAssetsDatabasePath() {
   return path_module.join(await ensureAppAssetsFolder(), 'app-assets.db');
 }
@@ -2964,7 +2691,7 @@ var ox,
   initRepoMappingManager = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initWorkspaceInfo(), initGitUtils(), initGitOperations(), Du = class _0x41fa98 {
+    initPathModule(), initWorkspaceInfo(), initGitOperations(), Du = class _0x41fa98 {
       constructor() {
         this.repoMappings = new Map();
       }
@@ -2977,7 +2704,7 @@ var ox,
         return _0xf4fc53 || (_0xf4fc53 = await getRepoMappingFromUri(_0x56a2c9), await _0xf4fc53.upsertInStorage(), this.repoMappings.set(_0x26bd4e, _0xf4fc53)), _0xf4fc53;
       }
       async ['upsertRepoMappings']() {
-        let _0x3df180 = me.getInstance().getWorkspaceDirs();
+        let _0x3df180 = workspace_info.getInstance().getWorkspaceDirs();
         await Promise.allSettled(_0x3df180.map(async _0x4c5bbe => {
           let _0x5d1b1e = await getAllRepoMappingsFromUri(createRemoteOrLocalUri(_0x4c5bbe));
           await Promise.allSettled(_0x5d1b1e.map(async _0x399240 => {
@@ -2996,7 +2723,7 @@ async function executeGitCommand(_0x5a0bf3, _0x2b8c81, _0x4d6cec) {
     let {
       stdout: _0x411152,
       stderr: _0x24469e
-    } = await mze('git ' + _0x5a0bf3, {
+    } = await (0, util_module.promisify)(child_process_module.exec)('git ' + _0x5a0bf3, {
       cwd: _0x2b8c81
     });
     if (_0x24469e) throw new Error(_0x24469e);
@@ -3358,17 +3085,11 @@ async function getRevisionDiffWithContent(_0x3ef3bf, _0x2b4220, _0x49f087) {
     }), [];
   }
 }
-var mze,
-  initGitUtils = __esmModule(() => {
-    'use strict';
-
-    initPathModule(), initDocumentManager(), initGitOperations(), initRepoMappingManager(), mze = (0, util_module.promisify)(child_process_module.exec);
-  }),
-  me,
+var workspace_info,
   initWorkspaceInfo = __esmModule(() => {
     'use strict';
 
-    initSearchUtils(), initPathModule(), initWorkspaceAssociation(), initGitUtils(), initRepoMappingManager(), me = class _0x2ba944 {
+    initSearchUtils(), initPathModule(), initWorkspaceAssociation(), initRepoMappingManager(), workspace_info = class _0x2ba944 {
       constructor() {
         this.wsInfoInitLock = new Mutex(), this._currentWSInfo = void 0, this.concurrencyLimiter = new RequestQueue(10, 200, 5000);
       }
@@ -3787,11 +3508,11 @@ var mze,
       static async ['resolveFilePath'](_0x2aeda7) {
         if (path_module.isAbsolute(_0x2aeda7)) {
           let _0x26af08 = _0x2aeda7;
-          if (await me.getInstance().fileExists(_0x26af08)) {
+          if (await workspace_info.getInstance().fileExists(_0x26af08)) {
             let _0x107fe2 = TraycerPath.findWorkspaceForPath(_0x26af08),
               _0x527f91 = _0x26af08;
             _0x107fe2 && (_0x527f91 = path_module.relative(_0x107fe2, _0x26af08));
-            let _0x2144ec = await me.getInstance().isDirectory(_0x26af08);
+            let _0x2144ec = await workspace_info.getInstance().isDirectory(_0x26af08);
             return {
               replacement: '<' + RS + ' absPath=\x22' + _0x26af08 + '\x22' + (_0x2144ec ? " isDirectory=\"true\"" : '') + '>' + _0x527f91 + '</' + RS + '>',
               absolutePath: _0x26af08,
@@ -3800,11 +3521,11 @@ var mze,
           }
         } else {
           let _0x5a54f2 = [],
-            _0x3b3cec = me.getInstance().getWorkspaceDirs();
+            _0x3b3cec = workspace_info.getInstance().getWorkspaceDirs();
           for (let key of _0x3b3cec) {
             let _0x53e28b = path_module.join(key, _0x2aeda7);
-            if (await me.getInstance().fileExists(_0x53e28b)) {
-              let _0x13546a = await me.getInstance().isDirectory(_0x53e28b);
+            if (await workspace_info.getInstance().fileExists(_0x53e28b)) {
+              let _0x13546a = await workspace_info.getInstance().isDirectory(_0x53e28b);
               _0x5a54f2.push({
                 workspaceDir: key,
                 absolutePath: _0x53e28b,
@@ -5110,210 +4831,10 @@ function extractFilesFromPhaseBreakdowns(_0x64eb96) {
   }
   return Array.from(_0x3901d2.values());
 }
-var WorkspaceMigrator,
-  initWorkspaceMigrator = __esmModule(() => {
-    'use strict';
 
-    initPathModule(), /* [unbundle] pathWorkspaceMigrator = require('node:path') 已移至顶部导入区 path_module */WorkspaceMigrator = class {
-      static ["migrate"](_0x190e6b) {
-        return {
-          ..._0x190e6b,
-          workspaces: {
-            workspaceFile: void 0,
-            workspaceFolders: extractWorkspacePathsFromPhases(_0x190e6b)
-          }
-        };
-      }
-    };
-  }),
-  TaskMigratorV10 = class {
-    static ['migrate'](_0x16b8a9) {
-      return {
-        ..._0x16b8a9,
-        phaseBreakdowns: _0x16b8a9.phaseBreakdowns.map(_0x13fbd6 => this.migratePhaseBreakdown(_0x13fbd6))
-      };
-    }
-    static ['migratePhaseBreakdown'](_0x4f28ae) {
-      return {
-        ..._0x4f28ae,
-        tasks: _0x4f28ae.tasks.map(_0xdf3e17 => this.migrateTask(_0xdf3e17))
-      };
-    }
-    static ['migrateTask'](_0x4a7683) {
-      return {
-        ..._0x4a7683,
-        plans: _0x4a7683.plans.map(_0x3880b1 => this.migratePlan(_0x3880b1))
-      };
-    }
-    static ["migratePlan"](_0x1282b2) {
-      return {
-        ..._0x1282b2,
-        planConversations: _0x1282b2.planConversations.map(_0xf1ce3a => this.migratePlanConversation(_0xf1ce3a)),
-        generatedPlan: this.migratePlanProto(_0x1282b2.generatedPlan),
-        planArtifactType: An.IMPLEMENTATION_ARTIFACT,
-        isQueryExecutedDirectly: false
-      };
-    }
-    static ['migratePlanConversation'](_0x37f615) {
-      return {
-        ..._0x37f615,
-        plan: this.migratePlanProto(_0x37f615.plan)
-      };
-    }
-    static ["migratePlanProto"](_0x10d8a9) {
-      return _0x10d8a9 ? {
-        ..._0x10d8a9,
-        reviewOutput: null
-      } : null;
-    }
-  },
-  TaskMigratorV11 = class {
-    static ["migrate"](_0x384c46) {
-      return {
-        ..._0x384c46,
-        phaseBreakdowns: _0x384c46.phaseBreakdowns.map(_0x4ac47f => this.migratePhaseBreakdown(_0x4ac47f))
-      };
-    }
-    static ["migratePhaseBreakdown"](_0x51a759) {
-      return {
-        ..._0x51a759,
-        tasks: _0x51a759.tasks.map(_0x5e3f53 => this.migrateTask(_0x5e3f53)),
-        prePhaseConversations: _0x51a759.prePhaseConversations.map(_0x1ca677 => this.migratePhaseConversation(_0x1ca677))
-      };
-    }
-    static ["migratePhaseConversation"](_0x2eb4bb) {
-      return {
-        ..._0x2eb4bb,
-        retryAfterTimestamp: void 0
-      };
-    }
-    static ['migrateTask'](_0x3363b5) {
-      return {
-        ..._0x3363b5,
-        failedPlanIterationQuery: _0x3363b5.failedPlanIterationQuery ? {
-          ..._0x3363b5.failedPlanIterationQuery,
-          retryAfterTimestamp: void 0
-        } : void 0
-      };
-    }
-  },
-  TaskMigratorV12 = class {
-    static ["migrate"](_0x2bc95d) {
-      return {
-        ..._0x2bc95d,
-        phaseBreakdowns: _0x2bc95d.phaseBreakdowns.map(_0x2af4d6 => this.migratePhaseBreakdown(_0x2af4d6))
-      };
-    }
-    static ["migratePhaseBreakdown"](_0x31f868) {
-      return {
-        ..._0x31f868,
-        yoloModeState: null,
-        taskExecutionConfig: void 0,
-        tasks: _0x31f868.tasks.map(_0x1fdb3a => this.migrateTask(_0x1fdb3a))
-      };
-    }
-    static ['migrateTask'](_0x4d827f) {
-      return {
-        ..._0x4d827f,
-        verification: _0x4d827f.verification ? this.migrateVerification(_0x4d827f.verification, _0x4d827f.steps.verification) : null
-      };
-    }
-    static ["migrateVerification"](_0x2b36cd, _0xa2d98e) {
-      return {
-        ..._0x2b36cd,
-        reverificationState: _0x2b36cd.verificationOutput && _0xa2d98e === pe.FAILED ? {
-          hasFailed: true,
-          isAborted: false,
-          isRateLimited: false
-        } : null
-      };
-    }
-  },
-  TaskMigratorV13 = class {
-    static ['migrate'](_0x4773a6) {
-      return {
-        ..._0x4773a6,
-        phaseBreakdowns: _0x4773a6.phaseBreakdowns.map(_0x2160c4 => this.migratePhaseBreakdown(_0x2160c4))
-      };
-    }
-    static ['migratePhaseBreakdown'](_0x51fe67) {
-      return {
-        ..._0x51fe67,
-        tasks: _0x51fe67.tasks.map(_0x4852cb => this.migrateTask(_0x4852cb))
-      };
-    }
-    static ['migrateTask'](_0x3fbd5e) {
-      return {
-        ..._0x3fbd5e,
-        plans: _0x3fbd5e.plans.map(_0x14e8bc => this.migratePlan(_0x14e8bc))
-      };
-    }
-    static ["migratePlan"](_0x4a3826) {
-      return {
-        ..._0x4a3826,
-        executedWithAgent: _0x4a3826.executedWithAgent ?? null
-      };
-    }
-  },
-  TaskMigratorV14 = class {
-    static ['migrate'](_0x5f080f) {
-      return {
-        ..._0x5f080f,
-        phaseBreakdowns: _0x5f080f.phaseBreakdowns.map(_0x209449 => this.migratePhaseBreakdown(_0x209449))
-      };
-    }
-    static ["migratePhaseBreakdown"](_0x16952e) {
-      return {
-        ..._0x16952e,
-        tasks: _0x16952e.tasks.map(_0x395765 => this.migrateTask(_0x395765))
-      };
-    }
-    static ['migrateTask'](_0x2f71c3) {
-      return {
-        ..._0x2f71c3,
-        plans: _0x2f71c3.plans.map(_0x4b142c => this.migratePlan(_0x4b142c))
-      };
-    }
-    static ['migratePlan'](_0x79ee0c) {
-      return {
-        ..._0x79ee0c,
-        planSummary: void 0
-      };
-    }
-  },
-  TaskMigratorV15 = class {
-    static ['migrate'](_0x4d6f42) {
-      return {
-        ..._0x4d6f42,
-        phaseBreakdowns: _0x4d6f42.phaseBreakdowns.map(_0x1c9287 => this.migratePhaseBreakdown(_0x1c9287))
-      };
-    }
-    static ["migratePhaseBreakdown"](_0x3fa9c6) {
-      return {
-        ..._0x3fa9c6,
-        prePhaseConversations: _0x3fa9c6.prePhaseConversations.map(_0x4728c2 => this.migratePhaseConversation(_0x4728c2))
-      };
-    }
-    static ['migratePhaseConversation'](_0x5e44c8) {
-      return {
-        ..._0x5e44c8,
-        output: _0x5e44c8.output ? this.migrateTaskOrchestratorOutput(_0x5e44c8.output) : _0x5e44c8.output,
-        interviewAnswers: null
-      };
-    }
-    static ['migrateTaskOrchestratorOutput'](_0x43ee13) {
-      return {
-        ..._0x43ee13,
-        interview: _0x43ee13.interview ? this.migrateInterviewOutput(_0x43ee13.interview) : _0x43ee13.interview
-      };
-    }
-    static ['migrateInterviewOutput'](_0x38acf1) {
-      return {
-        ..._0x38acf1,
-        questions: []
-      };
-    }
-  };
+// [unbundle] 注入辅助函数到 WorkspaceMigrator，因为该函数依赖主文件中的其他类和函数
+WorkspaceMigrator.setExtractFunction(extractWorkspacePathsFromPhases);
+
 function formatMermaidDiagram(_0xdd130) {
   let _0x379b60 = '';
   return _0x379b60 += '\x0a\x0a## Mermaid Diagram\x0a\x0a', _0x379b60 += _0xdd130, _0x379b60;
@@ -5639,7 +5160,7 @@ var Ba = {
   initTaskMigrator = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initWorkspaceMigrator(), TaskMigrator = class {
+    initSearchConfig(), /* [unbundle] initWorkspaceMigrator 已移至独立模块 task_migrators.js */ TaskMigrator = class {
       static ["migrate"](_0x26699c) {
         let _0x4ecdbd = config.CURRENT_TASK_VERSION,
           _0x223deb = _0x26699c.metadata;
@@ -5820,7 +5341,7 @@ async function getAgentsMdContent(_0x5a2524) {
   if (!_0x29afc0) return [];
   let _0x5f17a7 = await findAgentsMdFile(_0x5a2524, _0x29afc0);
   if (!_0x5f17a7) return [];
-  let _0x5f088e = await me.getInstance().readFile(_0x5f17a7, false);
+  let _0x5f088e = await workspace_info.getInstance().readFile(_0x5f17a7, false);
   return [{
     path: (await TraycerPath.fromPath(_0x5f17a7)).proto,
     content: _0x5f088e,
@@ -5886,7 +5407,7 @@ async function resolveGitMentions(_0x346575) {
   if (_0x346575.length === 0) return [];
   let _0x2e19c4 = [],
     _0x2e2123 = new Set(),
-    _0x489433 = vscode_module.Uri.file(me.getInstance().getWorkspaceDirs()[0]);
+    _0x489433 = vscode_module.Uri.file(workspace_info.getInstance().getWorkspaceDirs()[0]);
   if (!_0x489433) return Logger.warn("No workspace URI available for git operations"), [];
   let _0x2404a9 = 'against_uncommitted_changes:UNCOMMITTED_CHANGES';
   for (let key of _0x346575) try {
@@ -6013,7 +5534,7 @@ async function listDirectoriesWithRuleFiles(_0x55874b) {
     _0x5812ba = [];
   for (let key of _0x37518b) {
     if (isPathContainedInDirectories(key.fsPath, _0x1b6d8f)) continue;
-    if (!(await me.getInstance().fileExists(key.fsPath.absPath))) {
+    if (!(await workspace_info.getInstance().fileExists(key.fsPath.absPath))) {
       Logger.warn('Directory does not exist: ' + key.fsPath.absPath + ", skipping it from the attached context");
       continue;
     }
@@ -6052,7 +5573,7 @@ function isPathContainedInDirectories(_0x90173f, _0x44af6d) {
 var initPlanContextModule = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initPathModule(), initDocumentManager(), initWorkspaceInfo(), initQueryProcessor(), initGitLogModule(), initGitUtils(), initLlmCacheHandler();
+    initSearchConfig(), initPathModule(), initDocumentManager(), initWorkspaceInfo(), initQueryProcessor(), initGitLogModule(), initLlmCacheHandler();
   }),
   $Ye = 'Implementation plan not found',
   ImplementationPlanNotFoundError = class extends Error {
@@ -6155,7 +5676,7 @@ async function parseAndEnrichUserQuery(_0x469cbe) {
       attachments: _0x161ff0,
       githubTicketRef: _0x4d0ac8,
       gitMentions: _0x9ccb80
-    } = await parseAndFormatUserQuery(_0x469cbe, me.getInstance().getPlatform()),
+    } = await parseAndFormatUserQuery(_0x469cbe, workspace_info.getInstance().getPlatform()),
     _0x4486e0 = _0x58dd0a;
   (_0x4486e0?.['files']?.["length"] || _0x4486e0?.["directories"]?.['length']) && (_0x4486e0 = await enrichAttachmentContext(_0x4486e0));
   let _0x4f745a = await resolveGitMentions(_0x9ccb80);
@@ -6514,7 +6035,7 @@ var initPlanOutputModule = __esmModule(() => {
         let {
           userQueryWithMentions: _0x37c8e6,
           attachments: _0x261916
-        } = parseUserQueryContent(_0xc5e000, me.getInstance().getPlatform());
+        } = parseUserQueryContent(_0xc5e000, workspace_info.getInstance().getPlatform());
         (!_0x261916.length || _0x5328dd) && (this._queryJSONContent = _0xc5e000), this._queryWithMentions = _0x37c8e6, this._payload = _0x2e56a7, this._logs = _0x22a957, this._isStreaming = _0x5328dd, this._isAborted = _0xe72ed6, this._hasFailed = _0x436ab2;
       }
       get ['id']() {
@@ -6584,7 +6105,7 @@ var initPlanOutputModule = __esmModule(() => {
         let {
           userQueryWithMentions: _0x374762,
           attachments: _0x44d2e6
-        } = parseUserQueryContent(_0xba36e3, me.getInstance().getPlatform());
+        } = parseUserQueryContent(_0xba36e3, workspace_info.getInstance().getPlatform());
         if (this._queryWithMentions = _0x374762, !_0x44d2e6.length || this._isStreaming ? this._queryJSONContent = _0xba36e3 : this._queryJSONContent = null, _0x5d7a9e) return this.upsertOnDisk(_0x2f7640 => {
           _0x2f7640.userQuery = _0xba36e3;
         });
@@ -6685,7 +6206,7 @@ var NP = class {
         let {
           userQueryWithMentions: _0x4b4184,
           attachments: _0x570610
-        } = parseUserQueryContent(_0xc66fdd, me.getInstance().getPlatform());
+        } = parseUserQueryContent(_0xc66fdd, workspace_info.getInstance().getPlatform());
         (!_0x570610.length || _0x910f84) && (this._queryJSONContent = _0xc66fdd), this._queryWithMentions = _0x4b4184, this._isStreaming = _0x910f84, this._isQueryExecutedDirectly = _0x45b3ed.isQueryExecutedDirectly ?? false;
       }
       static async ["createNewInstance"](_0x397e30, _0x939807, _0x2e8f77, _0x454419, _0x274903, _0x1677f5, _0x5767f5 = {}) {
@@ -6807,7 +6328,7 @@ var NP = class {
         let {
           userQueryWithMentions: _0x591241,
           attachments: _0x7e96e1
-        } = parseUserQueryContent(_0x44466e, me.getInstance().getPlatform());
+        } = parseUserQueryContent(_0x44466e, workspace_info.getInstance().getPlatform());
         !_0x7e96e1.length || this._isStreaming ? this._queryJSONContent = _0x44466e : this._queryJSONContent = null, this._queryWithMentions = _0x591241, _0x22b5ab && (await this.upsertToDisk(_0x21d8de => {
           _0x21d8de.queryJsonContent = _0x44466e;
         }));
@@ -6960,7 +6481,7 @@ var NP = class {
       async ['resetPlan'](_0x3af10f, _0x3024cd) {
         let {
           userQueryWithMentions: _0x4abaf0
-        } = parseUserQueryContent(_0x3af10f, me.getInstance().getPlatform());
+        } = parseUserQueryContent(_0x3af10f, workspace_info.getInstance().getPlatform());
         this._logs = [], this._generatedPlan = null, this._planOutputHandler = null, this._queryWithMentions = _0x4abaf0, this._isQueryExecutedDirectly = false, this._isExecuted = false, this._executedWithAgent = null, await this.setQueryJSONContent(_0x3af10f, false), await Promise.all(this._planConversations.map(_0x488aac => _0x488aac.dispose())), this._planConversations = [], this._activeConversation = void 0, this._planArtifactType = _0x3024cd, await this.upsertToDisk(_0x54c384 => {
           _0x54c384.logs = [], _0x54c384.queryJsonContent = _0x3af10f, _0x54c384.isExecuted = false, _0x54c384.executedWithAgent = null, _0x54c384.planConversations = [], _0x54c384.logs = [], _0x54c384.llmInput = null, _0x54c384.generatedPlan = null, _0x54c384.isQueryExecutedDirectly = false, _0x54c384.planArtifactType = _0x3024cd;
         });
@@ -7708,7 +7229,7 @@ var TaskCountStorageAPI = class {
           {
             userQueryWithMentions: _0xd7823,
             sourceContext: _0xee7e72
-          } = parseUserQueryContent(_0x3cee03, me.getInstance().getPlatform());
+          } = parseUserQueryContent(_0x3cee03, workspace_info.getInstance().getPlatform());
         return {
           phase: {
             id: this.id,
@@ -7731,7 +7252,7 @@ var TaskCountStorageAPI = class {
             attachments: _0x70fddd,
             githubTicketRef: _0x1944ad,
             gitMentions: _0x541b66
-          } = parseUserQueryContent(await this.activePlan.getQueryJSONContent(), me.getInstance().getPlatform()),
+          } = parseUserQueryContent(await this.activePlan.getQueryJSONContent(), workspace_info.getInstance().getPlatform()),
           _0x5350b9 = await resolveGitMentions(_0x541b66),
           _0x22822e = this.steps.planGeneration === pe.IN_PROGRESS ? Id.TASK_IN_PROGRESS : this.steps.planGeneration === pe.COMPLETED || this.steps.planGeneration === pe.WAITING_FOR_EXECUTION || this.steps.planGeneration === pe.SKIPPED ? Id.TASK_COMPLETED : Id.TASK_NOT_STARTED;
         return {
@@ -8080,7 +7601,7 @@ var TaskCountStorageAPI = class {
         }
         let {
           userQueryWithMentions: _0xe61770
-        } = parseUserQueryContent(_0x5d766e, me.getInstance().getPlatform());
+        } = parseUserQueryContent(_0x5d766e, workspace_info.getInstance().getPlatform());
         return _0xe61770;
       }
       static ['getActivePhaseBreakdown'](_0x1147d6) {
@@ -8278,146 +7799,8 @@ var TaskStepStorageAPI = class {
 };
 var XM
 /* [dead-code] Y_e removed */;
-var xKe = Object.freeze(new Set()),
-  jW,
-  /* [unbundle] p0 = chokidar_module */initFileSystemWatcher = __esmModule(() => {
-    jW = class {
-      constructor(_0x982c31, _0x35a154) {
-        this.path = _0x982c31, this._removeWatcher = _0x35a154, this.items = new Set();
-      }
-      ["add"](_0x3e7868) {
-        let {
-          items: _0x2d2aed
-        } = this;
-        _0x2d2aed && _0x3e7868 !== '.' && _0x3e7868 !== '..' && _0x2d2aed.add(_0x3e7868);
-      }
-      async ["remove"](_0x1e80c8) {
-        let {
-          items: _0x3fe773
-        } = this;
-        if (!_0x3fe773 || (_0x3fe773.delete(_0x1e80c8), _0x3fe773.size > 0)) return;
-        let _0xa7336c = this.path;
-        try {
-          await (0, fs_promises_module.readdir)(_0xa7336c);
-        } catch {
-          this._removeWatcher && this._removeWatcher(path_module.dirname(_0xa7336c), path_module.basename(_0xa7336c));
-        }
-      }
-      ['has'](_0x4ea751) {
-        let {
-          items: _0x543848
-        } = this;
-        if (_0x543848) return _0x543848.has(_0x4ea751);
-      }
-      ["getChildren"]() {
-        let {
-          items: _0x287ef0
-        } = this;
-        return _0x287ef0 ? [..._0x287ef0.values()] : [];
-      }
-      ["dispose"]() {
-        this.items.clear(), this.path = '', this._removeWatcher = XM, this.items = xKe, Object.freeze(this);
-      }
-    };
-  }),
-  YoloArtifactManager,
-  initYoloArtifactManager = __esmModule(() => {
-    'use strict';
-
-    initFileSystemWatcher(), YoloArtifactManager = class _0x46c1fc {
-      constructor() {
-        this.activeWatchers = new Map(), this.artifactDirectory = path_module.join(os_module.homedir(), ".traycer", "yolo_artifacts");
-      }
-      static {
-        this.instance = null;
-      }
-      static ['getInstance']() {
-        return _0x46c1fc.instance || (_0x46c1fc.instance = new _0x46c1fc()), _0x46c1fc.instance;
-      }
-      ['getArtifactDirectory']() {
-        return this.artifactDirectory;
-      }
-      async ["initialize"]() {
-        await ensureDirectoryExists(this.artifactDirectory), Logger.debug("ArtifactFileWatcher initialized with directory: " + this.artifactDirectory);
-      }
-      async ['watchForArtifact'](_0x534f1c, _0x4af2d5, _0x4c157c) {
-        if (!_0x534f1c || _0x534f1c.trim() === '') throw new Error("Artifact ID cannot be empty");
-        if (this.activeWatchers.has(_0x534f1c)) throw new Error("Watcher already exists for artifact: " + _0x534f1c);
-        return await ensureDirectoryExists(this.artifactDirectory), Promise.race([this.createWatcherPromise(_0x534f1c, _0x4af2d5), this.createTimeoutPromise(_0x534f1c, _0x4c157c)]);
-      }
-      ["createTimeoutPromise"](_0x177970, _0x52568d) {
-        return new Promise((_0x525b10, _0x352a8a) => {
-          setTimeout(async () => {
-            try {
-              await this.cleanupWatcher(_0x177970);
-            } catch {}
-            _0x352a8a(new Error("Timeout waiting for artifact " + _0x177970 + ' after ' + _0x52568d / 1000 + " seconds"));
-          }, _0x52568d);
-        });
-      }
-      ['createWatcherPromise'](_0x53f662, _0xe94695) {
-        return new Promise((_0x5d176a, _0x6385ba) => {
-          let _0x2152cb = path_module.join(this.artifactDirectory, _0x53f662 + ".json"),
-            _0x1d5223 = chokidar_module.watch(_0x2152cb, {
-              ignoreInitial: false,
-              persistent: true,
-              awaitWriteFinish: {
-                stabilityThreshold: 500,
-                pollInterval: 100
-              }
-            }),
-            _0x476f2b = false;
-          _0x1d5223.on('add', async () => {
-            if (_0x476f2b) return;
-            _0x476f2b = true;
-            let _0x1ac77d = null;
-            try {
-              await _0xe94695();
-            } catch (_0x595781) {
-              Logger.error(_0x595781, "Error in artifact callback for " + _0x53f662), _0x1ac77d = _0x595781;
-            } finally {
-              try {
-                await this.cleanupWatcher(_0x53f662);
-              } catch {}
-              try {
-                await this.deleteArtifactFile(_0x53f662);
-              } catch (_0x15f92f) {
-                Logger.debug(_0x15f92f instanceof Error ? _0x15f92f.message : String(_0x15f92f), "Delete artifact file skipped or failed for " + _0x53f662);
-              }
-            }
-            _0x1ac77d ? _0x6385ba(_0x1ac77d) : (Logger.debug('Artifact ' + _0x53f662 + ' detected'), _0x5d176a());
-          }), _0x1d5223.on('error', async _0xda02eb => {
-            if (!_0x476f2b) {
-              _0x476f2b = true;
-              try {
-                await this.cleanupWatcher(_0x53f662);
-              } catch {}
-              _0x6385ba(_0xda02eb);
-            }
-          }), this.activeWatchers.set(_0x53f662, _0x1d5223), Logger.debug('Started watching for artifact: ' + _0x53f662 + " at " + _0x2152cb);
-        });
-      }
-      async ['cleanupWatcher'](_0x1880e0) {
-        let _0x4ff947 = this.activeWatchers.get(_0x1880e0);
-        if (_0x4ff947) _0x4ff947.emit('error', 'Watcher closed'), await _0x4ff947.close(), this.activeWatchers.delete(_0x1880e0), Logger.debug('Cleaned up watcher for artifact: ' + _0x1880e0);else throw new Error('No watcher found for artifact ID: ' + _0x1880e0);
-      }
-      async ['deleteArtifactFile'](_0x2c2a54) {
-        let _0x39b9cc = path_module.join(this.artifactDirectory, _0x2c2a54 + '.json');
-        try {
-          await (0, fs_promises_module.unlink)(_0x39b9cc), Logger.debug('Deleted artifact file: ' + _0x39b9cc);
-        } catch (_0x4b4593) {
-          if (_0x4b4593 && typeof _0x4b4593 == 'object' && 'code' in _0x4b4593 && _0x4b4593.code === 'ENOENT') Logger.debug('Artifact file already deleted or not found: ' + _0x39b9cc);else throw _0x4b4593;
-        }
-      }
-      async ['stopWatching'](_0x2cc1ca) {
-        return this.cleanupWatcher(_0x2cc1ca);
-      }
-      async ["dispose"]() {
-        let _0x421b78 = Array.from(this.activeWatchers.values()).map(_0x22ca58 => _0x22ca58.close());
-        await Promise.all(_0x421b78), this.activeWatchers.clear(), Logger.debug("ArtifactFileWatcher disposed"), _0x46c1fc.instance = null;
-      }
-    };
-  });
+/* [unbundle] 已提取: file_system_watcher.js */
+/* [unbundle] 已提取: yolo_artifact_manager.js */
 function formatStackTrace(_0xebb9d3, _0x4b2e47, _0x49d1b7) {
   let _0xea8847 = _0xebb9d3.phaseBreakdown.getTaskExecutionConfig(_0x49d1b7),
     _0x277d9b = Vt.getInstance().activePromptTemplates;
@@ -8849,7 +8232,7 @@ var PlanGenerationStep,
   initTaskOrchestrator = __esmModule(() => {
     'use strict';
 
-    initCommentNavigator(), initYoloArtifactManager(), initTaskStepProcessorExports(), TaskOrchestrator = class _0x147220 extends events_module.EventEmitter {
+    initCommentNavigator(), initTaskStepProcessorExports(), TaskOrchestrator = class _0x147220 extends events_module.EventEmitter {
       constructor(_0x481dc1, _0x43034f) {
         super(), this._isRunning = false, this._phaseBreakdownTaskIndex = 0, this._currentStep = null, this._watchedArtifactIds = new Set(), this._lastError = void 0, this._taskIds = [], this._yoloTaskIndex = 0, this._isInitialized = false, this._lastEmittedTaskIndex = -1, this._lastEmittedStep = null, this._actionQueue = [], this._isProcessingQueue = false, this._queueError = null, this._reVerificationAttempts = new Map(), this._phaseBreakdown = _0x481dc1, this._artifactWatcher = YoloArtifactManager.getInstance(), this._taskIds = _0x43034f, this._orchestratorContext = {
           phaseBreakdown: this._phaseBreakdown,
@@ -9336,7 +8719,7 @@ var PlanGenerationStep,
         let {
           userQueryWithMentions: _0x2b4497,
           attachments: _0x2fd665
-        } = parseUserQueryContent(_0x189f16, me.getInstance().getPlatform());
+        } = parseUserQueryContent(_0x189f16, workspace_info.getInstance().getPlatform());
         if (this._queryWithMentions = _0x2b4497, !_0x2fd665.length || this._isStreaming ? this._queryJSONContent = _0x189f16 : this._queryJSONContent = null, _0x48cfd5) return this.upsertOnDisk(_0x5cb9e6 => {
           _0x5cb9e6.userQuery = _0x189f16;
         });
@@ -9486,7 +8869,7 @@ var ZP = class {
   initTaskOrchestrator = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initPathModule(), initWorkspaceInfo(), initAnalytics(), initStatusBarExports(), initPlanContextModule(), initTemplateManager(), initTaskSettingsHandler(), initUsageInfoHandler(), initTaskContext(), initTaskPlan(), initYoloArtifactManager(), initTaskOrchestrator(), initPlanConversationHandler(), G_ = class _0x5c880e {
+    initIDEAgentManager(), initPathModule(), initWorkspaceInfo(), initAnalytics(), initStatusBarExports(), initPlanContextModule(), initTemplateManager(), initTaskSettingsHandler(), initUsageInfoHandler(), initTaskContext(), initTaskPlan(), initTaskOrchestrator(), initPlanConversationHandler(), G_ = class _0x5c880e {
       constructor(_0x20483f = Ut(), _0x35286c = [], _0x528b0a = [], _0x79b5be, _0x395b29, _0x4cbcac, _0x2e734f, _0xbaa6e9) {
         this._taskExecutionConfig = void 0, this.yoloOrchestrator = null, this._id = _0x20483f, this._prePhaseConversations = _0x35286c, this._tasks = _0x528b0a, this.taskChainContext = _0x395b29, this.planGenerationService = _0x4cbcac, this.phaseGenerationService = _0x2e734f, this.verificationService = _0xbaa6e9, this._storageAPI = _0x79b5be, this._taskStorage = new TaskStepStorageAPI(_0x79b5be);
       }
@@ -9706,7 +9089,7 @@ var ZP = class {
         await _0x36b010.setQueryJSONContentAndArtifactType(_0x4abf9c, _0x4d3b73, true);
         let {
             userQuery: _0xefbf26
-          } = parseUserQueryContent(_0x4abf9c, me.getInstance().getPlatform()),
+          } = parseUserQueryContent(_0x4abf9c, workspace_info.getInstance().getPlatform()),
           _0x3c8c12 = "Handoff Query : " + _0xae98ae.title,
           _0xaa2f57 = await br.getInstance().getPromptTemplate(_0x1552b1).applyTemplate(_0xefbf26);
         if (this.isYoloModeRunning()) {
@@ -9770,7 +9153,7 @@ var ZP = class {
                   {
                     userQueryWithMentions: _0x197a32,
                     sourceContext: _0x2a93fe
-                  } = await parseAndFormatUserQuery(_0x37d6b7, me.getInstance().getPlatform());
+                  } = await parseAndFormatUserQuery(_0x37d6b7, workspace_info.getInstance().getPlatform());
                 return {
                   id: _0x180664.id,
                   title: _0x180664.title,
@@ -9811,7 +9194,7 @@ var ZP = class {
               let _0x1cd5c6 = await _0x3b9f5f.getInitialUserQueryJSONContent(),
                 {
                   sourceContext: _0x334dac
-                } = parseUserQueryContent(_0x1cd5c6, me.getInstance().getPlatform());
+                } = parseUserQueryContent(_0x1cd5c6, workspace_info.getInstance().getPlatform());
               return {
                 sourceContext: _0x334dac
               };
@@ -9896,7 +9279,7 @@ var ZP = class {
         try {
           let {
             userQueryWithMentions: _0x193bfe
-          } = await parseAndFormatUserQuery(_0x511531, me.getInstance().getPlatform());
+          } = await parseAndFormatUserQuery(_0x511531, workspace_info.getInstance().getPlatform());
           _0x1a4344 = _0x193bfe, _0x21b27d || yn.getInstance().increment("phase_generation", {
             ...this.getTaskMetricsProperties(_0x193bfe)
           });
@@ -10565,7 +9948,7 @@ var QUERY_THROTTLE_MS,
         try {
           let {
             userQueryWithMentions: _0xdec5f3
-          } = await parseAndFormatUserQuery(_0x40717b, me.getInstance().getPlatform());
+          } = await parseAndFormatUserQuery(_0x40717b, workspace_info.getInstance().getPlatform());
           if (_0x57a15b = _0xdec5f3, _0x5cf23f.steps.planGeneration === pe.IN_PROGRESS) {
             Logger.warn('Plan is already getting generated', _0x5cf23f.id);
             return;
@@ -10617,7 +10000,7 @@ var QUERY_THROTTLE_MS,
         try {
           let {
               userQueryWithMentions: _0x3f686f
-            } = await parseAndFormatUserQuery(_0x20b737, me.getInstance().getPlatform()),
+            } = await parseAndFormatUserQuery(_0x20b737, workspace_info.getInstance().getPlatform()),
             _0x3bdfa5 = await parseAndEnrichUserQuery(_0x277237.getInitialUserQueryJSONContent()),
             _0x3153e0 = await parseAndEnrichUserQuery(_0x20b737),
             _0x3e82c6 = _0x15d855.mustGetPlanOutput,
@@ -10802,7 +10185,7 @@ var QUERY_THROTTLE_MS,
       }
       async ["getTaskWorkspaces"]() {
         if (this._workspaceScope.association !== "current") throw new Error("Cannot access workspaces for out of workspace task chains");
-        return (await me.getInstance().getCurrentWSInfo()).WSAssociation.workspaceFolders;
+        return (await workspace_info.getInstance().getCurrentWSInfo()).WSAssociation.workspaceFolders;
       }
       get ["workspaceScope"]() {
         return this._workspaceScope;
@@ -10942,7 +10325,7 @@ var QUERY_THROTTLE_MS,
       async ["exportPhaseBreakdown"](_0xd00bad, _0x350af4, _0x223f9b) {
         let _0x3f76fc = this.getPhaseBreakdown(_0xd00bad.phaseBreakdownID),
           _0x43755e = await _0x3f76fc.serializeToUIHeavy(_0xd00bad.phaseBreakdownID),
-          _0x32f099 = formatPhaseBreakdownToMarkdown(_0x43755e, _0x223f9b, me.getInstance().getPlatform());
+          _0x32f099 = formatPhaseBreakdownToMarkdown(_0x43755e, _0x223f9b, workspace_info.getInstance().getPlatform());
         await debounce(_0x32f099, "phase-breakdown", _0x350af4, {
           taskId: _0x3f76fc.tasks?.[0]?.['id'] ?? '',
           taskChainId: this.id,
@@ -11283,7 +10666,7 @@ var QUERY_THROTTLE_MS,
       async ["upsert"](_0x59d967, _0x9d752c) {
         let _0x13f0c4 = {
           ..._0x59d967,
-          workspaces: (await me.getInstance().getCurrentWSInfo()).persistedWSAssociation
+          workspaces: (await workspace_info.getInstance().getCurrentWSInfo()).persistedWSAssociation
         };
         return super.upsert(_0x13f0c4, _0x9d752c);
       }
@@ -11317,7 +10700,7 @@ var QUERY_THROTTLE_MS,
             title: _0x1190db,
             displayState: _0xec7454
           } = _0x555ed5,
-          _0x3f2eff = await me.getInstance().getCurrentWSInfo(),
+          _0x3f2eff = await workspace_info.getInstance().getCurrentWSInfo(),
           _0x5d9e1c = await v0.createNewInstance({
             client: this._client,
             id: _0x2ca37b,
@@ -11942,7 +11325,7 @@ var QUERY_THROTTLE_MS,
       }
       static ["getInstance"]() {
         if (!_0x43a5b4.instance) {
-          let _0x402f9e = me.getInstance().getWorkspaceDirs();
+          let _0x402f9e = workspace_info.getInstance().getWorkspaceDirs();
           if (_0x402f9e.length === 0) throw new Error('No workspace found');
           let _0x1c6724 = _0x402f9e[0];
           _0x43a5b4.instance = new _0x43a5b4(_0x1c6724);
@@ -11974,10 +11357,10 @@ var QUERY_THROTTLE_MS,
       }
       get ["lastUsedIDEAgents"]() {
         return this._lastUsedIDEAgents || (this._lastUsedIDEAgents = {
-          plan: me.getInstance().getIdeAgentInfo(),
-          verification: me.getInstance().getIdeAgentInfo(),
-          review: me.getInstance().getIdeAgentInfo(),
-          userQuery: me.getInstance().getIdeAgentInfo()
+          plan: workspace_info.getInstance().getIdeAgentInfo(),
+          verification: workspace_info.getInstance().getIdeAgentInfo(),
+          review: workspace_info.getInstance().getIdeAgentInfo(),
+          userQuery: workspace_info.getInstance().getIdeAgentInfo()
         }, this.upsertToStorageInBackground()), this._lastUsedIDEAgents;
       }
       get ["defaultTaskExecutionConfig"]() {
@@ -12253,71 +11636,11 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  MediaFileSystem,
-  initMediaFileSystem = __esmModule(() => {
-    'use strict';
-
-    MediaFileSystem = class _0x259aa1 {
-      constructor() {
-        this.fileEntries = new Map(), this._emitter = new vscode_module.EventEmitter(), this.onDidChangeFile = this._emitter.event;
-      }
-      static {
-        this._instance = null;
-      }
-      static ['getInstance']() {
-        return _0x259aa1._instance || (_0x259aa1._instance = new _0x259aa1()), _0x259aa1._instance;
-      }
-      ['uriConverter'](_0x42ce51) {
-        return _0x42ce51.with({
-          scheme: MEDIA_VIEW_ID
-        });
-      }
-      ['createFile'](_0x13f4a6, _0x4a67ca) {
-        let _0xcb789e = this.uriConverter(_0x13f4a6);
-        this.fileEntries.set(_0xcb789e.fsPath, _0x4a67ca), this._emitter.fire([{
-          type: vscode_module.FileChangeType.Created,
-          uri: _0xcb789e
-        }]);
-      }
-      ['readFile'](_0x4ee489) {
-        let _0x4b7f70 = this.uriConverter(_0x4ee489),
-          _0x566416 = this.fileEntries.get(_0x4b7f70.fsPath);
-        if (!_0x566416) throw new Error("File not found");
-        return Buffer.from(_0x566416, 'base64');
-      }
-      ['writeFile']() {}
-      ["stat"](_0x538061) {
-        let _0x2800e4 = this.uriConverter(_0x538061);
-        if (!this.fileEntries.has(_0x2800e4.fsPath)) throw new Error('File not found');
-        return {
-          type: vscode_module.FileType.File,
-          ctime: Date.now(),
-          mtime: Date.now(),
-          size: this.fileEntries.get(_0x2800e4.fsPath)?.["length"] ?? 0
-        };
-      }
-      ['delete'](_0xe32375) {
-        let _0x1e0209 = this.uriConverter(_0xe32375);
-        this.fileEntries.delete(_0x1e0209.fsPath), this._emitter.fire([{
-          type: vscode_module.FileChangeType.Deleted,
-          uri: _0x1e0209
-        }]);
-      }
-      ["watch"]() {
-        return new vscode_module.Disposable(() => {});
-      }
-      ['rename']() {}
-      ['createDirectory']() {}
-      ['readDirectory']() {
-        return [];
-      }
-    };
-  }),
   ED,
   initWebviewStatusHandler = __esmModule(() => {
     'use strict';
 
-    initSearchUtils(), initPathModule(), initMediaFileSystem(), initDocumentManager(), initWorkspaceInfo(), initGitUtils(), initTaskRunner(), initCommentNavigatorDeps(), ED = class {
+    initSearchUtils(), initPathModule(), initDocumentManager(), initWorkspaceInfo(), initTaskRunner(), initCommentNavigatorDeps(), ED = class {
       constructor() {}
       ["handle"](_0x191b6f) {
         let _0x46fa50 = zn.getInstance();
@@ -12426,7 +11749,7 @@ var QUERY_THROTTLE_MS,
         await vscode_module.commands.executeCommand("vscode.open", _0x9bc8a7);
       }
       async ['openExternalLink'](_0x1a556f) {
-        await me.getInstance().openExternalLink(_0x1a556f.url);
+        await workspace_info.getInstance().openExternalLink(_0x1a556f.url);
       }
       async ['openFile'](_0x4c897f) {
         let _0x48f725 = TraycerPath.fromPathProto(_0x4c897f.fsPath),
@@ -12483,7 +11806,7 @@ var QUERY_THROTTLE_MS,
     initWorkspaceInfo(), PromptTemplateFactory = class {
       static ["createMetadata"](_0x5c6012) {
         return {
-          displayName: me.getInstance().getFileNameWithoutExtension(_0x5c6012)
+          displayName: workspace_info.getInstance().getFileNameWithoutExtension(_0x5c6012)
         };
       }
       static ["createBuiltInAgentMetadata"](_0x39ca4f) {
@@ -12492,7 +11815,7 @@ var QUERY_THROTTLE_MS,
         };
       }
       static ["instantiateTemplate"](_0x47e592, _0x2f731a, _0x572c08, _0x289b48, _0x5ee6e7, _0x44b2d7) {
-        let _0x22dade = _0x2f731a.displayName || me.getInstance().getFileNameWithoutExtension(_0x47e592);
+        let _0x22dade = _0x2f731a.displayName || workspace_info.getInstance().getFileNameWithoutExtension(_0x47e592);
         return new PromptTemplate(_0x22dade, _0x47e592, _0x5ee6e7, _0x2f731a, _0x572c08, _0x289b48, _0x44b2d7);
       }
       static async ["createTemplateOnDisk"](_0x234b05, _0x5a7b5d, _0x373feb) {
@@ -12555,7 +11878,7 @@ var QUERY_THROTTLE_MS,
   initCliAgentService = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initUsageInfoHandler(), initCommentNavigator(), initTaskContext(), initFileSystemWatcher(), initPromptTemplateFactory(), ii = class _0x3e7e8c {
+    initWorkspaceInfo(), initUsageInfoHandler(), initCommentNavigator(), initTaskContext(), initPromptTemplateFactory(), ii = class _0x3e7e8c {
       constructor() {
         this.userCLIAgents = new Map(), this.workspaceCLIAgents = new Map(), this.defaultCLIAgents = new Map(), this.invalidTemplates = new Set(), this.globalWatcher = null;
       }
@@ -12573,15 +11896,15 @@ var QUERY_THROTTLE_MS,
       }
       ['resolveCLIAgentPath'](_0x165634) {
         let _0x3854d9 = [...Array.from(this.userCLIAgents.values()), ...Array.from(this.workspaceCLIAgents.values()), ...Array.from(this.defaultCLIAgents.values())];
-        for (let key of _0x3854d9) if (key.name === _0x165634 || me.getInstance().getFileNameWithoutExtension(key.filePath) === _0x165634) return key.filePath;
+        for (let key of _0x3854d9) if (key.name === _0x165634 || workspace_info.getInstance().getFileNameWithoutExtension(key.filePath) === _0x165634) return key.filePath;
       }
       async ["validateCLIAgentFile"](_0x2ea826) {
-        if (!(await me.getInstance().fileExists(_0x2ea826))) throw new TemplateFileNotFoundError(_0x2ea826);
-        let _0x4616d0 = me.getInstance().getPlatform() === xr.WINDOWS,
+        if (!(await workspace_info.getInstance().fileExists(_0x2ea826))) throw new TemplateFileNotFoundError(_0x2ea826);
+        let _0x4616d0 = workspace_info.getInstance().getPlatform() === xr.WINDOWS,
           _0x5eaa7c = path_module.extname(_0x2ea826);
         if (_0x4616d0 && _0x5eaa7c.toLowerCase() !== ".bat") throw new CLIAgentInvalidPlatformError(_0x5eaa7c, xr.WINDOWS, '.bat');
         if (!_0x4616d0 && _0x5eaa7c.toLowerCase() !== ".sh") throw new CLIAgentInvalidPlatformError(_0x5eaa7c, xr.POSIX, ".sh");
-        if (!(await me.getInstance().readFile(_0x2ea826)).length) throw new TemplateFileEmptyError();
+        if (!(await workspace_info.getInstance().readFile(_0x2ea826)).length) throw new TemplateFileEmptyError();
       }
       async ["createUserCLIAgent"](_0x42ea21, _0x90e3ab, _0x3bd927) {
         let _0x482ae5 = path_module.join(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR, '' + _0x42ea21 + _0x90e3ab);
@@ -12597,7 +11920,7 @@ var QUERY_THROTTLE_MS,
       }
       async ["createCLIAgent"](_0x52de30, _0x8b3c7a, _0x43d594, _0x3ab378, _0xf9c93) {
         if (!(await this.isNameAllowed(_0x8b3c7a, _0x43d594, path_module.dirname(_0x52de30)))) throw new TemplateNameNotAllowedError(_0x52de30);
-        let _0x144f69 = me.getInstance().getPlatform() === xr.WINDOWS;
+        let _0x144f69 = workspace_info.getInstance().getPlatform() === xr.WINDOWS;
         if (_0x144f69 && _0x43d594 !== '.bat') throw new CLIAgentInvalidPlatformError(_0x43d594, xr.WINDOWS, '.bat');
         if (!_0x144f69 && _0x43d594 !== ".sh") throw new CLIAgentInvalidPlatformError(_0x43d594, xr.POSIX, ".sh");
         let _0x225839 = _0xf9c93 ? this.getCLIAgent(_0xf9c93).content : void 0;
@@ -12605,7 +11928,7 @@ var QUERY_THROTTLE_MS,
       }
       async ['openCLIAgent'](_0x4f3c2d) {
         let _0x408eec = vscode_module.Uri.parse(_0x4f3c2d);
-        me.getInstance().isVirtualUri(_0x408eec) || (_0x408eec = vscode_module.Uri.file(_0x4f3c2d)), await vscode_module.commands.executeCommand("vscode.open", _0x408eec);
+        workspace_info.getInstance().isVirtualUri(_0x408eec) || (_0x408eec = vscode_module.Uri.file(_0x4f3c2d)), await vscode_module.commands.executeCommand("vscode.open", _0x408eec);
       }
       async ["isUserCLIAgentNameAllowed"](_0x44a861, _0x29c97f) {
         let _0x3f6a8f = await this.isNameAllowed(_0x44a861, _0x29c97f, _0x3e7e8c.DEFAULT_CLI_AGENTS_DIR),
@@ -12640,7 +11963,7 @@ var QUERY_THROTTLE_MS,
             }
             if (_0x23ca5e) {
               let _0x3809ef = path_module.join(_0x3845c9, '' + _0x5be920 + _0x46ca69);
-              _0x23ca5e = !(await me.getInstance().fileExists(_0x3809ef));
+              _0x23ca5e = !(await workspace_info.getInstance().fileExists(_0x3809ef));
             }
           }
         }
@@ -12649,7 +11972,7 @@ var QUERY_THROTTLE_MS,
       async ["loadCLIAgentFromDisk"](_0x40e697) {
         let _0x53e52d = this.userCLIAgents.get(_0x40e697) ?? this.workspaceCLIAgents.get(_0x40e697);
         _0x53e52d && AgentRegistry.getInstance().unregisterAgent(_0x53e52d.name), this.userCLIAgents.has(_0x40e697) ? this.userCLIAgents.delete(_0x40e697) : this.workspaceCLIAgents.has(_0x40e697) && this.workspaceCLIAgents.delete(_0x40e697), await this.validateCLIAgentFile(_0x40e697);
-        let _0x4d30a3 = me.getInstance().getFileNameWithoutExtension(_0x40e697),
+        let _0x4d30a3 = workspace_info.getInstance().getFileNameWithoutExtension(_0x40e697),
           _0x3ea929 = AgentRegistry.getInstance().getConflictingWithBuiltInAgent(_0x4d30a3);
         if (_0x3ea929) throw new CLIAgentNameConflictsWithBuiltInAgentError(_0x4d30a3, _0x3ea929.displayName);
         let _0x56d9ff = path_module.extname(_0x40e697);
@@ -12693,7 +12016,7 @@ var QUERY_THROTTLE_MS,
         }
       }
       ['createDefaultTemplates']() {
-        let _0x35e782 = me.getInstance().getPlatform() === xr.WINDOWS ? ".bat" : '.sh',
+        let _0x35e782 = workspace_info.getInstance().getPlatform() === xr.WINDOWS ? ".bat" : '.sh',
           _0x2be827 = ["claude-code", 'gemini', "codex"];
         for (let key of _0x2be827) {
           let _0x19a1c8 = PromptTemplateFactory.createBuiltInAgentTemplate(key, _0x35e782);
@@ -12746,7 +12069,7 @@ var QUERY_THROTTLE_MS,
       }
       async ['watchWorkspaceCLIAgentsPath'](_0x21d388, _0x529e52) {
         if (!_0x21d388.includes(".traycer")) return;
-        let _0x10bfe8 = me.getInstance().getWorkspaceDirs(),
+        let _0x10bfe8 = workspace_info.getInstance().getWorkspaceDirs(),
           _0x94cb1f = false;
         if (_0x10bfe8.some(_0x4f0a70 => {
           let _0x1d0309 = path_module.join(_0x4f0a70, '.traycer', _0x3e7e8c.DEFAULT_CLI_AGENTS_DIR_NAME);
@@ -12762,13 +12085,13 @@ var QUERY_THROTTLE_MS,
         }
       }
       ["getWorkspaceCLIAgentsPaths"]() {
-        let _0x324e21 = me.getInstance().getWorkspaceDirs();
+        let _0x324e21 = workspace_info.getInstance().getWorkspaceDirs();
         return _0x324e21 ? _0x324e21.map(_0x2d8b10 => path_module.join(_0x2d8b10, '.traycer', 'cli-agents')) : [];
       }
       async ['loadWorkspaceTemplateDirectories']() {
-        let _0x3aa448 = me.getInstance().getPlatform() === xr.WINDOWS ? '.bat' : '.sh',
+        let _0x3aa448 = workspace_info.getInstance().getPlatform() === xr.WINDOWS ? '.bat' : '.sh',
           _0x160b37 = this.getWorkspaceCLIAgentsPaths();
-        for (let key of _0x160b37) if (await me.getInstance().fileExists(key)) {
+        for (let key of _0x160b37) if (await workspace_info.getInstance().fileExists(key)) {
           let _0x2cda8a = await (0, fs_promises_module.readdir)(key);
           for (let _0x1c9850 of _0x2cda8a) if (_0x1c9850.endsWith(_0x3aa448)) {
             let _0x349372 = path_module.join(key, _0x1c9850);
@@ -12781,14 +12104,14 @@ var QUERY_THROTTLE_MS,
         let _0x182e8b = path_module.normalize(_0x4c347c),
           _0x10e55a = path_module.normalize(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR);
         if (_0x182e8b.startsWith(_0x10e55a)) return 'user';
-        if (me.getInstance().getWorkspaceDirs().some(_0x2b0636 => _0x182e8b.startsWith(_0x2b0636))) return "workspace";
+        if (workspace_info.getInstance().getWorkspaceDirs().some(_0x2b0636 => _0x182e8b.startsWith(_0x2b0636))) return "workspace";
         throw new Error('Invalid file path: ' + _0x4c347c);
       }
       async ['startGlobalWatcher']() {
-        (await me.getInstance().fileExists(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR)) || (await (0, fs_promises_module.mkdir)(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR, {
+        (await workspace_info.getInstance().fileExists(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR)) || (await (0, fs_promises_module.mkdir)(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR, {
           recursive: true
         }));
-        let _0x11fdb6 = me.getInstance().getPlatform() === xr.WINDOWS ? '.bat' : '.sh',
+        let _0x11fdb6 = workspace_info.getInstance().getPlatform() === xr.WINDOWS ? '.bat' : '.sh',
           _0x15f10e = chokidar_module.watch(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR, {
             ignoreInitial: false,
             followSymlinks: false,
@@ -13177,7 +12500,7 @@ var QUERY_THROTTLE_MS,
         } else await vscode_module.commands.executeCommand('vscode.openFolder');
       }
       async ['sendWorkspaceStatus']() {
-        let _0x40b61e = me.getInstance().getWorkspaceDirs().length > 0,
+        let _0x40b61e = workspace_info.getInstance().getWorkspaceDirs().length > 0,
           _0x21db31 = {
             type: RO.WORKSPACE_STATUS,
             hasOpenedFolder: _0x40b61e,
@@ -13295,7 +12618,7 @@ var Qe,
           _0x274c8a = _0x1aa01e.webview.asWebviewUri(vscode_module.Uri.joinPath(_0x535b51, "global.js")),
           _0x29e1cb = _0x1aa01e.webview.asWebviewUri(vscode_module.Uri.joinPath(_0x535b51, 'global.css')),
           _0x507afa = normalizePathSeparators(),
-          _0x570ae4 = me.getInstance().getIdeInfo().name;
+          _0x570ae4 = workspace_info.getInstance().getIdeInfo().name;
         return "<!DOCTYPE html>\n    <html lang=\"en\">\n      <head>\n        <title>Traycer</title>\n        <meta charset=\"utf-8\" />\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n        <meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src " + _0x1aa01e.webview.cspSource + ' \x27unsafe-inline\x27; script-src \x27nonce-' + _0x507afa + "'; img-src " + _0x1aa01e.webview.cspSource + " https://avatars.githubusercontent.com/ https://github.com/ data:;\">\n        <meta\n          name=\"description\"\n          content=\"Traycer is a vscode extension that trace your code and provide you valuable insights.\"\n        />\n        <meta\n          name=\"traycerDetectedPlatform\"\n          content=" + process.platform + "\n        />\n        <meta\n          name=\"traycerDetectedIDE\"\n          content=" + _0x570ae4 + '\x0a        />\x0a        <title>Traycer</title>\x0a        <link href=\x22' + _0x12c129 + '\x22 rel=\x22stylesheet\x22 />\x0a        <link href=\x22' + _0x29e1cb + '\x22 rel=\x22stylesheet\x22 />\x0a        <script nonce=\x22' + _0x507afa + "\" type=\"module\" defer=\"defer\" src=\"" + _0x2136e7 + "\"></script>\n        <script nonce=\"" + _0x507afa + "\" type=\"module\" defer=\"defer\" src=\"" + _0x274c8a + '\x22></script>\x0a      </head>\x0a      <body>\x0a        <div id=\x22root\x22></div>\x0a      </body>\x0a    </html>';
       }
       ["_getHtmlForWebview"](_0x28f2cd) {
@@ -13396,11 +12719,11 @@ var oH,
         return this._validationResult;
       }
       async ['getContent']() {
-        let _0x3af6ff = await me.getInstance().readFile(this.filePath);
+        let _0x3af6ff = await workspace_info.getInstance().readFile(this.filePath);
         return (0, gray_matter_module)(_0x3af6ff).content.replaceAll(/<!--[\s\S]*?-->\s*/g, '').trim();
       }
       async ["createOnDisk"](_0x5c95b5) {
-        if (await me.getInstance().fileExists(this.filePath)) throw new TemplateFileAlreadyExistsError(this.filePath);
+        if (await workspace_info.getInstance().fileExists(this.filePath)) throw new TemplateFileAlreadyExistsError(this.filePath);
         let _0x2f836e = gray_matter_module.stringify(_0x5c95b5, this.metadata);
         await (0, fs_promises_module.mkdir)(path_module.dirname(this.filePath), {
           recursive: true
@@ -13409,9 +12732,9 @@ var oH,
         });
       }
       static async ['validateTemplateFile'](_0x49c732, _0x45712a) {
-        if (!(await me.getInstance().fileExists(_0x49c732))) throw new TemplateFileNotFoundError(_0x49c732);
+        if (!(await workspace_info.getInstance().fileExists(_0x49c732))) throw new TemplateFileNotFoundError(_0x49c732);
         if (path_module.extname(_0x49c732).toLowerCase() !== '.md') throw new TemplateFileNotMarkdownError();
-        let _0x4e31e2 = await me.getInstance().readFile(_0x49c732);
+        let _0x4e31e2 = await workspace_info.getInstance().readFile(_0x49c732);
         if (!_0x4e31e2.length) throw new TemplateFileEmptyError();
         if (!gray_matter_module.test(_0x4e31e2)) throw new TemplateMissingMetadataError();
         let _0x5e0a45 = (0, gray_matter_module)(_0x4e31e2),
@@ -13437,7 +12760,7 @@ var oH,
     initWorkspaceInfo(), PromptMetadata = class {
       static ['createMetadata'](_0x4ed3ea, _0x590039) {
         return {
-          displayName: me.getInstance().getFileNameWithoutExtension(_0x4ed3ea),
+          displayName: workspace_info.getInstance().getFileNameWithoutExtension(_0x4ed3ea),
           applicableFor: _0x590039
         };
       }
@@ -13664,7 +12987,7 @@ var oH,
   initPromptTemplateService = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initCommentNavigator(), initTaskContext(), initFileSystemWatcher(), initTemplateFile(), initPromptMetadata(), initGenericTemplate(), initUserQueryTemplate(), initPlanTemplate(), initReviewTemplate(), initVerificationTemplate(), Sl = class _0x389cf0 {
+    initWorkspaceInfo(), initCommentNavigator(), initTaskContext(), initTemplateFile(), initPromptMetadata(), initGenericTemplate(), initUserQueryTemplate(), initPlanTemplate(), initReviewTemplate(), initVerificationTemplate(), Sl = class _0x389cf0 {
       constructor() {
         this.userPromptTemplates = new Map(), this.workspacePromptTemplates = new Map(), this.defaultPromptTemplates = new Map(), this.invalidTemplates = new Set(), this.globalWatcher = null;
       }
@@ -13713,7 +13036,7 @@ var oH,
       }
       async ['openPromptTemplate'](_0x11024c) {
         let _0x3ad791 = vscode_module.Uri.parse(_0x11024c);
-        me.getInstance().isVirtualUri(_0x3ad791) || (_0x3ad791 = vscode_module.Uri.file(_0x11024c)), await vscode_module.commands.executeCommand('vscode.open', _0x3ad791);
+        workspace_info.getInstance().isVirtualUri(_0x3ad791) || (_0x3ad791 = vscode_module.Uri.file(_0x11024c)), await vscode_module.commands.executeCommand('vscode.open', _0x3ad791);
       }
       async ["isUserPromptTemplateNameAllowed"](_0x3cf1a6) {
         let _0x2fc739 = await this.isNameAllowed(_0x3cf1a6, _0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR);
@@ -13737,7 +13060,7 @@ var oH,
         if (_0xf263f5.endsWith('.md')) _0x1585c7 = false;else {
           if (_0xf263f5.toLocaleLowerCase() === 'default') _0x1585c7 = false;else {
             let _0x2bbf1f = path_module.join(_0x155411, _0xf263f5 + ".md");
-            _0x1585c7 = !(await me.getInstance().fileExists(_0x2bbf1f));
+            _0x1585c7 = !(await workspace_info.getInstance().fileExists(_0x2bbf1f));
           }
         }
         return _0x1585c7;
@@ -13746,7 +13069,7 @@ var oH,
         try {
           this.userPromptTemplates.has(_0x54a4fd) ? this.userPromptTemplates.delete(_0x54a4fd) : this.workspacePromptTemplates.has(_0x54a4fd) && this.workspacePromptTemplates.delete(_0x54a4fd);
           let _0x64cf4d = await TemplateFile.validateTemplateFile(_0x54a4fd, ice);
-          _0x64cf4d.displayName || (_0x64cf4d.displayName = me.getInstance().getFileNameWithoutExtension(_0x54a4fd));
+          _0x64cf4d.displayName || (_0x64cf4d.displayName = workspace_info.getInstance().getFileNameWithoutExtension(_0x54a4fd));
           let _0x132c2a = this.determineScopeFromFilePath(_0x54a4fd),
             _0x48a23b;
           switch (_0x64cf4d.applicableFor) {
@@ -13924,7 +13247,7 @@ var oH,
       }
       async ["watchWorkspaceTemplatePath"](_0x87eed8, _0x5d58d6) {
         if (!_0x87eed8.includes('.traycer')) return;
-        let _0x52d998 = me.getInstance().getWorkspaceDirs(),
+        let _0x52d998 = workspace_info.getInstance().getWorkspaceDirs(),
           _0x71c6fc = false;
         if (_0x52d998.some(_0x66eee5 => {
           let _0x4f6e6d = path_module.join(_0x66eee5, '.traycer', _0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR_NAME);
@@ -13943,12 +13266,12 @@ var oH,
         }
       }
       ['getWorkspaceTemplatePaths']() {
-        let _0x428286 = me.getInstance().getWorkspaceDirs();
+        let _0x428286 = workspace_info.getInstance().getWorkspaceDirs();
         return _0x428286 ? _0x428286.map(_0x4b51fc => path_module.join(_0x4b51fc, ".traycer", "prompt-templates")) : [];
       }
       async ["loadWorkspaceTemplateDirectories"]() {
         let _0x3dbc5b = this.getWorkspaceTemplatePaths();
-        for (let key of _0x3dbc5b) if (await me.getInstance().fileExists(key)) {
+        for (let key of _0x3dbc5b) if (await workspace_info.getInstance().fileExists(key)) {
           let _0x20b90f = await (0, fs_promises_module.readdir)(key);
           for (let _0x5eb3e8 of _0x20b90f) {
             let _0xdb2375 = path_module.join(key, _0x5eb3e8);
@@ -13961,11 +13284,11 @@ var oH,
         let _0x2e9642 = path_module.normalize(_0x3cc8d6),
           _0x431280 = path_module.normalize(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR);
         if (_0x2e9642.startsWith(_0x431280)) return "user";
-        if (me.getInstance().getWorkspaceDirs().some(_0x58f4fe => _0x2e9642.startsWith(_0x58f4fe))) return "workspace";
+        if (workspace_info.getInstance().getWorkspaceDirs().some(_0x58f4fe => _0x2e9642.startsWith(_0x58f4fe))) return "workspace";
         throw new Error("Invalid file path: " + _0x3cc8d6);
       }
       async ["startGlobalWatcher"]() {
-        (await me.getInstance().fileExists(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR)) || (await (0, fs_promises_module.mkdir)(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR, {
+        (await workspace_info.getInstance().fileExists(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR)) || (await (0, fs_promises_module.mkdir)(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR, {
           recursive: true
         }));
         let _0x365491 = chokidar_module.watch(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR, {
@@ -14006,7 +13329,7 @@ var oH,
         });
       }
       async ['listWorkspaceDirectories']() {
-        let _0x3cf66a = me.getInstance().getWorkspaceDirs();
+        let _0x3cf66a = workspace_info.getInstance().getWorkspaceDirs();
         await Qe.postToCommentNavigator({
           type: Ef.LIST_WORKSPACE_DIRECTORIES,
           workspaceDirectories: _0x3cf66a
@@ -14175,7 +13498,7 @@ var oH,
       }
       ["getDefaultFilename"]() {
         let _0x3104f7 = this.title.replaceAll(' ', '-').toLocaleLowerCase() + '.' + this.getFileExtension(),
-          _0x35e01e = me.getInstance().getWorkspaceDirs();
+          _0x35e01e = workspace_info.getInstance().getWorkspaceDirs();
         return _0x35e01e.length > 0 ? path_module.join(_0x35e01e[0], _0x3104f7) : path_module.join(os_module.homedir(), _0x3104f7);
       }
       async ['getSaveUri'](_0x3b461c, _0x75b21f) {
@@ -14526,7 +13849,7 @@ async function debounce(_0xad5586, _0x184124, _0x2514c4, _0x227745) {
 }
 function getAllAvailableAgents() {
   let _0x4fac27 = AgentRegistry.getInstance(),
-    _0x2174d4 = [getAgentIcon("copy"), getAgentIcon("markdown-export"), me.getInstance().getIdeAgentInfo()],
+    _0x2174d4 = [getAgentIcon("copy"), getAgentIcon("markdown-export"), workspace_info.getInstance().getIdeAgentInfo()],
     _0x81c382 = vscode_module.workspace.getConfiguration("traycer").get('additionalAgents') || [],
     _0x673545 = [];
   for (let key of _0x81c382) {
@@ -14586,25 +13909,19 @@ async function registerVscodeCommand(_0x2acc8f, _0xb621c1, _0x23c705, _0x2cc0a0 
   try {
     if ((await vscode_module.commands.getCommands(true)).includes(_0xb621c1)) {
       if (_0x2cc0a0) {
-        _H.get(_0xb621c1)?.["dispose"]();
+        commandRegistry.get(_0xb621c1)?.["dispose"]();
         let _0x36fb7b = vscode_module.commands.registerCommand(_0xb621c1, _0x23c705, _0x3a24ba);
-        _0x2acc8f.subscriptions.push(_0x36fb7b), _H.set(_0xb621c1, _0x36fb7b);
+        _0x2acc8f.subscriptions.push(_0x36fb7b), commandRegistry.set(_0xb621c1, _0x36fb7b);
       }
     } else {
       let _0x43bc3c = vscode_module.commands.registerCommand(_0xb621c1, _0x23c705, _0x3a24ba);
-      _0x2acc8f.subscriptions.push(_0x43bc3c), _H.set(_0xb621c1, _0x43bc3c);
+      _0x2acc8f.subscriptions.push(_0x43bc3c), commandRegistry.set(_0xb621c1, _0x43bc3c);
     }
   } catch (_0x2c7b9d) {
     return Logger.warn('Failed to register command: ' + _0xb621c1, _0x2c7b9d), Promise.reject(_0x2c7b9d);
   }
 }
-var _H,
-  initRepoMappingStore = __esmModule(() => {
-    'use strict';
-
-    _H = new Map();
-  }),
-  RSe,
+var RSe,
   Kwr,
   initRepoSettingsSchema = __esmModule(() => {
     RSe = prisma, Kwr = {
@@ -15241,7 +14558,7 @@ var initGoogleAuth = __esmModule(() => {
   initTraycerCredentials = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initWorkspaceInfo(), initRepoMappingStore(), initUsageTracker(), initRepoSettingsExports(), initAuthModule(), TraycerCredentials = class TraycerCredentials {
+    initSearchConfig(), initWorkspaceInfo(), initUsageTracker(), initRepoSettingsExports(), initAuthModule(), TraycerCredentials = class TraycerCredentials {
       constructor(context, onActivation, onDeactivation) {
         this.context = context, this._traycerUser = null, this._traycerToken = null, this.currentAuthController = null, Logger.info("Initializing Traycer credentials"), this.authClient = new TraycerApiClient(new URL(config.authnApiUrl)), this.onActivation = onActivation, this.onDeactivation = onDeactivation, this.authStateManager = new AuthStatusHandlerExports(), this.contextStorageManager = new ContextStorageManager(context), this.tokenManager = new IC(this.authClient);
       }
@@ -15377,9 +14694,9 @@ var initGoogleAuth = __esmModule(() => {
         selection === "Sign in with Traycer" ? (await this.authStateManager.setState("SigningIn"), await this.openCloudUI()) : selection === "Paste token" && (await this.promptPasteToken());
       }
       async ['openCloudUI']() {
-        let callbackUri = me.getInstance().getIdeInfo().uriScheme + "://" + IT + '/' + AUTH_CALLBACK_COMMAND,
+        let callbackUri = workspace_info.getInstance().getIdeInfo().uriScheme + "://" + IT + '/' + AUTH_CALLBACK_COMMAND,
           cloudUrl = config.cloudUIUrl + '?redirect_uri=' + encodeURIComponent(callbackUri);
-        await me.getInstance().openExternalLink(cloudUrl);
+        await workspace_info.getInstance().openExternalLink(cloudUrl);
       }
       async ['promptPasteToken']() {
         let pastedToken = await vscode_module.window.showInputBox({
@@ -15550,7 +14867,7 @@ async function handleGetGitDiffRequest(_0x5085f0) {
 var initGitInfoModule = __esmModule(() => {
   'use strict';
 
-  initPathModule(), initGitUtils();
+  initPathModule();
 });
 async function handleGetGitInfoRequest(_0x50061e) {
   let {
@@ -15582,7 +14899,7 @@ async function handleGetGitInfoRequest(_0x50061e) {
 var initGitInfoExports = __esmModule(() => {
   'use strict';
 
-  initPathModule(), initGitUtils();
+  initPathModule();
 });
 /* [unbundle] fuzzysort 已移至顶部导入区 */
 async function handleListFilesAndFoldersRequest(_0x199565) {
@@ -15606,7 +14923,7 @@ async function listDirectoryOrThrow(_0x4ed450, _0x3c698b) {
 }
 async function throwFolderNotFoundError(_0xea7770) {
   let _0x42670b = TraycerPath.fromPathProto(_0xea7770),
-    _0x53261c = me.getInstance().getWorkspaceDirs(),
+    _0x53261c = workspace_info.getInstance().getWorkspaceDirs(),
     _0x43df9b = await Promise.all(_0x53261c.map(async _0x43e7ca => await searchFoldersWithRipgrep(_0x43e7ca, '', null, Number.MAX_SAFE_INTEGER, true))),
     _0x5c3cdd = (0, fuzzysort_module.go)(_0x42670b.absPath, _0x43df9b.flat(), {
       limit: 5,
@@ -16534,7 +15851,7 @@ async function readMultipleFilesWithMetadata(_0x9a3d1e) {
       if (!_0x5cc73c.path) throw new Error('File path is required');
       let _0x13326d = TraycerPath.fromPathProto(_0x5cc73c.path),
         _0x91e1dd = _0x13326d.absPath;
-      if (await me.getInstance().fileExists(_0x91e1dd)) {
+      if (await workspace_info.getInstance().fileExists(_0x91e1dd)) {
         let _0xa10ee4 = await In.getSourceCode(_0x91e1dd),
           _0x4c4a45 = await (await LlmCacheHandler.getInstance()).getSummaryFromCache(_0x91e1dd, _0xa10ee4),
           _0x5af019 = config.enableAgentsMd ? await getAgentsMdContent(_0x91e1dd) : [];
@@ -16599,7 +15916,7 @@ async function executeRipgrepSearch(_0x69db30, _0x52ce70, _0x2c2ca8, _0x4e227c) 
   let _0x5a92ab = await config.getRipgrepBinPath();
   if (!_0x5a92ab) throw new Error('ripgrep binary not found');
   let _0x4b7770 = async (_0x37fa24, _0x1a4055, _0xa9ab3a) => WorkerPoolManager.exec("ripgrep-processor.cjs", "processRipgrepOutput", [_0x37fa24, _0x1a4055, _0xa9ab3a]);
-  return formatCodeBlockContent(me.getInstance(), _0x5a92ab, _0x69db30, _0x52ce70, _0x2c2ca8, _0x4e227c, me.getInstance().getPlatform(), _0x4b7770);
+  return formatCodeBlockContent(workspace_info.getInstance(), _0x5a92ab, _0x69db30, _0x52ce70, _0x2c2ca8, _0x4e227c, workspace_info.getInstance().getPlatform(), _0x4b7770);
 }
 var initRipgrepSearchModule = __esmModule(() => {
     'use strict';
@@ -17108,19 +16425,14 @@ async function registerExtensionCommands(_0x2ed719) {
 var initExtensionCommands = __esmModule(() => {
   'use strict';
 
-  initRepoMappingStore(), initCommentNavigatorDeps(), initPathModule();
+  initCommentNavigatorDeps(), initPathModule();
 });
 async function registerShowTemplateErrorsCommand(_0x50b7bd) {
   await registerVscodeCommand(_0x50b7bd, SHOW_TEMPLATE_ERRORS_COMMAND, (..._0x5ead29) => {
     vscode_module.window.showErrorMessage("Template errors: " + _0x5ead29.join(', '));
   });
 }
-var initRepoMappingHelper = __esmModule(() => {
-    'use strict';
-
-    initRepoMappingStore();
-  }),
-  TicketLoadingNotifier,
+var TicketLoadingNotifier,
   initTicketLoadingNotifier = __esmModule(() => {
     'use strict';
 
@@ -17162,7 +16474,7 @@ var initRepoMappingHelper = __esmModule(() => {
       }
       async ["_addFromStorage"](_0x11366f) {
         return Promise.allSettled(_0x11366f.map(async _0x28e650 => {
-          if (me.getInstance().isWorkspaceOpen(_0x28e650.workspacePath)) try {
+          if (workspace_info.getInstance().isWorkspaceOpen(_0x28e650.workspacePath)) try {
             await Qe.openCommentNavigator();
             let _0x4d1dd8 = await Nh.getInstance().addTaskChainForPersistedTicket(_0x28e650.persistedTicket, _0x28e650.workspacePath, _0x28e650.ticketReferenceInfo);
             _0x4d1dd8.showNotification("Imported plan for ticket: " + _0x4d1dd8.activePhaseBreakdown.activeTask.title);
@@ -17238,7 +16550,7 @@ var initRepoMappingHelper = __esmModule(() => {
           Logger.error("Failed to fetch repo mapping: " + String(_0x4765f4)), vscode_module.window.showErrorMessage("Failed to import ticket due to locally cloned repository not found. Please clone the repository manually and try again.");
           return;
         }
-        me.getInstance().isWorkspaceOpen(_0x274b57.gitRoot) ? await this.addTaskChainForPersistedTicket(_0x32069c, _0x274b57.gitRoot, _0x35c9d1) : await this.openNewWorkspace(_0x487948, _0x274b57.gitRoot, _0x32069c, _0x35c9d1);
+        workspace_info.getInstance().isWorkspaceOpen(_0x274b57.gitRoot) ? await this.addTaskChainForPersistedTicket(_0x32069c, _0x274b57.gitRoot, _0x35c9d1) : await this.openNewWorkspace(_0x487948, _0x274b57.gitRoot, _0x32069c, _0x35c9d1);
       }
       async ['openNewWorkspace'](_0x55434e, _0x35a82c, _0x16a01e, _0x4d0f71) {
         let _0x3e597f = {
@@ -17307,106 +16619,13 @@ async function registerImportPersistedTicketCommand(_0x5071e1) {
 var initTaskChainCommands = __esmModule(() => {
     'use strict';
 
-    initTaskChainManager(), initRepoMappingStore(), initStatusBarModule();
-  }),
-  TE,
-  initStorageMigrationHelper = __esmModule(() => {
-    'use strict';
-
-    TE = class _0x4aad8d extends T0 {
-      static {
-        this._instance = null;
-      }
-      constructor(_0x5b71a0, _0x20fba9) {
-        super(_0x5b71a0);
-        let _0x429865 = this.onDidChangeFile(async _0x33f9ec => {
-          for (let key of _0x33f9ec) this.fileEntries.has(key.uri.toString()) && (await this.fileEntries.get(key.uri.toString())?.['fileChangeCallback']?.(key));
-        });
-        _0x20fba9.subscriptions.push(_0x429865);
-      }
-      static ["getInstance"](_0x9b810f) {
-        if (!_0x4aad8d._instance) {
-          if (!_0x9b810f) throw new Error("Context is required to construct the editable file system provider");
-          _0x4aad8d._instance = new _0x4aad8d(_0x153d8b => _0x153d8b.with({
-            scheme: EDITABLE_DIFF_VIEW_ID
-          }), _0x9b810f);
-        }
-        return _0x4aad8d._instance;
-      }
-      ['createFile'](_0x3f1586, _0x1fcffa, _0x113849) {
-        let _0x3ee8a7 = this.uriConverter(_0x3f1586);
-        this.fileEntries.set(_0x3ee8a7.toString(), {
-          content: Buffer.from(_0x1fcffa).toString('utf8'),
-          fileChangeCallback: _0x113849
-        }), this._emitter.fire([{
-          type: vscode_module.FileChangeType.Created,
-          uri: _0x3ee8a7
-        }]);
-      }
-      ['writeFile'](_0x254a6e, _0x2d8c44) {
-        let _0x5a6dbe = this.uriConverter(_0x254a6e),
-          _0x444988 = this.fileEntries.get(_0x5a6dbe.toString());
-        _0x444988 && (this.fileEntries.set(_0x5a6dbe.toString(), {
-          content: Buffer.from(_0x2d8c44).toString("utf8"),
-          fileChangeCallback: _0x444988.fileChangeCallback
-        }), this._emitter.fire([{
-          type: vscode_module.FileChangeType.Changed,
-          uri: _0x5a6dbe
-        }]));
-      }
-    };
-  }),
-  SqliteMigrator,
-  MementoKey,
-  Kvt,
-  initSqliteMigrator = __esmModule(() => {
-    'use strict';
-
-    SqliteMigrator = class {
-      static async ['migrateToSqlite'](_0x8fe694, _0x25e734) {
-        for (let key of Object.values(MementoKey)) {
-          let _0x44c703 = _0x8fe694.globalState.get(key);
-          if (!_0x44c703) continue;
-          let _0x24dac9 = _0x44c703.version;
-          await this.processMigration(key, _0x24dac9, _0x44c703, _0x25e734), await _0x8fe694.globalState.update(key, void 0);
-        }
-      }
-      static async ["processMigration"](_0x5a69c8, _0x14341c, _0x559a88, _0x107ab7) {
-        let _0x2d4644 = Kvt[_0x5a69c8];
-        await _0x107ab7.acquireWriteLock(), await _0x107ab7.beginTransaction();
-        let _0x5def73 = false,
-          _0x5a098c = Object.entries(_0x559a88.records);
-        Logger.debug('Migrating ' + _0x5a098c.length + " records from memento " + _0x5a69c8 + " to " + _0x2d4644);
-        let _0x5d83d6 = [];
-        try {
-          for (let [, _0x368562] of _0x5a098c) {
-            let {
-                lastUpdated: _0x1d48a8,
-                object: _0x994bff
-              } = _0x368562,
-              _0x5a8a61 = _0x994bff,
-              _0x146af7 = {
-                version: _0x14341c,
-                lastUpdated: _0x1d48a8
-              },
-              _0x101e78 = _0x107ab7.upsert(_0x2d4644, _0x5a8a61, _0x146af7);
-            _0x5d83d6.push(_0x101e78);
-          }
-          await Promise.all(_0x5d83d6), _0x5def73 = true;
-        } finally {
-          _0x5def73 ? await _0x107ab7.commitTransaction() : await _0x107ab7.rollbackTransaction(), await _0x107ab7.releaseWriteLock();
-        }
-      }
-    }, MementoKey = (_0x81bbff => (_0x81bbff.AnalysisHistory = "traycerAnalysisHistory", _0x81bbff.TaskHistory = "traycerTaskHistory", _0x81bbff))(MementoKey || {}), Kvt = {
-      traycerAnalysisHistory: 'AnalysisHistory',
-      traycerTaskHistory: 'TaskHistory'
-    };
+    initTaskChainManager(), initStatusBarModule();
   }),
   PersistenceManager,
   initPersistenceManager = __esmModule(() => {
     'use strict';
 
-    initPersistedTicketLoading(), initGitOperationsExports(), initProgressReporter(), initSqliteMigrator(), initTaskChainPersistence(), initTaskRunner(), initWorkspaceSettingsPersistence(), PersistenceManager = class _0x445c6c {
+    initPersistedTicketLoading(), initGitOperationsExports(), initProgressReporter(), initTaskChainPersistence(), initTaskRunner(), initWorkspaceSettingsPersistence(), PersistenceManager = class _0x445c6c {
       constructor(_0x3cadc4, _0x3a4ec8, _0x195da7, _0x32a455, _0x1ea497) {
         this._taskHistory = _0x3cadc4, this._repoWorkspaceMappings = _0x3a4ec8, this._appAssetsDB = _0x32a455, this._importTicket = _0x195da7, this._workspaceSettings = _0x1ea497;
       }
@@ -17612,7 +16831,7 @@ var initTaskChainCommands = __esmModule(() => {
   initFileWatcher = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initGitUtils(), initCliAgentService(), initPromptTemplateService(), initFilePathHandler(), FileWatcher = class {
+    initPathModule(), initCliAgentService(), initPromptTemplateService(), initFilePathHandler(), FileWatcher = class {
       constructor() {
         this.ignoreFilePatterns = getGlobalIgnoreInstance().add(rue);
       }
@@ -17646,26 +16865,26 @@ var initTaskChainCommands = __esmModule(() => {
       }
     };
   }),
-  $3,
+  TabChangeWatcher,
   initFileSystemProviders = __esmModule(() => {
     'use strict';
 
-    initStorageMigrationHelper(), initMediaFileSystem(), $3 = class {
-      ['activate'](_0x2de15e) {
-        this.tabChangeWatcher = vscode_module.window.tabGroups.onDidChangeTabs(_0xc3d5e2 => {
-          this.handleTabChangeEvent(_0xc3d5e2);
-        }), _0x2de15e.subscriptions.push(this.tabChangeWatcher);
+    TabChangeWatcher = class {
+      activate(context) {
+        this.tabChangeWatcher = vscode_module.window.tabGroups.onDidChangeTabs(event => {
+          this.handleTabChangeEvent(event);
+        }), context.subscriptions.push(this.tabChangeWatcher);
       }
-      ['deactivate']() {
-        this.tabChangeWatcher?.['dispose']();
+      deactivate() {
+        this.tabChangeWatcher?.dispose();
       }
-      ["handleTabChangeEvent"](_0x4a8648) {
-        _0x4a8648.closed.forEach(_0x23f2f4 => {
-          let _0x3063bb = _0x23f2f4.input?.['uri'];
-          _0x3063bb instanceof vscode_module.Uri && MediaFileSystem.getInstance().delete(_0x3063bb);
-          let _0x1f27a6 = _0x23f2f4.input;
-          _0x1f27a6?.["textDiffs"]?.['length'] && _0x1f27a6.textDiffs.forEach(_0x24f68d => {
-            !(_0x24f68d?.["modified"] instanceof vscode_module.Uri) || !(_0x24f68d?.['original'] instanceof vscode_module.Uri) || (TE.getInstance().delete(_0x24f68d.modified), TraycerFileSystem.getInstance().delete(_0x24f68d.original));
+      handleTabChangeEvent(tabChangeEvent) {
+        tabChangeEvent.closed.forEach(closedTab => {
+          let tabUri = closedTab.input?.uri;
+          tabUri instanceof vscode_module.Uri && MediaFileSystem.getInstance().delete(tabUri);
+          let tabInput = closedTab.input;
+          tabInput?.textDiffs?.length && tabInput.textDiffs.forEach(textDiff => {
+            !(textDiff?.modified instanceof vscode_module.Uri) || !(textDiff?.original instanceof vscode_module.Uri) || (EditableFileSystem.getInstance().delete(textDiff.modified), TraycerFileSystem.getInstance().delete(textDiff.original));
           });
         });
       }
@@ -17683,7 +16902,7 @@ var initTaskChainCommands = __esmModule(() => {
         this.workspaceChangeWatcher?.['dispose']();
       }
       async ["handleWorkspaceChange"]() {
-        na.getInstance().clearCache(), me.getInstance().invalidateWSInfo();
+        na.getInstance().clearCache(), workspace_info.getInstance().invalidateWSInfo();
       }
     };
   }),
@@ -17709,7 +16928,7 @@ var initTaskChainCommands = __esmModule(() => {
 async function showReleaseNotesPanel(_0x2347a1, _0x56df76) {
   try {
     let _0x50fa66 = path_module.join(_0x2347a1.extensionPath, "resources", "changelog.md"),
-      _0x54ed5 = await me.getInstance().readFile(_0x50fa66, false),
+      _0x54ed5 = await workspace_info.getInstance().readFile(_0x50fa66, false),
       _0x6b164a = _0x56df76.organizationSubscription ?? _0x56df76.userSubscription;
     _0x54ed5 = _0x54ed5 + '\x0a\x0a<hr>\x0a\x0a## Your Subscription Status: **' + createUuid(!_0x6b164a?.['orgID'], _0x6b164a.subscriptionStatus, _0x6b164a.isInTrial) + '**\x0a';
     let _0x45ad27 = _0x6b164a?.['subscriptionStatus'];
@@ -17725,19 +16944,12 @@ async function showReleaseNotesPanel(_0x2347a1, _0x56df76) {
     Logger.warn("Failed to show release notes", _0x46b89f);
   }
 }
-var VS = markdown_it_module;
 function generateReleaseNotesHtml(_0x56f4a6) {
-  return "\n      <!DOCTYPE html>\n      <html lang=\"en\">\n      <head>\n          <meta charset=\"UTF-8\">\n          <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n          <style>\n              body {\n                padding: 10px 20px;\n                line-height: 22px;\n                max-width: 850px;\n                margin: 0 auto;\n            }\n\n            body *:last-child {\n                margin-bottom: 0;\n            }\n\n            img {\n                max-width: 100%;\n                max-height: 100%;\n            }\n\n            a {\n                text-decoration: var(--text-link-decoration);\n            }\n\n            a:hover {\n                text-decoration: underline;\n            }\n\n            a:focus,\n            input:focus,\n            select:focus,\n            textarea:focus {\n                outline: 1px solid -webkit-focus-ring-color;\n                outline-offset: -1px;\n            }\n\n            hr {\n                border: 0;\n                height: 1px;\n                border-bottom: 2px solid;\n            }\n\n            h1 {\n                padding-bottom: 0.3em;\n                line-height: 1.2;\n                border-bottom-width: 1px;\n                border-bottom-style: solid;\n                display: flex;\n                align-items: center;\n                gap: 2px;\n            }\n\n            h1, h2, h3 {\n                font-weight: normal;\n            }\n\n            table {\n                border-collapse: collapse;\n            }\n\n            th {\n                text-align: left;\n                border-bottom: 1px solid;\n            }\n\n            th,\n            td {\n                padding: 5px 10px;\n            }\n\n            table > tbody > tr + tr > td {\n                border-top-width: 1px;\n                border-top-style: solid;\n            }\n\n            blockquote {\n                margin: 0 7px 0 5px;\n                padding: 0 16px 0 10px;\n                border-left-width: 5px;\n                border-left-style: solid;\n            }\n\n            code {\n                font-family: \"SF Mono\", Monaco, Menlo, Consolas, \"Ubuntu Mono\", \"Liberation Mono\", \"DejaVu Sans Mono\", \"Courier New\", monospace;\n            }\n\n            pre {\n                padding: 16px;\n                border-radius: 3px;\n                overflow: auto;\n            }\n\n            pre code {\n                font-family: var(--vscode-editor-font-family);\n                font-weight: var(--vscode-editor-font-weight);\n                font-size: var(--vscode-editor-font-size);\n                line-height: 1.5;\n                color: var(--vscode-editor-foreground);\n                tab-size: 4;\n            }\n\n            .monaco-tokenized-source {\n                white-space: pre;\n            }\n\n            /** Theming */\n\n            .pre {\n                background-color: var(--vscode-textCodeBlock-background);\n            }\n\n            .vscode-high-contrast h1 {\n                border-color: rgb(0, 0, 0);\n            }\n\n            .vscode-light th {\n                border-color: rgba(0, 0, 0, 0.69);\n            }\n\n            .vscode-dark th {\n                border-color: rgba(255, 255, 255, 0.69);\n            }\n\n            .vscode-light h1,\n            .vscode-light hr,\n            .vscode-light td {\n                border-color: rgba(0, 0, 0, 0.18);\n            }\n\n            .vscode-dark h1,\n            .vscode-dark hr,\n            .vscode-dark td {\n                border-color: rgba(255, 255, 255, 0.18);\n            }\n\n            @media (forced-colors: active) and (prefers-color-scheme: light){\n                body {\n                    forced-color-adjust: none;\n                }\n            }\n\n            @media (forced-colors: active) and (prefers-color-scheme: dark){\n                body {\n                    forced-color-adjust: none;\n                }\n            }\n\n\n            .mtk1 { color: #d4d4d4; }\n            .mtk2 { color: #1e1e1e; }\n            .mtk3 { color: #000080; }\n            .mtk4 { color: #6a9955; }\n            .mtk5 { color: #569cd6; }\n            .mtk6 { color: #b5cea8; }\n            .mtk7 { color: #646695; }\n            .mtk8 { color: #d7ba7d; }\n            .mtk9 { color: #9cdcfe; }\n            .mtk10 { color: #f44747; }\n            .mtk11 { color: #ce9178; }\n            .mtk12 { color: #6796e6; }\n            .mtk13 { color: #808080; }\n            .mtk14 { color: #d16969; }\n            .mtk15 { color: #dcdcaa; }\n            .mtk16 { color: #4ec9b0; }\n            .mtk17 { color: #c586c0; }\n            .mtk18 { color: #4fc1ff; }\n            .mtk19 { color: #c8c8c8; }\n            .mtk20 { color: #cd9731; }\n            .mtk21 { color: #b267e6; }\n            .mtki { font-style: italic; }\n            .mtkb { font-weight: bold; }\n            .mtku { text-decoration: underline; text-underline-position: under; }\n            .mtks { text-decoration: line-through; }\n            .mtks.mtku { text-decoration: underline line-through; text-underline-position: under; }\n\n            /* codesetting */\n\n            code:has(.codesetting)+code:not(:has(.codesetting)) {\n                display: none;\n            }\n\n            code:has(.codesetting) {\n                background-color: var(--vscode-textPreformat-background);\n                color: var(--vscode-textPreformat-foreground);\n                padding-left: 1px;\n                margin-right: 3px;\n                padding-right: 0px;\n            }\n\n            code:has(.codesetting):focus {\n                border: 1px solid var(--vscode-button-border, transparent);\n            }\n\n            .codesetting {\n                color: var(--vscode-textPreformat-foreground);\n                padding: 0px 1px 1px 0px;\n                font-size: 0px;\n                overflow: hidden;\n                text-overflow: ellipsis;\n                outline-offset: 2px !important;\n                box-sizing: border-box;\n                text-align: center;\n                cursor: pointer;\n                display: inline;\n                margin-right: 3px;\n            }\n            .codesetting svg {\n                font-size: 12px;\n                text-align: center;\n                cursor: pointer;\n                border: 1px solid var(--vscode-button-secondaryBorder, transparent);\n                outline: 1px solid transparent;\n                line-height: 9px;\n                margin-bottom: -5px;\n                padding-left: 0px;\n                padding-top: 2px;\n                padding-bottom: 2px;\n                padding-right: 2px;\n                display: inline-block;\n                text-decoration: none;\n                text-rendering: auto;\n                text-transform: none;\n                -webkit-font-smoothing: antialiased;\n                -moz-osx-font-smoothing: grayscale;\n                user-select: none;\n                -webkit-user-select: none;\n            }\n            .codesetting .setting-name {\n                font-size: 13px;\n                padding-left: 2px;\n                padding-right: 3px;\n                padding-top: 1px;\n                padding-bottom: 1px;\n                margin-left: -5px;\n                margin-top: -3px;\n            }\n            .codesetting:hover {\n                color: var(--vscode-textPreformat-foreground) !important;\n                text-decoration: none !important;\n            }\n            code:has(.codesetting):hover {\n                filter: brightness(140%);\n                text-decoration: none !important;\n            }\n            .codesetting:focus {\n                outline: 0 !important;\n                text-decoration: none !important;\n                color: var(--vscode-button-hoverForeground) !important;\n            }\n            .codesetting .separator {\n                width: 1px;\n                height: 14px;\n                margin-bottom: -3px;\n                display: inline-block;\n                background-color: var(--vscode-editor-background);\n                font-size: 12px;\n                margin-right: 8px;\n            }\n\n            header { display: flex; align-items: center; padding-top: 1em; }\n\n            .experimental-tag {\n                background-color: #4d4d4d;\n                padding: 2px 6px;\n                border-radius: 3px;\n                font-family: monospace;\n                font-size: 0.9em;\n            }\n\n            .coupon-code {\n                display: inline-block;\n                background-color: #3794ff;\n                color: #fff;\n                padding: 4px 8px;\n                border-radius: 3px;\n                font-family: monospace;\n                cursor: pointer;\n            }\n\n            .copied-message {\n                color: #73c991;\n                margin-left: 8px;\n                opacity: 0;\n                transition: opacity 0.2s;\n            }\n\n            .copied-message.active {\n                opacity: 1;\n            }\n\n            footer {\n                margin-top: 20px;\n                padding-top: 20px;\n                border-top: 1px solid #3d3d3d;\n                color: #888888;\n            }\n            .footer-buttons {\n            display: flex;\n            justify-content: center;\n            gap: 16px;\n            }\n          </style>\n      </head>\n        <body class=\"vscode-dark\">\n            <div class=\"content\">\n                " + VS({
+  return "\n      <!DOCTYPE html>\n      <html lang=\"en\">\n      <head>\n          <meta charset=\"UTF-8\">\n          <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n          <style>\n              body {\n                padding: 10px 20px;\n                line-height: 22px;\n                max-width: 850px;\n                margin: 0 auto;\n            }\n\n            body *:last-child {\n                margin-bottom: 0;\n            }\n\n            img {\n                max-width: 100%;\n                max-height: 100%;\n            }\n\n            a {\n                text-decoration: var(--text-link-decoration);\n            }\n\n            a:hover {\n                text-decoration: underline;\n            }\n\n            a:focus,\n            input:focus,\n            select:focus,\n            textarea:focus {\n                outline: 1px solid -webkit-focus-ring-color;\n                outline-offset: -1px;\n            }\n\n            hr {\n                border: 0;\n                height: 1px;\n                border-bottom: 2px solid;\n            }\n\n            h1 {\n                padding-bottom: 0.3em;\n                line-height: 1.2;\n                border-bottom-width: 1px;\n                border-bottom-style: solid;\n                display: flex;\n                align-items: center;\n                gap: 2px;\n            }\n\n            h1, h2, h3 {\n                font-weight: normal;\n            }\n\n            table {\n                border-collapse: collapse;\n            }\n\n            th {\n                text-align: left;\n                border-bottom: 1px solid;\n            }\n\n            th,\n            td {\n                padding: 5px 10px;\n            }\n\n            table > tbody > tr + tr > td {\n                border-top-width: 1px;\n                border-top-style: solid;\n            }\n\n            blockquote {\n                margin: 0 7px 0 5px;\n                padding: 0 16px 0 10px;\n                border-left-width: 5px;\n                border-left-style: solid;\n            }\n\n            code {\n                font-family: \"SF Mono\", Monaco, Menlo, Consolas, \"Ubuntu Mono\", \"Liberation Mono\", \"DejaVu Sans Mono\", \"Courier New\", monospace;\n            }\n\n            pre {\n                padding: 16px;\n                border-radius: 3px;\n                overflow: auto;\n            }\n\n            pre code {\n                font-family: var(--vscode-editor-font-family);\n                font-weight: var(--vscode-editor-font-weight);\n                font-size: var(--vscode-editor-font-size);\n                line-height: 1.5;\n                color: var(--vscode-editor-foreground);\n                tab-size: 4;\n            }\n\n            .monaco-tokenized-source {\n                white-space: pre;\n            }\n\n            /** Theming */\n\n            .pre {\n                background-color: var(--vscode-textCodeBlock-background);\n            }\n\n            .vscode-high-contrast h1 {\n                border-color: rgb(0, 0, 0);\n            }\n\n            .vscode-light th {\n                border-color: rgba(0, 0, 0, 0.69);\n            }\n\n            .vscode-dark th {\n                border-color: rgba(255, 255, 255, 0.69);\n            }\n\n            .vscode-light h1,\n            .vscode-light hr,\n            .vscode-light td {\n                border-color: rgba(0, 0, 0, 0.18);\n            }\n\n            .vscode-dark h1,\n            .vscode-dark hr,\n            .vscode-dark td {\n                border-color: rgba(255, 255, 255, 0.18);\n            }\n\n            @media (forced-colors: active) and (prefers-color-scheme: light){\n                body {\n                    forced-color-adjust: none;\n                }\n            }\n\n            @media (forced-colors: active) and (prefers-color-scheme: dark){\n                body {\n                    forced-color-adjust: none;\n                }\n            }\n\n\n            .mtk1 { color: #d4d4d4; }\n            .mtk2 { color: #1e1e1e; }\n            .mtk3 { color: #000080; }\n            .mtk4 { color: #6a9955; }\n            .mtk5 { color: #569cd6; }\n            .mtk6 { color: #b5cea8; }\n            .mtk7 { color: #646695; }\n            .mtk8 { color: #d7ba7d; }\n            .mtk9 { color: #9cdcfe; }\n            .mtk10 { color: #f44747; }\n            .mtk11 { color: #ce9178; }\n            .mtk12 { color: #6796e6; }\n            .mtk13 { color: #808080; }\n            .mtk14 { color: #d16969; }\n            .mtk15 { color: #dcdcaa; }\n            .mtk16 { color: #4ec9b0; }\n            .mtk17 { color: #c586c0; }\n            .mtk18 { color: #4fc1ff; }\n            .mtk19 { color: #c8c8c8; }\n            .mtk20 { color: #cd9731; }\n            .mtk21 { color: #b267e6; }\n            .mtki { font-style: italic; }\n            .mtkb { font-weight: bold; }\n            .mtku { text-decoration: underline; text-underline-position: under; }\n            .mtks { text-decoration: line-through; }\n            .mtks.mtku { text-decoration: underline line-through; text-underline-position: under; }\n\n            /* codesetting */\n\n            code:has(.codesetting)+code:not(:has(.codesetting)) {\n                display: none;\n            }\n\n            code:has(.codesetting) {\n                background-color: var(--vscode-textPreformat-background);\n                color: var(--vscode-textPreformat-foreground);\n                padding-left: 1px;\n                margin-right: 3px;\n                padding-right: 0px;\n            }\n\n            code:has(.codesetting):focus {\n                border: 1px solid var(--vscode-button-border, transparent);\n            }\n\n            .codesetting {\n                color: var(--vscode-textPreformat-foreground);\n                padding: 0px 1px 1px 0px;\n                font-size: 0px;\n                overflow: hidden;\n                text-overflow: ellipsis;\n                outline-offset: 2px !important;\n                box-sizing: border-box;\n                text-align: center;\n                cursor: pointer;\n                display: inline;\n                margin-right: 3px;\n            }\n            .codesetting svg {\n                font-size: 12px;\n                text-align: center;\n                cursor: pointer;\n                border: 1px solid var(--vscode-button-secondaryBorder, transparent);\n                outline: 1px solid transparent;\n                line-height: 9px;\n                margin-bottom: -5px;\n                padding-left: 0px;\n                padding-top: 2px;\n                padding-bottom: 2px;\n                padding-right: 2px;\n                display: inline-block;\n                text-decoration: none;\n                text-rendering: auto;\n                text-transform: none;\n                -webkit-font-smoothing: antialiased;\n                -moz-osx-font-smoothing: grayscale;\n                user-select: none;\n                -webkit-user-select: none;\n            }\n            .codesetting .setting-name {\n                font-size: 13px;\n                padding-left: 2px;\n                padding-right: 3px;\n                padding-top: 1px;\n                padding-bottom: 1px;\n                margin-left: -5px;\n                margin-top: -3px;\n            }\n            .codesetting:hover {\n                color: var(--vscode-textPreformat-foreground) !important;\n                text-decoration: none !important;\n            }\n            code:has(.codesetting):hover {\n                filter: brightness(140%);\n                text-decoration: none !important;\n            }\n            .codesetting:focus {\n                outline: 0 !important;\n                text-decoration: none !important;\n                color: var(--vscode-button-hoverForeground) !important;\n            }\n            .codesetting .separator {\n                width: 1px;\n                height: 14px;\n                margin-bottom: -3px;\n                display: inline-block;\n                background-color: var(--vscode-editor-background);\n                font-size: 12px;\n                margin-right: 8px;\n            }\n\n            header { display: flex; align-items: center; padding-top: 1em; }\n\n            .experimental-tag {\n                background-color: #4d4d4d;\n                padding: 2px 6px;\n                border-radius: 3px;\n                font-family: monospace;\n                font-size: 0.9em;\n            }\n\n            .coupon-code {\n                display: inline-block;\n                background-color: #3794ff;\n                color: #fff;\n                padding: 4px 8px;\n                border-radius: 3px;\n                font-family: monospace;\n                cursor: pointer;\n            }\n\n            .copied-message {\n                color: #73c991;\n                margin-left: 8px;\n                opacity: 0;\n                transition: opacity 0.2s;\n            }\n\n            .copied-message.active {\n                opacity: 1;\n            }\n\n            footer {\n                margin-top: 20px;\n                padding-top: 20px;\n                border-top: 1px solid #3d3d3d;\n                color: #888888;\n            }\n            .footer-buttons {\n            display: flex;\n            justify-content: center;\n            gap: 16px;\n            }\n          </style>\n      </head>\n        <body class=\"vscode-dark\">\n            <div class=\"content\">\n                " + markdown_it_module({
     html: true
   }).render(_0x56f4a6) + '\x0a            </div>\x0a\x0a            <!-- Footer section with buttons -->\x0a            <footer>\x0a                <div class=\x22footer-buttons\x22>\x0a                    <a href=\x22' + wE.mainWebsitePricing + '\x22 target=\x22_blank\x22>Plans & Pricing</a>\x0a                    <a href=\x22' + wE.mainWebsiteFAQ + '\x22 target=\x22_blank\x22>FAQs</a>\x0a                    <a href=\x22' + wE.discord + "\" target=\"_blank\">Join Discord</a>\n                    <a href=\"" + wE.twitter + "\" target=\"_blank\">Follow on X (Twitter)</a>\n                </div>\n            </footer>\n        </body>\n        <script>\n            function copyCouponCode() {\n                const couponCodeElement = document.getElementById('coupon-code');\n                const couponCode = couponCodeElement.innerText;\n                const copiedMessage = document.getElementById('copied-message');\n\n                // Create a temporary input element\n                const tempInput = document.createElement('input');\n                tempInput.style.position = 'absolute';\n                tempInput.style.left = '-9999px';\n                tempInput.value = couponCode;\n\n                // Append the input element to the document body\n                document.body.appendChild(tempInput);\n\n                // Select the content of the input\n                tempInput.select();\n                tempInput.setSelectionRange(0, 99999); // For mobile devices\n\n                // Try to execute the copy command\n                try {\n                    document.execCommand('copy');\n\n                    // Show the \"Copied!\" message\n                    copiedMessage.classList.add('active');\n\n                    // Hide the message after 2 seconds\n                    setTimeout(() => {\n                        copiedMessage.classList.remove('active');\n                    }, 2000);\n                } catch (err) {\n                    console.error('Failed to copy the coupon code: ', err);\n                    alert('Failed to copy the coupon code.');\n                }\n\n                // Remove the temporary input element\n                document.body.removeChild(tempInput);\n            }\n        </script>\n      </html>\n      ";
 }
-var initExtensionExports = __esmModule(() => {
-    'use strict';
-
-    initWorkspaceInfo();
-  }),
-  /* [unbundle] semver 已移至顶部导入区 */
-  xQ = {};
+var xQ = {};
 __export(xQ, {
   activateExtension: () => initializeExtensionWithAuth,
   deactivateExtension: () => cleanupExtensionResources
@@ -17839,7 +17051,7 @@ async function initializeExtensionServices(context, authState_local) {
   disposables.push(mediaFsProvider);
 
   // 注册可编辑Diff视图文件系统提供者
-  let editableDiffFsProvider = vscode_module.workspace.registerFileSystemProvider(EDITABLE_DIFF_VIEW_ID, TE.getInstance(context), {
+  let editableDiffFsProvider = vscode_module.workspace.registerFileSystemProvider(EDITABLE_DIFF_VIEW_ID, EditableFileSystem.getInstance(context), {
     isCaseSensitive: true
   });
   disposables.push(editableDiffFsProvider);
@@ -17953,7 +17165,7 @@ function createWatchers(_0x350ec6, _0x1620ee) {
   let _0x3a71cf = {
       dispose: () => _0x38c982.deactivate()
     },
-    _0x597385 = new $3();
+    _0x597385 = new TabChangeWatcher();
   _0x597385.activate(_0x350ec6);
   let _0x597338 = {
       dispose: () => _0x597385.deactivate()
@@ -17978,7 +17190,7 @@ var disposables,
   initExtension = __esmModule(() => {
     'use strict';
 
-    initTraycerCredentials(), initGrpcClient(), initExtensionCommands(), initRepoMappingHelper(), initTaskChainCommands(), initSearchConfig(), initStorageMigrationHelper(), initMediaFileSystem(), initTaskChainManager(), initAnalytics(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initStatusBarExports(), initLlmCacheHandler(), initRepoMappingManager(), initTaskRunner(), initYoloArtifactManager(), initTemplateManager(), initMigrationLogger(), initUsageTracker(), initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initFileSystemProviders(), initWorkspaceWatcher(), initCommentNavigatorDeps(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(), initExtensionExports(), initTaskContext(), disposables = [], extensionContext = null;
+    initTraycerCredentials(), initGrpcClient(), initExtensionCommands(), initTaskChainCommands(), initSearchConfig(), initTaskChainManager(), initAnalytics(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initStatusBarExports(), initLlmCacheHandler(), initRepoMappingManager(), initTaskRunner(), initTemplateManager(), initMigrationLogger(), initUsageTracker(), initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initFileSystemProviders(), initWorkspaceWatcher(), initCommentNavigatorDeps(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(), initWorkspaceInfo(), initTaskContext(), disposables = [], extensionContext = null;
   }),
   sSt = {};
 __export(sSt, {

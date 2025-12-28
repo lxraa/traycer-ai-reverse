@@ -154,6 +154,63 @@ read_lints ["extension/out/modules/request_queue.js", "extension/out/extension.j
 **删除的 init 调用**：4 处（行号：1598, 1732, 3371, 15637）  
 **验证**：4 处 `new RequestQueue()` 调用正常，无 lint 错误
 
+## 示例：LatestRequestLimiter 拆解记录
+
+**原位置**：`extension.js` 1597-1623 行  
+**新文件**：`modules/latest_request_limiter.js`  
+**导入位置**：`extension.js` 第 75-77 行  
+**删除的 init 调用**：1 处（行号：1701）  
+**依赖**：`RequestQueue`, `Logger`（均已提取）  
+**验证**：1 处 `new LatestRequestLimiter()` 调用正常，无 lint 错误
+
+## 示例：Mutex 和 Semaphore 拆解记录
+
+**原位置**：`extension.js` 1763-1934 行  
+**新文件**：`modules/mutex.js`  
+**导入位置**：`extension.js` 第 78-81 行  
+**删除内容**：
+- 辅助函数：`insertByPriority`, `formatDirectoryContent`
+- 异步辅助：`R9e`, `x9e`  
+- 常量：`k9e` (LOCK_CANCELED_ERROR)
+- 类：`Semaphore`, `Mutex`  
+**依赖**：无外部依赖  
+**验证**：8 处 `new Mutex()` 调用正常，无 lint 错误
+
+## 示例：CommandRegistry (initRepoMappingStore) 拆解记录
+
+**原位置**：`extension.js` 14411-14416 行  
+**新文件**：`modules/command_registry.js`  
+**导入位置**：`extension.js` 第 82-84 行  
+**删除的 init 调用**：5 处（行号：15048, 16915, 16925, 17114, 17780）  
+**删除的模块**：`initRepoMappingStore`（直接删除，Map 实例在新文件中创建）和 `initRepoMappingHelper`（空模块，只调用 initRepoMappingStore）  
+**依赖**：无外部依赖  
+**说明**：原变量 `_H` 是一个 Map，用于存储 VSCode 命令注册的 disposable 对象。重命名为更语义化的 `commandRegistry`，仍然是一个 Map 实例，完全保持原有语义  
+**验证**：`registerVscodeCommand` 函数正常使用 `commandRegistry.get()` 和 `commandRegistry.set()`，无 lint 错误
+
+## 示例：FileSystemWatcher (initFileSystemWatcher) 拆解记录
+
+**原位置**：`extension.js` 7793-7832 行  
+**新文件**：`modules/file_system_watcher.js`  
+**导入位置**：`extension.js` 第 109-111 行  
+**删除的 init 调用**：2 处（行号：11881, 12990）  
+**依赖**：无外部依赖，仅使用内置模块 `path_module`, `fs_promises_module`  
+**说明**：原类名 `jW` 重命名为 `FileSystemWatcher`。该类用于跟踪目录中的项目，并在目录为空时自动清理。使用常量 `XM`（EMPTY_FUNCTION）和 `xKe`（FROZEN_EMPTY_SET）被内联为 `EMPTY_FUNCTION` 和 `FROZEN_EMPTY_SET`  
+**验证**：无 lint 错误
+
+## 示例：YoloArtifactManager (initYoloArtifactManager) 拆解记录
+
+**原位置**：`extension.js` 7834-7941 行  
+**新文件**：`modules/yolo_artifact_manager.js`  
+**导入位置**：`extension.js` 第 112-115 行  
+**删除的 init 调用**：3 处（行号：8235, 8872, 17200）  
+**依赖**：
+- `Logger`（已提取）
+- `FileSystemWatcher`（已提取）
+- `ensureDirectoryExists`（主文件全局函数，通过 `injectYoloArtifactManagerHelpers` 注入）
+- 内置模块：`path_module`, `os_module`, `fs_promises_module`, `chokidar_module`  
+**说明**：单例模式，用于监视和管理 Yolo 生成的构件文件。由于依赖主文件中的全局函数 `ensureDirectoryExists`，在主文件第 2228 行（定义 `ensureDirectoryExists` 后）调用 `injectYoloArtifactManagerHelpers({ ensureDirectoryExists })` 进行注入  
+**验证**：6 处 `YoloArtifactManager.getInstance()` 调用正常，无 lint 错误
+
 ## 工作流程总结
 
 ```
