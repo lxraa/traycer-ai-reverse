@@ -208,8 +208,58 @@ read_lints ["extension/out/modules/request_queue.js", "extension/out/extension.j
 - `FileSystemWatcher`（已提取）
 - `ensureDirectoryExists`（主文件全局函数，通过 `injectYoloArtifactManagerHelpers` 注入）
 - 内置模块：`path_module`, `os_module`, `fs_promises_module`, `chokidar_module`  
-**说明**：单例模式，用于监视和管理 Yolo 生成的构件文件。由于依赖主文件中的全局函数 `ensureDirectoryExists`，在主文件第 2228 行（定义 `ensureDirectoryExists` 后）调用 `injectYoloArtifactManagerHelpers({ ensureDirectoryExists })` 进行注入  
+**说明**：单例模式,用于监视和管理 Yolo 生成的构件文件。由于依赖主文件中的全局函数 `ensureDirectoryExists`，在主文件第 2228 行（定义 `ensureDirectoryExists` 后）调用 `injectYoloArtifactManagerHelpers({ ensureDirectoryExists })` 进行注入  
 **验证**：6 处 `YoloArtifactManager.getInstance()` 调用正常，无 lint 错误
+
+## 示例：GitHubTicketQueryBuilder 拆解记录
+
+**原位置**：`extension.js` 5582-5648 行（包含辅助函数和类）  
+**新文件**：`modules/github_ticket_query_builder.js`  
+**导入位置**：`extension.js` 第 116-122 行  
+**删除内容**：
+- 枚举：`yo` (TICKET_SOURCE) - 重命名为 `TICKET_SOURCE`，值保持不变
+- 辅助函数：`formatPathForDisplay`（格式化票据源显示名）
+- 辅助函数：`formatTicketReferenceDisplay`（格式化票据引用显示）
+- 辅助函数：`getGitHubIssueUrl`（获取 GitHub issue URL）
+- 类：`GitHubTicketQueryBuilder`（构建 GitHub 票据查询的 JSON 格式）  
+**依赖**：无外部依赖，所有依赖已内联到新模块  
+**全局替换**：所有 `yo.GITHUB_TICKET` → `TICKET_SOURCE.GITHUB_TICKET`，`yo.JIRA_TICKET` → `TICKET_SOURCE.JIRA_TICKET`  
+**验证**：
+- 1 处 `new GitHubTicketQueryBuilder()` 调用正常
+- 2 处 `formatTicketReferenceDisplay()` 调用正常
+- 1 处 `formatPathForDisplay()` 调用正常
+- 3 处 `TICKET_SOURCE.GITHUB_TICKET` 使用正常
+- 无 lint 错误
+
+## 示例：PathTypes (FilePath, TraycerPath, PlatformType) 拆解记录
+
+**原位置**：
+- `xr` 枚举：`extension.js` 227-230 行
+- `FilePath` 类：`extension.js` 342-390 行
+- `TraycerPath` 和 `initPathModule`：`extension.js` 1938-2028 行  
+
+**新文件**：`modules/path_types.js`  
+**导入位置**：`extension.js` 第 123-127 行  
+**导出内容**：
+- `PlatformType` 枚举（原 `xr`）- 重命名为更语义化的名称，导入时别名为 `xr` 保持兼容
+- `FilePath` 类 - 跨平台路径处理基类
+- `TraycerPath` 类 - 扩展 FilePath，添加工作区相关功能  
+
+**删除的 init 调用**：28 处 `initPathModule()` 调用（通过正则批量删除）  
+**依赖**：
+- `Logger`（已提取）
+- 内置模块：`path`, `fs/promises`, `vscode`  
+
+**重要变更**：
+- 将 `workspace_info.getInstance().getPlatform()` 内联为 `TraycerPath._getPlatform()`
+- 将 `workspace_info.getInstance().isDirectory()` 内联为 `TraycerPath._isDirectory()`
+- `xr` 重命名为 `PlatformType`，导入时使用别名 `xr` 保持向后兼容  
+
+**验证**：
+- 57 处 `TraycerPath.` 静态方法调用正常
+- 2 处 `FilePath.` 静态方法调用正常
+- 15 处 `xr.` 枚举使用正常
+- 无 lint 错误
 
 ## 工作流程总结
 

@@ -43,7 +43,7 @@ const crypto_module = {
 };
 const config_module = require("./modules/config.js");
 
-// 从 config_module 导入 ripgrep 配置和语言相关函数
+// �?config_module 导入 ripgrep 配置和语言相关函数
 const {
   isWindows,
   MAX_SEARCH_RESULTS,
@@ -113,6 +113,18 @@ const {
   YoloArtifactManager,
   injectYoloArtifactManagerHelpers
 } = require("./modules/yolo_artifact_manager.js");
+const {
+  TICKET_SOURCE,
+  formatPathForDisplay,
+  formatTicketReferenceDisplay,
+  getGitHubIssueUrl,
+  GitHubTicketQueryBuilder
+} = require("./modules/github_ticket_query_builder.js");
+const {
+  PlatformType: xr,
+  FilePath,
+  TraycerPath
+} = require("./modules/path_types.js");
 
 // [unbundle] 声明辅助函数，稍后在主文件中定义后，需要注入到 WorkspaceMigrator
 // extractWorkspacePathsFromPhases 依赖主文件中的 extractFilesFromPhaseBreakdowns、CustomSet、TraycerPath 等
@@ -217,20 +229,13 @@ var HttpStatusError = class extends Error {
     STORY: 1,
     EPIC: 2
   },
-  xr = {
-    POSIX: 0,
-    WINDOWS: 1
-  },
   tv = {
     MINOR: 0,
     MAJOR: 1,
     CRITICAL: 2
-  },
-  /* [unbundle] Ht, r9e 已移至 config.js */
-  yo = {
-    GITHUB_TICKET: 0,
-    JIRA_TICKET: 1
   };
+  /* [unbundle] Ht, r9e 已移至 config.js */
+  /* [unbundle] yo (TICKET_SOURCE) 已移至 github_ticket_query_builder.js */
 function ensureBuffer(inputData) {
   if (Buffer.isBuffer(inputData)) return inputData;
   if (inputData instanceof Uint8Array) return Buffer.from(inputData);
@@ -335,55 +340,7 @@ class LineRange {
     return LineRange.fromCount(_0x3c01f2 - 1, _0x5d0fdf);
   }
 }
-class FilePath {
-  constructor(absolutePath, isDirectory, platformType) {
-    this._absolutePath = absolutePath, this._isDirectory = isDirectory, this._platform = platformType, platformType === xr.WINDOWS ? this._path = path_module.win32 : this._path = path_module.posix;
-  }
-  ["_path"];
-  static ["getAbsolutePath"](filePathObj, platformType) {
-    return filePathObj ? FilePath.normalizeToPlatformPath(filePathObj.absolutePath, platformType) : '';
-  }
-  static ["equals"](pathA, pathB) {
-    return pathA.absPath === pathB.absPath;
-  }
-  static ["includes"](pathArray, pathToFind) {
-    return pathArray.some(pathItem => FilePath.equals(pathItem, pathToFind));
-  }
-  static ['getFileName'](filePath, platformType) {
-    let normalizedPath = this.normalizeToPlatformPath(filePath, platformType);
-    return (platformType === xr.WINDOWS ? path_module.win32 : path_module.posix).basename(normalizedPath);
-  }
-  static ["normalizeToPlatformPath"](pathStr, platformType) {
-    return platformType === xr.WINDOWS ? path_module.win32.normalize(pathStr) : path_module.posix.normalize(pathStr);
-  }
-  get ['isDirectory']() {
-    return this._isDirectory;
-  }
-  get ["platform"]() {
-    return this._platform;
-  }
-  get ['absPath']() {
-    return this._absolutePath;
-  }
-  get ['name']() {
-    return this._path.basename(this.absPath);
-  }
-  get ['proto']() {
-    return {
-      absolutePath: this.absPath,
-      isDirectory: this.isDirectory
-    };
-  }
-  get ["tiptapState"]() {
-    return {
-      id: this.absPath,
-      label: this.name,
-      absolutePath: this.absPath
-    };
-  }
-  static ['EMPTY_WORKSPACE'] = '';
-}
-;
+
 /* [unbundle] diff-match-patch 已移至顶部导入区 */
 function createCodeSnippetFromRange(_0x3d9552, _0x24123c, _0x309720, _0x2b83a8) {
   let _0x352f6c = FileContent.fromFile(_0x24123c),
@@ -1255,16 +1212,7 @@ function getGitignoreCache(_0x122f12) {
 function isAbortError(_0x5911c2) {
   return _0x5911c2 instanceof Error && (_0x5911c2.name === "AbortError" || _0x5911c2.name === 'AbortedError' || RequestAbortedError.matches(_0x5911c2));
 }
-function formatPathForDisplay(_0x99efc4) {
-  switch (_0x99efc4) {
-    case yo.GITHUB_TICKET:
-      return 'GitHub';
-    case yo.JIRA_TICKET:
-      return 'Jira';
-    default:
-      return "Unknown";
-  }
-}
+/* [unbundle] formatPathForDisplay 已移�?github_ticket_query_builder.js */
 function isDatabaseError(_0x463868) {
   for (let key of cte) {
     let _0x181ea6 = new RegExp(key);
@@ -1804,7 +1752,7 @@ var LlmCacheHandler,
   initLlmCacheHandler = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initDocumentManager(), initWorkspaceInfo(), LlmCacheHandler = class _0x31bc7c {
+    initDocumentManager(), initWorkspaceInfo(), LlmCacheHandler = class _0x31bc7c {
       constructor(_0x46d11a) {
         this.llmCache = _0x46d11a;
       }
@@ -1904,7 +1852,7 @@ async function listFilesFromPathProto(_0x2629da, _0x580829) {
 var initSymbolSearch = __esmModule(() => {
     'use strict';
 
-    initSearchUtils(), initPathModule();
+    initSearchUtils();
   }),
   WO = {
     DEFINITION: 0,
@@ -1987,87 +1935,7 @@ async function readFilesWithSummary(_0x14bfc8, _0x5b961d) {
     failedPaths: _0x48d500
   };
 }
-var TraycerPath,
-  initPathModule = __esmModule(() => {
-    'use strict';
-
-    initWorkspaceInfo(), initLlmCacheHandler(), initSymbolSearch(), TraycerPath = class TraycerPath extends FilePath {
-      static ["fromPathProto"](pathProto) {
-        if (!pathProto) throw new Error('PathProto is null');
-        let platform = workspace_info.getInstance().getPlatform();
-        return new TraycerPath(pathProto.absolutePath, pathProto.isDirectory, platform);
-      }
-      get ["absUri"]() {
-        return vscode_module.Uri.file(this.absPath);
-      }
-      get ["workspacePath"]() {
-        let workspaceFolders = vscode_module.workspace.workspaceFolders;
-        if (!workspaceFolders || workspaceFolders.length === 0) throw new Error('No workspace folders found');
-        let matchingFolder = workspaceFolders.find(folder => this.absPath.startsWith(folder.uri.fsPath));
-        return matchingFolder ? matchingFolder.uri.fsPath : TraycerPath.EMPTY_WORKSPACE;
-      }
-      get ['workspaceUri']() {
-        return vscode_module.Uri.file(this.workspacePath);
-      }
-      get ['relPath']() {
-        return path_module.relative(this.workspacePath, this.absPath);
-      }
-      ['serializeToStorage']() {
-        return {
-          absolutePath: this.absPath,
-          isDirectory: this._isDirectory
-        };
-      }
-      ['serializeToWire']() {
-        return {
-          absolutePath: this.absPath,
-          isDirectory: this._isDirectory
-        };
-      }
-      static ["pathEquals"](path1, path2) {
-        let platform = workspace_info.getInstance().getPlatform(),
-          normalizedPath1 = TraycerPath.normalizeToPlatformPath(path1, platform),
-          normalizedPath2 = TraycerPath.normalizeToPlatformPath(path2, platform);
-        return normalizedPath1.toLocaleLowerCase() === normalizedPath2.toLocaleLowerCase();
-      }
-      static ['deserializeFromStorage'](storedPath) {
-        return TraycerPath.fromPathProto(storedPath);
-      }
-      static ["deserializeFromWire"](wirePath) {
-        return TraycerPath.fromPathProto(wirePath);
-      }
-      static ['normalizePath'](inputPath) {
-        return workspace_info.getInstance().getPlatform() === xr.WINDOWS ? path_module.win32.normalize(inputPath) : path_module.posix.normalize(inputPath);
-      }
-      static ["findWorkspaceForPath"](absolutePath) {
-        let workspaceFolders = vscode_module.workspace.workspaceFolders;
-        if (!workspaceFolders || workspaceFolders.length === 0) return null;
-        for (let key of workspaceFolders) {
-          let folderPath = key.uri.fsPath;
-          if (absolutePath.startsWith(folderPath)) return folderPath;
-        }
-        return null;
-      }
-      static ['getRelativePath'](inputPath) {
-        let normalizedPath = TraycerPath.normalizePath(inputPath),
-          workspacePath = TraycerPath.findWorkspaceForPath(normalizedPath);
-        return workspacePath ? path_module.relative(workspacePath, normalizedPath) : normalizedPath;
-      }
-      static async ["fromPath"](inputPath) {
-        let normalizedPath = TraycerPath.normalizePath(inputPath),
-          isDir = await workspace_info.getInstance().isDirectory(normalizedPath);
-        return new TraycerPath(normalizedPath, isDir, workspace_info.getInstance().getPlatform());
-      }
-      static async ["pathExistsInWorkspace"](pathProto) {
-        let absolutePath = pathProto.absolutePath,
-          normalizedPath = TraycerPath.normalizePath(absolutePath);
-        return TraycerPath.findWorkspaceForPath(normalizedPath) !== null;
-      }
-      static {
-        this.EMPTY_WORKSPACE = "EMPTY_WORKSPACE";
-      }
-    };
-  });
+/* [unbundle] TraycerPath �?initPathModule 已移�?modules/path_types.js */
 function isConnected() {
   return process.platform.includes("win32") ? xr.WINDOWS : xr.POSIX;
 }
@@ -2115,7 +1983,7 @@ var Pf,
   initWorkspaceAssociation = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initPathModule(), Pf = class _0x2ee32b {
+    initWorkspaceInfo(), Pf = class _0x2ee32b {
       constructor(_0x510acd, _0x55f56e) {
         this._workspaceFile = _0x510acd, this._workspaceFolders = _0x55f56e;
       }
@@ -2183,11 +2051,6 @@ var Pf,
         return WorkerPoolManager.getInstance().cleanup();
       }
     };
-  }),
-  initStatusBarExports = __esmModule(() => {
-    'use strict';
-
-    initStatusBar();
   });
 function formatErrorToString(_0x78ccb6) {
   return _0x78ccb6 instanceof Error ? 'Error Name: ' + _0x78ccb6.name + '\x0aError Message: ' + _0x78ccb6.message + '\x0aError Stack: ' + _0x78ccb6.stack : '' + _0x78ccb6;
@@ -2262,7 +2125,7 @@ var ox,
   initProgressReporter = __esmModule(() => {
     'use strict';
 
-    initStatusBarExports(), ox = class _0x22559d {
+    initStatusBar(), ox = class _0x22559d {
       constructor(_0x55ecde) {
         this.reopenConnectionLock = new Mutex(), this._txDb = null, this._db = _0x55ecde, this.writeLock = new Mutex();
       }
@@ -2691,7 +2554,7 @@ var ox,
   initRepoMappingManager = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initWorkspaceInfo(), initGitOperations(), Du = class _0x41fa98 {
+    initWorkspaceInfo(), initGitOperations(), Du = class _0x41fa98 {
       constructor() {
         this.repoMappings = new Map();
       }
@@ -3089,7 +2952,7 @@ var workspace_info,
   initWorkspaceInfo = __esmModule(() => {
     'use strict';
 
-    initSearchUtils(), initPathModule(), initWorkspaceAssociation(), initRepoMappingManager(), workspace_info = class _0x2ba944 {
+    initSearchUtils(), initWorkspaceAssociation(), initRepoMappingManager(), workspace_info = class _0x2ba944 {
       constructor() {
         this.wsInfoInitLock = new Mutex(), this._currentWSInfo = void 0, this.concurrencyLimiter = new RequestQueue(10, 200, 5000);
       }
@@ -3427,7 +3290,7 @@ var workspace_info,
   initFilePathHandler = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initWorkspaceInfo(), initCommentNavigatorDeps(), kYe = /`file:([^`]+)`|file:([^\s),;`]+)/g, RYe = 100, na = class _0x1552a5 {
+    initWorkspaceInfo(), initCommentNavigatorDeps(), kYe = /`file:([^`]+)`|file:([^\s),;`]+)/g, RYe = 100, na = class _0x1552a5 {
       constructor() {
         this.pathCache = new lru_map_module.LRUMap(RYe);
       }
@@ -4893,7 +4756,7 @@ function getFileChangeTypeSuffix(_0xf3d6b2) {
   }
 }
 function formatRenameOperation(_0x51cd4a) {
-  return !_0x51cd4a.path || !_0x51cd4a.newPath ? '' : '### file:' + _0x51cd4a.path.relPath + " → file:" + _0x51cd4a.newPath.relPath;
+  return !_0x51cd4a.path || !_0x51cd4a.newPath ? '' : '### file:' + _0x51cd4a.path.relPath + " �?file:" + _0x51cd4a.newPath.relPath;
 }
 function pathProtoEquals(_0x25d18c, _0x2157e8) {
   if (!_0x25d18c || !_0x2157e8) throw new Error("Path is null");
@@ -5362,7 +5225,7 @@ async function getAgentsMdContentFromPaths(_0xb6c7ec) {
 var initGitLogModule = __esmModule(() => {
   'use strict';
 
-  initPathModule(), initWorkspaceInfo(), initRepoMappingManager();
+  initWorkspaceInfo(), initRepoMappingManager();
 });
 async function listDirectoryWithAgentsMd(_0x1f3609, _0x1b6bb9) {
   let _0x120891 = TraycerPath.fromPathProto(_0x1f3609),
@@ -5394,7 +5257,7 @@ async function listDirectoryWithAgentsMd(_0x1f3609, _0x1b6bb9) {
 var initQueryProcessor = __esmModule(() => {
   'use strict';
 
-  initSearchUtils(), initSearchConfig(), initPathModule(), initStatusBar(), initGitLogModule();
+  initSearchUtils(), initSearchConfig(), initStatusBar(), initGitLogModule();
 });
 async function parseAndFormatUserQuery(_0x2bd6eb, _0x253e4d) {
   let _0x4b797c = parseUserQueryContent(_0x2bd6eb, _0x253e4d);
@@ -5573,7 +5436,7 @@ function isPathContainedInDirectories(_0x90173f, _0x44af6d) {
 var initPlanContextModule = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initPathModule(), initDocumentManager(), initWorkspaceInfo(), initQueryProcessor(), initGitLogModule(), initLlmCacheHandler();
+    initSearchConfig(), initDocumentManager(), initWorkspaceInfo(), initQueryProcessor(), initGitLogModule(), initLlmCacheHandler();
   }),
   $Ye = 'Implementation plan not found',
   ImplementationPlanNotFoundError = class extends Error {
@@ -5589,81 +5452,11 @@ function parseQueryParams(_0x201ec2) {
   }
   return _0x2924b3;
 }
-function formatTicketReferenceDisplay(_0x14fddc) {
-  switch (_0x14fddc.ticketSource) {
-    case yo.GITHUB_TICKET:
-      if (!_0x14fddc.githubTicketRef) throw new Error("GitHub ticket reference not found");
-      return formatPathForDisplay(_0x14fddc.ticketSource) + ': ' + (_0x14fddc.githubTicketRef.organizationLogin ?? _0x14fddc.githubTicketRef.userLogin) + '/' + _0x14fddc.githubTicketRef.repositoryName + '/' + _0x14fddc.githubTicketRef.issueNumber;
-    default:
-      throw new Error('Unsupported ticket source: ' + _0x14fddc.ticketSource);
-  }
-}
-function getGitHubIssueUrl(_0x530683) {
-  switch (_0x530683.ticketSource) {
-    case yo.GITHUB_TICKET:
-      if (!_0x530683.githubTicketRef) throw new Error("GitHub ticket reference not found");
-      return "https://github.com/" + _0x530683.githubTicketRef.organizationLogin + '/' + _0x530683.githubTicketRef.repositoryName + '/issues/' + _0x530683.githubTicketRef.issueNumber;
-    default:
-      throw new Error("Unsupported ticket source: " + _0x530683.ticketSource);
-  }
-}
-var initStatusBarModule = __esmModule(() => {
-    'use strict';
-
-    initStatusBarExports();
-  }),
-  GitHubTicketQueryBuilder = class {
-    constructor(_0x16e15e) {
-      this._ticketReferenceInfo = _0x16e15e;
-    }
-    ['constructJsonQuery'](_0x2f1c8d) {
-      let _0x2885c8 = this._ticketReferenceInfo,
-        {
-          githubTicketRef: _0x16103e
-        } = _0x2885c8;
-      if (!_0x16103e || !_0x2f1c8d.ticketInput) throw new Error('GitHub ticket reference or persisted plan is not found');
-      let _0x21c9b3 = formatTicketReferenceDisplay(_0x2885c8),
-        _0x2507f7 = getGitHubIssueUrl(_0x2885c8),
-        _0x4f4a45 = _0x2f1c8d.ticketInput.attachments.map(_0x3fd6f8 => _0x3fd6f8.file ? {
-          type: 'mention',
-          attrs: {
-            contenteditable: false,
-            type: "mention",
-            contextType: 'attachment',
-            label: _0x3fd6f8.file.fileName,
-            id: _0x3fd6f8.file.fileName,
-            b64content: _0x3fd6f8.file.b64content,
-            fileName: _0x3fd6f8.file.fileName
-          }
-        } : null).filter(_0xdd0761 => _0xdd0761 !== null);
-      return {
-        type: "doc",
-        content: [{
-          type: "paragraph",
-          content: [{
-            type: "mention",
-            attrs: {
-              contenteditable: false,
-              type: "mention",
-              contextType: "github_issue",
-              label: _0x21c9b3,
-              id: _0x2507f7,
-              issueNumber: _0x16103e.issueNumber,
-              organizationLogin: _0x16103e.organizationLogin,
-              repositoryName: _0x16103e.repositoryName,
-              userLogin: _0x16103e.userLogin
-            }
-          }, {
-            type: "text",
-            text: ': ' + _0x2f1c8d.ticketInput.title
-          }, ..._0x4f4a45]
-        }]
-      };
-    }
-  };
+/* [unbundle] formatTicketReferenceDisplay, getGitHubIssueUrl 已移至 github_ticket_query_builder.js */
+/* [unbundle] GitHubTicketQueryBuilder 已移至 github_ticket_query_builder.js */
 function formatVerificationResult(_0x219b5a) {
   switch (_0x219b5a.ticketSource) {
-    case yo.GITHUB_TICKET:
+    case TICKET_SOURCE.GITHUB_TICKET:
       return new GitHubTicketQueryBuilder(_0x219b5a);
     default:
       throw new Error("Unsupported ticket source: " + _0x219b5a.ticketSource);
@@ -5756,7 +5549,7 @@ var initPlanOutputModule = __esmModule(() => {
   initAnalysisFinding = __esmModule(() => {
     'use strict';
 
-    initPathModule(), AnalysisFinding = class _0x2cdb4f {
+    AnalysisFinding = class _0x2cdb4f {
       constructor(_0x516eb8, _0x173ada, _0x25d801, _0x5f2887, _0x17b7aa, _0x21e66f, _0x54c73d) {
         this._id = _0x516eb8, this._statement = _0x173ada, this._explanation = _0x25d801, this._promptForAIAgent = _0x5f2887, this._relevantFiles = _0x17b7aa, this._category = _0x21e66f, this._isApplied = _0x54c73d;
       }
@@ -5830,7 +5623,7 @@ var initPlanOutputModule = __esmModule(() => {
   initReviewOutput = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initStatusBarExports(), initAnalysisFinding(), ReviewOutput = class _0x4e2c46 {
+    initStatusBar(), initAnalysisFinding(), ReviewOutput = class _0x4e2c46 {
       constructor(_0x18ca01, _0x232e46, _0x30ce46, _0x284965) {
         this._markdown = _0x18ca01, this._howDidIGetHere = _0x232e46, this._mermaid = _0x30ce46, this._comments = _0x284965;
       }
@@ -6572,7 +6365,7 @@ var PlanStepStorageAPI = class {
   initAnalysisSuggestion = __esmModule(() => {
     'use strict';
 
-    initPathModule(), AnalysisSuggestion = class _0x115727 {
+    AnalysisSuggestion = class _0x115727 {
       constructor(_0x38756a, _0x187745, _0x5b567b, _0x207cc1, _0x2f0a7a, _0xba694e, _0x345b55) {
         this._id = _0x38756a, this._title = _0x187745, this._description = _0x5b567b, this._promptForAIAgent = _0x207cc1, this._referredFiles = _0x2f0a7a, this._severity = _0xba694e, this._isApplied = _0x345b55;
       }
@@ -6697,7 +6490,7 @@ var PlanStepStorageAPI = class {
   initVerificationOutput = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initStatusBarExports(), initAnalysisSuggestion(), initSuggestionThread(), VerificationOutput = class _0x372073 {
+    initStatusBar(), initAnalysisSuggestion(), initSuggestionThread(), VerificationOutput = class _0x372073 {
       constructor(_0x35f48b, _0x58c626) {
         this._markdown = _0x35f48b, this._threads = _0x58c626;
       }
@@ -6989,7 +6782,7 @@ var TaskCountStorageAPI = class {
   initTaskPlan = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initWorkspaceInfo(), initPlanContextModule(), initTaskExecution(), initStatusBarModule(), initTaskPlanDeps(), initAnalysisSuggestion(), qa = class _0x46545e {
+    initWorkspaceInfo(), initPlanContextModule(), initTaskExecution(), initStatusBar(), initTaskPlanDeps(), initAnalysisSuggestion(), qa = class _0x46545e {
       constructor(_0x103932) {
         this._hasSentCreationMetrics = false, this._abortController = _0x103932.abortController, this._id = _0x103932.id, this._activePlanId = _0x103932.activePlanID, this._title = _0x103932.title, this._creationTime = _0x103932.creationTime, this._lastUpdatedTime = _0x103932.lastUpdatedTime, this._steps = _0x103932.steps, this._plans = _0x103932.plans, this._verification = _0x103932.verification, this._attachmentSummaries = _0x103932.attachmentSummaries, this._storageAPI = _0x103932.storageAPI, this._discardedVerificationComments = _0x103932.discardedVerificationComments, this._retryAfterTimestamp = _0x103932.retryAfterTimestamp;
       }
@@ -7923,7 +7716,7 @@ var PlanGenerationStep,
   initPlanExecutionStep = __esmModule(() => {
     'use strict';
 
-    initIdeAgentConfigExports(), initIdeAgentConfig(), initStatusBarExports(), PlanExecutionStep = class {
+    initIdeAgentConfigExports(), initIdeAgentConfig(), initStatusBar(), PlanExecutionStep = class {
       async ['execute'](_0xd8c756) {
         let {
           task: _0x111859,
@@ -8869,7 +8662,7 @@ var ZP = class {
   initTaskOrchestrator = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initPathModule(), initWorkspaceInfo(), initAnalytics(), initStatusBarExports(), initPlanContextModule(), initTemplateManager(), initTaskSettingsHandler(), initUsageInfoHandler(), initTaskContext(), initTaskPlan(), initTaskOrchestrator(), initPlanConversationHandler(), G_ = class _0x5c880e {
+    initIDEAgentManager(), initWorkspaceInfo(), initAnalytics(), initStatusBar(), initPlanContextModule(), initTemplateManager(), initTaskSettingsHandler(), initUsageInfoHandler(), initTaskContext(), initTaskPlan(), initTaskOrchestrator(), initPlanConversationHandler(), G_ = class _0x5c880e {
       constructor(_0x20483f = Ut(), _0x35286c = [], _0x528b0a = [], _0x79b5be, _0x395b29, _0x4cbcac, _0x2e734f, _0xbaa6e9) {
         this._taskExecutionConfig = void 0, this.yoloOrchestrator = null, this._id = _0x20483f, this._prePhaseConversations = _0x35286c, this._tasks = _0x528b0a, this.taskChainContext = _0x395b29, this.planGenerationService = _0x4cbcac, this.phaseGenerationService = _0x2e734f, this.verificationService = _0xbaa6e9, this._storageAPI = _0x79b5be, this._taskStorage = new TaskStepStorageAPI(_0x79b5be);
       }
@@ -9712,7 +9505,7 @@ var PhaseBreakdownStorageAPI = class {
   initTaskChainDeps = __esmModule(() => {
     'use strict';
 
-    initStatusBarModule(), initTaskOrchestrator(), y0 = class {
+    initStatusBar(), initTaskOrchestrator(), y0 = class {
       constructor(_0x1b89e7) {
         this.dbStorageAPI = _0x1b89e7;
       }
@@ -10676,7 +10469,7 @@ var QUERY_THROTTLE_MS,
   initTaskChainExports = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initAnalytics(), initStatusBarExports(), initTaskChainPersistence(), initTaskChain(), yD = class {
+    initWorkspaceInfo(), initAnalytics(), initStatusBar(), initTaskChainPersistence(), initTaskChain(), yD = class {
       constructor(_0x281b2f) {
         this._activeTaskChains = new Map(), this._currentVisibleTaskChains = new lru_map_module.LRUMap(5), this._operationCounter = 0, this._taskChainIDs = new Set(), this._currentVisibleTaskChainMutex = new Mutex(), this._activeTaskChainsMutex = new Map(), this._pendingUIRequests = new Set(), this._inflightUIRequests = new Map(), this._client = _0x281b2f;
       }
@@ -11319,7 +11112,7 @@ var QUERY_THROTTLE_MS,
   initTaskContext = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initWorkspaceInfo(), initWorkspaceSettingsPersistence(), initStatusBarExports(), initTaskRunner(), initTemplateManager(), initUsageInfoHandler(), Vt = class _0x43a5b4 {
+    initIDEAgentManager(), initWorkspaceInfo(), initWorkspaceSettingsPersistence(), initStatusBar(), initTaskRunner(), initTemplateManager(), initUsageInfoHandler(), Vt = class _0x43a5b4 {
       static {
         this.instance = null;
       }
@@ -11640,7 +11433,7 @@ var QUERY_THROTTLE_MS,
   initWebviewStatusHandler = __esmModule(() => {
     'use strict';
 
-    initSearchUtils(), initPathModule(), initDocumentManager(), initWorkspaceInfo(), initTaskRunner(), initCommentNavigatorDeps(), ED = class {
+    initSearchUtils(), initDocumentManager(), initWorkspaceInfo(), initTaskRunner(), initCommentNavigatorDeps(), ED = class {
       constructor() {}
       ["handle"](_0x191b6f) {
         let _0x46fa50 = zn.getInstance();
@@ -13886,7 +13679,7 @@ function getExtensionSettings() {
 var initSearchConfig = __esmModule(() => {
   'use strict';
 
-  initIDEAgentManager(), initStatusBarExports(), initTaskContext();
+  initIDEAgentManager(), initStatusBar(), initTaskContext();
 });
 var AuthCallbackHandler = class _0x456dfa {
   constructor(_0x35742c) {
@@ -14774,11 +14567,6 @@ async function handleListFilesRequest(_0x2de2bc) {
     filePaths: await listFilesFromPathProto(_0x3c7ed8, _0x366821)
   };
 }
-var initSymbolSearchModule = __esmModule(() => {
-  'use strict';
-
-  initSymbolSearch();
-});
 async function handleGetDiagnosticsRequest(_0x2abd42) {
   let {
       includePattern: _0x34498c,
@@ -14814,7 +14602,7 @@ async function handleGetDiagnosticsRequest(_0x2abd42) {
 var initSymbolSearchExports = __esmModule(() => {
   'use strict';
 
-  initPathModule(), initSymbolSearch();
+  initSymbolSearch();
 });
 async function getUncommittedDiffForFile(_0x18bd48) {
   let {
@@ -14867,7 +14655,7 @@ async function handleGetGitDiffRequest(_0x5085f0) {
 var initGitInfoModule = __esmModule(() => {
   'use strict';
 
-  initPathModule();
+  ;
 });
 async function handleGetGitInfoRequest(_0x50061e) {
   let {
@@ -14899,7 +14687,7 @@ async function handleGetGitInfoRequest(_0x50061e) {
 var initGitInfoExports = __esmModule(() => {
   'use strict';
 
-  initPathModule();
+  ;
 });
 /* [unbundle] fuzzysort 已移至顶部导入区 */
 async function handleListFilesAndFoldersRequest(_0x199565) {
@@ -14935,7 +14723,7 @@ async function throwFolderNotFoundError(_0xea7770) {
 var initSymbolSearchHandler = __esmModule(() => {
   'use strict';
 
-  initSearchUtils(), initPathModule(), initWorkspaceInfo(), initQueryProcessor();
+  initSearchUtils(), initWorkspaceInfo(), initQueryProcessor();
 });
 async function enqueueLanguageRequest(_0x40b48a, _0x43314f) {
   if (!AC.has(_0x43314f)) {
@@ -14993,7 +14781,7 @@ async function getDefinitionLocation(_0x517b7d) {
 var initFileCache = __esmModule(() => {
   'use strict';
 
-  initRequestQueueHelper(), initPathModule();
+  initRequestQueueHelper();
 });
 async function enqueueImplementationRequest(_0x4dfd2a, _0x417b43) {
   return enqueueLanguageRequest(() => getImplementationLocations(_0x4dfd2a), _0x417b43);
@@ -15036,7 +14824,7 @@ async function getImplementationLocations(_0x31e5a4) {
 var initDirCache = __esmModule(() => {
   'use strict';
 
-  initRequestQueueHelper(), initPathModule();
+  initRequestQueueHelper();
 });
 async function enqueueReferenceRequest(_0xe0d6e3, _0x3a594e = -1, _0x336b00) {
   return enqueueLanguageRequest(() => getReferenceLocations(_0xe0d6e3, _0x3a594e), _0x336b00);
@@ -15069,7 +14857,7 @@ async function getReferenceLocations(_0x2f24cd, _0x502375) {
 var initSymbolCache = __esmModule(() => {
     'use strict';
 
-    initRequestQueueHelper(), initPathModule();
+    initRequestQueueHelper();
   }),
   SnippetContextProvider,
   initSnippetContextProvider = __esmModule(() => {
@@ -15840,7 +15628,7 @@ async function findSymbolReferencesInFile(_0x349e72, _0x1ad2d6, _0x3d75d2, _0x5c
 var initFileReadModule = __esmModule(() => {
   'use strict';
 
-  initFileCache(), initDirCache(), initSymbolCache(), initPathModule(), initDocumentManager(), initLanguageParsers();
+  initFileCache(), initDirCache(), initSymbolCache(), initDocumentManager(), initLanguageParsers();
 });
 async function handleReadFilesRequest(_0x264761) {
   if (!_0x264761.fileRequests.length) throw new Error("Need at least one file path to read");
@@ -15899,7 +15687,7 @@ async function createFileNotFoundResponse(_0x1475ef) {
 var initFileReadHandler = __esmModule(() => {
   'use strict';
 
-  initSearchUtils(), initSearchConfig(), initPathModule(), initDocumentManager(), initWorkspaceInfo(), initGitLogModule(), initLlmCacheHandler(), initSymbolSearch();
+  initSearchUtils(), initSearchConfig(), initDocumentManager(), initWorkspaceInfo(), initGitLogModule(), initLlmCacheHandler(), initSymbolSearch();
 });
 async function handleRipgrepSearchRequest(_0x2dfbb8) {
   let {
@@ -15921,7 +15709,7 @@ async function executeRipgrepSearch(_0x69db30, _0x52ce70, _0x2c2ca8, _0x4e227c) 
 var initRipgrepSearchModule = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initPathModule(), initWorkspaceInfo(), initStatusBarExports();
+    initSearchConfig(), initWorkspaceInfo(), initStatusBar();
   }),
   MAX_WRITE_RETRIES,
   GrpcStreamHandler,
@@ -15929,7 +15717,7 @@ var initRipgrepSearchModule = __esmModule(() => {
   initGrpcClient = __esmModule(() => {
     'use strict';
 
-    initGoogleAuth(), initGrpcMessageTracker(), initSearchConfig(), initStatusBarExports(), initLlmCacheHandler(), initSymbolSearchModule(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initRipgrepSearchModule(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = un.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
+    initGoogleAuth(), initGrpcMessageTracker(), initSearchConfig(), initStatusBar(), initLlmCacheHandler(), initSymbolSearch(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initRipgrepSearchModule(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = un.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
       constructor(_0x30dd48, _0x34bdfa) {
         super(_0x30dd48, Logger), this.grpcConnection = null, this.id = null, this.client = _0x34bdfa;
       }
@@ -16425,7 +16213,7 @@ async function registerExtensionCommands(_0x2ed719) {
 var initExtensionCommands = __esmModule(() => {
   'use strict';
 
-  initCommentNavigatorDeps(), initPathModule();
+  initCommentNavigatorDeps();
 });
 async function registerShowTemplateErrorsCommand(_0x50b7bd) {
   await registerVscodeCommand(_0x50b7bd, SHOW_TEMPLATE_ERRORS_COMMAND, (..._0x5ead29) => {
@@ -16535,7 +16323,7 @@ var TicketLoadingNotifier,
         try {
           let _0x58d4ec, _0x161696;
           switch (_0x35c9d1.ticketSource) {
-            case yo.GITHUB_TICKET:
+            case TICKET_SOURCE.GITHUB_TICKET:
               {
                 let _0x2aa3b6 = _0x35c9d1.githubTicketRef?.['organizationLogin'] ?? _0x35c9d1.githubTicketRef?.['userLogin'];
                 if (!_0x35c9d1.githubTicketRef || !_0x2aa3b6) throw new Error('GitHub ticket reference not found');
@@ -16590,7 +16378,7 @@ var TicketLoadingNotifier,
       }
       ['extractTicketInfo'](_0x8f5394, _0x89ddfd) {
         switch (_0x8f5394) {
-          case yo.GITHUB_TICKET:
+          case TICKET_SOURCE.GITHUB_TICKET:
             if (!_0x89ddfd.github) throw new Error("GitHub ticket reference not found");
             return {
               ticketSource: _0x8f5394,
@@ -16619,7 +16407,7 @@ async function registerImportPersistedTicketCommand(_0x5071e1) {
 var initTaskChainCommands = __esmModule(() => {
     'use strict';
 
-    initTaskChainManager(), initStatusBarModule();
+    initTaskChainManager(), initStatusBar();
   }),
   PersistenceManager,
   initPersistenceManager = __esmModule(() => {
@@ -16831,7 +16619,7 @@ var initTaskChainCommands = __esmModule(() => {
   initFileWatcher = __esmModule(() => {
     'use strict';
 
-    initPathModule(), initCliAgentService(), initPromptTemplateService(), initFilePathHandler(), FileWatcher = class {
+    initCliAgentService(), initPromptTemplateService(), initFilePathHandler(), FileWatcher = class {
       constructor() {
         this.ignoreFilePatterns = getGlobalIgnoreInstance().add(rue);
       }
@@ -17190,7 +16978,7 @@ var disposables,
   initExtension = __esmModule(() => {
     'use strict';
 
-    initTraycerCredentials(), initGrpcClient(), initExtensionCommands(), initTaskChainCommands(), initSearchConfig(), initTaskChainManager(), initAnalytics(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initStatusBarExports(), initLlmCacheHandler(), initRepoMappingManager(), initTaskRunner(), initTemplateManager(), initMigrationLogger(), initUsageTracker(), initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initFileSystemProviders(), initWorkspaceWatcher(), initCommentNavigatorDeps(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(), initWorkspaceInfo(), initTaskContext(), disposables = [], extensionContext = null;
+    initTraycerCredentials(), initGrpcClient(), initExtensionCommands(), initTaskChainCommands(), initSearchConfig(), initTaskChainManager(), initAnalytics(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initStatusBar(), initLlmCacheHandler(), initRepoMappingManager(), initTaskRunner(), initTemplateManager(), initMigrationLogger(), initUsageTracker(), initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initFileSystemProviders(), initWorkspaceWatcher(), initCommentNavigatorDeps(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(), initWorkspaceInfo(), initTaskContext(), disposables = [], extensionContext = null;
   }),
   sSt = {};
 __export(sSt, {
