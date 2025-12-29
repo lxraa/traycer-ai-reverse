@@ -357,6 +357,19 @@
   "_comment_batch60": "=== 第六十批：观察者模式 ===",
   "np": "Observer",
   "op": "Subject",
-  "pp": "ObserverManager"
+  "pp": "ObserverManager",
+  
+  "_comment_batch61": "=== 第六十一批：新发现的混淆符号 ===",
+  "An": "ArtifactType",
+  "Sl": "PromptTemplateService",
+  "wE": "TraycerWebLinks",
+  
+  "_comment_batch62": "=== 第六十二批：导入的常量（来自 constants.js） ===",
+  "Hk": "IMAGE_MIME_TYPES",
+  "nq": "MAX_FILE_SIZE",
+  "RS": "TRAYCER_FILE_SCHEME",
+  
+  "_comment_batch63": "=== 第六十三批：Worker Pool 基类（来自 workerpool.js） ===",
+  "ex": "WorkerPoolBase"
 }
 

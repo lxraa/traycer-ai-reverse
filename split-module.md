@@ -231,6 +231,28 @@ read_lints ["extension/out/modules/request_queue.js", "extension/out/extension.j
 - 3 处 `TICKET_SOURCE.GITHUB_TICKET` 使用正常
 - 无 lint 错误
 
+## 示例：WorkerPoolManager (initStatusBar) 拆解记录
+
+**原位置**：`extension.js` 2044-2078 行  
+**新文件**：`modules/workerpool.js`（移动到已有的 WorkerPoolBase 所在文件）  
+**导入位置**：`extension.js` 第 82-86 行  
+**删除的 init 调用**：16 处（行号：2116, 3898, 4264, 5131, 5423, 6344, 7290, 8133, 9097, 9740, 12070, 13448, 14099, 14107, 14797, 15368）  
+**依赖解耦**：
+- 原依赖：`WorkspaceInfoManager.getInstance().getResourcesDir()` 
+- 解耦后：在 `WorkerPoolBase` 中实现了独立的 `getResourcesDir()` 方法
+- 实现：`path.join(path.dirname(path.dirname(__dirname)), "resources")`
+  - `__dirname` = `extension/out/modules` (workerpool.js 所在目录)
+  - `path.dirname(path.dirname(__dirname))` = `extension` (向上两级)
+  - 最终路径：`extension/resources` ✅
+- 不再依赖 `WorkspaceInfo`
+**说明**：
+- 将 `WorkerPoolManager` 从主文件移到 `modules/workerpool.js`，与基类 `WorkerPoolBase` 放在一起
+- `WorkerPoolManager` 继承自 `WorkerPoolBase` (原 `ex` 类)
+- 在基类中添加了 `getResourcesDir()` 方法，实现解耦
+- `WorkerPoolManager` 的 `getWorkerPath()` 方法现在调用 `this.getResourcesDir()` 而不是 `WorkspaceInfoManager`
+- ⚠️ **路径修正**：初始实现使用了 `path.dirname(__dirname)`（只向上一级），导致路径错误。已修正为 `path.dirname(path.dirname(__dirname))`（向上两级到 extension 目录）
+**验证**：9 处 `WorkerPoolManager.exec()` 和其他静态方法调用正常，无 lint 错误，worker 文件路径正确
+
 ## 工作流程总结
 
 ```

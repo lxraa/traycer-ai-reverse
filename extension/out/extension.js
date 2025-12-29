@@ -81,6 +81,10 @@ const {
   Mutex
 } = require("./modules/mutex.js");
 const {
+  ex: WorkerPoolBase,
+  WorkerPoolManager
+} = require("./modules/workerpool.js");
+const {
   commandRegistry
 } = require("./modules/command_registry.js");
 const {
@@ -147,8 +151,7 @@ const {
   FileSystemWatcher
 } = require("./modules/file_system_watcher.js");
 const {
-  YoloArtifactManager,
-  injectYoloArtifactManagerHelpers
+  YoloArtifactManager
 } = require("./modules/yolo_artifact_manager.js");
 const {
   TICKET_SOURCE,
@@ -191,9 +194,9 @@ var {
 
 // ============== 从外部模块导入常量 ==============
 var {
-  Hk,
-  nq,
-  RS,
+  IMAGE_MIME_TYPES,
+  MAX_FILE_SIZE,
+  TRAYCER_FILE_SCHEME,
   OPEN_SETTINGS_COMMAND,
   AUTH_CALLBACK_COMMAND,
   START_NEW_TASK_COMMAND,
@@ -247,7 +250,7 @@ var HttpStatusError = class extends Error {
     }
   },
   UNSUPPORTED_IMAGE_ERROR_MSG = "Attached image is not supported.",
-  SUPPORTED_IMAGE_TYPES_STRING = Array.from(Hk.keys()).join(', '),
+  SUPPORTED_IMAGE_TYPES_STRING = Array.from(IMAGE_MIME_TYPES.keys()).join(', '),
   UnsupportedImageTypeError = class extends Error {
     constructor(imageType) {
       super(UNSUPPORTED_IMAGE_ERROR_MSG + ' ' + imageType + ". Supported types are " + SUPPORTED_IMAGE_TYPES_STRING + '.'), this.name = 'UnsupportedImageTypeError';
@@ -1264,8 +1267,8 @@ function getContextFilePath(_0xbe0463) {
 function formatContextFileContent(_0x6b6682) {
   if (_0x6b6682.file?.["b64content"]) {
     let _0x2f6258 = path_module.extname(_0x6b6682.file.fileName);
-    if (Hk.has(_0x2f6258.toLowerCase())) {
-      if (_0x6b6682.file.b64content.length > nq) throw new Error("Attached image " + _0x6b6682.file.fileName + " is too large. Maximum size is " + nq + " bytes.");
+    if (IMAGE_MIME_TYPES.has(_0x2f6258.toLowerCase())) {
+      if (_0x6b6682.file.b64content.length > MAX_FILE_SIZE) throw new Error("Attached image " + _0x6b6682.file.fileName + " is too large. Maximum size is " + MAX_FILE_SIZE + " bytes.");
     } else throw new UnsupportedImageTypeError(_0x6b6682.file.fileName);
   }
 }
@@ -1353,9 +1356,6 @@ var subscriptionActions = {
   PathConversionMessageTypes = {
     CONVERT_FILE_PATH: 'convertFilePath'
   },
-  /* [unbundle] o9e (TaskStepStatus) 已移至 modules/task_migrators.js */
-  o9e = TaskStepStatus,
-  pe = o9e,
   CLIAgentManagementActions = {
     CREATE_USER_CLI_AGENT: 'createUserCLIAgent',
     CREATE_WORKSPACE_CLI_AGENT: 'createWorkspaceCLIAgent',
@@ -1893,7 +1893,7 @@ var initSymbolSearch = __esmModule(() => {
     MODIFIED_PHASE: 1,
     UNCHANGED_PHASE: 2
   },
-  An = {
+  ArtifactType = {
     IMPLEMENTATION_ARTIFACT: 0,
     REVIEW_ARTIFACT: 1
   },
@@ -2040,42 +2040,10 @@ var WorkspaceAssociation,
     }
   },
   /* [unbundle] workerpool 已移至顶部导入区 */
+  /* [unbundle] WorkerPoolManager 已移至 modules/workerpool.js */
 
-  WorkerPoolManager,
   initStatusBar = __esmModule(() => {
     'use strict';
-
-    initWorkspaceInfo(), WorkerPoolManager = class WorkerPoolManager extends ex {
-      static {
-        this._instance = null;
-      }
-      constructor() {
-        super({
-          minWorkers: 2,
-          maxWorkers: 2,
-          workerType: 'thread',
-          logger: Logger
-        });
-      }
-      ['getWorkerPath'](workerType) {
-        return path_module.join(WorkspaceInfoManager.getInstance().getResourcesDir(), "workers", workerType);
-      }
-      ['getSupportedWorkerTypes']() {
-        return ['json-operations.cjs', 'three-way-merge.cjs', 'ripgrep-processor.cjs', 'diff-utils.cjs', 'list-files-processor.cjs'];
-      }
-      static ["getInstance"]() {
-        return WorkerPoolManager._instance || (WorkerPoolManager._instance = new WorkerPoolManager()), WorkerPoolManager._instance;
-      }
-      static async ["initWorkerPool"]() {
-        await WorkerPoolManager.getInstance().initWorkerPool();
-      }
-      static async ['exec'](workerType, method, args) {
-        return WorkerPoolManager.getInstance().exec(workerType, method, args);
-      }
-      static async ['cleanup']() {
-        return WorkerPoolManager.getInstance().cleanup();
-      }
-    };
   });
 function formatErrorToString(_0x78ccb6) {
   return _0x78ccb6 instanceof Error ? 'Error Name: ' + _0x78ccb6.name + '\x0aError Message: ' + _0x78ccb6.message + '\x0aError Stack: ' + _0x78ccb6.stack : '' + _0x78ccb6;
@@ -2111,11 +2079,6 @@ async function ensureDirectoryExists(_0x3dd03b) {
     }
   }
 }
-
-// [unbundle] 注入 YoloArtifactManager 需要的全局辅助函数
-injectYoloArtifactManagerHelpers({
-  ensureDirectoryExists
-});
 async function getAppAssetsDatabasePath() {
   return path_module.join(await ensureAppAssetsFolder(), 'app-assets.db');
 }
@@ -2150,7 +2113,7 @@ var DatabaseTransactionWrapper,
   initProgressReporter = __esmModule(() => {
     'use strict';
 
-    initStatusBar(), DatabaseTransactionWrapper = class _0x22559d {
+    DatabaseTransactionWrapper = class _0x22559d {
       constructor(_0x55ecde) {
         this.reopenConnectionLock = new Mutex(), this._txDb = null, this._db = _0x55ecde, this.writeLock = new Mutex();
       }
@@ -3402,7 +3365,7 @@ var WorkspaceInfoManager,
             _0x107fe2 && (_0x527f91 = path_module.relative(_0x107fe2, _0x26af08));
             let _0x2144ec = await WorkspaceInfoManager.getInstance().isDirectory(_0x26af08);
             return {
-              replacement: '<' + RS + ' absPath=\x22' + _0x26af08 + '\x22' + (_0x2144ec ? " isDirectory=\"true\"" : '') + '>' + _0x527f91 + '</' + RS + '>',
+              replacement: '<' + TRAYCER_FILE_SCHEME + ' absPath=\x22' + _0x26af08 + '\x22' + (_0x2144ec ? " isDirectory=\"true\"" : '') + '>' + _0x527f91 + '</' + TRAYCER_FILE_SCHEME + '>',
               absolutePath: _0x26af08,
               isDirectory: _0x2144ec
             };
@@ -3428,7 +3391,7 @@ var WorkspaceInfoManager,
               isDirectory: _0x1c4e1b
             } = _0x5a54f2[0];
             return {
-              replacement: '<' + RS + " absPath=\"" + _0x43d760 + '\x22' + (_0x1c4e1b ? " isDirectory=\"true\"" : '') + '>' + _0x2aeda7 + '</' + RS + '>',
+              replacement: '<' + TRAYCER_FILE_SCHEME + " absPath=\"" + _0x43d760 + '\x22' + (_0x1c4e1b ? " isDirectory=\"true\"" : '') + '>' + _0x2aeda7 + '</' + TRAYCER_FILE_SCHEME + '>',
               absolutePath: _0x43d760,
               isDirectory: _0x1c4e1b
             };
@@ -3932,7 +3895,7 @@ async function listDirectoryWithAgentsMd(_0x1f3609, _0x1b6bb9) {
 var initQueryProcessor = __esmModule(() => {
   'use strict';
 
-  initSearchUtils(), initSearchConfig(), initStatusBar(), initGitLogModule();
+  initSearchUtils(), initSearchConfig(), initGitLogModule();
 });
 async function parseAndFormatUserQuery(_0x2bd6eb, _0x253e4d) {
   let _0x4b797c = parseUserQueryContent(_0x2bd6eb, _0x253e4d);
@@ -4298,7 +4261,7 @@ var initPlanOutputModule = __esmModule(() => {
   initReviewOutput = __esmModule(() => {
     'use strict';
 
-    initStatusBar(), initAnalysisFinding(), ReviewOutput = class _0x4e2c46 {
+    initAnalysisFinding(), ReviewOutput = class _0x4e2c46 {
       constructor(_0x18ca01, _0x232e46, _0x30ce46, _0x284965) {
         this._markdown = _0x18ca01, this._howDidIGetHere = _0x232e46, this._mermaid = _0x30ce46, this._comments = _0x284965;
       }
@@ -4909,7 +4872,7 @@ var PlanConversationStorageAPI = class {
         let _0xae3e7b = null;
         _0x4698f7.generatedPlan && (_0xae3e7b = _0x4698f7.generatedPlan);
         let _0x233367 = _0x4698f7.planArtifactType;
-        return _0xae3e7b && (_0xae3e7b.reviewOutput ? _0x233367 = An.REVIEW_ARTIFACT : _0x233367 = An.IMPLEMENTATION_ARTIFACT), new _0x41754d(_0x4907bf, _0x5aefe5, _0x233367, _0xae3e7b, _0x4698f7.queryJsonContent, false, _0x4698f7.planSummary, {
+        return _0xae3e7b && (_0xae3e7b.reviewOutput ? _0x233367 = ArtifactType.REVIEW_ARTIFACT : _0x233367 = ArtifactType.IMPLEMENTATION_ARTIFACT), new _0x41754d(_0x4907bf, _0x5aefe5, _0x233367, _0xae3e7b, _0x4698f7.queryJsonContent, false, _0x4698f7.planSummary, {
           id: _0x4698f7.id,
           planConversations: await Promise.all(_0x43d1b5.map(_0xad4d98 => PlanConversation.deserializeFromStorage(_0xad4d98, new PlanConversationStorageAPI(_0x5aefe5).getAdapter(_0xad4d98.id)))),
           isExecuted: _0x4698f7.isExecuted,
@@ -4938,7 +4901,7 @@ var PlanConversationStorageAPI = class {
           },
           isPayAsYouGo: false,
           parentPlanID: null,
-          planArtifactType: An.IMPLEMENTATION_ARTIFACT,
+          planArtifactType: ArtifactType.IMPLEMENTATION_ARTIFACT,
           isQueryExecutedDirectly: false,
           planSummary: void 0
         };
@@ -5165,7 +5128,7 @@ var PlanStepStorageAPI = class {
   initVerificationOutput = __esmModule(() => {
     'use strict';
 
-    initStatusBar(), initAnalysisSuggestion(), initSuggestionThread(), VerificationOutput = class _0x372073 {
+    initAnalysisSuggestion(), initSuggestionThread(), VerificationOutput = class _0x372073 {
       constructor(_0x35f48b, _0x58c626) {
         this._markdown = _0x35f48b, this._threads = _0x58c626;
       }
@@ -5457,7 +5420,7 @@ var TaskCountStorageAPI = class {
   initTaskPlan = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initPlanContextModule(), initTaskExecution(), initStatusBar(), initTaskPlanDeps(), initAnalysisSuggestion(), TaskStep = class _0x46545e {
+    initWorkspaceInfo(), initPlanContextModule(), initTaskExecution(), initTaskPlanDeps(), initAnalysisSuggestion(), TaskStep = class _0x46545e {
       constructor(_0x103932) {
         this._hasSentCreationMetrics = false, this._abortController = _0x103932.abortController, this._id = _0x103932.id, this._activePlanId = _0x103932.activePlanID, this._title = _0x103932.title, this._creationTime = _0x103932.creationTime, this._lastUpdatedTime = _0x103932.lastUpdatedTime, this._steps = _0x103932.steps, this._plans = _0x103932.plans, this._verification = _0x103932.verification, this._attachmentSummaries = _0x103932.attachmentSummaries, this._storageAPI = _0x103932.storageAPI, this._discardedVerificationComments = _0x103932.discardedVerificationComments, this._retryAfterTimestamp = _0x103932.retryAfterTimestamp;
       }
@@ -5513,9 +5476,9 @@ var TaskCountStorageAPI = class {
             creationTime: Date.now(),
             lastUpdatedTime: Date.now(),
             steps: {
-              userQuery: pe.COMPLETED,
-              planGeneration: pe.NOT_STARTED,
-              verification: pe.NOT_STARTED
+              userQuery: TaskStepStatus.COMPLETED,
+              planGeneration: TaskStepStatus.NOT_STARTED,
+              verification: TaskStepStatus.NOT_STARTED
             },
             plans: [],
             verification: null,
@@ -5623,9 +5586,9 @@ var TaskCountStorageAPI = class {
         let _0x1e0a8a = this.plans.find(_0x14d4e6 => _0x14d4e6.id === _0x22f33b.planID);
         if (!_0x1e0a8a) throw new ActivePlanNotFoundError('Plan with id ' + _0x22f33b.planID + " not found");
         this._steps = {
-          userQuery: pe.COMPLETED,
-          planGeneration: pe.NOT_STARTED,
-          verification: pe.NOT_STARTED
+          userQuery: TaskStepStatus.COMPLETED,
+          planGeneration: TaskStepStatus.NOT_STARTED,
+          verification: TaskStepStatus.NOT_STARTED
         }, this._activePlanId = _0x22f33b.planID, this._verification = null, await this.upsertToDisk(_0x2a8e8 => {
           _0x2a8e8.plans = [{
             isPayAsYouGo: false,
@@ -5722,14 +5685,14 @@ var TaskCountStorageAPI = class {
             gitMentions: _0x541b66
           } = parseUserQueryContent(await this.activePlan.getQueryJSONContent(), WorkspaceInfoManager.getInstance().getPlatform()),
           _0x5350b9 = await resolveGitMentions(_0x541b66),
-          _0x22822e = this.steps.planGeneration === pe.IN_PROGRESS ? TaskProgressState.TASK_IN_PROGRESS : this.steps.planGeneration === pe.COMPLETED || this.steps.planGeneration === pe.WAITING_FOR_EXECUTION || this.steps.planGeneration === pe.SKIPPED ? TaskProgressState.TASK_COMPLETED : TaskProgressState.TASK_NOT_STARTED;
+          _0x22822e = this.steps.planGeneration === TaskStepStatus.IN_PROGRESS ? TaskProgressState.TASK_IN_PROGRESS : this.steps.planGeneration === TaskStepStatus.COMPLETED || this.steps.planGeneration === TaskStepStatus.WAITING_FOR_EXECUTION || this.steps.planGeneration === TaskStepStatus.SKIPPED ? TaskProgressState.TASK_COMPLETED : TaskProgressState.TASK_NOT_STARTED;
         return {
           title: this.title,
           taskID: this.id,
           activePlan: {
             plan: _0x22822e === TaskProgressState.TASK_COMPLETED && !this.activePlan.isQueryExecutedDirectly ? {
-              implementationPlan: this.activePlan.planArtifactType === An.IMPLEMENTATION_ARTIFACT ? this.activePlan.mustGetImplementationPlan() : null,
-              reviewOutput: this.activePlan.planArtifactType === An.REVIEW_ARTIFACT ? this.activePlan.mustGetReviewOutput() : null
+              implementationPlan: this.activePlan.planArtifactType === ArtifactType.IMPLEMENTATION_ARTIFACT ? this.activePlan.mustGetImplementationPlan() : null,
+              reviewOutput: this.activePlan.planArtifactType === ArtifactType.REVIEW_ARTIFACT ? this.activePlan.mustGetReviewOutput() : null
             } : null,
             userPrompt: {
               query: _0x480fac,
@@ -5749,7 +5712,7 @@ var TaskCountStorageAPI = class {
             }
           },
           parentPlans: _0x22822e === TaskProgressState.TASK_COMPLETED ? await this.serializeParentPlans(this.activePlan, _0x11ca80) : [],
-          state: this.steps.planGeneration === pe.IN_PROGRESS ? TaskProgressState.TASK_IN_PROGRESS : this.steps.planGeneration === pe.COMPLETED || this.steps.planGeneration === pe.SKIPPED || this.steps.planGeneration === pe.WAITING_FOR_EXECUTION ? TaskProgressState.TASK_COMPLETED : TaskProgressState.TASK_NOT_STARTED,
+          state: this.steps.planGeneration === TaskStepStatus.IN_PROGRESS ? TaskProgressState.TASK_IN_PROGRESS : this.steps.planGeneration === TaskStepStatus.COMPLETED || this.steps.planGeneration === TaskStepStatus.SKIPPED || this.steps.planGeneration === TaskStepStatus.WAITING_FOR_EXECUTION ? TaskProgressState.TASK_COMPLETED : TaskProgressState.TASK_NOT_STARTED,
           attachmentSummaries: this._attachmentSummaries
         };
       }
@@ -5762,20 +5725,20 @@ var TaskCountStorageAPI = class {
         return [...(await this.serializeParentPlans(_0x21b151.parentPlan, _0x49a045)), _0x2c963f];
       }
       static ["updatePersistedTaskSteps"](_0x82edad) {
-        let _0x44ce9f = [pe.IN_PROGRESS, pe.ABORTING, pe.WAITING_FOR_EXECUTION];
-        if (_0x44ce9f.includes(_0x82edad.steps.verification)) _0x82edad.verification?.['verificationOutput'] ? _0x82edad.steps.verification = pe.COMPLETED : _0x82edad.steps.verification = pe.NOT_STARTED;else {
+        let _0x44ce9f = [TaskStepStatus.IN_PROGRESS, TaskStepStatus.ABORTING, TaskStepStatus.WAITING_FOR_EXECUTION];
+        if (_0x44ce9f.includes(_0x82edad.steps.verification)) _0x82edad.verification?.['verificationOutput'] ? _0x82edad.steps.verification = TaskStepStatus.COMPLETED : _0x82edad.steps.verification = TaskStepStatus.NOT_STARTED;else {
           if (_0x44ce9f.includes(_0x82edad.steps.planGeneration)) {
             if (_0x82edad.plans?.["length"] && _0x82edad.plans.length > 1) {
               let _0x255d10 = _0x82edad.plans.find(_0x35e172 => _0x35e172.id === _0x82edad.activePlanId);
               if (!_0x255d10) throw new ActivePlanNotFoundError("Plan with id " + _0x82edad.activePlanId + " not found while deserializing task from storage.");
-              _0x255d10.generatedPlan ? _0x255d10.planConversations.length && (_0x255d10.planConversations[_0x255d10.planConversations.length - 1].plan || _0x255d10.planConversations.pop()) : _0x82edad.plans = _0x82edad.plans.filter(_0x252604 => _0x252604.id !== _0x255d10.id), _0x82edad.steps.planGeneration = pe.COMPLETED;
-            } else _0x82edad.steps.planGeneration = pe.NOT_STARTED;
-            _0x82edad.steps.verification = pe.NOT_STARTED;
-          } else _0x44ce9f.includes(_0x82edad.steps.userQuery) && (_0x82edad.steps.userQuery = pe.NOT_STARTED, _0x82edad.steps.planGeneration = pe.NOT_STARTED, _0x82edad.steps.verification = pe.NOT_STARTED);
+              _0x255d10.generatedPlan ? _0x255d10.planConversations.length && (_0x255d10.planConversations[_0x255d10.planConversations.length - 1].plan || _0x255d10.planConversations.pop()) : _0x82edad.plans = _0x82edad.plans.filter(_0x252604 => _0x252604.id !== _0x255d10.id), _0x82edad.steps.planGeneration = TaskStepStatus.COMPLETED;
+            } else _0x82edad.steps.planGeneration = TaskStepStatus.NOT_STARTED;
+            _0x82edad.steps.verification = TaskStepStatus.NOT_STARTED;
+          } else _0x44ce9f.includes(_0x82edad.steps.userQuery) && (_0x82edad.steps.userQuery = TaskStepStatus.NOT_STARTED, _0x82edad.steps.planGeneration = TaskStepStatus.NOT_STARTED, _0x82edad.steps.verification = TaskStepStatus.NOT_STARTED);
         }
       }
       async ['resetReverificationState']() {
-        this._verification && (await this._verification.setReverificationState(null), await this.setStepState("verification", pe.COMPLETED));
+        this._verification && (await this._verification.setReverificationState(null), await this.setStepState("verification", TaskStepStatus.COMPLETED));
       }
       static async ['deserializeFromStorage'](_0x40ce26, _0x1921f5) {
         this.updatePersistedTaskSteps(_0x40ce26);
@@ -5809,7 +5772,7 @@ var TaskCountStorageAPI = class {
         }
         _0x33a44a._plans = _0x28be50, _0x28be50.length > 0 && (_0x28be50.find(_0x47e070 => _0x47e070.id === _0x40ce26.activePlanId) || (_0x33a44a._activePlanId = _0x28be50[_0x28be50.length - 1].id, await _0x33a44a.upsertToDisk(_0x144bb9 => {
           _0x144bb9.activePlanId = _0x33a44a._activePlanId;
-        }))), _0x33a44a.steps.planGeneration === pe.WAITING_FOR_EXECUTION && (await _0x33a44a.activePlan.setExecutedWithAgent(null)), _0x40ce26.failedPlanIterationQuery && (_0x33a44a._planChatQuery = {
+        }))), _0x33a44a.steps.planGeneration === TaskStepStatus.WAITING_FOR_EXECUTION && (await _0x33a44a.activePlan.setExecutedWithAgent(null)), _0x40ce26.failedPlanIterationQuery && (_0x33a44a._planChatQuery = {
           query: _0x40ce26.failedPlanIterationQuery.query,
           status: "failed"
         });
@@ -5824,9 +5787,9 @@ var TaskCountStorageAPI = class {
           creationTime: _0x2de49f,
           lastUpdated: _0x2de49f,
           steps: {
-            userQuery: pe.COMPLETED,
-            planGeneration: pe.COMPLETED,
-            verification: pe.NOT_STARTED
+            userQuery: TaskStepStatus.COMPLETED,
+            planGeneration: TaskStepStatus.COMPLETED,
+            verification: TaskStepStatus.NOT_STARTED
           },
           plans: _0x143643,
           verification: null,
@@ -5840,7 +5803,7 @@ var TaskCountStorageAPI = class {
         };
       }
       async ["abortTask"](_0x29224a) {
-        this._steps.planGeneration === pe.IN_PROGRESS ? this._steps.planGeneration = pe.ABORTING : this._steps.verification === pe.IN_PROGRESS && (this._steps.verification = pe.ABORTING), this._abortController.abort(), _0x29224a && (await this.upsertToDisk(_0x539024 => {
+        this._steps.planGeneration === TaskStepStatus.IN_PROGRESS ? this._steps.planGeneration = TaskStepStatus.ABORTING : this._steps.verification === TaskStepStatus.IN_PROGRESS && (this._steps.verification = TaskStepStatus.ABORTING), this._abortController.abort(), _0x29224a && (await this.upsertToDisk(_0x539024 => {
           _0x539024.steps = this._steps;
         })), this._abortController = new AbortController();
       }
@@ -5861,7 +5824,7 @@ var TaskCountStorageAPI = class {
         });
       }
       async ["handleFailedVerification"]() {
-        this._verification = null, this._steps.verification = pe.FAILED, await this.upsertToDisk(_0x278ec5 => {
+        this._verification = null, this._steps.verification = TaskStepStatus.FAILED, await this.upsertToDisk(_0x278ec5 => {
           _0x278ec5.steps = this._steps, _0x278ec5.verification = null;
         });
       }
@@ -5975,7 +5938,7 @@ var TaskCountStorageAPI = class {
         _0x42f8e0 ? _0x2b170e.applyComments(_0x46eaaa) : _0x2b170e.revertComments(_0x46eaaa), await _0x5b299d.persistOutput();
       }
       async ["resetVerification"]() {
-        this._steps.verification === pe.IN_PROGRESS && (await this.abortTask(false)), this._verification = null, this._steps.verification = pe.NOT_STARTED, await this.upsertToDisk(_0x421b47 => {
+        this._steps.verification === TaskStepStatus.IN_PROGRESS && (await this.abortTask(false)), this._verification = null, this._steps.verification = TaskStepStatus.NOT_STARTED, await this.upsertToDisk(_0x421b47 => {
           _0x421b47.steps = this._steps, _0x421b47.verification = null;
         });
       }
@@ -5984,9 +5947,9 @@ var TaskCountStorageAPI = class {
         let _0x2d4c14 = this.plans[0],
           _0x5ce855 = await _0x2d4c14.getQueryJSONContent();
         this._steps = {
-          userQuery: pe.COMPLETED,
-          planGeneration: pe.NOT_STARTED,
-          verification: pe.NOT_STARTED
+          userQuery: TaskStepStatus.COMPLETED,
+          planGeneration: TaskStepStatus.NOT_STARTED,
+          verification: TaskStepStatus.NOT_STARTED
         }, this._verification = null;
         let _0x2caf12 = this.plans.splice(1);
         await Promise.all(_0x2caf12.map(_0x575c84 => _0x575c84.dispose())), await _0x2d4c14.resetPlan(_0x5ce855, _0x2d4c14.planArtifactType), this._activePlanId = _0x2d4c14.id, await this.upsertToDisk(_0x455dc1 => {
@@ -5996,9 +5959,9 @@ var TaskCountStorageAPI = class {
       async ["markPlanAsExecuted"](_0x53d4dc) {
         let _0xe602f9 = this.getPlan(_0x53d4dc);
         this._activePlanId = _0x53d4dc, this._verification = null, this._steps = {
-          userQuery: pe.COMPLETED,
-          planGeneration: pe.COMPLETED,
-          verification: pe.NOT_STARTED
+          userQuery: TaskStepStatus.COMPLETED,
+          planGeneration: TaskStepStatus.COMPLETED,
+          verification: TaskStepStatus.NOT_STARTED
         }, await _0xe602f9.setExecutedWithAgent(null), await this.upsertToDisk(_0x5250b7 => {
           _0x5250b7.activePlanId = _0x53d4dc, _0x5250b7.verification = null, _0x5250b7.steps = this._steps;
         });
@@ -6008,7 +5971,7 @@ var TaskCountStorageAPI = class {
         return this._planChatQuery = void 0, _0x2cb94d;
       }
       async ['resetSkipPlanGeneration']() {
-        await this.setStepState('planGeneration', pe.NOT_STARTED), await this.activePlan.setIsExecuted(false, true);
+        await this.setStepState('planGeneration', TaskStepStatus.NOT_STARTED), await this.activePlan.setIsExecuted(false, true);
       }
       async ["setStepState"](_0x307c45, _0x4fa96d) {
         this._steps = {
@@ -6019,13 +5982,13 @@ var TaskCountStorageAPI = class {
         });
       }
       ['isInProgress']() {
-        return this._steps.userQuery === pe.IN_PROGRESS || this._steps.planGeneration === pe.IN_PROGRESS || this._steps.verification === pe.IN_PROGRESS;
+        return this._steps.userQuery === TaskStepStatus.IN_PROGRESS || this._steps.planGeneration === TaskStepStatus.IN_PROGRESS || this._steps.verification === TaskStepStatus.IN_PROGRESS;
       }
       ["isNotStarted"]() {
-        return this._steps.planGeneration === pe.NOT_STARTED && this._steps.verification === pe.NOT_STARTED;
+        return this._steps.planGeneration === TaskStepStatus.NOT_STARTED && this._steps.verification === TaskStepStatus.NOT_STARTED;
       }
       ['isAllStepsCompleted']() {
-        return this._steps.userQuery !== pe.COMPLETED || this._steps.planGeneration !== pe.COMPLETED && this._steps.planGeneration !== pe.SKIPPED && this._steps.planGeneration !== pe.WAITING_FOR_EXECUTION ? false : this.activePlan.planArtifactType === An.REVIEW_ARTIFACT ? true : !(this._steps.verification !== pe.COMPLETED && this._steps.verification !== pe.SKIPPED && this._steps.verification !== pe.WAITING_FOR_EXECUTION);
+        return this._steps.userQuery !== TaskStepStatus.COMPLETED || this._steps.planGeneration !== TaskStepStatus.COMPLETED && this._steps.planGeneration !== TaskStepStatus.SKIPPED && this._steps.planGeneration !== TaskStepStatus.WAITING_FOR_EXECUTION ? false : this.activePlan.planArtifactType === ArtifactType.REVIEW_ARTIFACT ? true : !(this._steps.verification !== TaskStepStatus.COMPLETED && this._steps.verification !== TaskStepStatus.SKIPPED && this._steps.verification !== TaskStepStatus.WAITING_FOR_EXECUTION);
       }
     };
   }),
@@ -6352,16 +6315,15 @@ var PlanGenerationStep,
           } = _0x529909,
           _0x2d8819 = await _0x24dfdf.getInitialUserQueryJSONContent(),
           _0xb76c12 = _0x24dfdf.activePlan.planArtifactType,
-          _0x5e32cf = 'userQuery',
           _0x3cc17a = parseStackFrame(_0x493dd7, _0x24dfdf.id, 'userQuery'),
           _0x28e07c = formatStackTrace(_0x493dd7, 'userQuery', _0x24dfdf.id);
-        await _0x493dd7.phaseBreakdown.context.taskChain.executeQueryDirectlyInIDE(_0x2b1392, _0x3cc17a, _0x28e07c, _0x2d8819, _0xb76c12), await _0x24dfdf.setStepState("planGeneration", pe.WAITING_FOR_EXECUTION), await _0x493dd7.updateOnUI(false);
+        await _0x493dd7.phaseBreakdown.context.taskChain.executeQueryDirectlyInIDE(_0x2b1392, _0x3cc17a, _0x28e07c, _0x2d8819, _0xb76c12), await _0x24dfdf.setStepState("planGeneration", TaskStepStatus.WAITING_FOR_EXECUTION), await _0x493dd7.updateOnUI(false);
         let _0x5d17ec = _0x24dfdf.activePlan.id;
         if (_0x493dd7.watchedArtifactIds.has(_0x5d17ec)) throw new Error('Watcher already exists for plan generation artifact: ' + _0x5d17ec);
         _0x493dd7.watchedArtifactIds.add(_0x5d17ec);
         try {
           await _0x493dd7.artifactWatcher.watchForArtifact(_0x5d17ec, async () => {
-            await _0x24dfdf.setStepState("planGeneration", pe.SKIPPED), _0x493dd7.eventEmitter.emit('step:userQuery:executed', {
+            await _0x24dfdf.setStepState("planGeneration", TaskStepStatus.SKIPPED), _0x493dd7.eventEmitter.emit('step:userQuery:executed', {
               taskId: _0x24dfdf.id
             }), _0x493dd7.watchedArtifactIds.delete(_0x5d17ec);
           }, extractFunctionName(_0x24dfdf.id, 'userQuery', _0x493dd7));
@@ -6379,7 +6341,7 @@ var PlanGenerationStep,
   initPlanExecutionStep = __esmModule(() => {
     'use strict';
 
-    initTaskContext(), initStatusBar(), PlanExecutionStep = class {
+    initTaskContext(), PlanExecutionStep = class {
       async ['execute'](_0xd8c756) {
         let {
           task: _0x111859,
@@ -6390,16 +6352,16 @@ var PlanGenerationStep,
           taskId: _0x111859.id,
           planId: _0x111859.activePlan.id
         });
-        let _0xdf056c = _0x111859.activePlan.planArtifactType === An.REVIEW_ARTIFACT ? 'review' : 'plan',
+        let _0xdf056c = _0x111859.activePlan.planArtifactType === ArtifactType.REVIEW_ARTIFACT ? 'review' : 'plan',
           _0x43fac6 = parseStackFrame(_0x418b95, _0x111859.id, _0xdf056c),
-          _0x38babd = formatStackTrace(_0x418b95, _0x111859.activePlan.planArtifactType === An.REVIEW_ARTIFACT ? "review" : 'plan', _0x111859.id);
+          _0x38babd = formatStackTrace(_0x418b95, _0x111859.activePlan.planArtifactType === ArtifactType.REVIEW_ARTIFACT ? "review" : 'plan', _0x111859.id);
         if (_0xdf056c === "plan") await _0x418b95.phaseBreakdown.context.taskChain.executeInIDE(_0x45c52c, _0x43fac6, _0x38babd);else {
           let _0x2e4590 = _0x111859.activePlan.mustGetReviewOutput().comments,
             _0x12a37c = _0x418b95.phaseBreakdown.getTaskExecutionConfig(_0x111859.id).review;
           _0x12a37c?.['reviewCategories']["length"] > 0 && (_0x2e4590 = _0x2e4590.filter(_0x313a03 => _0x12a37c.reviewCategories.includes(_0x313a03.category)));
           let _0x3b5d34 = _0x2e4590.map(_0x239368 => _0x239368.id);
           if (_0x3b5d34.length === 0) {
-            await _0x111859.setStepState("planGeneration", pe.COMPLETED), await _0x418b95.updateOnUI(false), _0x418b95.eventEmitter.emit("step:execution:completed", {
+            await _0x111859.setStepState("planGeneration", TaskStepStatus.COMPLETED), await _0x418b95.updateOnUI(false), _0x418b95.eventEmitter.emit("step:execution:completed", {
               taskId: _0x111859.id,
               artifactId: _0x111859.activePlan.id
             });
@@ -6407,7 +6369,7 @@ var PlanGenerationStep,
           }
           await _0x418b95.phaseBreakdown.context.taskChain.executeReviewCommentsInIDE(_0x45c52c, _0x3b5d34, _0x43fac6, _0x38babd);
         }
-        await _0x111859.setStepState("planGeneration", pe.WAITING_FOR_EXECUTION), await _0x418b95.updateOnUI(false);
+        await _0x111859.setStepState("planGeneration", TaskStepStatus.WAITING_FOR_EXECUTION), await _0x418b95.updateOnUI(false);
         let _0x2b4022 = _0x111859.activePlan.id;
         if (_0x418b95.watchedArtifactIds.has(_0x2b4022)) throw new Error("Watcher already exists for plan execution artifact: " + _0x2b4022);
         _0x418b95.watchedArtifactIds.add(_0x2b4022);
@@ -6423,7 +6385,7 @@ var PlanGenerationStep,
             error: _0x23f542 instanceof Error ? _0x23f542.message : String(_0x23f542)
           });
         } finally {
-          await _0x111859.setStepState("planGeneration", pe.COMPLETED), await _0x418b95.updateOnUI(true);
+          await _0x111859.setStepState("planGeneration", TaskStepStatus.COMPLETED), await _0x418b95.updateOnUI(true);
         }
       }
     };
@@ -6442,13 +6404,13 @@ var PlanGenerationStep,
         if (_0xbae38b.eventEmitter.emit("step:verification:started", {
           taskId: _0x3c75ff.id
         }), _0x2de60e?.['verification']?.['skipStep']) {
-          await _0xbae38b.phaseBreakdown.setStepState(_0x3c75ff.id, "verification", pe.SKIPPED), _0xbae38b.eventEmitter.emit('step:verification:completed', {
+          await _0xbae38b.phaseBreakdown.setStepState(_0x3c75ff.id, "verification", TaskStepStatus.SKIPPED), _0xbae38b.eventEmitter.emit('step:verification:completed', {
             taskId: _0x3c75ff.id
           });
           return;
         }
         let _0x35f4ad = false;
-        _0x3c75ff.steps.verification === pe.NOT_STARTED ? await _0xbae38b.phaseBreakdown.context.taskChain.startTaskVerification(_0x178d94, false) : _0x3c75ff.steps.verification === pe.FAILED && (_0x3c75ff.verification?.["reverificationState"] ? await this.reVerify(_0x15e35e) : await _0xbae38b.phaseBreakdown.context.taskChain.startTaskVerification(_0x178d94, false)), _0xbae38b.eventEmitter.emit("step:verification:completed", {
+        _0x3c75ff.steps.verification === TaskStepStatus.NOT_STARTED ? await _0xbae38b.phaseBreakdown.context.taskChain.startTaskVerification(_0x178d94, false) : _0x3c75ff.steps.verification === TaskStepStatus.FAILED && (_0x3c75ff.verification?.["reverificationState"] ? await this.reVerify(_0x15e35e) : await _0xbae38b.phaseBreakdown.context.taskChain.startTaskVerification(_0x178d94, false)), _0xbae38b.eventEmitter.emit("step:verification:completed", {
           taskId: _0x3c75ff.id
         });
       }
@@ -6491,7 +6453,7 @@ var PlanGenerationStep,
           _0x332c9b = parseStackFrame(_0x2e63b6, _0x10a04d.id, "verification"),
           _0x1676c0 = _0x10a04d.verification;
         if (!_0x1676c0) throw new Error("Verification not found");
-        await _0x10a04d.setStepState("verification", pe.WAITING_FOR_EXECUTION), await _0x2e63b6.updateOnUI(false);
+        await _0x10a04d.setStepState("verification", TaskStepStatus.WAITING_FOR_EXECUTION), await _0x2e63b6.updateOnUI(false);
         let _0x3a5ab8 = _0x2e63b6.phaseBreakdown.getTaskExecutionConfig(_0x10a04d.id).verification?.['verificationSeverities'] ?? [],
           _0x43c30b = _0x3a5ab8.length > 0 ? _0x3a5ab8 : 'AllExceptOutdated',
           _0x2587e2 = formatStackTrace(_0x2e63b6, "verification", _0x10a04d.id),
@@ -6499,13 +6461,13 @@ var PlanGenerationStep,
         try {
           if (await _0x2e63b6.phaseBreakdown.context.taskChain.executeAllVerificationCommentsInIDE(_0x339df4, _0x43c30b, _0x332c9b, _0x2587e2), _0x2e63b6.watchedArtifactIds.has(_0x3fdfc7)) throw new Error("Watcher already exists for artifact: " + _0x10a04d.title);
           _0x2e63b6.watchedArtifactIds.add(_0x3fdfc7), await _0x2e63b6.artifactWatcher.watchForArtifact(_0x3fdfc7, async () => {
-            await _0x10a04d.setStepState("verification", pe.COMPLETED), _0x2e63b6.eventEmitter.emit("step:verification:comments:executed", {
+            await _0x10a04d.setStepState("verification", TaskStepStatus.COMPLETED), _0x2e63b6.eventEmitter.emit("step:verification:comments:executed", {
               taskId: _0x10a04d.id,
               verificationId: _0x3fdfc7
             }), _0x2e63b6.watchedArtifactIds.delete(_0x3fdfc7);
           }, extractFunctionName(_0x10a04d.id, 'verification', _0x2e63b6));
         } catch (_0x1c6411) {
-          if (await _0x10a04d.setStepState("verification", pe.COMPLETED), _0x1c6411 instanceof NoVerificationCommentsToExecuteError) {
+          if (await _0x10a04d.setStepState("verification", TaskStepStatus.COMPLETED), _0x1c6411 instanceof NoVerificationCommentsToExecuteError) {
             _0x2e63b6.eventEmitter.emit("step:verification:comments:executed", {
               taskId: _0x10a04d.id,
               verificationId: _0x3fdfc7
@@ -6592,7 +6554,7 @@ var PlanGenerationStep,
         };
       }
       ['isPlanGenerationDone'](_0x10cd08) {
-        return _0x10cd08.steps.planGeneration === pe.COMPLETED || _0x10cd08.steps.planGeneration === pe.SKIPPED || _0x10cd08.steps.planGeneration === pe.WAITING_FOR_EXECUTION;
+        return _0x10cd08.steps.planGeneration === TaskStepStatus.COMPLETED || _0x10cd08.steps.planGeneration === TaskStepStatus.SKIPPED || _0x10cd08.steps.planGeneration === TaskStepStatus.WAITING_FOR_EXECUTION;
       }
     };
   }),
@@ -6605,7 +6567,7 @@ var PlanGenerationStep,
         super(_0x127474), this.verificationHandler = new VerificationStepHandler(), this.verificationCommentsHandler = new VerificationExecutionStep();
       }
       async ['handleExecutionCompletion'](_0x12f39e) {
-        _0x12f39e.activePlan.planArtifactType === An.REVIEW_ARTIFACT ? this.enqueueAction({
+        _0x12f39e.activePlan.planArtifactType === ArtifactType.REVIEW_ARTIFACT ? this.enqueueAction({
           type: "MOVE_TO_NEXT_TASK",
           taskId: _0x12f39e.id,
           payload: void 0
@@ -6616,7 +6578,7 @@ var PlanGenerationStep,
         });
       }
       async ['processTask'](_0x2fc512, _0x418567) {
-        _0x418567 === "verification" ? _0x2fc512.steps.verification === pe.COMPLETED ? await this.checkAndExecuteVerificationComments(_0x2fc512) : await this.startVerification(_0x2fc512) : await super.processTask(_0x2fc512, _0x418567);
+        _0x418567 === "verification" ? _0x2fc512.steps.verification === TaskStepStatus.COMPLETED ? await this.checkAndExecuteVerificationComments(_0x2fc512) : await this.startVerification(_0x2fc512) : await super.processTask(_0x2fc512, _0x418567);
       }
       async ['startVerification'](_0x50b3b9) {
         let _0x8502b2 = this.orchestratorContext.phaseBreakdown.getTaskExecutionConfig(_0x50b3b9.id),
@@ -7026,8 +6988,8 @@ var PlanGenerationStep,
       }
       ['getProcessorForTask'](_0x122ff6) {
         let _0x174c55 = _0x122ff6.activePlan.planArtifactType;
-        if (_0x174c55 === An.IMPLEMENTATION_ARTIFACT) return this._implementationProcessor;
-        if (_0x174c55 === An.REVIEW_ARTIFACT) return this._reviewProcessor;
+        if (_0x174c55 === ArtifactType.IMPLEMENTATION_ARTIFACT) return this._implementationProcessor;
+        if (_0x174c55 === ArtifactType.REVIEW_ARTIFACT) return this._reviewProcessor;
         throw new Error('Unknown artifact type: ' + _0x174c55);
       }
       async ["moveToNextTask"]() {
@@ -7093,26 +7055,26 @@ var PlanGenerationStep,
         if (_0x4eb10e?.['plan']?.['skipStep']) return "userQuery";
       }
       ["isPlanStepComplete"](_0x10fe1b) {
-        if (_0x10fe1b.steps.planGeneration === pe.SKIPPED) return true;
-        if (_0x10fe1b.steps.planGeneration === pe.COMPLETED) {
+        if (_0x10fe1b.steps.planGeneration === TaskStepStatus.SKIPPED) return true;
+        if (_0x10fe1b.steps.planGeneration === TaskStepStatus.COMPLETED) {
           let _0x3bc67c = _0x10fe1b.activePlan;
-          if (_0x3bc67c.planArtifactType === An.REVIEW_ARTIFACT) {
+          if (_0x3bc67c.planArtifactType === ArtifactType.REVIEW_ARTIFACT) {
             let _0x11b762 = _0x3bc67c.mustGetReviewOutput().comments.filter(_0x1bf731 => _0x1bf731.isApplied === false),
               _0x48f1e7 = this._phaseBreakdown.getTaskExecutionConfig(_0x10fe1b.id).review?.["reviewCategories"] ?? [];
             return _0x48f1e7.length > 0 && (_0x11b762 = _0x11b762.filter(_0x4c5200 => _0x48f1e7.includes(_0x4c5200.category))), _0x11b762.length === 0;
           }
-          if (_0x3bc67c.planArtifactType === An.IMPLEMENTATION_ARTIFACT) return _0x3bc67c.isExecuted;
+          if (_0x3bc67c.planArtifactType === ArtifactType.IMPLEMENTATION_ARTIFACT) return _0x3bc67c.isExecuted;
         }
         return false;
       }
       ["isVerificationStepComplete"](_0x3f412d, _0x42e560) {
-        return _0x3f412d.steps.verification === pe.SKIPPED || _0x42e560.verification?.["skipStep"] === true ? true : _0x3f412d.steps.verification === pe.COMPLETED ? !this.hasUnappliedVerificationComments(_0x3f412d) : false;
+        return _0x3f412d.steps.verification === TaskStepStatus.SKIPPED || _0x42e560.verification?.["skipStep"] === true ? true : _0x3f412d.steps.verification === TaskStepStatus.COMPLETED ? !this.hasUnappliedVerificationComments(_0x3f412d) : false;
       }
       ["shouldStartFromPlan"](_0x489cce) {
         return !this.isPlanStepComplete(_0x489cce);
       }
       ['shouldStartFromVerification'](_0xb795db, _0x1ce4a9) {
-        return !this.isPlanStepComplete(_0xb795db) || _0xb795db.activePlan.planArtifactType !== An.IMPLEMENTATION_ARTIFACT ? false : !this.isVerificationStepComplete(_0xb795db, _0x1ce4a9);
+        return !this.isPlanStepComplete(_0xb795db) || _0xb795db.activePlan.planArtifactType !== ArtifactType.IMPLEMENTATION_ARTIFACT ? false : !this.isVerificationStepComplete(_0xb795db, _0x1ce4a9);
       }
       ["hasUnappliedVerificationComments"](_0x6c7004) {
         if (!_0x6c7004.verification || !_0x6c7004.verification.verificationOutput) return false;
@@ -7127,10 +7089,10 @@ var PlanGenerationStep,
 
     initWorkspaceInfo(), initUserQueryMessage(), initPlanOutputModule(), PlanConversationHandler = class _0x56cba7 extends UserQueryMessage {
       constructor(_0x183799, _0x1dff0d, _0x41adfb, _0x297ec9 = {}) {
-        let _0x2b958b = _0x297ec9.state === pe.IN_PROGRESS,
-          _0x170416 = _0x297ec9.state === pe.ABORTING,
-          _0x56125c = _0x297ec9.state === pe.FAILED;
-        super(_0x1dff0d, _0x297ec9.output ?? null, _0x41adfb, _0x297ec9.logs ?? [], _0x2b958b, _0x170416, _0x56125c, _0x297ec9.id ?? createUuid()), this._phaseConversationStorageAdapter = _0x183799, this._abortController = _0x297ec9.abortController ?? new AbortController(), this._state = _0x297ec9.state ?? pe.NOT_STARTED, this._retryAfterTimestamp = _0x297ec9.retryAfterTimestamp, this._creationTime = _0x297ec9.creationTime ?? Date.now(), this._lastUpdatedTime = _0x297ec9.lastUpdatedTime ?? Date.now();
+        let _0x2b958b = _0x297ec9.state === TaskStepStatus.IN_PROGRESS,
+          _0x170416 = _0x297ec9.state === TaskStepStatus.ABORTING,
+          _0x56125c = _0x297ec9.state === TaskStepStatus.FAILED;
+        super(_0x1dff0d, _0x297ec9.output ?? null, _0x41adfb, _0x297ec9.logs ?? [], _0x2b958b, _0x170416, _0x56125c, _0x297ec9.id ?? createUuid()), this._phaseConversationStorageAdapter = _0x183799, this._abortController = _0x297ec9.abortController ?? new AbortController(), this._state = _0x297ec9.state ?? TaskStepStatus.NOT_STARTED, this._retryAfterTimestamp = _0x297ec9.retryAfterTimestamp, this._creationTime = _0x297ec9.creationTime ?? Date.now(), this._lastUpdatedTime = _0x297ec9.lastUpdatedTime ?? Date.now();
       }
       static async ['createNewInstance'](_0x1c566a, _0x19394c, _0x52c905, _0x43eb91, _0x3b90e8 = {}) {
         let _0xf2e71d = new _0x56cba7(_0x1c566a, _0x19394c, _0x52c905, _0x3b90e8);
@@ -7139,7 +7101,7 @@ var PlanGenerationStep,
           userQuery: _0x19394c,
           llmInput: StorageSerializer.toStorage(_0x52c905),
           output: _0x3b90e8.output ?? null,
-          state: pe.NOT_STARTED,
+          state: TaskStepStatus.NOT_STARTED,
           logs: _0x3b90e8.logs ?? [],
           creationTime: _0xf2e71d._creationTime,
           lastUpdatedTime: _0xf2e71d._lastUpdatedTime,
@@ -7167,8 +7129,8 @@ var PlanGenerationStep,
         });
       }
       async ["resetConversation"](_0x572c74) {
-        this._state = pe.NOT_STARTED, this._payload = null, this._logs = [], await this.setUserQuery(_0x572c74, false), await this.upsertOnDisk(_0x1887f5 => {
-          _0x1887f5.state = pe.NOT_STARTED, _0x1887f5.output = null, _0x1887f5.logs = [], _0x1887f5.userQuery = _0x572c74, _0x1887f5.llmInput = null;
+        this._state = TaskStepStatus.NOT_STARTED, this._payload = null, this._logs = [], await this.setUserQuery(_0x572c74, false), await this.upsertOnDisk(_0x1887f5 => {
+          _0x1887f5.state = TaskStepStatus.NOT_STARTED, _0x1887f5.output = null, _0x1887f5.logs = [], _0x1887f5.userQuery = _0x572c74, _0x1887f5.llmInput = null;
         });
       }
       async ["setUserQuery"](_0x189f16, _0x48cfd5) {
@@ -7191,8 +7153,8 @@ var PlanGenerationStep,
       }
       async ["handlePhaseGenerationResponse"](_0x57b4d1) {
         let _0x153b54 = _0x57b4d1.output;
-        this._payload = _0x153b54, this._isStreaming = false, this._state = pe.COMPLETED, this._queryJSONContent && (await this.setUserQuery(this._queryJSONContent, false)), await this.upsertOnDisk(_0x9e834e => {
-          _0x9e834e.output = _0x153b54, _0x9e834e.llmInput = StorageSerializer.toStorage(_0x57b4d1.llmInput), _0x9e834e.state = pe.COMPLETED, _0x9e834e.lastUpdatedTime = Date.now(), _0x9e834e.logs = this._logs;
+        this._payload = _0x153b54, this._isStreaming = false, this._state = TaskStepStatus.COMPLETED, this._queryJSONContent && (await this.setUserQuery(this._queryJSONContent, false)), await this.upsertOnDisk(_0x9e834e => {
+          _0x9e834e.output = _0x153b54, _0x9e834e.llmInput = StorageSerializer.toStorage(_0x57b4d1.llmInput), _0x9e834e.state = TaskStepStatus.COMPLETED, _0x9e834e.lastUpdatedTime = Date.now(), _0x9e834e.logs = this._logs;
         });
       }
       get ["abortController"]() {
@@ -7219,8 +7181,8 @@ var PlanGenerationStep,
         }));
       }
       async ["abort"]() {
-        this._abortController.abort(), this._state = pe.ABORTING, this._abortController = new AbortController(), await this.upsertOnDisk(_0x348ddb => {
-          _0x348ddb.state = pe.ABORTED;
+        this._abortController.abort(), this._state = TaskStepStatus.ABORTING, this._abortController = new AbortController(), await this.upsertOnDisk(_0x348ddb => {
+          _0x348ddb.state = TaskStepStatus.ABORTED;
         });
       }
       async ['serializeToProto']() {
@@ -7258,7 +7220,7 @@ var PlanGenerationStep,
         };
       }
       static async ['deserializeFromStorage'](_0x175724, _0x135a6c) {
-        return _0x175724.state === pe.IN_PROGRESS && (_0x175724.state = pe.FAILED), _0x175724.state === pe.ABORTING && (_0x175724.state = pe.ABORTED), new _0x56cba7(_0x135a6c, _0x175724.userQuery, StorageSerializer.fromStorage(_0x175724.llmInput), {
+        return _0x175724.state === TaskStepStatus.IN_PROGRESS && (_0x175724.state = TaskStepStatus.FAILED), _0x175724.state === TaskStepStatus.ABORTING && (_0x175724.state = TaskStepStatus.ABORTED), new _0x56cba7(_0x135a6c, _0x175724.userQuery, StorageSerializer.fromStorage(_0x175724.llmInput), {
           creationTime: _0x175724.creationTime,
           lastUpdatedTime: _0x175724.lastUpdatedTime,
           output: _0x175724.output,
@@ -7325,7 +7287,7 @@ var ReviewStepStorageAPI = class {
   initTaskOrchestrator = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initWorkspaceInfo(), initAnalytics(), initStatusBar(), initPlanContextModule(), initTemplateManager(), initTaskSettingsHandler(), initUsageInfoHandler(), initTaskContext(), initTaskPlan(), initTaskOrchestrator(), initPlanConversationHandler(), PhaseBreakdown = class _0x5c880e {
+    initIDEAgentManager(), initWorkspaceInfo(), initAnalytics(), initPlanContextModule(), initTemplateManager(), initTaskSettingsHandler(), initUsageInfoHandler(), initTaskContext(), initTaskPlan(), initTaskOrchestrator(), initPlanConversationHandler(), PhaseBreakdown = class _0x5c880e {
       constructor(_0x20483f = createUuid(), _0x35286c = [], _0x528b0a = [], _0x79b5be, _0x395b29, _0x4cbcac, _0x2e734f, _0xbaa6e9) {
         this._taskExecutionConfig = void 0, this.yoloOrchestrator = null, this._id = _0x20483f, this._prePhaseConversations = _0x35286c, this._tasks = _0x528b0a, this.taskChainContext = _0x395b29, this.planGenerationService = _0x4cbcac, this.phaseGenerationService = _0x2e734f, this.verificationService = _0xbaa6e9, this._storageAPI = _0x79b5be, this._taskStorage = new TaskStepStorageAPI(_0x79b5be);
       }
@@ -7452,7 +7414,7 @@ var ReviewStepStorageAPI = class {
             await YoloArtifactManager.getInstance().stopWatching(_0x2faf2b.verification.id);
             break;
           case 'userQuery':
-            await YoloArtifactManager.getInstance().stopWatching(_0x96196e.taskID), await _0x2faf2b.setStepState("planGeneration", pe.NOT_STARTED);
+            await YoloArtifactManager.getInstance().stopWatching(_0x96196e.taskID), await _0x2faf2b.setStepState("planGeneration", TaskStepStatus.NOT_STARTED);
             break;
           default:
             throw new Error('Invalid step: ' + _0x61b22e);
@@ -7511,7 +7473,7 @@ var ReviewStepStorageAPI = class {
         try {
           _0x54270b ? await _0x3b3aa9.resetPlan(_0x137b8c, _0x3309e3, _0x10dd6f) : await this.addNewPlan(_0x137b8c, _0x3309e3, _0x10dd6f, null), await this.planGenerationService.generatePlan(_0x137b8c, _0x3b3aa9, this._tasks, _0x24daaf, _0x3309e3, _0x30e525, _0x10dd6f, this.getTaskMetricsProperties.bind(this), _0x2d762f, this.setStepState.bind(this), _0x239115, _0x4b6b0c, _0x242e09);
         } catch (_0x1cb029) {
-          throw await this.stopYoloModeOnError(_0x1cb029), _0x1cb029 instanceof RateLimitExceededError ? (await this.setStepState(_0x3b3aa9.id, "planGeneration", pe.RATE_LIMITED), await this.handleRateLimitExceedError(_0x3b3aa9, 'task_plan_generation_rate_limited', _0x1cb029), new PlanGenerationFailedError(String(_0x1cb029))) : _0x1cb029;
+          throw await this.stopYoloModeOnError(_0x1cb029), _0x1cb029 instanceof RateLimitExceededError ? (await this.setStepState(_0x3b3aa9.id, "planGeneration", TaskStepStatus.RATE_LIMITED), await this.handleRateLimitExceedError(_0x3b3aa9, 'task_plan_generation_rate_limited', _0x1cb029), new PlanGenerationFailedError(String(_0x1cb029))) : _0x1cb029;
         }
       }
       async ["executeInIDE"](_0x71645b, _0x3848e2, _0x1044d7) {
@@ -7562,14 +7524,14 @@ var ReviewStepStorageAPI = class {
             agent: _0x404f0a.id
           },
           userProperties: {}
-        }), await _0x36b010.setExecutedWithAgent(_0x404f0a.id), isUtilityAgent(_0x404f0a) || (await _0xae98ae.resetVerification()), await this.setStepState(_0xae98ae.id, 'planGeneration', pe.SKIPPED), await _0x36b010.setQueryExecutedDirectly(true);
+        }), await _0x36b010.setExecutedWithAgent(_0x404f0a.id), isUtilityAgent(_0x404f0a) || (await _0xae98ae.resetVerification()), await this.setStepState(_0xae98ae.id, 'planGeneration', TaskStepStatus.SKIPPED), await _0x36b010.setQueryExecutedDirectly(true);
       }
       async ["startTaskVerification"](_0xad7639, _0x3b1298, _0x4ebdef, _0x2244dc, _0x59a656, _0x12b8b8) {
         let _0x5b2036 = this.getTask(_0xad7639.taskID);
         try {
           await this.verificationService.startTaskVerification(_0xad7639, _0x5b2036, this._tasks, _0x4ebdef, this.setStepState.bind(this), _0x59a656, _0x2244dc, _0x3b1298, _0x12b8b8);
         } catch (_0x1f69cd) {
-          throw await this.stopYoloModeOnError(_0x1f69cd), _0x1f69cd instanceof RateLimitExceededError ? (await this.setStepState(_0x5b2036.id, 'verification', pe.RATE_LIMITED), await this.handleRateLimitExceedError(_0x5b2036, "task_verification_rate_limited", _0x1f69cd), new VerificationFailedError(String(_0x1f69cd))) : _0x1f69cd;
+          throw await this.stopYoloModeOnError(_0x1f69cd), _0x1f69cd instanceof RateLimitExceededError ? (await this.setStepState(_0x5b2036.id, 'verification', TaskStepStatus.RATE_LIMITED), await this.handleRateLimitExceedError(_0x5b2036, "task_verification_rate_limited", _0x1f69cd), new VerificationFailedError(String(_0x1f69cd))) : _0x1f69cd;
         }
       }
       async ["reVerifyTask"](_0x1b1ccf, _0xbe5355, _0x1c280b, _0x407a49) {
@@ -7763,7 +7725,7 @@ var ReviewStepStorageAPI = class {
           }
           await _0x221e9c(_0x41edbc.updatedDisplayState);
         } catch (_0x2ed926) {
-          throw Logger.warn('Failed to generate task breakdown', _0x2ed926), _0x2ed926 instanceof RateLimitExceededError ? (await this.lastPrePhaseConversation.setStepState(pe.RATE_LIMITED), await this.handleRateLimitExceedError(this.lastPrePhaseConversation, 'phase_generation_rate_limited', _0x2ed926), new PhaseBreakdownFailedError(String(_0x2ed926))) : (_0x2ed926 instanceof UserAbortedError || isAbortError(_0x2ed926) ? await _0x26710c.setStepState(pe.ABORTED) : (await _0x26710c.setStepState(pe.FAILED), await _0x26b61e("Failed to generate task breakdown for \"" + (_0x1999dd || _0x1a4344) + "\" due to \"" + _0x2ed926 + '\x22')), new PhaseBreakdownFailedError(String(_0x2ed926)));
+          throw Logger.warn('Failed to generate task breakdown', _0x2ed926), _0x2ed926 instanceof RateLimitExceededError ? (await this.lastPrePhaseConversation.setStepState(TaskStepStatus.RATE_LIMITED), await this.handleRateLimitExceedError(this.lastPrePhaseConversation, 'phase_generation_rate_limited', _0x2ed926), new PhaseBreakdownFailedError(String(_0x2ed926))) : (_0x2ed926 instanceof UserAbortedError || isAbortError(_0x2ed926) ? await _0x26710c.setStepState(TaskStepStatus.ABORTED) : (await _0x26710c.setStepState(TaskStepStatus.FAILED), await _0x26b61e("Failed to generate task breakdown for \"" + (_0x1999dd || _0x1a4344) + "\" due to \"" + _0x2ed926 + '\x22')), new PhaseBreakdownFailedError(String(_0x2ed926)));
         }
       }
       async ['addPrePhaseConversation'](_0x1993f6, _0x56b5d3, _0x5813be) {
@@ -7790,7 +7752,7 @@ var ReviewStepStorageAPI = class {
               lastUpdatedTime: _0x13ff7,
               output: void 0,
               abortController: _0x5813be,
-              state: pe.NOT_STARTED,
+              state: TaskStepStatus.NOT_STARTED,
               logs: []
             });
           return this._prePhaseConversations.push(_0x3d9c9a), {
@@ -7865,7 +7827,7 @@ var ReviewStepStorageAPI = class {
       }
       async ['handleTaskPlan'](_0xc09948, _0x51270a) {
         let _0x3233e6 = this.getTask(_0xc09948.taskID);
-        return this.planGenerationService.handleTaskPlan(_0xc09948, _0x51270a, null, _0x3233e6, this.setStepState.bind(this), void 0, pe.IN_PROGRESS);
+        return this.planGenerationService.handleTaskPlan(_0xc09948, _0x51270a, null, _0x3233e6, this.setStepState.bind(this), void 0, TaskStepStatus.IN_PROGRESS);
       }
       async ["handleImplementationPlanDelta"](_0x1f7028, _0x4a47db) {
         return await this.getTask(_0x1f7028.taskID).getPlan(_0x1f7028.planID).handleImplementationPlanDelta(_0x4a47db);
@@ -7905,9 +7867,9 @@ var ReviewStepStorageAPI = class {
               creationTime: Date.now(),
               lastUpdatedTime: Date.now(),
               steps: {
-                userQuery: pe.COMPLETED,
-                planGeneration: pe.NOT_STARTED,
-                verification: pe.NOT_STARTED
+                userQuery: TaskStepStatus.COMPLETED,
+                planGeneration: TaskStepStatus.NOT_STARTED,
+                verification: TaskStepStatus.NOT_STARTED
               },
               plans: [],
               verification: null,
@@ -7930,9 +7892,9 @@ var ReviewStepStorageAPI = class {
             creationTime: Date.now(),
             lastUpdatedTime: Date.now(),
             steps: {
-              userQuery: pe.COMPLETED,
-              planGeneration: pe.NOT_STARTED,
-              verification: pe.NOT_STARTED
+              userQuery: TaskStepStatus.COMPLETED,
+              planGeneration: TaskStepStatus.NOT_STARTED,
+              verification: TaskStepStatus.NOT_STARTED
             },
             plans: [],
             verification: null,
@@ -8090,7 +8052,7 @@ var ReviewStepStorageAPI = class {
       }
       async ['updateFailedOrAbortedConversationQuery'](_0x153491, _0x2f24f3) {
         let _0x3aa7b5 = this.getPrePhaseConversation(_0x153491);
-        if (_0x3aa7b5.state === pe.FAILED || _0x3aa7b5.state === pe.ABORTED || _0x3aa7b5.state === pe.NOT_STARTED) await _0x3aa7b5.setUserQuery(_0x2f24f3, true);else throw new Error('Conversation ' + _0x153491 + " not in failed/aborted/not started state");
+        if (_0x3aa7b5.state === TaskStepStatus.FAILED || _0x3aa7b5.state === TaskStepStatus.ABORTED || _0x3aa7b5.state === TaskStepStatus.NOT_STARTED) await _0x3aa7b5.setUserQuery(_0x2f24f3, true);else throw new Error('Conversation ' + _0x153491 + " not in failed/aborted/not started state");
       }
       static async ['deserializeFromStorage'](_0x5dcddd, _0x2386f4, _0x419137, _0x3dd2e5, _0x3f4230, _0x13e30d, _0x2bb4db) {
         let _0x16c2a4 = new _0x5c880e(_0x5dcddd.id, [], [], _0x419137.getAdapter(_0x5dcddd.id), _0x3dd2e5, _0x3f4230, _0x13e30d, _0x2bb4db);
@@ -8168,7 +8130,7 @@ var PhaseBreakdownStorageAPI = class {
   initTaskChainDeps = __esmModule(() => {
     'use strict';
 
-    initStatusBar(), initTaskOrchestrator(), TaskChainPersistenceManager = class {
+    initTaskOrchestrator(), TaskChainPersistenceManager = class {
       constructor(_0x1b89e7) {
         this.dbStorageAPI = _0x1b89e7;
       }
@@ -8354,7 +8316,7 @@ var QUERY_THROTTLE_MS,
       }
       async ["processPhaseRequest"](_0x17c5d8, _0x274871, _0x549fd1, _0x378e12, _0x5de798, _0x90c416) {
         if (_0x378e12 !== "SHOW_PRE_PHASE") throw new Error("Task chain is not in pre-phase display state");
-        await _0x549fd1.setLastUpdatedTime(Date.now(), false), await _0x549fd1.setStepState(pe.IN_PROGRESS), await _0x5de798(false);
+        await _0x549fd1.setLastUpdatedTime(Date.now(), false), await _0x549fd1.setStepState(TaskStepStatus.IN_PROGRESS), await _0x5de798(false);
         let _0x328c06 = await _0x274871(_0x17c5d8, _0x549fd1.abortController, _0x90c416);
         return await _0x549fd1.handlePhaseGenerationResponse(_0x328c06), {
           output: _0x328c06.output,
@@ -8405,12 +8367,12 @@ var QUERY_THROTTLE_MS,
           let {
             userQueryWithMentions: _0xdec5f3
           } = await parseAndFormatUserQuery(_0x40717b, WorkspaceInfoManager.getInstance().getPlatform());
-          if (_0x57a15b = _0xdec5f3, _0x5cf23f.steps.planGeneration === pe.IN_PROGRESS) {
+          if (_0x57a15b = _0xdec5f3, _0x5cf23f.steps.planGeneration === TaskStepStatus.IN_PROGRESS) {
             Logger.warn('Plan is already getting generated', _0x5cf23f.id);
             return;
           }
           let _0x53a69c = _0x210062(_0xdec5f3);
-          await _0x5cf23f.sendCreationMetrics(PosthogAnalytics.getInstance(), _0x53a69c), await _0x326b6c(_0x5cf23f.id, 'planGeneration', pe.IN_PROGRESS), await _0x146b84(false);
+          await _0x5cf23f.sendCreationMetrics(PosthogAnalytics.getInstance(), _0x53a69c), await _0x326b6c(_0x5cf23f.id, 'planGeneration', TaskStepStatus.IN_PROGRESS), await _0x146b84(false);
           let _0x4247c7 = await parseAndEnrichUserQuery(_0x40717b),
             _0x52f40a = _0xe3ff75.phaseBreakdownIdentifier;
           if (!_0x52f40a) throw new Error('Phase breakdown identifier is required');
@@ -8430,19 +8392,19 @@ var QUERY_THROTTLE_MS,
           let _0x4fd6e7 = await this.context.client.sendPlanGenerationRequest(_0x1d04f8, _0x5cf23f.abortController, _0x279db5),
             _0x2b2641 = _0x4fd6e7.plan;
           if (!_0x2b2641) throw new Error('Failed to generate plan for task');
-          await this.handleTaskPlan(_0xe3ff75, _0x2b2641, _0x4fd6e7.llmInput, _0x5cf23f, _0x326b6c, _0x4fd6e7.isPayToRun, pe.COMPLETED), await _0xd824ea.setPayAsYouGo(_0x4fd6e7.isPayToRun);
+          await this.handleTaskPlan(_0xe3ff75, _0x2b2641, _0x4fd6e7.llmInput, _0x5cf23f, _0x326b6c, _0x4fd6e7.isPayToRun, TaskStepStatus.COMPLETED), await _0xd824ea.setPayAsYouGo(_0x4fd6e7.isPayToRun);
         } catch (_0x26e340) {
-          throw Logger.warn("Failed to generate plan for task", _0x26e340), await _0xd824ea.handlePlanGenerationFailure(), await _0x326b6c(_0x5cf23f.id, "planGeneration", pe.FAILED), _0x26e340 instanceof RateLimitExceededError ? _0x26e340 : (_0x26e340 instanceof UserAbortedError || isAbortError(_0x26e340) ? await _0x326b6c(_0x5cf23f.id, 'planGeneration', pe.FAILED) : (await _0x326b6c(_0x5cf23f.id, 'planGeneration', pe.FAILED), _0x40c2f2('Failed to generate plan for task \x22' + (_0x5cf23f.title || _0x57a15b) + '\x22 due to \x22' + _0x26e340 + '\x22')), new PlanGenerationFailedError(String(_0x26e340)));
+          throw Logger.warn("Failed to generate plan for task", _0x26e340), await _0xd824ea.handlePlanGenerationFailure(), await _0x326b6c(_0x5cf23f.id, "planGeneration", TaskStepStatus.FAILED), _0x26e340 instanceof RateLimitExceededError ? _0x26e340 : (_0x26e340 instanceof UserAbortedError || isAbortError(_0x26e340) ? await _0x326b6c(_0x5cf23f.id, 'planGeneration', TaskStepStatus.FAILED) : (await _0x326b6c(_0x5cf23f.id, 'planGeneration', TaskStepStatus.FAILED), _0x40c2f2('Failed to generate plan for task \x22' + (_0x5cf23f.title || _0x57a15b) + '\x22 due to \x22' + _0x26e340 + '\x22')), new PlanGenerationFailedError(String(_0x26e340)));
         }
       }
       async ["planIteration"](_0x3e4145, _0x277237, _0x2871d3, _0x459095, _0x20b737, _0x54e10d, _0x4af206, _0x583d36, _0x5b5a11, _0x1bf33f, _0x1b5c02, _0x208b79) {
-        if (_0x277237.steps.planGeneration === pe.IN_PROGRESS) {
+        if (_0x277237.steps.planGeneration === TaskStepStatus.IN_PROGRESS) {
           Logger.warn("Plan is already getting generated", _0x277237.id);
           return;
         }
         let _0x20842c = _0x277237.abortController,
           _0x15d855 = _0x277237.activePlan;
-        await _0x5b5a11(_0x277237.id, 'planGeneration', pe.IN_PROGRESS);
+        await _0x5b5a11(_0x277237.id, 'planGeneration', TaskStepStatus.IN_PROGRESS);
         let _0x333e98 = {
           query: _0x20b737,
           status: 'pending'
@@ -8485,7 +8447,7 @@ var QUERY_THROTTLE_MS,
           let _0x538260 = {
             ..._0x3e4145
           };
-          _0x41770c.queryType === QueryType.ITERATION && (_0x538260.planID = _0x5729f2), await this.handleTaskPlan(_0x538260, _0x41770c.plan, _0x41770c.llmInput, _0x277237, _0x5b5a11, void 0, pe.COMPLETED);
+          _0x41770c.queryType === QueryType.ITERATION && (_0x538260.planID = _0x5729f2), await this.handleTaskPlan(_0x538260, _0x41770c.plan, _0x41770c.llmInput, _0x277237, _0x5b5a11, void 0, TaskStepStatus.COMPLETED);
         } catch (_0x369473) {
           Logger.warn('Failed to chat about plan for task', _0x369473), _0x277237.pendingPlanChat || _0x15d855.isPlanConvInProgress() && _0x15d855.removeActiveConversation(), await _0x277237.removePlan(_0x5729f2);
           let _0x4b7a69 = {
@@ -8496,7 +8458,7 @@ var QUERY_THROTTLE_MS,
             cause: _0x369473
           });
         } finally {
-          await _0x5b5a11(_0x277237.id, 'planGeneration', pe.COMPLETED), await _0x1bf33f(false);
+          await _0x5b5a11(_0x277237.id, 'planGeneration', TaskStepStatus.COMPLETED), await _0x1bf33f(false);
         }
       }
       async ["handlePlanChatQueryType"](_0x39b1e9, _0x3356c6, _0x45759a, _0x33ce34, _0x5c1819, _0x3ae357, _0x3ad207) {
@@ -8509,7 +8471,7 @@ var QUERY_THROTTLE_MS,
                   ..._0x39b1e9,
                   planID: _0x45759a
                 };
-              await _0x5c1819(_0x3758b4, _0x946977.query, _0x10c7fb.planArtifactType, _0x10c7fb), await _0x3ad207(_0x33ce34.id, "planGeneration", pe.IN_PROGRESS);
+              await _0x5c1819(_0x3758b4, _0x946977.query, _0x10c7fb.planArtifactType, _0x10c7fb), await _0x3ad207(_0x33ce34.id, "planGeneration", TaskStepStatus.IN_PROGRESS);
               break;
             }
           case QueryType.EXPLANATION:
@@ -8540,7 +8502,7 @@ var QUERY_THROTTLE_MS,
               taskID: _0xbba6b3.id,
               verificationID: _0x4403d6.id
             };
-          await _0x793657(_0xbba6b3.id, 'verification', pe.IN_PROGRESS), await _0x559edf(false);
+          await _0x793657(_0xbba6b3.id, 'verification', TaskStepStatus.IN_PROGRESS), await _0x559edf(false);
           let _0x3403cd = _0x3ede1e.phaseBreakdownIdentifier;
           if (!_0x3403cd) throw new Error("Phase breakdown identifier is required");
           let _0x25eebd = {
@@ -8553,7 +8515,7 @@ var QUERY_THROTTLE_MS,
             },
             _0x2e2afe = await this.context.client.sendVerificationRequest(_0x25eebd, _0xbba6b3.abortController, _0x202c7c);
           if (!_0x2e2afe.output) throw new Error('Verification response is null');
-          return await _0x4403d6.handleVerificationResponse(_0x2e2afe), await _0x793657(_0xbba6b3.id, 'verification', pe.COMPLETED), _0x4403d6;
+          return await _0x4403d6.handleVerificationResponse(_0x2e2afe), await _0x793657(_0xbba6b3.id, 'verification', TaskStepStatus.COMPLETED), _0x4403d6;
         } catch (_0x196d40) {
           throw Logger.warn("Failed to start task verification", _0x196d40), await _0xbba6b3.handleFailedVerification(), _0x196d40 instanceof RateLimitExceededError ? _0x196d40 : (_0x554e2b("Failed to complete verification for task \"" + _0xbba6b3.title + '\x22 due to \x22' + _0x196d40 + '\x22'), new VerificationFailedError(String(_0x196d40)));
         }
@@ -8571,7 +8533,7 @@ var QUERY_THROTTLE_MS,
             hasFailed: false,
             isAborted: false,
             isRateLimited: false
-          }), await _0x4bada4.clearLogs(), await _0x167ef6(_0x4e2b34.id, 'verification', pe.IN_PROGRESS), await _0x448473(false);
+          }), await _0x4bada4.clearLogs(), await _0x167ef6(_0x4e2b34.id, 'verification', TaskStepStatus.IN_PROGRESS), await _0x448473(false);
           let _0x3bb08a = _0x4bada4.verificationOutput.threads.map(_0x59075e => _0x59075e.serializeToWire()),
             _0x31b65e = _0x1ab55a.phaseBreakdownIdentifier;
           if (!_0x31b65e) throw new Error("Phase breakdown identifier is required");
@@ -8587,9 +8549,9 @@ var QUERY_THROTTLE_MS,
             },
             _0x5424b8 = await this.context.client.sendReVerificationRequest(_0x5ed73c, _0x4e2b34.abortController);
           if (!_0x5424b8) throw new Error('Re-verification response is null');
-          await _0x4bada4.handleReVerificationResponse(_0x5424b8), await _0x167ef6(_0x4e2b34.id, 'verification', pe.COMPLETED);
+          await _0x4bada4.handleReVerificationResponse(_0x5424b8), await _0x167ef6(_0x4e2b34.id, 'verification', TaskStepStatus.COMPLETED);
         } catch (_0x3331ee) {
-          throw Logger.warn('Failed to re-verify task', _0x3331ee), await _0x4bada4.setLogs(_0x352f2c), await _0x167ef6(_0x4e2b34.id, "verification", pe.FAILED), _0x3331ee instanceof RateLimitExceededError ? (await _0x4bada4.setReverificationState({
+          throw Logger.warn('Failed to re-verify task', _0x3331ee), await _0x4bada4.setLogs(_0x352f2c), await _0x167ef6(_0x4e2b34.id, "verification", TaskStepStatus.FAILED), _0x3331ee instanceof RateLimitExceededError ? (await _0x4bada4.setReverificationState({
             hasFailed: false,
             isAborted: false,
             isRateLimited: true
@@ -8597,11 +8559,11 @@ var QUERY_THROTTLE_MS,
             hasFailed: false,
             isAborted: true,
             isRateLimited: false
-          }), await _0x167ef6(_0x4e2b34.id, "verification", pe.FAILED)) : (await _0x4bada4.setReverificationState({
+          }), await _0x167ef6(_0x4e2b34.id, "verification", TaskStepStatus.FAILED)) : (await _0x4bada4.setReverificationState({
             hasFailed: true,
             isAborted: false,
             isRateLimited: false
-          }), await _0x167ef6(_0x4e2b34.id, 'verification', pe.FAILED), _0x41b276("Failed to complete re-verification for task \"" + _0x4e2b34.title + '\x22 due to \x22' + _0x3331ee + '\x22')), new VerificationFailedError(String(_0x3331ee)));
+          }), await _0x167ef6(_0x4e2b34.id, 'verification', TaskStepStatus.FAILED), _0x41b276("Failed to complete re-verification for task \"" + _0x4e2b34.title + '\x22 due to \x22' + _0x3331ee + '\x22')), new VerificationFailedError(String(_0x3331ee)));
         }
       }
     };
@@ -9132,7 +9094,7 @@ var QUERY_THROTTLE_MS,
   initTaskChainExports = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initAnalytics(), initStatusBar(), initTaskChainPersistence(), initTaskChain(), TaskChainMemoryManager = class {
+    initWorkspaceInfo(), initAnalytics(), initTaskChainPersistence(), initTaskChain(), TaskChainMemoryManager = class {
       constructor(_0x281b2f) {
         this._activeTaskChains = new Map(), this._currentVisibleTaskChains = new lru_map_module.LRUMap(5), this._operationCounter = 0, this._taskChainIDs = new Set(), this._currentVisibleTaskChainMutex = new Mutex(), this._activeTaskChainsMutex = new Map(), this._pendingUIRequests = new Set(), this._inflightUIRequests = new Map(), this._client = _0x281b2f;
       }
@@ -9345,7 +9307,7 @@ var QUERY_THROTTLE_MS,
           taskIdentifier: _0x4bae80
         } = _0x2fe16f;
         return this.taskChainMemoryManager.withConnectionTracking(_0x4bae80.phaseBreakdownIdentifier, async _0x8f8ddb => {
-          await _0x8f8ddb.setStepState(_0x4bae80, 'verification', pe.SKIPPED), await _0x8f8ddb.upsertOnUI(true, false);
+          await _0x8f8ddb.setStepState(_0x4bae80, 'verification', TaskStepStatus.SKIPPED), await _0x8f8ddb.upsertOnUI(true, false);
         });
       }
       async ["reVerifyTask"](_0x2c3806) {
@@ -9472,7 +9434,7 @@ var QUERY_THROTTLE_MS,
           try {
             await _0x21410c.generatePlan(_0x18bca4, _0x20ea15, _0x3f533f, _0x22d0c4);
           } catch (_0x1298e8) {
-            throw Logger.error(_0x1298e8, 'Error creating new task', formatErrorToString(_0x1298e8)), !(_0x1298e8 instanceof PlanGenerationFailedError) && !(_0x1298e8 instanceof PlanExecutionFailedError) && vscode_module.window.showErrorMessage("Failed to create new task: " + (_0x1298e8 instanceof Error ? _0x1298e8.message : String(_0x1298e8))), _0x1298e8 instanceof GenericPlanError && _0x21410c && (await _0x21410c.updateStepState(_0x18bca4, 'planGeneration', pe.NOT_STARTED, true)), new Error('Failed to create new task: ' + (_0x1298e8 instanceof Error ? _0x1298e8.message : String(_0x1298e8)), {
+            throw Logger.error(_0x1298e8, 'Error creating new task', formatErrorToString(_0x1298e8)), !(_0x1298e8 instanceof PlanGenerationFailedError) && !(_0x1298e8 instanceof PlanExecutionFailedError) && vscode_module.window.showErrorMessage("Failed to create new task: " + (_0x1298e8 instanceof Error ? _0x1298e8.message : String(_0x1298e8))), _0x1298e8 instanceof GenericPlanError && _0x21410c && (await _0x21410c.updateStepState(_0x18bca4, 'planGeneration', TaskStepStatus.NOT_STARTED, true)), new Error('Failed to create new task: ' + (_0x1298e8 instanceof Error ? _0x1298e8.message : String(_0x1298e8)), {
               cause: _0x1298e8
             });
           }
@@ -9775,7 +9737,7 @@ var QUERY_THROTTLE_MS,
   initTaskContext = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initWorkspaceInfo(), initWorkspaceSettingsPersistence(), initStatusBar(), initTaskRunner(), initTemplateManager(), initUsageInfoHandler(), TaskSettingsHandler = class _0x43a5b4 {
+    initIDEAgentManager(), initWorkspaceInfo(), initWorkspaceSettingsPersistence(), initTaskRunner(), initTemplateManager(), initUsageInfoHandler(), TaskSettingsHandler = class _0x43a5b4 {
       static {
         this.instance = null;
       }
@@ -11437,11 +11399,11 @@ var ajvValidatorInstance,
       }
     };
   }),
-  Sl,
+  PromptTemplateService,
   initPromptTemplateService = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initCommentNavigator(), initTaskContext(), initTemplateFile(), initPromptMetadata(), initGenericTemplate(), initUserQueryTemplate(), initPlanTemplate(), initReviewTemplate(), initVerificationTemplate(), Sl = class _0x389cf0 {
+    initWorkspaceInfo(), initCommentNavigator(), initTaskContext(), initTemplateFile(), initPromptMetadata(), initGenericTemplate(), initUserQueryTemplate(), initPlanTemplate(), initReviewTemplate(), initVerificationTemplate(), PromptTemplateService = class _0x389cf0 {
       constructor() {
         this.userPromptTemplates = new Map(), this.workspacePromptTemplates = new Map(), this.defaultPromptTemplates = new Map(), this.invalidTemplates = new Set(), this.globalWatcher = null;
       }
@@ -11800,7 +11762,7 @@ var ajvValidatorInstance,
         this.instance = null;
       }
       constructor() {
-        this.promptTemplateService = Sl.getInstance(), this.cliAgentTemplateService = ii.getInstance();
+        this.promptTemplateService = PromptTemplateService.getInstance(), this.cliAgentTemplateService = ii.getInstance();
       }
       static ["getInstance"]() {
         return _0x3bf0d8.instance || (_0x3bf0d8.instance = new _0x3bf0d8()), _0x3bf0d8.instance;
@@ -12105,7 +12067,7 @@ function getExtensionSettings() {
 var initSearchConfig = __esmModule(() => {
   'use strict';
 
-  initIDEAgentManager(), initStatusBar(), initTaskContext();
+  initIDEAgentManager(), initTaskContext();
 });
 var AuthCallbackHandler = class _0x456dfa {
   constructor(_0x35742c) {
@@ -13483,7 +13445,7 @@ var initSymbolCache = __esmModule(() => {
   initTreeSitterParser = __esmModule(() => {
     'use strict';
 
-    initDocumentManager(), initStatusBar(), initCodeBlockCache(), TreeSitterFileParser = class {
+    initDocumentManager(), initCodeBlockCache(), TreeSitterFileParser = class {
       constructor(uri, grammarFileName) {
         this.initMutex = new Mutex(), this.treeSitterCache = new lru_map_module.LRUMap(100), this.analyzedBlocks = new lru_map_module.LRUMap(200), this.uri = uri, this.grammarFileName = grammarFileName;
       }
@@ -14134,7 +14096,7 @@ async function executeRipgrepSearch(_0x69db30, _0x52ce70, _0x2c2ca8, _0x4e227c) 
 var initRipgrepSearchModule = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initWorkspaceInfo(), initStatusBar();
+    initSearchConfig(), initWorkspaceInfo();
   }),
   MAX_WRITE_RETRIES,
   GrpcStreamHandler,
@@ -14142,7 +14104,7 @@ var initRipgrepSearchModule = __esmModule(() => {
   initGrpcClient = __esmModule(() => {
     'use strict';
 
-    initGoogleAuth(), initGrpcMessageTracker(), initSearchConfig(), initStatusBar(), initLlmCacheHandler(), initSymbolSearch(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initRipgrepSearchModule(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = streamConstants.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
+    initGoogleAuth(), initGrpcMessageTracker(), initSearchConfig(), initLlmCacheHandler(), initSymbolSearch(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initRipgrepSearchModule(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = streamConstants.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
       constructor(_0x30dd48, _0x34bdfa) {
         super(_0x30dd48, Logger), this.grpcConnection = null, this.id = null, this.client = _0x34bdfa;
       }
@@ -14832,7 +14794,7 @@ async function registerImportPersistedTicketCommand(_0x5071e1) {
 var initTaskChainCommands = __esmModule(() => {
     'use strict';
 
-    initTaskChainManager(), initStatusBar();
+    initTaskChainManager();
   }),
   PersistenceManager,
   initPersistenceManager = __esmModule(() => {
@@ -15050,13 +15012,13 @@ var initTaskChainCommands = __esmModule(() => {
       }
       ['activate'](_0x5a0c45) {
         this.fileSystemWatcher = vscode_module.workspace.createFileSystemWatcher(vscode_module.workspace.asRelativePath("**/*"), false, false, false), this.fileSystemWatcher.onDidChange(async _0x2582a1 => {
-          await Promise.all([Sl.getInstance().watchWorkspaceTemplatePath(_0x2582a1.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x2582a1.fsPath, "upsert"), FilePathHandler.getInstance().invalidatePath(_0x2582a1.fsPath)]);
+          await Promise.all([PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x2582a1.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x2582a1.fsPath, "upsert"), FilePathHandler.getInstance().invalidatePath(_0x2582a1.fsPath)]);
         }), this.fileSystemWatcher.onDidCreate(async _0xf17a5c => {
-          await Promise.all([Sl.getInstance().watchWorkspaceTemplatePath(_0xf17a5c.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0xf17a5c.fsPath, "upsert"), FilePathHandler.getInstance().invalidatePath(_0xf17a5c.fsPath)]);
+          await Promise.all([PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0xf17a5c.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0xf17a5c.fsPath, "upsert"), FilePathHandler.getInstance().invalidatePath(_0xf17a5c.fsPath)]);
         }), this.fileSystemWatcher.onDidDelete(async _0x3ef5e6 => {
-          await Promise.all([Sl.getInstance().watchWorkspaceTemplatePath(_0x3ef5e6.fsPath, 'delete'), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x3ef5e6.fsPath, 'delete'), FilePathHandler.getInstance().invalidatePath(_0x3ef5e6.fsPath)]);
+          await Promise.all([PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x3ef5e6.fsPath, 'delete'), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x3ef5e6.fsPath, 'delete'), FilePathHandler.getInstance().invalidatePath(_0x3ef5e6.fsPath)]);
         }), this.fileRenameWatcher = vscode_module.workspace.onDidRenameFiles(async _0x1e1398 => {
-          await Promise.all(_0x1e1398.files.flatMap(_0x24923e => [Sl.getInstance().watchWorkspaceTemplatePath(_0x24923e.oldUri.fsPath, 'delete'), Sl.getInstance().watchWorkspaceTemplatePath(_0x24923e.newUri.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.oldUri.fsPath, "delete"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.newUri.fsPath, 'upsert'), FilePathHandler.getInstance().invalidatePath(_0x24923e.oldUri.fsPath), FilePathHandler.getInstance().invalidatePath(_0x24923e.newUri.fsPath)]));
+          await Promise.all(_0x1e1398.files.flatMap(_0x24923e => [PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x24923e.oldUri.fsPath, 'delete'), PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x24923e.newUri.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.oldUri.fsPath, "delete"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.newUri.fsPath, 'upsert'), FilePathHandler.getInstance().invalidatePath(_0x24923e.oldUri.fsPath), FilePathHandler.getInstance().invalidatePath(_0x24923e.newUri.fsPath)]));
         }), _0x5a0c45.subscriptions.push(this.fileRenameWatcher), _0x5a0c45.subscriptions.push(this.fileSystemWatcher);
       }
       ['deactivate']() {
@@ -15119,7 +15081,7 @@ var initTaskChainCommands = __esmModule(() => {
       }
     };
   }),
-  wE = {
+  TraycerWebLinks = {
     mainWebsite: 'https://traycer.ai',
     mainWebsitePricing: "https://traycer.ai/#pricing1",
     mainWebsiteFAQ: "https://traycer.ai/#faq",
@@ -15148,7 +15110,7 @@ async function showReleaseNotesPanel(_0x2347a1, _0x56df76) {
     if (_0x6b164a.isInTrial && _0x6b164a.trialEndsAt) {
       let _0x3992e1 = Math.ceil((_0x6b164a.trialEndsAt.getTime() - Date.now()) / 86400000);
       _0x54ed5 = _0x54ed5 + "\n- You are currently in a trial period of " + (_0x6b164a?.['orgID'] ? 'Business Pro' : 'Pro') + ' plan for Traycer which will end after ' + _0x3992e1 + ' days.\x0a';
-    } else _0x45ad27 === prisma.SubscriptionStatus.PRO || _0x45ad27 === prisma.SubscriptionStatus.PRO_PLUS || _0x45ad27 === prisma.SubscriptionStatus.LITE || _0x45ad27 === prisma.SubscriptionStatus.PRO_LEGACY || _0x45ad27 === prisma.SubscriptionStatus.PRO_V2 || _0x45ad27 === prisma.SubscriptionStatus.PRO_PLUS_V2 || _0x45ad27 === prisma.SubscriptionStatus.LITE_V2 ? _0x54ed5 = '' + _0x54ed5 : _0x54ed5 = _0x54ed5 + '\x0a- You don\x27t have an active subscription. Upgrade to one of our [paid plans](' + wE.mainWebsitePricing + ") to continue using Traycer.";
+    } else _0x45ad27 === prisma.SubscriptionStatus.PRO || _0x45ad27 === prisma.SubscriptionStatus.PRO_PLUS || _0x45ad27 === prisma.SubscriptionStatus.LITE || _0x45ad27 === prisma.SubscriptionStatus.PRO_LEGACY || _0x45ad27 === prisma.SubscriptionStatus.PRO_V2 || _0x45ad27 === prisma.SubscriptionStatus.PRO_PLUS_V2 || _0x45ad27 === prisma.SubscriptionStatus.LITE_V2 ? _0x54ed5 = '' + _0x54ed5 : _0x54ed5 = _0x54ed5 + '\x0a- You don\x27t have an active subscription. Upgrade to one of our [paid plans](' + TraycerWebLinks.mainWebsitePricing + ") to continue using Traycer.";
     let _0x578e91 = vscode_module.window.createWebviewPanel("traycer.showReleaseNotes", "What's New", vscode_module.ViewColumn.One, {
       enableScripts: true
     });
@@ -15160,7 +15122,7 @@ async function showReleaseNotesPanel(_0x2347a1, _0x56df76) {
 function generateReleaseNotesHtml(_0x56f4a6) {
   return "\n      <!DOCTYPE html>\n      <html lang=\"en\">\n      <head>\n          <meta charset=\"UTF-8\">\n          <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n          <style>\n              body {\n                padding: 10px 20px;\n                line-height: 22px;\n                max-width: 850px;\n                margin: 0 auto;\n            }\n\n            body *:last-child {\n                margin-bottom: 0;\n            }\n\n            img {\n                max-width: 100%;\n                max-height: 100%;\n            }\n\n            a {\n                text-decoration: var(--text-link-decoration);\n            }\n\n            a:hover {\n                text-decoration: underline;\n            }\n\n            a:focus,\n            input:focus,\n            select:focus,\n            textarea:focus {\n                outline: 1px solid -webkit-focus-ring-color;\n                outline-offset: -1px;\n            }\n\n            hr {\n                border: 0;\n                height: 1px;\n                border-bottom: 2px solid;\n            }\n\n            h1 {\n                padding-bottom: 0.3em;\n                line-height: 1.2;\n                border-bottom-width: 1px;\n                border-bottom-style: solid;\n                display: flex;\n                align-items: center;\n                gap: 2px;\n            }\n\n            h1, h2, h3 {\n                font-weight: normal;\n            }\n\n            table {\n                border-collapse: collapse;\n            }\n\n            th {\n                text-align: left;\n                border-bottom: 1px solid;\n            }\n\n            th,\n            td {\n                padding: 5px 10px;\n            }\n\n            table > tbody > tr + tr > td {\n                border-top-width: 1px;\n                border-top-style: solid;\n            }\n\n            blockquote {\n                margin: 0 7px 0 5px;\n                padding: 0 16px 0 10px;\n                border-left-width: 5px;\n                border-left-style: solid;\n            }\n\n            code {\n                font-family: \"SF Mono\", Monaco, Menlo, Consolas, \"Ubuntu Mono\", \"Liberation Mono\", \"DejaVu Sans Mono\", \"Courier New\", monospace;\n            }\n\n            pre {\n                padding: 16px;\n                border-radius: 3px;\n                overflow: auto;\n            }\n\n            pre code {\n                font-family: var(--vscode-editor-font-family);\n                font-weight: var(--vscode-editor-font-weight);\n                font-size: var(--vscode-editor-font-size);\n                line-height: 1.5;\n                color: var(--vscode-editor-foreground);\n                tab-size: 4;\n            }\n\n            .monaco-tokenized-source {\n                white-space: pre;\n            }\n\n            /** Theming */\n\n            .pre {\n                background-color: var(--vscode-textCodeBlock-background);\n            }\n\n            .vscode-high-contrast h1 {\n                border-color: rgb(0, 0, 0);\n            }\n\n            .vscode-light th {\n                border-color: rgba(0, 0, 0, 0.69);\n            }\n\n            .vscode-dark th {\n                border-color: rgba(255, 255, 255, 0.69);\n            }\n\n            .vscode-light h1,\n            .vscode-light hr,\n            .vscode-light td {\n                border-color: rgba(0, 0, 0, 0.18);\n            }\n\n            .vscode-dark h1,\n            .vscode-dark hr,\n            .vscode-dark td {\n                border-color: rgba(255, 255, 255, 0.18);\n            }\n\n            @media (forced-colors: active) and (prefers-color-scheme: light){\n                body {\n                    forced-color-adjust: none;\n                }\n            }\n\n            @media (forced-colors: active) and (prefers-color-scheme: dark){\n                body {\n                    forced-color-adjust: none;\n                }\n            }\n\n\n            .mtk1 { color: #d4d4d4; }\n            .mtk2 { color: #1e1e1e; }\n            .mtk3 { color: #000080; }\n            .mtk4 { color: #6a9955; }\n            .mtk5 { color: #569cd6; }\n            .mtk6 { color: #b5cea8; }\n            .mtk7 { color: #646695; }\n            .mtk8 { color: #d7ba7d; }\n            .mtk9 { color: #9cdcfe; }\n            .mtk10 { color: #f44747; }\n            .mtk11 { color: #ce9178; }\n            .mtk12 { color: #6796e6; }\n            .mtk13 { color: #808080; }\n            .mtk14 { color: #d16969; }\n            .mtk15 { color: #dcdcaa; }\n            .mtk16 { color: #4ec9b0; }\n            .mtk17 { color: #c586c0; }\n            .mtk18 { color: #4fc1ff; }\n            .mtk19 { color: #c8c8c8; }\n            .mtk20 { color: #cd9731; }\n            .mtk21 { color: #b267e6; }\n            .mtki { font-style: italic; }\n            .mtkb { font-weight: bold; }\n            .mtku { text-decoration: underline; text-underline-position: under; }\n            .mtks { text-decoration: line-through; }\n            .mtks.mtku { text-decoration: underline line-through; text-underline-position: under; }\n\n            /* codesetting */\n\n            code:has(.codesetting)+code:not(:has(.codesetting)) {\n                display: none;\n            }\n\n            code:has(.codesetting) {\n                background-color: var(--vscode-textPreformat-background);\n                color: var(--vscode-textPreformat-foreground);\n                padding-left: 1px;\n                margin-right: 3px;\n                padding-right: 0px;\n            }\n\n            code:has(.codesetting):focus {\n                border: 1px solid var(--vscode-button-border, transparent);\n            }\n\n            .codesetting {\n                color: var(--vscode-textPreformat-foreground);\n                padding: 0px 1px 1px 0px;\n                font-size: 0px;\n                overflow: hidden;\n                text-overflow: ellipsis;\n                outline-offset: 2px !important;\n                box-sizing: border-box;\n                text-align: center;\n                cursor: pointer;\n                display: inline;\n                margin-right: 3px;\n            }\n            .codesetting svg {\n                font-size: 12px;\n                text-align: center;\n                cursor: pointer;\n                border: 1px solid var(--vscode-button-secondaryBorder, transparent);\n                outline: 1px solid transparent;\n                line-height: 9px;\n                margin-bottom: -5px;\n                padding-left: 0px;\n                padding-top: 2px;\n                padding-bottom: 2px;\n                padding-right: 2px;\n                display: inline-block;\n                text-decoration: none;\n                text-rendering: auto;\n                text-transform: none;\n                -webkit-font-smoothing: antialiased;\n                -moz-osx-font-smoothing: grayscale;\n                user-select: none;\n                -webkit-user-select: none;\n            }\n            .codesetting .setting-name {\n                font-size: 13px;\n                padding-left: 2px;\n                padding-right: 3px;\n                padding-top: 1px;\n                padding-bottom: 1px;\n                margin-left: -5px;\n                margin-top: -3px;\n            }\n            .codesetting:hover {\n                color: var(--vscode-textPreformat-foreground) !important;\n                text-decoration: none !important;\n            }\n            code:has(.codesetting):hover {\n                filter: brightness(140%);\n                text-decoration: none !important;\n            }\n            .codesetting:focus {\n                outline: 0 !important;\n                text-decoration: none !important;\n                color: var(--vscode-button-hoverForeground) !important;\n            }\n            .codesetting .separator {\n                width: 1px;\n                height: 14px;\n                margin-bottom: -3px;\n                display: inline-block;\n                background-color: var(--vscode-editor-background);\n                font-size: 12px;\n                margin-right: 8px;\n            }\n\n            header { display: flex; align-items: center; padding-top: 1em; }\n\n            .experimental-tag {\n                background-color: #4d4d4d;\n                padding: 2px 6px;\n                border-radius: 3px;\n                font-family: monospace;\n                font-size: 0.9em;\n            }\n\n            .coupon-code {\n                display: inline-block;\n                background-color: #3794ff;\n                color: #fff;\n                padding: 4px 8px;\n                border-radius: 3px;\n                font-family: monospace;\n                cursor: pointer;\n            }\n\n            .copied-message {\n                color: #73c991;\n                margin-left: 8px;\n                opacity: 0;\n                transition: opacity 0.2s;\n            }\n\n            .copied-message.active {\n                opacity: 1;\n            }\n\n            footer {\n                margin-top: 20px;\n                padding-top: 20px;\n                border-top: 1px solid #3d3d3d;\n                color: #888888;\n            }\n            .footer-buttons {\n            display: flex;\n            justify-content: center;\n            gap: 16px;\n            }\n          </style>\n      </head>\n        <body class=\"vscode-dark\">\n            <div class=\"content\">\n                " + markdown_it_module({
     html: true
-  }).render(_0x56f4a6) + '\x0a            </div>\x0a\x0a            <!-- Footer section with buttons -->\x0a            <footer>\x0a                <div class=\x22footer-buttons\x22>\x0a                    <a href=\x22' + wE.mainWebsitePricing + '\x22 target=\x22_blank\x22>Plans & Pricing</a>\x0a                    <a href=\x22' + wE.mainWebsiteFAQ + '\x22 target=\x22_blank\x22>FAQs</a>\x0a                    <a href=\x22' + wE.discord + "\" target=\"_blank\">Join Discord</a>\n                    <a href=\"" + wE.twitter + "\" target=\"_blank\">Follow on X (Twitter)</a>\n                </div>\n            </footer>\n        </body>\n        <script>\n            function copyCouponCode() {\n                const couponCodeElement = document.getElementById('coupon-code');\n                const couponCode = couponCodeElement.innerText;\n                const copiedMessage = document.getElementById('copied-message');\n\n                // Create a temporary input element\n                const tempInput = document.createElement('input');\n                tempInput.style.position = 'absolute';\n                tempInput.style.left = '-9999px';\n                tempInput.value = couponCode;\n\n                // Append the input element to the document body\n                document.body.appendChild(tempInput);\n\n                // Select the content of the input\n                tempInput.select();\n                tempInput.setSelectionRange(0, 99999); // For mobile devices\n\n                // Try to execute the copy command\n                try {\n                    document.execCommand('copy');\n\n                    // Show the \"Copied!\" message\n                    copiedMessage.classList.add('active');\n\n                    // Hide the message after 2 seconds\n                    setTimeout(() => {\n                        copiedMessage.classList.remove('active');\n                    }, 2000);\n                } catch (err) {\n                    console.error('Failed to copy the coupon code: ', err);\n                    alert('Failed to copy the coupon code.');\n                }\n\n                // Remove the temporary input element\n                document.body.removeChild(tempInput);\n            }\n        </script>\n      </html>\n      ";
+  }).render(_0x56f4a6) + '\x0a            </div>\x0a\x0a            <!-- Footer section with buttons -->\x0a            <footer>\x0a                <div class=\x22footer-buttons\x22>\x0a                    <a href=\x22' + TraycerWebLinks.mainWebsitePricing + '\x22 target=\x22_blank\x22>Plans & Pricing</a>\x0a                    <a href=\x22' + TraycerWebLinks.mainWebsiteFAQ + '\x22 target=\x22_blank\x22>FAQs</a>\x0a                    <a href=\x22' + TraycerWebLinks.discord + "\" target=\"_blank\">Join Discord</a>\n                    <a href=\"" + TraycerWebLinks.twitter + "\" target=\"_blank\">Follow on X (Twitter)</a>\n                </div>\n            </footer>\n        </body>\n        <script>\n            function copyCouponCode() {\n                const couponCodeElement = document.getElementById('coupon-code');\n                const couponCode = couponCodeElement.innerText;\n                const copiedMessage = document.getElementById('copied-message');\n\n                // Create a temporary input element\n                const tempInput = document.createElement('input');\n                tempInput.style.position = 'absolute';\n                tempInput.style.left = '-9999px';\n                tempInput.value = couponCode;\n\n                // Append the input element to the document body\n                document.body.appendChild(tempInput);\n\n                // Select the content of the input\n                tempInput.select();\n                tempInput.setSelectionRange(0, 99999); // For mobile devices\n\n                // Try to execute the copy command\n                try {\n                    document.execCommand('copy');\n\n                    // Show the \"Copied!\" message\n                    copiedMessage.classList.add('active');\n\n                    // Hide the message after 2 seconds\n                    setTimeout(() => {\n                        copiedMessage.classList.remove('active');\n                    }, 2000);\n                } catch (err) {\n                    console.error('Failed to copy the coupon code: ', err);\n                    alert('Failed to copy the coupon code.');\n                }\n\n                // Remove the temporary input element\n                document.body.removeChild(tempInput);\n            }\n        </script>\n      </html>\n      ";
 }
 var emptyExports = {};
 __export(emptyExports, {
@@ -15403,7 +15365,7 @@ var disposables,
   initExtension = __esmModule(() => {
     'use strict';
 
-    initTraycerCredentials(), initGrpcClient(), initExtensionCommands(), initTaskChainCommands(), initSearchConfig(), initTaskChainManager(), initAnalytics(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initStatusBar(), initLlmCacheHandler(), initRepoMappingManager(), initTaskRunner(), initTemplateManager(), initMigrationLogger(), initUsageTracker(), initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initFileSystemProviders(), initWorkspaceWatcher(), initCommentNavigatorDeps(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(), initWorkspaceInfo(), initTaskContext(), disposables = [], extensionContext = null;
+    initTraycerCredentials(), initGrpcClient(), initExtensionCommands(), initTaskChainCommands(), initSearchConfig(), initTaskChainManager(), initAnalytics(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initLlmCacheHandler(), initRepoMappingManager(), initTaskRunner(), initTemplateManager(), initMigrationLogger(), initUsageTracker(), initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initFileSystemProviders(), initWorkspaceWatcher(), initCommentNavigatorDeps(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(), initWorkspaceInfo(), initTaskContext(), disposables = [], extensionContext = null;
   }),
   sSt = {};
 __export(sSt, {

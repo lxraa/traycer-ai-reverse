@@ -2,8 +2,6 @@
 
 // 导入依赖
 const workerpool_module = require("workerpool");
-var { __esmModule } = require('./shared-env.js');
-
 // WorkerPoolError 类
 class WorkerPoolError extends Error {
   ["code"];
@@ -15,12 +13,22 @@ class WorkerPoolError extends Error {
 }
 
 // WorkerPoolManager 基类
-class ex {
+class WorkerPoolBase {
       ['pools'] = new Map();
       ['options'];
       ["logger"];
       constructor(_0x2bfe0a) {
         this.options = _0x2bfe0a, this.logger = _0x2bfe0a.logger;
+      }
+      /**
+       * 获取资源目录路径
+       * @returns {string} 资源目录的绝对路径
+       */
+      ['getResourcesDir']() {
+        const path = require('path');
+        // __dirname 是 extension/out/modules
+        // 需要向上两级到 extension，再进入 resources
+        return path.join(path.dirname(path.dirname(__dirname)), "resources");
       }
       ['isValidWorkerType'](_0xd5948a) {
         return this.getSupportedWorkerTypes().includes(_0xd5948a);
@@ -70,8 +78,52 @@ class ex {
       }
     };
 
+// WorkerPoolManager 类（具体实现）
+class WorkerPoolManager extends WorkerPoolBase {
+  static _instance = null;
+  
+  constructor() {
+    const { Logger } = require("./logger.js");
+    super({
+      minWorkers: 2,
+      maxWorkers: 2,
+      workerType: 'thread',
+      logger: Logger
+    });
+  }
+  
+  ['getWorkerPath'](workerType) {
+    const path = require('path');
+    return path.join(this.getResourcesDir(), "workers", workerType);
+  }
+  
+  ['getSupportedWorkerTypes']() {
+    return ['json-operations.cjs', 'three-way-merge.cjs', 'ripgrep-processor.cjs', 'diff-utils.cjs', 'list-files-processor.cjs'];
+  }
+  
+  static ["getInstance"]() {
+    if (!WorkerPoolManager._instance) {
+      WorkerPoolManager._instance = new WorkerPoolManager();
+    }
+    return WorkerPoolManager._instance;
+  }
+  
+  static async ["initWorkerPool"]() {
+    await WorkerPoolManager.getInstance().initWorkerPool();
+  }
+  
+  static async ['exec'](workerType, method, args) {
+    return WorkerPoolManager.getInstance().exec(workerType, method, args);
+  }
+  
+  static async ['cleanup']() {
+    return WorkerPoolManager.getInstance().cleanup();
+  }
+}
+
 // 导出
 module.exports = {  
-  ex
+  ex: WorkerPoolBase,
+  WorkerPoolManager
 };
 

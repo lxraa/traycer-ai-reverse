@@ -7,8 +7,35 @@ const chokidar_module = require("chokidar");
 const { Logger } = require("./logger.js");
 const { FileSystemWatcher } = require("./file_system_watcher.js");
 
-// 全局辅助函数声明 (需要从主文件中获取)
-let ensureDirectoryExists;
+/**
+ * 格式化错误信息为字符串
+ */
+function formatErrorToString(error) {
+  return error instanceof Error 
+    ? 'Error Name: ' + error.name + '\nError Message: ' + error.message + '\nError Stack: ' + error.stack 
+    : '' + error;
+}
+
+/**
+ * 确保目录存在，如果不存在则创建
+ */
+async function ensureDirectoryExists(directoryPath) {
+  try {
+    await fs_promises_module.stat(directoryPath);
+  } catch (statError) {
+    Logger.debug('Creating folder: ' + directoryPath, formatErrorToString(statError));
+    try {
+      await fs_promises_module.mkdir(directoryPath, {
+        recursive: true
+      });
+    } catch (mkdirError) {
+      if (mkdirError.code !== "EEXIST") {
+        Logger.warn("Failed to create folder: " + directoryPath, mkdirError);
+        throw mkdirError;
+      }
+    }
+  }
+}
 
 /**
  * Yolo Artifact 管理器
@@ -230,17 +257,8 @@ class YoloArtifactManager {
   }
 }
 
-/**
- * 注入全局辅助函数
- * 必须在模块加载后立即调用
- */
-function injectHelpers(helpers) {
-  ensureDirectoryExists = helpers.ensureDirectoryExists;
-}
-
 // CommonJS 导出
 module.exports = {
-  YoloArtifactManager,
-  injectYoloArtifactManagerHelpers: injectHelpers
+  YoloArtifactManager
 };
 

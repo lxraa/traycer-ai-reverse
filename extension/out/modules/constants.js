@@ -97,16 +97,12 @@ module.exports = {
   
   // 图片类型 (原名 Hk)
   IMAGE_MIME_TYPES,
-  Hk: IMAGE_MIME_TYPES,
   
   // 文件大小限制 (原名 nq)
   MAX_FILE_SIZE,
-  nq: MAX_FILE_SIZE,
   
   // 文件 scheme (原名 RS)
   TRAYCER_FILE_SCHEME,
-  RS: TRAYCER_FILE_SCHEME,
-  
   // 命令 ID
   OPEN_SETTINGS_COMMAND,
   AUTH_CALLBACK_COMMAND,
