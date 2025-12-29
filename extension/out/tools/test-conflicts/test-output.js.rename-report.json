@@ -1,0 +1,66 @@
+{
+  "timestamp": "2025-12-29T07:25:11.456Z",
+  "summary": {
+    "totalRenamed": 6,
+    "totalSkipped": 0,
+    "totalConflicts": 3
+  },
+  "conflicts": [
+    {
+      "oldName": "abc",
+      "requestedName": "TaskOrchestrator",
+      "actualName": "TaskOrchestrator_1",
+      "reason": "与已声明变量冲突"
+    },
+    {
+      "oldName": "def",
+      "requestedName": "PlanConversationHandler",
+      "actualName": "PlanConversationHandler_1",
+      "reason": "与已声明变量冲突"
+    },
+    {
+      "oldName": "ghi",
+      "requestedName": "processTask",
+      "actualName": "processTask_1",
+      "reason": "与已声明变量冲突"
+    }
+  ],
+  "locations": [
+    {
+      "oldName": "abc",
+      "newName": "TaskOrchestrator_1",
+      "line": 9,
+      "column": 6
+    },
+    {
+      "oldName": "def",
+      "newName": "PlanConversationHandler_1",
+      "line": 10,
+      "column": 6
+    },
+    {
+      "oldName": "ghi",
+      "newName": "processTask_1",
+      "line": 11,
+      "column": 6
+    },
+    {
+      "oldName": "abc",
+      "newName": "TaskOrchestrator_1",
+      "line": 15,
+      "column": 14
+    },
+    {
+      "oldName": "def",
+      "newName": "PlanConversationHandler_1",
+      "line": 16,
+      "column": 14
+    },
+    {
+      "oldName": "ghi",
+      "newName": "processTask_1",
+      "line": 17,
+      "column": 14
+    }
+  ]
+}

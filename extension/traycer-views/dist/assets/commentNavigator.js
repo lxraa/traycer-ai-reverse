@@ -1,1 +1,57 @@
-import{c as t,j as e,a,T as s,R as r,b as n,d as i,e as T,f as o,g as l,M as E,h as d,C as m,N as x,i as h,E as p,L as u,u as j,k as A,l as c,m as L,n as S,o as R,p as P,q as _,r as M,s as N,t as g,v,w as I,x as K,P as O,y as k}from"./global.js";const y=t([{path:"/",element:e.jsx(u,{}),errorElement:e.jsx(p,{}),children:[{path:r.TASK,children:[{index:!0,element:e.jsx(n,{})},{path:a(N),element:e.jsx(i,{})},{path:s.TASK_HISTORY,element:e.jsx(T,{})},{path:a(g),element:e.jsx(o,{})},{path:a(v),element:e.jsx(l,{})},{path:s.MCP,element:e.jsx(E,{})},{path:s.PROMPT_TEMPLATE,element:e.jsx(d,{})},{path:s.CLI_AGENTS,element:e.jsx(m,{})}]},{index:!0,element:e.jsx(x,{to:h.LANDING})}]}]);function C(){return j(),A(),c(),L(),S(),e.jsx(R,{children:e.jsx(P,{delayDuration:_,children:e.jsx(M,{router:y})})})}I.createRoot(document.getElementById("root")).render(e.jsx(K.StrictMode,{children:e.jsx(O,{store:k,children:e.jsx(C,{})})}));
+import{
+  c as t,j as e,a,T as s,R as r,b as n,d as i,e as T,f as o,g as l,M as E,h as d,C as m,N as x,i as h,E as p,L as u,u as j,k as A,l as c,m as L,n as S,o as R,p as P,q as _,r as M,s as N,t as g,v,w as I,x as K,P as O,y as k
+}
+from"./global.js";
+const y=t([{
+      path:"/",element:e.jsx(u,{
+        }),errorElement:e.jsx(p,{
+      }),children:[{
+      path:r.TASK,children:[{
+          index:!0,element:e.jsx(n,{
+            })
+      },{
+      path:a(N),element:e.jsx(i,{
+        })
+  },{
+  path:s.TASK_HISTORY,element:e.jsx(T,{
+    })
+},{
+path:a(g),element:e.jsx(o,{
+  })
+},{
+path:a(v),element:e.jsx(l,{
+  })
+},{
+path:s.MCP,element:e.jsx(E,{
+  })
+},{
+path:s.PROMPT_TEMPLATE,element:e.jsx(d,{
+  })
+},{
+path:s.CLI_AGENTS,element:e.jsx(m,{
+  })
+}
+]
+},{
+index:!0,element:e.jsx(x,{
+    to:h.LANDING
+  })
+}
+]
+}
+]);
+function C(){
+  return j(),A(),c(),L(),S(),e.jsx(R,{
+      children:e.jsx(P,{
+          delayDuration:_,children:e.jsx(M,{
+              router:y
+            })
+      })
+})
+}
+I.createRoot(document.getElementById("root")).render(e.jsx(K.StrictMode,{
+      children:e.jsx(O,{
+          store:k,children:e.jsx(C,{
+            })
+      })
+}));

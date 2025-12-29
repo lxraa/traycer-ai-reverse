@@ -1,0 +1,8 @@
+{
+  "$c": "InternalPhaseSize",
+  "tv": "InternalSeverity",
+  "PhaseSize": "PhaseSize",
+  "CommentSeverity": "CommentSeverity",
+  "AgentMode": "AgentMode"
+}
+

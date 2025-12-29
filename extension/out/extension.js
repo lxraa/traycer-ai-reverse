@@ -4,7 +4,6 @@
 const vscode_module = require("vscode");
 const grpc_module = require("@grpc/grpc-js");
 const diff_match_patch_module = require("diff-match-patch");
-const retry_module = require("retry");
 /* [unbundle] ignore_module 已移至 config.js */
 const sqlite3_module = require("sqlite3");
 // const sqlite_module = require("sqlite");
@@ -24,8 +23,13 @@ const events_module = require("events");
 const stream_module = require("stream");
 const sqlite_module = require("sqlite");
 const chokidar_module = require("chokidar");
-const p_retry_module = require("p-retry")
-const { PromptTemplate,PROMPT_ENV_VAR ,TraycerFileSystem,TemplateErrorManager,T0} = require("./modules/prompt_template.js")
+const p_retry_module = require("p-retry");
+const {
+  PromptTemplate,
+  PROMPT_ENV_VAR,
+  TraycerFileSystem,
+  TemplateErrorManager
+} = require("./modules/prompt_template.js");
 const path_module = {
   default: require("path"),
   ...require("path")
@@ -64,10 +68,7 @@ const {
 const {
   Logger,
   initializeSentryClient,
-  captureExceptionToSentry,
-  setSentryTag,
-  closeSentryClient,
-  getSentryInstance
+  closeSentryClient
 } = require("./modules/logger.js");
 const {
   RequestQueue
@@ -92,17 +93,9 @@ const {
 const {
   // 枚举
   TaskStepStatus,
-  PlanArtifactType,
-  CommentSeverity,
-  AgentMode,
   PhaseSize,
-  FileOperation,
   // 辅助函数
   setCreateUuid,
-  createTextDocNode,
-  convertQueryToDocNode,
-  formatPlanStepToMarkdown,
-  getActiveWorkspacePath,
   // 迁移器类
   WorkspaceMigrator,
   StorageSerializer,
@@ -148,9 +141,7 @@ const {
   EditableFileSystem
 } = require("./modules/editable_file_system.js");
 const {
-  SqliteMigrator,
-  MementoKey,
-  MementoToTableMapping
+  SqliteMigrator
 } = require("./modules/storage_migrator.js");
 const {
   FileSystemWatcher
@@ -163,7 +154,6 @@ const {
   TICKET_SOURCE,
   formatPathForDisplay,
   formatTicketReferenceDisplay,
-  getGitHubIssueUrl,
   GitHubTicketQueryBuilder
 } = require("./modules/github_ticket_query_builder.js");
 const {
@@ -172,9 +162,6 @@ const {
   TraycerPath
 } = require("./modules/path_types.js");
 const {
-  ExtensionHelper,
-  ExtensionTaskHandler,
-  ClipboardPromptHandler,
   ClineHandler,
   KiloCodeHandler,
   RooCodeHandler,
@@ -204,7 +191,6 @@ var {
 
 // ============== 从外部模块导入常量 ==============
 var {
-  cte,
   Hk,
   nq,
   RS,
@@ -260,11 +246,11 @@ var HttpStatusError = class extends Error {
       super(errorMessage);
     }
   },
-  SBe = "Attached image is not supported.",
-  wBe = Array.from(Hk.keys()).join(', '),
+  UNSUPPORTED_IMAGE_ERROR_MSG = "Attached image is not supported.",
+  SUPPORTED_IMAGE_TYPES_STRING = Array.from(Hk.keys()).join(', '),
   UnsupportedImageTypeError = class extends Error {
     constructor(imageType) {
-      super(SBe + ' ' + imageType + ". Supported types are " + wBe + '.'), this.name = 'UnsupportedImageTypeError';
+      super(UNSUPPORTED_IMAGE_ERROR_MSG + ' ' + imageType + ". Supported types are " + SUPPORTED_IMAGE_TYPES_STRING + '.'), this.name = 'UnsupportedImageTypeError';
     }
   },
   UserAbortedError = class extends Error {
@@ -272,28 +258,24 @@ var HttpStatusError = class extends Error {
       super(abortMessage), this.name = 'UserAbortedError';
     }
   },
-  Ate = "RequestAbortedError",
+  REQUEST_ABORTED_ERROR_NAME = "RequestAbortedError",
   RequestAbortedError = class extends Error {
     ["reason"];
     constructor(abortReason) {
-      super('Request aborted: ' + abortReason), this.reason = abortReason, this.name = Ate;
+      super('Request aborted: ' + abortReason), this.reason = abortReason, this.name = REQUEST_ABORTED_ERROR_NAME;
     }
     static ['matches'](errorToCheck) {
-      return errorToCheck instanceof Error && errorToCheck.name === Ate;
+      return errorToCheck instanceof Error && errorToCheck.name === REQUEST_ABORTED_ERROR_NAME;
     }
   },
-  bu = {
+  StreamCloseReason = {
     USER_ABORT: 0,
     PING_WRITE_FAILURE: 1,
     PING_TIMEOUT: 2,
     EXTENSION_CLOSED: 3
-  },
-  /* [unbundle] $c (PhaseSize) 已移至 modules/task_migrators.js */
-  $c = PhaseSize,
-  /* [unbundle] tv (CommentSeverity) 已移至 modules/task_migrators.js */
-  tv = CommentSeverity;
-  /* [unbundle] Ht, r9e 已移至 config.js */
-  /* [unbundle] yo (TICKET_SOURCE) 已移至 github_ticket_query_builder.js */
+  };
+/* [unbundle] Ht, r9e 已移至 config.js */
+/* [unbundle] yo (TICKET_SOURCE) 已移至 github_ticket_query_builder.js */
 function ensureBuffer(inputData) {
   if (Buffer.isBuffer(inputData)) return inputData;
   if (inputData instanceof Uint8Array) return Buffer.from(inputData);
@@ -514,14 +496,14 @@ function reverseString(_0x1677f0) {
   return _0x1677f0.split('').reverse().join('');
 }
 function isValidAgentType(agentType) {
-  return Object.keys(wm).includes(agentType);
+  return Object.keys(agentRegistry).includes(agentType);
 }
 function getAgentIconByDisplayName(displayName) {
-  for (let [agentKey, agentInfo] of Object.entries(wm)) if (agentInfo.displayName === displayName) return getAgentIcon(agentKey);
+  for (let [agentKey, agentInfo] of Object.entries(agentRegistry)) if (agentInfo.displayName === displayName) return getAgentIcon(agentKey);
   return null;
 }
 function getAgentIcon(agentType) {
-  return Object.keys(wm).includes(agentType) ? wm[agentType] : wm.copy;
+  return Object.keys(agentRegistry).includes(agentType) ? agentRegistry[agentType] : agentRegistry.copy;
 }
 function isUtilityAgent(agentObj) {
   return agentObj.type === "utility";
@@ -529,7 +511,7 @@ function isUtilityAgent(agentObj) {
 function isTerminalAgent(agentObj) {
   return agentObj.type === "terminal";
 }
-var wm = Object.freeze({
+var agentRegistry = Object.freeze({
   'claude-code': Object.freeze({
     id: "claude-code",
     type: "terminal",
@@ -659,12 +641,12 @@ var FileContent = class _0x27d9ac {
     get ['lines']() {
       return this._lines;
     }
-    ['getLines'](_0x19cec2, _0x4c789a = oie) {
+    ['getLines'](_0x19cec2, _0x4c789a = createErrorFromMessage) {
       if (!_0x19cec2) return this._lines;
       if (_0x19cec2.startLine < 0 || _0x19cec2.endLine >= this._lines.length) throw _0x4c789a('Line range: (' + _0x19cec2.startLine + ', ' + _0x19cec2.endLine + ") is out of bounds for file with " + this._lines.length + " lines");
       return this._lines.slice(_0x19cec2.startLine, _0x19cec2.endLine + 1);
     }
-    ["getContent"](_0x3a4d91, _0x4c3743 = oie) {
+    ["getContent"](_0x3a4d91, _0x4c3743 = createErrorFromMessage) {
       return _0x3a4d91 ? this.getLines(_0x3a4d91, _0x4c3743).join('\x0a') : this._lines.join('\x0a');
     }
     get ['length']() {
@@ -704,7 +686,7 @@ var FileContent = class _0x27d9ac {
       return new _0x27d9ac(_0x23c94b);
     }
   },
-  oie = _0x472706 => new Error(_0x472706);
+  createErrorFromMessage = _0x472706 => new Error(_0x472706);
 function parseGitHubUrl(_0xb5cb1d) {
   let _0x1139a0 = /^https:\/\/github\.com\/([^/]+)\/([^/]+?)(?=\.git|\/?$)(?:\.git)?\/?$/,
     _0xe68749 = /^git@github\.com:([^/]+)\/([^/]+?)(?=\.git|\/?$)(?:\.git)?\/?$/;
@@ -903,46 +885,45 @@ function spliceIntoDocContent(_0x206a3b, _0x42a599, _0x3a5d0e) {
     content: _0x50b145
   };
 }
-var w5e = 'Stream drain timed out',
+var STREAM_DRAIN_TIMEOUT_ERROR_MSG = 'Stream drain timed out',
   StreamDrainTimeoutError = class extends Error {
     constructor() {
-      super(w5e), this.name = "StreamDrainTimeoutError";
+      super(STREAM_DRAIN_TIMEOUT_ERROR_MSG), this.name = "StreamDrainTimeoutError";
     }
   },
-  P5e = 'Stream is not writable',
+  STREAM_NOT_WRITABLE_ERROR_MSG = 'Stream is not writable',
   StreamNotWritableError = class extends Error {
     constructor() {
-      super(P5e), this.name = 'StreamNotWritableError';
+      super(STREAM_NOT_WRITABLE_ERROR_MSG), this.name = 'StreamNotWritableError';
     }
   };
 /* [unbundle] createUuidWithFallback = uuid_module.v4 */
 var createUuidWithFallback = uuid_module.v4;
-var Ut = createUuidWithFallback;
+var createUuid = createUuidWithFallback;
 
 // [unbundle] 注入 createUuid 函数到 task_migrators 模块
 setCreateUuid(createUuidWithFallback);
-
-var un = {
-    QUEUE_CAPACITY: 512,
-    HIGH_WATER_MARK: 512,
-    BACKPRESSURE_THRESHOLD: 256,
-    MAX_WRITE_RETRIES: 2,
-    DRAIN_TIMEOUT_MS: 15000,
-    PING_INTERVAL_MS: 2000,
-    MAX_MISSED_PINGS: 30,
-    PING_TIMEOUT_MS: 75000,
-    STREAM_END_TIMEOUT_MS: 75000,
-    MAX_CHUNK_SIZE_BYTES: 1048576
-  };
+var streamConstants = {
+  QUEUE_CAPACITY: 512,
+  HIGH_WATER_MARK: 512,
+  BACKPRESSURE_THRESHOLD: 256,
+  MAX_WRITE_RETRIES: 2,
+  DRAIN_TIMEOUT_MS: 15000,
+  PING_INTERVAL_MS: 2000,
+  MAX_MISSED_PINGS: 30,
+  PING_TIMEOUT_MS: 75000,
+  STREAM_END_TIMEOUT_MS: 75000,
+  MAX_CHUNK_SIZE_BYTES: 1048576
+};
 async function splitMessageIntoChunks(_0x39089f, _0x57dc84) {
   let _0x4287c3 = await _0x57dc84(_0x39089f);
-  if (_0x4287c3.length <= un.MAX_CHUNK_SIZE_BYTES) return null;
-  let _0x58e015 = Ut(),
-    _0x1f0dbe = Math.ceil(_0x4287c3.length / un.MAX_CHUNK_SIZE_BYTES),
+  if (_0x4287c3.length <= streamConstants.MAX_CHUNK_SIZE_BYTES) return null;
+  let _0x58e015 = createUuid(),
+    _0x1f0dbe = Math.ceil(_0x4287c3.length / streamConstants.MAX_CHUNK_SIZE_BYTES),
     _0x39db9e = [];
   for (let _0xc525e6 = 0; _0xc525e6 < _0x1f0dbe; _0xc525e6++) {
-    let _0x184372 = _0xc525e6 * un.MAX_CHUNK_SIZE_BYTES,
-      _0x5b1f6c = Math.min(_0x184372 + un.MAX_CHUNK_SIZE_BYTES, _0x4287c3.length),
+    let _0x184372 = _0xc525e6 * streamConstants.MAX_CHUNK_SIZE_BYTES,
+      _0x5b1f6c = Math.min(_0x184372 + streamConstants.MAX_CHUNK_SIZE_BYTES, _0x4287c3.length),
       _0x15b1f8 = _0x4287c3.subarray(_0x184372, _0x5b1f6c);
     _0x39db9e.push({
       chunkId: _0x58e015,
@@ -1007,7 +988,6 @@ function calculateRetryDelay(_0x41c0b5, _0x162062) {
 function getRandomInt(_0xcb681b, _0x438e9a) {
   return Math.floor(Math.random() * (_0x438e9a - _0xcb681b)) + _0xcb681b;
 }
-
 async function writeToStreamWithDrain(_0x121526, _0x2afa60) {
   return new Promise((_0x255682, _0x40fef8) => {
     if (!_0x121526.writable) return _0x40fef8(new StreamNotWritableError());
@@ -1019,7 +999,7 @@ async function writeToStreamWithDrain(_0x121526, _0x2afa60) {
         },
         _0xee9123 = setTimeout(() => {
           _0x121526.off("drain", _0x5add3f), _0x40fef8(new StreamDrainTimeoutError());
-        }, x5e);
+        }, DRAIN_TIMEOUT_MS);
       _0x121526.once('drain', _0x5add3f);
     } else _0x255682();
   });
@@ -1048,11 +1028,9 @@ async function writeChunkedMessageWithRetry(_0x3efdc2, _0x2c197f, _0xd53e86, _0x
   let _0x3a375e = await p_retry_module.default;
   return writeChunkedMessageToStream(_0x3efdc2, _0x2c197f, _0xd53e86, _0x3317bf, _0x487b94, _0x536d9c, _0x3a375e);
 }
-var x5e = un.DRAIN_TIMEOUT_MS;
+var DRAIN_TIMEOUT_MS = streamConstants.DRAIN_TIMEOUT_MS;
 /* [unbundle] ignore patterns 已移至 config.js */
-var u$ = config_module.IGNORE_DIRECTORIES,
-  yO = config_module.IGNORE_FILES,
-  rue = config_module.IGNORE_ALL_PATTERNS,
+var IGNORE_ALL_PATTERNS = config_module.IGNORE_ALL_PATTERNS,
   getGlobalIgnoreInstance = config_module.getGlobalIgnoreInstance,
   AsyncQueue = class extends events_module.EventEmitter {
     ['items'] = [];
@@ -1064,7 +1042,7 @@ var u$ = config_module.IGNORE_DIRECTORIES,
     ['capacity'];
     ['logger'];
     constructor(_0x5cbc91) {
-      super(), this.capacity = un.QUEUE_CAPACITY, this.logger = _0x5cbc91, this.items = new Array(un.QUEUE_CAPACITY);
+      super(), this.capacity = streamConstants.QUEUE_CAPACITY, this.logger = _0x5cbc91, this.items = new Array(streamConstants.QUEUE_CAPACITY);
     }
     ['push'](_0x2a135c) {
       if (this._isClosed) return this.logger.warn('Attempted to push item to closed queue (size: ' + this._size + '/' + this.capacity + ')'), false;
@@ -1111,7 +1089,7 @@ var u$ = config_module.IGNORE_DIRECTORIES,
       if (this._size === 0) return;
       let _0x4d4553 = this.items[this.headIndex];
       this.items[this.headIndex] = void 0, this.headIndex = (this.headIndex + 1) % this.capacity, this._size--;
-      let _0x2fa1f2 = Math.min(this.capacity - 1, un.BACKPRESSURE_THRESHOLD);
+      let _0x2fa1f2 = Math.min(this.capacity - 1, streamConstants.BACKPRESSURE_THRESHOLD);
       return this._size < _0x2fa1f2 && this.emit("space-available"), _0x4d4553;
     }
     ["close"]() {
@@ -1160,7 +1138,7 @@ var u$ = config_module.IGNORE_DIRECTORIES,
     constructor(_0x35007b, _0x14e17f) {
       this._stream = _0x35007b, this._logger = _0x14e17f, this._messageQueue = new AsyncQueue(_0x14e17f), this._passThrough = new stream_module.PassThrough({
         objectMode: true,
-        highWaterMark: un.HIGH_WATER_MARK
+        highWaterMark: streamConstants.HIGH_WATER_MARK
       }), this._chunkBuffers = new Map(), this._chunkTimeouts = new Map(), this.setupStreamPipeline();
     }
     ['setupStreamPipeline']() {
@@ -1205,8 +1183,8 @@ var u$ = config_module.IGNORE_DIRECTORIES,
       let _0x1c8c4a = this._chunkTimeouts.get(_0x36a460);
       _0x1c8c4a && clearTimeout(_0x1c8c4a);
       let _0x150864 = setTimeout(() => {
-        this._logger.warn("Clearing stale chunks for chunk_id " + _0x36a460 + " after " + un.STREAM_END_TIMEOUT_MS + "ms timeout"), this._chunkBuffers.delete(_0x36a460), this._chunkTimeouts.delete(_0x36a460);
-      }, un.STREAM_END_TIMEOUT_MS);
+        this._logger.warn("Clearing stale chunks for chunk_id " + _0x36a460 + " after " + streamConstants.STREAM_END_TIMEOUT_MS + "ms timeout"), this._chunkBuffers.delete(_0x36a460), this._chunkTimeouts.delete(_0x36a460);
+      }, streamConstants.STREAM_END_TIMEOUT_MS);
       this._chunkTimeouts.set(_0x36a460, _0x150864);
       let _0x1166d9 = this._chunkBuffers.get(_0x36a460);
       if (_0x1166d9.some(_0x348757 => _0x348757.sequenceNumber === _0x50ac93.sequenceNumber)) return this._logger.debug("Duplicate chunk detected: sequence " + _0x50ac93.sequenceNumber + ' for chunk_id: ' + _0x36a460 + ', ignoring'), null;
@@ -1246,7 +1224,7 @@ var u$ = config_module.IGNORE_DIRECTORIES,
       }
     }
   },
-  yt = {
+  GitFileStatus = {
     UNKNOWN_STATUS: 0,
     INDEX_MODIFIED: 1,
     INDEX_ADDED: 2,
@@ -1269,19 +1247,13 @@ var u$ = config_module.IGNORE_DIRECTORIES,
     BOTH_MODIFIED: 19
   };
 function getGitignoreCache(_0x122f12) {
-  return t9e[_0x122f12];
+  return platformTypeNames[_0x122f12];
 }
 function isAbortError(_0x5911c2) {
   return _0x5911c2 instanceof Error && (_0x5911c2.name === "AbortError" || _0x5911c2.name === 'AbortedError' || RequestAbortedError.matches(_0x5911c2));
 }
 /* [unbundle] formatPathForDisplay 已移�?github_ticket_query_builder.js */
-function isDatabaseError(_0x463868) {
-  for (let key of cte) {
-    let _0x181ea6 = new RegExp(key);
-    if (_0x463868.message.match(_0x181ea6) !== null) return true;
-  }
-  return false;
-}
+
 function getContextFilePath(_0xbe0463) {
   for (let key of rq) {
     let _0x46b2f5 = new RegExp(key);
@@ -1321,16 +1293,16 @@ function formatPhaseBreakdownToMarkdown(_0x264ee7, _0x42e415, _0x2089ba) {
   let _0x2aa5d4 = _0x264ee7.tasks.map((_0x4e1620, _0x1d995a) => _0x42e415.length === 0 || _0x42e415.includes(_0x4e1620.id) ? formatTaskToMarkdown(_0x4e1620, _0x1d995a + 1, _0x2089ba) : '').filter(_0x4b5147 => _0x4b5147 !== '');
   return _0x4ee86b += _0x2aa5d4.join(''), _0x4ee86b.trim();
 }
-var t9e = {
+var platformTypeNames = {
   [xr.WINDOWS]: 'Windows',
   [xr.POSIX]: 'POSIX'
 };
-var il = {
+var subscriptionActions = {
     FETCH_SUBSCRIPTION: 'fetchSubscription',
     VALIDATE_INVOICE: 'validateInvoice',
     REFRESH_USER: 'refreshUser'
   },
-  vt = {
+  TaskMessageTypes = {
     NEW_TASK: 'newTask',
     FETCH_TASK_HISTORY: "fetchTaskHistory",
     FETCH_TASK_CHAIN: 'fetchTaskChain',
@@ -1378,13 +1350,13 @@ var il = {
     MARK_PLAN_AS_EXECUTED: 'markPlanAsExecuted',
     EXPORT_PHASE_BREAKDOWN: 'exportPhaseBreakdown'
   },
-  PO = {
+  PathConversionMessageTypes = {
     CONVERT_FILE_PATH: 'convertFilePath'
   },
   /* [unbundle] o9e (TaskStepStatus) 已移至 modules/task_migrators.js */
   o9e = TaskStepStatus,
   pe = o9e,
-  Ru = {
+  CLIAgentManagementActions = {
     CREATE_USER_CLI_AGENT: 'createUserCLIAgent',
     CREATE_WORKSPACE_CLI_AGENT: 'createWorkspaceCLIAgent',
     DELETE_CLI_AGENT: "deleteCLIAgent",
@@ -1393,26 +1365,26 @@ var il = {
     IS_USER_CLI_AGENT_NAME_ALLOWED: 'isUserCLIAgentNameAllowed',
     IS_WORKSPACE_CLI_AGENT_NAME_ALLOWED: "isWorkspaceCLIAgentNameAllowed"
   },
-  hw = {
+  CloudUIActions = {
     SIGNIN: "cloudUISignin",
     PASTE_TOKEN: "cloudUIPasteToken"
   },
-  bO = {
+  ActivationMessageTypes = {
     ACTIVATION_STATUS: "activation-status"
   },
-  Cv = {
+  AuthenticationActions = {
     SIGNIN: "signin",
     STATUS: 'status',
     SIGNOUT: "signout"
   },
-  mw = {
+  MCPServerActions = {
     STATUS_REFRESH: 'statusRefresh',
     SET_ACTIVE_ACCOUNT_FOR_MCP_SERVER: 'setActiveAccountForMCPServer'
   },
-  CO = {
+  MetricsActions = {
     TRACK_METRICS: 'trackMetrics'
   },
-  ea = {
+  PromptTemplateActions = {
     CREATE_USER_PROMPT_TEMPLATE: 'createUserPromptTemplate',
     CREATE_WORKSPACE_PROMPT_TEMPLATE: "createWorkspacePromptTemplate",
     ACTIVATE_PROMPT_TEMPLATE: 'activatePromptTemplate',
@@ -1424,7 +1396,7 @@ var il = {
     IS_WORKSPACE_PROMPT_TEMPLATE_NAME_ALLOWED: 'isWorkspacePromptTemplateNameAllowed',
     LIST_WORKSPACE_DIRECTORIES: "listWorkspaceDirectories"
   },
-  Ou = {
+  TaskSettingsActions = {
     GET_TASK_SETTINGS_STATE: "get-task-settings-state",
     UPDATE_LAST_SELECTED_IDE_AGENT: 'update-last-selected-ide-agent',
     UPDATE_ALWAYS_ALLOW_PAY_TO_RUN: "update-always-allow-pay-to-run",
@@ -1433,77 +1405,77 @@ var il = {
     OPEN_SETTINGS: 'open-settings',
     TOGGLE_INTERVIEW_TEXT_ONLY_MODE: 'toggle-interview-text-only-mode'
   },
-  _w = {
+  UsageInformationActions = {
     FETCH_USAGE_INFORMATION: "fetchUsageInformation",
     SEND_FETCH_STATUS: "sendFetchStatus"
   },
-  IO = {
+  ListenersReadyMessage = {
     LISTENERS_READY: 'LISTENERS_READY'
   },
-  gw = {
+  WorkspaceActions = {
     OPEN_FOLDER: "openFolder",
     GET_WORKSPACE_STATUS: "getWorkspaceStatus"
   };
 function removeGitignorePatterns(_0x116b53) {
-  return c9e.has(_0x116b53);
+  return fileOperationSet.has(_0x116b53);
 }
 function clearGitignoreCache(_0x264340) {
-  return l9e.has(_0x264340);
+  return subscriptionActionSet.has(_0x264340);
 }
 function getGitignorePatterns(_0x1a18f9) {
-  return d9e.has(_0x1a18f9);
+  return taskMessageTypeSet.has(_0x1a18f9);
 }
 function hasGitignoreFile(_0x511038) {
-  return p9e.has(_0x511038);
+  return planMessageTypeSet.has(_0x511038);
 }
 function isGitignoreLoaded(_0x235251) {
-  return f9e.has(_0x235251);
+  return phaseBreakdownMessageTypeSet.has(_0x235251);
 }
 function loadGitignoreFromPath(_0xfba99a) {
-  return h9e.has(_0xfba99a);
+  return taskStepMessageTypeSet.has(_0xfba99a);
 }
 function reloadGitignore(_0x35d261) {
-  return m9e.has(_0x35d261);
+  return planConversationMessageTypeSet.has(_0x35d261);
 }
 function getGitignorePath(_0x205b9e) {
-  return _9e.has(_0x205b9e);
+  return reviewStepMessageTypeSet.has(_0x205b9e);
 }
 function setGitignorePath(_0x2f9e48) {
-  return g9e.has(_0x2f9e48);
+  return planGenerationStepMessageTypeSet.has(_0x2f9e48);
 }
 function getGitignoreStats(_0x3f8095) {
-  return y9e.has(_0x3f8095);
+  return verificationStepMessageTypeSet.has(_0x3f8095);
 }
 function resetGitignoreState(_0x36f4a0) {
-  return v9e.has(_0x36f4a0);
+  return orchestratorMessageTypeSet.has(_0x36f4a0);
 }
 function initGitignoreWatcher(_0x161549) {
-  return T9e.has(_0x161549);
+  return taskContextMessageTypeSet.has(_0x161549);
 }
 function disposeGitignoreWatcher(_0x4588c5) {
-  return E9e.has(_0x4588c5);
+  return commentNavigatorMessageTypeSet.has(_0x4588c5);
 }
 function onGitignoreChange(_0x4c81ab) {
-  return S9e.has(_0x4c81ab);
+  return gitignoreChangeSet.has(_0x4c81ab);
 }
-var c9e = new Set(Object.values(Ou)),
-  l9e = new Set(Object.values(il)),
-  d9e = new Set(Object.values(vt)),
-  p9e = new Set(Object.values(CO)),
-  f9e = new Set(Object.values(Cv)),
-  h9e = new Set(Object.values(hw)),
-  m9e = new Set(Object.values(bO)),
-  _9e = new Set(Object.values(IO)),
-  g9e = new Set(Object.values(_w)),
-  y9e = new Set(Object.values(gw)),
-  v9e = new Set(Object.values(mw)),
-  T9e = new Set(Object.values(ea)),
-  E9e = new Set(Object.values(Ru)),
-  S9e = new Set(Object.values(PO)),
-  yw = {
+var fileOperationSet = new Set(Object.values(TaskSettingsActions)),
+  subscriptionActionSet = new Set(Object.values(subscriptionActions)),
+  taskMessageTypeSet = new Set(Object.values(TaskMessageTypes)),
+  planMessageTypeSet = new Set(Object.values(MetricsActions)),
+  phaseBreakdownMessageTypeSet = new Set(Object.values(AuthenticationActions)),
+  taskStepMessageTypeSet = new Set(Object.values(CloudUIActions)),
+  planConversationMessageTypeSet = new Set(Object.values(ActivationMessageTypes)),
+  reviewStepMessageTypeSet = new Set(Object.values(ListenersReadyMessage)),
+  planGenerationStepMessageTypeSet = new Set(Object.values(UsageInformationActions)),
+  verificationStepMessageTypeSet = new Set(Object.values(WorkspaceActions)),
+  orchestratorMessageTypeSet = new Set(Object.values(MCPServerActions)),
+  taskContextMessageTypeSet = new Set(Object.values(PromptTemplateActions)),
+  commentNavigatorMessageTypeSet = new Set(Object.values(CLIAgentManagementActions)),
+  gitignoreChangeSet = new Set(Object.values(PathConversionMessageTypes)),
+  SubscriptionWebViewActions = {
     POST_SUBSCRIPTION: 'postSubscription'
   },
-  _n = {
+  TaskWebViewMessages = {
     POST_TASK: "postTask",
     POST_TASKS: "postTasks",
     POST_TASK_LIGHT: "postTaskLight",
@@ -1519,27 +1491,27 @@ var c9e = new Set(Object.values(Ou)),
     YOLO_MODE_STARTED: 'yoloModeStarted',
     YOLO_MODE_STOPPED: 'yoloModeStopped'
   },
-  AO = {
+  PathConversionWebViewMessages = {
     FILE_PATH_CONVERTED: "filePathConverted"
   },
-  kO = {
+  ActivationWebViewMessages = {
     ACTIVATED: "activated"
   },
-  Iv = {
+  AuthenticationWebViewMessages = {
     SIGNING_IN: 'signingIn',
     SIGNED_OUT: "signedOut",
     SIGNED_IN: "signedIn"
   },
-  vw = {
+  MCPServerWebViewMessages = {
     SYNC_MCP_SERVERS: 'syncMCPServers',
     ACKNOWLEDGE_SET_ACTIVE_ACCOUNT_FOR_MCP_SERVER: "acknowledgeSetActiveAccountForMCPServer"
   },
-  Um = {
+  CLIAgentWebViewMessages = {
     LIST_CLI_AGENTS: 'listCLIAgents',
     IS_USER_CLI_AGENT_NAME_ALLOWED: 'isUserCLIAgentNameAllowed',
     IS_WORKSPACE_CLI_AGENT_NAME_ALLOWED: 'isWorkspaceCLIAgentNameAllowed'
   },
-  sl = {
+  NavigationMessages = {
     NAVIGATE_TO_NEW_TASK: 'navigateToNewTask',
     NAVIGATE_TO_TASK_HISTORY: "navigateToTaskHistory",
     NAVIGATE_TO_MCP_SERVERS: 'navigateToMCPServers',
@@ -1547,24 +1519,24 @@ var c9e = new Set(Object.values(Ou)),
     NAVIGATE_TO_CLI_AGENTS: 'navigateToCLIAgents',
     NAVIGATE_TO_TASK_LANDING_WITH_PREFILL: "navigateToTaskLandingWithPrefill"
   },
-  Ef = {
+  PromptTemplateWebViewMessages = {
     LIST_PROMPT_TEMPLATES: "listPromptTemplates",
     IS_USER_PROMPT_TEMPLATE_NAME_ALLOWED: "isUserPromptTemplateNameAllowed",
     IS_WORKSPACE_PROMPT_TEMPLATE_NAME_ALLOWED: 'isWorkspacePromptTemplateNameAllowed',
     LIST_WORKSPACE_DIRECTORIES: "listWorkspaceDirectories"
   },
-  Av = {
+  TaskSettingsWebViewMessages = {
     SYNC_TASK_SETTINGS: "sync-task-settings",
     SYNC_DEFAULT_TASK_EXECUTION_CONFIG: "sync-default-task-execution-config"
   },
-  Tw = {
+  UsageInformationWebViewMessages = {
     SEND_USAGE_INFORMATION: 'sendUsageInformation',
     SEND_FETCH_STATUS: 'SEND_FETCH_STATUS'
   },
-  RO = {
+  WorkspaceWebViewMessages = {
     WORKSPACE_STATUS: "workspaceStatus"
   },
-  OO = {
+  baseTemplateSchema = {
     type: 'object',
     properties: {
       displayName: {
@@ -1575,17 +1547,17 @@ var c9e = new Set(Object.values(Ou)),
     required: [],
     additionalProperties: false
   },
-  ice = {
+  fullTemplateSchema = {
     type: "object",
     properties: {
-      ...OO.properties,
+      ...baseTemplateSchema.properties,
       applicableFor: {
         type: 'string',
         enum: ['plan', 'verification', 'generic', "review", 'userQuery'],
         description: 'Specifies which type of content this template applies to'
       }
     },
-    required: ['applicableFor', ...OO.required],
+    required: ['applicableFor', ...baseTemplateSchema.required],
     additionalProperties: false
   },
   AgentRegistry = class _0x98f6f0 {
@@ -1651,7 +1623,7 @@ async function formatCodeBlockContent(_0xaeb101, _0x36e209, _0x4fbe28, _0xb33b6,
 async function searchFilesWithRipgrep(_0x5639f8, _0x5cdd49, _0x4b2c47, _0x4d5e92, _0x401908 = 50, _0x2cee82 = true) {
   let _0x4eeab0 = await config.getRipgrepBinPath();
   if (!_0x4eeab0) throw new Error('ripgrep binary not found');
-  if (!(await workspace_info.getInstance().fileExists(_0x5639f8))) return Logger.warn('Path to list files in does not exist', _0x5639f8), '';
+  if (!(await WorkspaceInfoManager.getInstance().fileExists(_0x5639f8))) return Logger.warn('Path to list files in does not exist', _0x5639f8), '';
   let _0xa9f861 = isWindows ? '[^\x5c\x5c]*' : "[^/]*",
     _0x5a2f9 = [...DEFAULT_RG_ARGS];
   _0x2cee82 || _0x5a2f9.push('--max-depth', '1');
@@ -1667,7 +1639,7 @@ async function searchFilesWithRipgrep(_0x5639f8, _0x5cdd49, _0x4b2c47, _0x4d5e92
 async function searchFoldersWithRipgrep(_0x10d4d2, _0x249521, _0x1d3546, _0x4ffec6 = 50, _0x1850be = true) {
   let _0x1ff9c5 = await config.getRipgrepBinPath();
   if (!_0x1ff9c5) throw new Error('ripgrep binary not found');
-  if (!(await workspace_info.getInstance().fileExists(_0x10d4d2))) return Logger.warn("Path to list folders in does not exist", _0x10d4d2), [];
+  if (!(await WorkspaceInfoManager.getInstance().fileExists(_0x10d4d2))) return Logger.warn("Path to list folders in does not exist", _0x10d4d2), [];
   let _0x17afb1 = isWindows ? ['-o', "^.*\\\\"] : ['-o', "'^.*/'"],
     _0x1f39ac = [...DEFAULT_RG_ARGS];
   _0x1850be || _0x1f39ac.push('--max-depth', '2');
@@ -1730,30 +1702,30 @@ function escapeSearchPattern(_0xa891fa) {
 }
 async function searchFilesAndFoldersQueued(_0x3ad6d4, _0x4205d2) {
   try {
-    return await I9e.enqueueRequest(_0x3cfdfb => searchFilesAndFoldersInWorkspace(escapeSearchPattern(_0x3ad6d4), _0x4205d2, _0x3cfdfb));
+    return await latestRequestLimiter.enqueueRequest(_0x3cfdfb => searchFilesAndFoldersInWorkspace(escapeSearchPattern(_0x3ad6d4), _0x4205d2, _0x3cfdfb));
   } catch (_0x571111) {
     throw Logger.warn('Error in getListOfFilesAndFolders', {
       error: _0x571111 instanceof Error ? _0x571111.message : String(_0x571111)
     }), _0x571111;
   }
 }
-var I9e,
+var latestRequestLimiter,
   initSearchUtils = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initWorkspaceInfo(), /* fce = vscode_module */ I9e = new LatestRequestLimiter();
+    initSearchConfig(), initWorkspaceInfo(), /* fce = vscode_module */latestRequestLimiter = new LatestRequestLimiter();
   }),
-  In,
+  DocumentManager,
   initDocumentManager = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), In = class _0xc6fed {
+    initWorkspaceInfo(), DocumentManager = class _0xc6fed {
       static {
         this.concurrencyLimiter = new RequestQueue(5, 200, 2000);
       }
       static async ["getSourceCode"](_0x37304d) {
         let _0x40d5e7 = await _0xc6fed.getCachedTextDocument(_0x37304d);
-        return _0x40d5e7 ? _0x40d5e7.getText() : workspace_info.getInstance().readFile(_0x37304d, false);
+        return _0x40d5e7 ? _0x40d5e7.getText() : WorkspaceInfoManager.getInstance().readFile(_0x37304d, false);
       }
       static async ['saveDocument'](_0xe4fa0a) {
         let _0x18ba5d = await _0xc6fed.getTextDocument(_0xe4fa0a);
@@ -1811,7 +1783,7 @@ var LlmCacheHandler,
       }
       static async ["getInstance"]() {
         if (!_0x31bc7c.instance) {
-          let _0x4fae2a = workspace_info.getInstance(),
+          let _0x4fae2a = WorkspaceInfoManager.getInstance(),
             _0x48aa46 = SqliteService.getInstance(_0x4fae2a.getLogger()),
             _0xba957a = new SummaryCacheService(_0x48aa46);
           _0x31bc7c.instance = new _0x31bc7c(_0xba957a);
@@ -1838,7 +1810,7 @@ var LlmCacheHandler,
       async ['setSummaryToCache'](_0x35e77a, _0x4aac3b) {
         try {
           let _0x45aed9 = TraycerPath.fromPathProto(_0x35e77a).absPath,
-            _0x2a483b = await In.getSourceCode(_0x45aed9);
+            _0x2a483b = await DocumentManager.getSourceCode(_0x45aed9);
           await this.llmCache.setSummaryToCache(_0x45aed9, _0x4aac3b, _0x2a483b, null);
         } catch (_0x4ace6d) {
           Logger.error("Error setting summary to cache for " + _0x35e77a, _0x4ace6d);
@@ -1907,16 +1879,16 @@ var initSymbolSearch = __esmModule(() => {
 
     initSearchUtils();
   }),
-  WO = {
+  SymbolQueryType = {
     DEFINITION: 0,
     REFERENCE: 1,
     IMPLEMENTATION: 2
   },
-  jO = {
+  OrganizationType = {
     USER: 0,
     ORGANIZATION: 1
   },
-  jm = {
+  PhaseModificationType = {
     NEW_PHASE: 0,
     MODIFIED_PHASE: 1,
     UNCHANGED_PHASE: 2
@@ -1925,22 +1897,22 @@ var initSymbolSearch = __esmModule(() => {
     IMPLEMENTATION_ARTIFACT: 0,
     REVIEW_ARTIFACT: 1
   },
-  HO = {
+  QueryType = {
     EXPLANATION: 0,
     ITERATION: 1
   },
-  l4 = {
+  TaskFailureReason = {
     SERVER_ERROR: 0,
     NO_ACTIVE_SUBSCRIPTION: 1,
     RATE_LIMIT_EXCEEDED: 2,
     USER_ABORTED: 3
   },
-  Id = {
+  TaskProgressState = {
     TASK_NOT_STARTED: 0,
     TASK_IN_PROGRESS: 1,
     TASK_COMPLETED: 2
   },
-  Ad = {
+  CommentResolutionStatus = {
     UNRESOLVED: 0,
     RESOLVED: 1,
     OUTDATED: 2
@@ -1949,7 +1921,7 @@ async function readFilesWithSummary(_0x14bfc8, _0x5b961d) {
   let _0x3a46ec = new CustomSet((_0x50d723, _0x45e05a) => TraycerPath.equals(_0x50d723, _0x45e05a), _0x14bfc8).values(),
     _0x1bbcec = await LlmCacheHandler.getInstance(),
     _0x23b4ac = await Promise.allSettled(_0x3a46ec.map(async _0x58a509 => {
-      let _0x499f42 = await workspace_info.getInstance().readFile(_0x58a509.absPath),
+      let _0x499f42 = await WorkspaceInfoManager.getInstance().readFile(_0x58a509.absPath),
         _0x106904 = await _0x1bbcec.getSummaryFromCache(_0x58a509.absPath, _0x499f42),
         _0x7b4eba = {
           path: _0x58a509.proto,
@@ -2009,7 +1981,7 @@ function createRemoteOrLocalUri(_0x3faf3f) {
 function formatRangeSnippet(_0x352b00, _0xbfbdb3) {
   if (_0x352b00.workspaceFile === void 0) {
     let _0x257eec = new Set(_0x352b00.workspaceFolders.map(_0x1a8e0a => _0x1a8e0a.absPath)),
-      _0x53c0f3 = new Set(workspace_info.getInstance().getWorkspaceDirs()),
+      _0x53c0f3 = new Set(WorkspaceInfoManager.getInstance().getWorkspaceDirs()),
       _0x3602d8 = true;
     for (let key of _0x257eec) if (!_0x53c0f3.has(key)) {
       _0x3602d8 = false;
@@ -2032,11 +2004,11 @@ function formatRangeSnippet(_0x352b00, _0xbfbdb3) {
     workspace: _0x352b00.workspaceFile.absPath
   };
 }
-var Pf,
+var WorkspaceAssociation,
   initWorkspaceAssociation = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), Pf = class _0x2ee32b {
+    initWorkspaceInfo(), WorkspaceAssociation = class _0x2ee32b {
       constructor(_0x510acd, _0x55f56e) {
         this._workspaceFile = _0x510acd, this._workspaceFolders = _0x55f56e;
       }
@@ -2049,10 +2021,10 @@ var Pf,
       static async ["deserialize"](_0x31cc89) {
         let _0x3664a8 = await Promise.all(_0x31cc89.workspaceFolders.map(_0x5c524c => TraycerPath.fromPath(_0x5c524c.absolutePath))),
           _0x3657dc = _0x31cc89.workspaceFile ? TraycerPath.deserializeFromStorage(_0x31cc89.workspaceFile) : void 0;
-        return _0x3657dc && !(await workspace_info.getInstance().fileExists(_0x3657dc.absPath)) && (_0x3657dc = void 0), new _0x2ee32b(_0x3657dc, _0x3664a8);
+        return _0x3657dc && !(await WorkspaceInfoManager.getInstance().fileExists(_0x3657dc.absPath)) && (_0x3657dc = void 0), new _0x2ee32b(_0x3657dc, _0x3664a8);
       }
       async ["determineWorkspaceScope"]() {
-        return formatRangeSnippet(this, (await workspace_info.getInstance().getCurrentWSInfo()).WSAssociation.workspaceFile);
+        return formatRangeSnippet(this, (await WorkspaceInfoManager.getInstance().getCurrentWSInfo()).WSAssociation.workspaceFile);
       }
       ["serializeToStorage"]() {
         return {
@@ -2086,7 +2058,7 @@ var Pf,
         });
       }
       ['getWorkerPath'](workerType) {
-        return path_module.join(workspace_info.getInstance().getResourcesDir(), "workers", workerType);
+        return path_module.join(WorkspaceInfoManager.getInstance().getResourcesDir(), "workers", workerType);
       }
       ['getSupportedWorkerTypes']() {
         return ['json-operations.cjs', 'three-way-merge.cjs', 'ripgrep-processor.cjs', 'diff-utils.cjs', 'list-files-processor.cjs'];
@@ -2141,44 +2113,44 @@ async function ensureDirectoryExists(_0x3dd03b) {
 }
 
 // [unbundle] 注入 YoloArtifactManager 需要的全局辅助函数
-injectYoloArtifactManagerHelpers({ ensureDirectoryExists });
-
+injectYoloArtifactManagerHelpers({
+  ensureDirectoryExists
+});
 async function getAppAssetsDatabasePath() {
   return path_module.join(await ensureAppAssetsFolder(), 'app-assets.db');
 }
-
-class BaseStorage{
-    constructor(_0x33e794, _0x242c47) {
-      this.id = _0x242c47, this.baseStorage = _0x33e794;
-    }
-    async ['read']() {
-      return this.baseStorage.read(this.id);
-    }
-    async ["upsert"](_0x1e4b26, _0xe53388) {
-      return this.baseStorage.upsert(_0x1e4b26, _0xe53388);
-    }
-    async ["runInTransaction"](_0x2e8eb3) {
-      return this.baseStorage.runInTransaction(_0x2e8eb3);
-    }
-    async ["delete"](_0x2fc842) {
-      return this.baseStorage.delete(this.id, _0x2fc842);
-    }
+class BaseStorage {
+  constructor(_0x33e794, _0x242c47) {
+    this.id = _0x242c47, this.baseStorage = _0x33e794;
   }
-  class ThreadStorage extends BaseStorage {}
-  class ConversationStorage extends BaseStorage {}
-  class TaskStorage extends BaseStorage {}
-  class PlanStorage extends BaseStorage {}
-  class AttachmentStorage extends BaseStorage {}
-  class EmptyStorage {}
+  async ['read']() {
+    return this.baseStorage.read(this.id);
+  }
+  async ["upsert"](_0x1e4b26, _0xe53388) {
+    return this.baseStorage.upsert(_0x1e4b26, _0xe53388);
+  }
+  async ["runInTransaction"](_0x2e8eb3) {
+    return this.baseStorage.runInTransaction(_0x2e8eb3);
+  }
+  async ["delete"](_0x2fc842) {
+    return this.baseStorage.delete(this.id, _0x2fc842);
+  }
+}
+class ThreadStorage extends BaseStorage {}
+class ConversationStorage extends BaseStorage {}
+class TaskStorage extends BaseStorage {}
+class PlanStorage extends BaseStorage {}
+class AttachmentStorage extends BaseStorage {}
+class EmptyStorage {}
 function isSqliteBusyError(_0xbf95bf) {
   return String(_0xbf95bf).includes('SQLITE_BUSY') ? true : _0xbf95bf instanceof Error ? getContextFilePath(_0xbf95bf) : false;
 }
-var ox,
-  Bv,
+var DatabaseTransactionWrapper,
+  RowParseError,
   initProgressReporter = __esmModule(() => {
     'use strict';
 
-    initStatusBar(), ox = class _0x22559d {
+    initStatusBar(), DatabaseTransactionWrapper = class _0x22559d {
       constructor(_0x55ecde) {
         this.reopenConnectionLock = new Mutex(), this._txDb = null, this._db = _0x55ecde, this.writeLock = new Mutex();
       }
@@ -2265,7 +2237,7 @@ var ox,
             }
           };
         } catch (_0x19a0db) {
-          throw _0x19a0db instanceof TypeError ? new Bv(_0x3c6191, _0x19a0db.message, _0x459706) : _0x19a0db;
+          throw _0x19a0db instanceof TypeError ? new RowParseError(_0x3c6191, _0x19a0db.message, _0x459706) : _0x19a0db;
         }
       }
       async ["upsert"](_0x30f146, _0xc70374, _0x5b6d3d) {
@@ -2306,7 +2278,7 @@ var ox,
           _0x5af236.push(_0x2a6c7d);
         } catch (_0x473cb3) {
           let _0x40e1c6 = _0x473cb3 instanceof Error ? _0x473cb3.message : String(_0x473cb3),
-            _0x3e3bfc = new Bv(key.id, _0x40e1c6, _0x17b475);
+            _0x3e3bfc = new RowParseError(key.id, _0x40e1c6, _0x17b475);
           _0x5af236.push(_0x3e3bfc);
         }
         return _0x5af236;
@@ -2339,17 +2311,17 @@ var ox,
           }
         });
       }
-    }, Bv = class _0x5326c8 extends Error {
+    }, RowParseError = class _0x5326c8 extends Error {
       constructor(_0x54d0db, _0x2ed8d5, _0x11573b) {
         super("Failed to parse row with ID=" + _0x54d0db + ' from table ' + _0x11573b + (_0x2ed8d5 ? ': ' + _0x2ed8d5 : '')), this.rowId = _0x54d0db, this.name = 'RowParseError', Object.setPrototypeOf(this, _0x5326c8.prototype);
       }
     };
   }),
-  ol,
+  BaseStorageAPI,
   initFileOperations = __esmModule(() => {
     'use strict';
 
-    initProgressReporter(), ol = class _0x3815e {
+    initProgressReporter(), BaseStorageAPI = class _0x3815e {
       constructor(_0x593325, _0x401801, _0x54beb4, _0x40747b, _0x3a5601) {
         this.MAX_ITEMS_TO_PRE_FILL_IN_MEMORY_CACHE = 20, this.inMemoryCache = new lru_map_module.LRUMap(this.MAX_ITEMS_TO_PRE_FILL_IN_MEMORY_CACHE), this.context = _0x593325, this.tableName = _0x401801, this.appAssetsDB = _0x54beb4, this.currentVersion = _0x40747b, this.dataValidityDuration = _0x3815e.DATA_VALIDITY_DURATION, this.maxItemsToPersist = _0x3a5601;
       }
@@ -2416,7 +2388,7 @@ var ox,
       async ['_fetchAllItems']() {
         let _0x4e7003 = await this.appAssetsDB.readAll(this.tableName),
           _0x553b67 = [];
-        for (let key of _0x4e7003) key instanceof Bv || _0x553b67.push(key);
+        for (let key of _0x4e7003) key instanceof RowParseError || _0x553b67.push(key);
         return {
           items: _0x553b67
         };
@@ -2528,11 +2500,11 @@ var ox,
       }
     };
   }),
-  Qm,
+  RepoMappingStorage,
   initGitOperationsExports = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initFileOperations(), initRepoMappingMigrator(), Qm = class _0x403fb4 extends ol {
+    initSearchConfig(), initFileOperations(), initRepoMappingMigrator(), RepoMappingStorage = class _0x403fb4 extends BaseStorageAPI {
       constructor(_0x1fbe6c, _0xa0fc6) {
         super(_0x1fbe6c, 'RepoMapping', _0xa0fc6, config.CURRENT_REPO_WORKSPACE_MAPPING_VERSION, config.REPO_WORKSPACE_MAPPING_SIZE), this.shouldInvalidateData = false, this.shouldInvalidateData = false;
       }
@@ -2560,14 +2532,14 @@ var ox,
       }
     };
   }),
-  Jm,
+  RepoMapping,
   initGitOperations = __esmModule(() => {
     'use strict';
 
-    initGitOperationsExports(), Jm = class _0x1c573a {
+    initGitOperationsExports(), RepoMapping = class _0x1c573a {
       constructor(_0x47594d, _0x4135bd) {
         this._repoUrl = _0x47594d, this._gitRoot = _0x4135bd, this._repoID = _0x1c573a.getRepoID(this._repoUrl);
-        let _0x53547a = Qm.getInstance();
+        let _0x53547a = RepoMappingStorage.getInstance();
         this.storageAPI = new PlanStorage(_0x53547a, this._repoID);
       }
       get ['repoID']() {
@@ -2586,7 +2558,7 @@ var ox,
       }
       static async ["fetchFromStorage"](_0x21b7ab) {
         let _0x45f916 = _0x1c573a.getRepoID(_0x21b7ab),
-          _0x247a99 = Qm.getInstance(),
+          _0x247a99 = RepoMappingStorage.getInstance(),
           _0x3c6027 = await new PlanStorage(_0x247a99, _0x45f916).read();
         return new _0x1c573a(_0x3c6027.repoUrl, _0x3c6027.workspacePath);
       }
@@ -2603,11 +2575,11 @@ var ox,
       }
     };
   }),
-  Du,
+  RepoMappingManager,
   initRepoMappingManager = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initGitOperations(), Du = class _0x41fa98 {
+    initWorkspaceInfo(), initGitOperations(), RepoMappingManager = class _0x41fa98 {
       constructor() {
         this.repoMappings = new Map();
       }
@@ -2620,7 +2592,7 @@ var ox,
         return _0xf4fc53 || (_0xf4fc53 = await getRepoMappingFromUri(_0x56a2c9), await _0xf4fc53.upsertInStorage(), this.repoMappings.set(_0x26bd4e, _0xf4fc53)), _0xf4fc53;
       }
       async ['upsertRepoMappings']() {
-        let _0x3df180 = workspace_info.getInstance().getWorkspaceDirs();
+        let _0x3df180 = WorkspaceInfoManager.getInstance().getWorkspaceDirs();
         await Promise.allSettled(_0x3df180.map(async _0x4c5bbe => {
           let _0x5d1b1e = await getAllRepoMappingsFromUri(createRemoteOrLocalUri(_0x4c5bbe));
           await Promise.allSettled(_0x5d1b1e.map(async _0x399240 => {
@@ -2630,7 +2602,7 @@ var ox,
       }
       async ["fetchRepoMapping"](_0x2f7852, _0x1395cf) {
         let _0x3dd5cb = "https://github.com/" + _0x1395cf + '/' + _0x2f7852;
-        return await Jm.fetchFromStorage(_0x3dd5cb);
+        return await RepoMapping.fetchFromStorage(_0x3dd5cb);
       }
     };
   });
@@ -2662,7 +2634,7 @@ async function getGitBranch(_0x305507) {
   }
 }
 async function getGitRootAndRelativePath(_0x5ea10a) {
-  let _0x13fd9a = await Du.getInstance().getRepoMapping(_0x5ea10a);
+  let _0x13fd9a = await RepoMappingManager.getInstance().getRepoMapping(_0x5ea10a);
   if (!_0x13fd9a) throw new Error('File is not part of a git repo');
   let _0x1b4cb7 = _0x13fd9a.gitRoot,
     _0x2e00cb = isWindows ? _0x1b4cb7.toLowerCase().replace(/\//g, '\x5c') : _0x1b4cb7,
@@ -2700,7 +2672,7 @@ async function getRepoMappingFromUri(_0x21d9a6) {
   try {
     let _0x11698b = await getGitBranch(_0x21d9a6),
       _0x4bad89 = await executeGitCommand('config --get remote.origin.url', _0x11698b, true);
-    return new Jm(_0x4bad89, _0x11698b);
+    return new RepoMapping(_0x4bad89, _0x11698b);
   } catch (_0xf03117) {
     throw Logger.debug("Failed to get repo mapping", _0xf03117), new InvalidRepoUrlError('Failed to get repo mapping for ' + _0x21d9a6.fsPath);
   }
@@ -2709,7 +2681,7 @@ async function getAllRepoMappingsFromUri(_0x7ca9c1) {
   try {
     let _0x408af2 = await getGitBranch(_0x7ca9c1),
       _0x77255c = (await executeGitCommand("remote -v | awk '{print $2}'", _0x408af2, true)).split('\x0a').map(_0x53ba85 => _0x53ba85.trim()).filter(_0x25b0e0 => _0x25b0e0 !== '');
-    return Array.from(new Set(_0x77255c)).map(_0x591d81 => new Jm(_0x591d81, _0x408af2));
+    return Array.from(new Set(_0x77255c)).map(_0x591d81 => new RepoMapping(_0x591d81, _0x408af2));
   } catch (_0x545926) {
     throw Logger.debug("Failed to get all repo mappings", _0x545926), new InvalidRepoUrlError("Failed to get repo mappings for " + _0x7ca9c1.fsPath);
   }
@@ -2767,10 +2739,10 @@ async function getGitDiff(_0x383d51, _0xe0d4ca = 50) {
   }
 }
 function parseGitStatusCode(_0x2a340d) {
-  if (_0x2a340d.length !== 2) return Logger.debug('Invalid git status code length: ' + _0x2a340d), yt.UNKNOWN_STATUS;
+  if (_0x2a340d.length !== 2) return Logger.debug('Invalid git status code length: ' + _0x2a340d), GitFileStatus.UNKNOWN_STATUS;
   let _0x2a22f0 = _0x2a340d[0],
     _0x373619 = _0x2a340d[1];
-  return _0x2a340d === '??' ? yt.UNTRACKED : _0x2a340d === '!!' ? yt.IGNORED : _0x2a340d === 'DD' ? yt.BOTH_DELETED : _0x2a340d === 'AU' ? yt.ADDED_BY_US : _0x2a340d === 'UD' ? yt.DELETED_BY_THEM : _0x2a340d === 'UA' ? yt.ADDED_BY_THEM : _0x2a340d === 'DU' ? yt.DELETED_BY_US : _0x2a340d === 'AA' ? yt.BOTH_ADDED : _0x2a340d === 'UU' ? yt.BOTH_MODIFIED : _0x2a22f0 === 'M' ? yt.INDEX_MODIFIED : _0x2a22f0 === 'A' ? yt.INDEX_ADDED : _0x2a22f0 === 'D' ? yt.INDEX_DELETED : _0x2a22f0 === 'R' ? yt.INDEX_RENAMED : _0x2a22f0 === 'C' ? yt.INDEX_COPIED : _0x2a22f0 === 'T' ? yt.TYPE_CHANGED : _0x2a22f0 === 'I' ? yt.INTENT_TO_ADD : _0x373619 === 'M' ? yt.MODIFIED : _0x373619 === 'D' ? yt.DELETED : _0x373619 === 'T' ? yt.TYPE_CHANGED : (Logger.debug("Unrecognized git status code: " + _0x2a340d), yt.UNKNOWN_STATUS);
+  return _0x2a340d === '??' ? GitFileStatus.UNTRACKED : _0x2a340d === '!!' ? GitFileStatus.IGNORED : _0x2a340d === 'DD' ? GitFileStatus.BOTH_DELETED : _0x2a340d === 'AU' ? GitFileStatus.ADDED_BY_US : _0x2a340d === 'UD' ? GitFileStatus.DELETED_BY_THEM : _0x2a340d === 'UA' ? GitFileStatus.ADDED_BY_THEM : _0x2a340d === 'DU' ? GitFileStatus.DELETED_BY_US : _0x2a340d === 'AA' ? GitFileStatus.BOTH_ADDED : _0x2a340d === 'UU' ? GitFileStatus.BOTH_MODIFIED : _0x2a22f0 === 'M' ? GitFileStatus.INDEX_MODIFIED : _0x2a22f0 === 'A' ? GitFileStatus.INDEX_ADDED : _0x2a22f0 === 'D' ? GitFileStatus.INDEX_DELETED : _0x2a22f0 === 'R' ? GitFileStatus.INDEX_RENAMED : _0x2a22f0 === 'C' ? GitFileStatus.INDEX_COPIED : _0x2a22f0 === 'T' ? GitFileStatus.TYPE_CHANGED : _0x2a22f0 === 'I' ? GitFileStatus.INTENT_TO_ADD : _0x373619 === 'M' ? GitFileStatus.MODIFIED : _0x373619 === 'D' ? GitFileStatus.DELETED : _0x373619 === 'T' ? GitFileStatus.TYPE_CHANGED : (Logger.debug("Unrecognized git status code: " + _0x2a340d), GitFileStatus.UNKNOWN_STATUS);
 }
 function parseGitStatusOutput(_0x318e91) {
   let _0x178f91 = [],
@@ -2801,21 +2773,21 @@ function parseGitStatusOutput(_0x318e91) {
 function parseDiffStatusChar(_0x2072d3) {
   switch (_0x2072d3) {
     case 'A':
-      return yt.INDEX_ADDED;
+      return GitFileStatus.INDEX_ADDED;
     case 'M':
-      return yt.MODIFIED;
+      return GitFileStatus.MODIFIED;
     case 'D':
-      return yt.DELETED;
+      return GitFileStatus.DELETED;
     case 'R':
-      return yt.INDEX_RENAMED;
+      return GitFileStatus.INDEX_RENAMED;
     case 'C':
-      return yt.INDEX_COPIED;
+      return GitFileStatus.INDEX_COPIED;
     case 'T':
-      return yt.TYPE_CHANGED;
+      return GitFileStatus.TYPE_CHANGED;
     case 'U':
-      return yt.BOTH_MODIFIED;
+      return GitFileStatus.BOTH_MODIFIED;
     default:
-      return Logger.debug('Unrecognized diff status: ' + _0x2072d3), yt.UNKNOWN_STATUS;
+      return Logger.debug('Unrecognized diff status: ' + _0x2072d3), GitFileStatus.UNKNOWN_STATUS;
   }
 }
 function parseDiffNameStatus(_0x2736d7) {
@@ -2873,11 +2845,11 @@ function createNewFileDiff(_0x333ef9, _0x32eabf) {
 }
 async function createFileDeltaFromStatus(_0x1e821c, _0x132241, _0x462b16, _0x336590, _0x52e6f7) {
   try {
-    if (_0x336590 === yt.UNTRACKED) return await createUntrackedFileDiff(_0x1e821c, _0x462b16);
+    if (_0x336590 === GitFileStatus.UNTRACKED) return await createUntrackedFileDiff(_0x1e821c, _0x462b16);
     let _0x2f5f0f = path_module.join(_0x1e821c, _0x462b16),
       _0x567180 = '';
     try {
-      _0x567180 = await In.getSourceCode(_0x2f5f0f);
+      _0x567180 = await DocumentManager.getSourceCode(_0x2f5f0f);
     } catch (_0x23ebc6) {
       Logger.debug('Failed to get current file content', {
         error: _0x23ebc6,
@@ -2885,14 +2857,14 @@ async function createFileDeltaFromStatus(_0x1e821c, _0x132241, _0x462b16, _0x336
       });
     }
     let _0x4ab882;
-    if (_0x336590 !== yt.DELETED && _0x336590 !== yt.INDEX_DELETED) {
+    if (_0x336590 !== GitFileStatus.DELETED && _0x336590 !== GitFileStatus.INDEX_DELETED) {
       let _0x17e942 = _0x52e6f7 || _0x462b16,
         _0x426d52 = vscode_module.Uri.file(path_module.join(_0x1e821c, _0x17e942));
       _0x4ab882 = await getGitRootPath(_0x426d52);
     }
     let _0x2cc5d2 = '';
     try {
-      _0x336590 === yt.DELETED || _0x336590 === yt.INDEX_DELETED ? _0x2cc5d2 = await executeGitCommand('diff HEAD -- \x22' + _0x462b16 + '\x22', _0x1e821c, false) : _0x336590 === yt.INDEX_RENAMED && _0x52e6f7 ? _0x2cc5d2 = await executeGitCommand("diff HEAD -- \"" + _0x52e6f7 + '\x22 \x22' + _0x462b16 + '\x22', _0x1e821c, false) : _0x2cc5d2 = await executeGitCommand("diff HEAD -- \"" + _0x462b16 + '\x22', _0x1e821c, false);
+      _0x336590 === GitFileStatus.DELETED || _0x336590 === GitFileStatus.INDEX_DELETED ? _0x2cc5d2 = await executeGitCommand('diff HEAD -- \x22' + _0x462b16 + '\x22', _0x1e821c, false) : _0x336590 === GitFileStatus.INDEX_RENAMED && _0x52e6f7 ? _0x2cc5d2 = await executeGitCommand("diff HEAD -- \"" + _0x52e6f7 + '\x22 \x22' + _0x462b16 + '\x22', _0x1e821c, false) : _0x2cc5d2 = await executeGitCommand("diff HEAD -- \"" + _0x462b16 + '\x22', _0x1e821c, false);
     } catch (_0x185dd1) {
       Logger.debug('Failed to generate diff', {
         error: _0x185dd1,
@@ -2915,7 +2887,7 @@ async function createUntrackedFileDiff(_0x3d2f01, _0x1d7278) {
     let _0x162430 = path_module.join(_0x3d2f01, _0x1d7278),
       _0x39ccf2 = '';
     try {
-      _0x39ccf2 = await In.getSourceCode(_0x162430);
+      _0x39ccf2 = await DocumentManager.getSourceCode(_0x162430);
     } catch (_0x1f71f6) {
       Logger.debug('Failed to get untracked file content', {
         error: _0x1f71f6,
@@ -2923,12 +2895,12 @@ async function createUntrackedFileDiff(_0x3d2f01, _0x1d7278) {
       });
     }
     let _0x1723da = createNewFileDiff(_0x39ccf2, _0x1d7278);
-    return createFileChangeInfo(_0x3d2f01, _0x1d7278, _0x1723da, yt.UNTRACKED, _0x39ccf2, void 0, void 0);
+    return createFileChangeInfo(_0x3d2f01, _0x1d7278, _0x1723da, GitFileStatus.UNTRACKED, _0x39ccf2, void 0, void 0);
   } catch (_0x13833d) {
     return Logger.debug("Failed to create FileDelta for untracked file", {
       error: _0x13833d,
       filePath: _0x1d7278
-    }), createFileChangeInfo(_0x3d2f01, _0x1d7278, '', yt.UNTRACKED, '', void 0, void 0);
+    }), createFileChangeInfo(_0x3d2f01, _0x1d7278, '', GitFileStatus.UNTRACKED, '', void 0, void 0);
   }
 }
 async function getUncommittedFileDeltas(_0x3a3c62, _0x2d4c32) {
@@ -2977,13 +2949,13 @@ async function getRevisionDiffWithContent(_0x3ef3bf, _0x2b4220, _0x49f087) {
           _0x494290 = _0x2b4220.split(_0x239d89),
           _0x57a26c = _0x494290[0],
           _0x453b4e = _0x494290[1] || "HEAD";
-        _0x59321b !== yt.DELETED && _0x59321b !== yt.INDEX_DELETED && (_0x3a8602 = await getFileContentAtRef(_0x3ef3bf, _0x453b4e, key.filePath)), _0x59321b !== yt.INDEX_ADDED && _0x59321b !== yt.UNTRACKED && (_0x4ae3f6 = await getFileContentAtRef(_0x3ef3bf, _0x57a26c, key.previousPath || key.filePath));
+        _0x59321b !== GitFileStatus.DELETED && _0x59321b !== GitFileStatus.INDEX_DELETED && (_0x3a8602 = await getFileContentAtRef(_0x3ef3bf, _0x453b4e, key.filePath)), _0x59321b !== GitFileStatus.INDEX_ADDED && _0x59321b !== GitFileStatus.UNTRACKED && (_0x4ae3f6 = await getFileContentAtRef(_0x3ef3bf, _0x57a26c, key.previousPath || key.filePath));
       } else {
-        if (_0x59321b !== yt.DELETED && _0x59321b !== yt.INDEX_DELETED) {
+        if (_0x59321b !== GitFileStatus.DELETED && _0x59321b !== GitFileStatus.INDEX_DELETED) {
           let _0x1f028f = path_module.join(_0x860a51, key.filePath);
-          _0x3a8602 = await In.getSourceCode(_0x1f028f);
+          _0x3a8602 = await DocumentManager.getSourceCode(_0x1f028f);
         }
-        _0x59321b !== yt.INDEX_ADDED && _0x59321b !== yt.UNTRACKED && (_0x4ae3f6 = await getFileContentAtRef(_0x3ef3bf, _0x2b4220, key.previousPath || key.filePath));
+        _0x59321b !== GitFileStatus.INDEX_ADDED && _0x59321b !== GitFileStatus.UNTRACKED && (_0x4ae3f6 = await getFileContentAtRef(_0x3ef3bf, _0x2b4220, key.previousPath || key.filePath));
       }
       let _0x3350eb = await createFileChangeInfo(_0x860a51, key.filePath, _0x19a412, _0x59321b, _0x3a8602, _0x4ae3f6, key.previousPath);
       _0x4f787f.push(_0x3350eb);
@@ -3001,11 +2973,11 @@ async function getRevisionDiffWithContent(_0x3ef3bf, _0x2b4220, _0x49f087) {
     }), [];
   }
 }
-var workspace_info,
+var WorkspaceInfoManager,
   initWorkspaceInfo = __esmModule(() => {
     'use strict';
 
-    initSearchUtils(), initWorkspaceAssociation(), initRepoMappingManager(), workspace_info = class _0x2ba944 {
+    initSearchUtils(), initWorkspaceAssociation(), initRepoMappingManager(), WorkspaceInfoManager = class _0x2ba944 {
       constructor() {
         this.wsInfoInitLock = new Mutex(), this._currentWSInfo = void 0, this.concurrencyLimiter = new RequestQueue(10, 200, 5000);
       }
@@ -3034,7 +3006,7 @@ var workspace_info,
               _0x3defff = void 0;
             }
             let _0x8e5081 = await Promise.all(vscode_module.workspace.workspaceFolders?.["map"](async _0x44203a => await TraycerPath.fromPath(_0x44203a.uri.fsPath)) || []),
-              _0x646619 = new Pf(_0x3defff, _0x8e5081);
+              _0x646619 = new WorkspaceAssociation(_0x3defff, _0x8e5081);
             this._currentWSInfo = {
               WSAssociation: _0x646619,
               persistedWSAssociation: _0x646619.serializeToStorage(),
@@ -3178,7 +3150,7 @@ var workspace_info,
         let _0x370b59 = this.getWorkspaceDirs(),
           _0x54bfd1 = [];
         for (let key of _0x370b59) try {
-          let _0x3911b9 = await Du.getInstance().getRepoMapping(vscode_module.Uri.file(key));
+          let _0x3911b9 = await RepoMappingManager.getInstance().getRepoMapping(vscode_module.Uri.file(key));
           _0x54bfd1.push(_0x3911b9.repoUrl);
         } catch (_0x5544e7) {
           Logger.debug('Failed to get repository for', key, _0x5544e7), _0x54bfd1.push("local_repository");
@@ -3249,11 +3221,11 @@ var workspace_info,
       super("CLI agent template file extension \"" + _0x183590 + '\x22 is invalid for ' + getGitignoreCache(_0x3bfa69) + ' platform. Expected extension: ' + _0x50d8b3), this.name = "CLIAgentInvalidPlatformError";
     }
   },
-  yn,
+  PosthogAnalytics,
   initPosthogAnalytics = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), yn = class _0x693982 {
+    initSearchConfig(), PosthogAnalytics = class _0x693982 {
       constructor(_0x3044ab, _0x44cbc2, _0x23f42f = false) {
         this.userId = _0x3044ab, this.userEmail = _0x44cbc2, this.privacyMode = _0x23f42f;
         let _0x2072b2 = config.posthogApiKey,
@@ -3319,9 +3291,9 @@ var workspace_info,
     }
     ["handle"](_0x3cd9f2) {
       switch (_0x3cd9f2.type) {
-        case hw.SIGNIN:
+        case CloudUIActions.SIGNIN:
           return this.signinWithCloudUI();
-        case hw.PASTE_TOKEN:
+        case CloudUIActions.PASTE_TOKEN:
           return this.pasteTokenFromBrowser();
       }
     }
@@ -3337,15 +3309,15 @@ var workspace_info,
 
     initCommentNavigator();
   }),
-  kYe,
-  RYe,
-  na,
+  FILE_PATH_PATTERN_REGEX,
+  PATH_CACHE_SIZE,
+  FilePathHandler,
   initFilePathHandler = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initCommentNavigatorDeps(), kYe = /`file:([^`]+)`|file:([^\s),;`]+)/g, RYe = 100, na = class _0x1552a5 {
+    initWorkspaceInfo(), initCommentNavigatorDeps(), FILE_PATH_PATTERN_REGEX = /`file:([^`]+)`|file:([^\s),;`]+)/g, PATH_CACHE_SIZE = 100, FilePathHandler = class _0x1552a5 {
       constructor() {
-        this.pathCache = new lru_map_module.LRUMap(RYe);
+        this.pathCache = new lru_map_module.LRUMap(PATH_CACHE_SIZE);
       }
       static ['getInstance']() {
         return _0x1552a5.instance || (_0x1552a5.instance = new _0x1552a5()), _0x1552a5.instance;
@@ -3359,7 +3331,7 @@ var workspace_info,
       }
       async ['handle'](_0x510cd1) {
         switch (_0x510cd1.type) {
-          case PO.CONVERT_FILE_PATH:
+          case PathConversionMessageTypes.CONVERT_FILE_PATH:
             await this.convertFilePathAndReturn(_0x510cd1);
             return;
           default:
@@ -3374,16 +3346,16 @@ var workspace_info,
           } = _0x12d63d,
           _0x113096 = await _0x1552a5.convertFilePath(_0x42860b),
           _0x2b8613 = {
-            type: AO.FILE_PATH_CONVERTED,
+            type: PathConversionWebViewMessages.FILE_PATH_CONVERTED,
             requestId: _0x5ea94e,
             convertedContent: _0x113096
           };
-        return Qe.postToCommentNavigator(_0x2b8613);
+        return CommentNavigator.postToCommentNavigator(_0x2b8613);
       }
       static async ['convertFilePath'](_0x2fb9d4) {
         let _0x5b6343 = _0x2fb9d4;
         try {
-          _0x5b6343 = await this.processFilePatterns(_0x2fb9d4, kYe);
+          _0x5b6343 = await this.processFilePatterns(_0x2fb9d4, FILE_PATH_PATTERN_REGEX);
         } catch (_0x4a1a0d) {
           Logger.error("Error converting file paths in content: " + _0x4a1a0d), _0x5b6343 = _0x2fb9d4;
         }
@@ -3424,11 +3396,11 @@ var workspace_info,
       static async ['resolveFilePath'](_0x2aeda7) {
         if (path_module.isAbsolute(_0x2aeda7)) {
           let _0x26af08 = _0x2aeda7;
-          if (await workspace_info.getInstance().fileExists(_0x26af08)) {
+          if (await WorkspaceInfoManager.getInstance().fileExists(_0x26af08)) {
             let _0x107fe2 = TraycerPath.findWorkspaceForPath(_0x26af08),
               _0x527f91 = _0x26af08;
             _0x107fe2 && (_0x527f91 = path_module.relative(_0x107fe2, _0x26af08));
-            let _0x2144ec = await workspace_info.getInstance().isDirectory(_0x26af08);
+            let _0x2144ec = await WorkspaceInfoManager.getInstance().isDirectory(_0x26af08);
             return {
               replacement: '<' + RS + ' absPath=\x22' + _0x26af08 + '\x22' + (_0x2144ec ? " isDirectory=\"true\"" : '') + '>' + _0x527f91 + '</' + RS + '>',
               absolutePath: _0x26af08,
@@ -3437,11 +3409,11 @@ var workspace_info,
           }
         } else {
           let _0x5a54f2 = [],
-            _0x3b3cec = workspace_info.getInstance().getWorkspaceDirs();
+            _0x3b3cec = WorkspaceInfoManager.getInstance().getWorkspaceDirs();
           for (let key of _0x3b3cec) {
             let _0x53e28b = path_module.join(key, _0x2aeda7);
-            if (await workspace_info.getInstance().fileExists(_0x53e28b)) {
-              let _0x13546a = await workspace_info.getInstance().isDirectory(_0x53e28b);
+            if (await WorkspaceInfoManager.getInstance().fileExists(_0x53e28b)) {
+              let _0x13546a = await WorkspaceInfoManager.getInstance().isDirectory(_0x53e28b);
               _0x5a54f2.push({
                 workspaceDir: key,
                 absolutePath: _0x53e28b,
@@ -3474,11 +3446,11 @@ var workspace_info,
     }
     ["handle"](_0x2127d9) {
       switch (_0x2127d9.type) {
-        case Cv.SIGNIN:
+        case AuthenticationActions.SIGNIN:
           return this.signinWithGithub();
-        case Cv.STATUS:
+        case AuthenticationActions.STATUS:
           return this.sendAuthenticationStatus();
-        case Cv.SIGNOUT:
+        case AuthenticationActions.SIGNOUT:
           return this.signOut();
       }
     }
@@ -3492,15 +3464,15 @@ var workspace_info,
       await this.auth.handleDeactivation();
     }
   },
-  U1,
+  MetricsHandler,
   initMetricsHandler = __esmModule(() => {
     'use strict';
 
-    initAnalytics(), U1 = class {
+    initAnalytics(), MetricsHandler = class {
       ['handle'](_0x44d825) {
-        let _0x5ca766 = yn.getInstance();
+        let _0x5ca766 = PosthogAnalytics.getInstance();
         switch (_0x44d825.type) {
-          case CO.TRACK_METRICS:
+          case MetricsActions.TRACK_METRICS:
             _0x5ca766.increment(_0x44d825.name, null);
             break;
         }
@@ -3676,7 +3648,7 @@ var workspace_info,
   initWorkspaceSettingsPersistence = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initFileOperations(), initWorkspaceSettingsMigrator(), WorkspaceSettingsPersistence = class _0x241431 extends ol {
+    initSearchConfig(), initFileOperations(), initWorkspaceSettingsMigrator(), WorkspaceSettingsPersistence = class _0x241431 extends BaseStorageAPI {
       constructor(_0x5c3e40, _0x47b84e) {
         super(_0x5c3e40, 'WorkspaceSettings', _0x47b84e, config.CURRENT_WORKSPACE_SETTINGS_VERSION, config.WORKSPACE_SETTINGS_SIZE), this.shouldInvalidateData = false, this.shouldInvalidateData = false;
       }
@@ -3726,7 +3698,7 @@ var workspace_info,
   initTaskMigrator = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), /* [unbundle] initWorkspaceMigrator 已移至独立模块 task_migrators.js */ TaskMigrator = class {
+    initSearchConfig(), /* [unbundle] initWorkspaceMigrator 已移至独立模块 task_migrators.js */TaskMigrator = class {
       static ["migrate"](_0x26699c) {
         let _0x4ecdbd = config.CURRENT_TASK_VERSION,
           _0x223deb = _0x26699c.metadata;
@@ -3861,7 +3833,7 @@ var workspace_info,
   initTaskChainPersistence = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initFileOperations(), initTaskMigrator(), TaskChainPersistence = class _0x5cac0c extends ol {
+    initSearchConfig(), initFileOperations(), initTaskMigrator(), TaskChainPersistence = class _0x5cac0c extends BaseStorageAPI {
       static ['getInstance'](_0x1b4138, _0x134bf1, _0x4d52f0) {
         if (!_0x5cac0c.instance) {
           if (!_0x1b4138 || !_0x134bf1 || !_0x4d52f0) throw new Error("Missing arguments to create TaskChainPersistence.");
@@ -3907,7 +3879,7 @@ async function getAgentsMdContent(_0x5a2524) {
   if (!_0x29afc0) return [];
   let _0x5f17a7 = await findAgentsMdFile(_0x5a2524, _0x29afc0);
   if (!_0x5f17a7) return [];
-  let _0x5f088e = await workspace_info.getInstance().readFile(_0x5f17a7, false);
+  let _0x5f088e = await WorkspaceInfoManager.getInstance().readFile(_0x5f17a7, false);
   return [{
     path: (await TraycerPath.fromPath(_0x5f17a7)).proto,
     content: _0x5f088e,
@@ -3973,7 +3945,7 @@ async function resolveGitMentions(_0x346575) {
   if (_0x346575.length === 0) return [];
   let _0x2e19c4 = [],
     _0x2e2123 = new Set(),
-    _0x489433 = vscode_module.Uri.file(workspace_info.getInstance().getWorkspaceDirs()[0]);
+    _0x489433 = vscode_module.Uri.file(WorkspaceInfoManager.getInstance().getWorkspaceDirs()[0]);
   if (!_0x489433) return Logger.warn("No workspace URI available for git operations"), [];
   let _0x2404a9 = 'against_uncommitted_changes:UNCOMMITTED_CHANGES';
   for (let key of _0x346575) try {
@@ -4058,7 +4030,7 @@ async function enrichAttachmentContext(_0x23ee1e) {
     _0x11c9dd = await Promise.all(_0x23ee1e.files.map(async _0xbd0fd => {
       let _0x3128a4 = TraycerPath.fromPathProto(_0xbd0fd.path);
       try {
-        let _0x56e628 = _0xbd0fd.content || (await In.getSourceCode(_0x3128a4.absPath));
+        let _0x56e628 = _0xbd0fd.content || (await DocumentManager.getSourceCode(_0x3128a4.absPath));
         return {
           path: _0xbd0fd.path,
           content: _0x56e628,
@@ -4100,7 +4072,7 @@ async function listDirectoriesWithRuleFiles(_0x55874b) {
     _0x5812ba = [];
   for (let key of _0x37518b) {
     if (isPathContainedInDirectories(key.fsPath, _0x1b6d8f)) continue;
-    if (!(await workspace_info.getInstance().fileExists(key.fsPath.absPath))) {
+    if (!(await WorkspaceInfoManager.getInstance().fileExists(key.fsPath.absPath))) {
       Logger.warn('Directory does not exist: ' + key.fsPath.absPath + ", skipping it from the attached context");
       continue;
     }
@@ -4172,7 +4144,7 @@ async function parseAndEnrichUserQuery(_0x469cbe) {
       attachments: _0x161ff0,
       githubTicketRef: _0x4d0ac8,
       gitMentions: _0x9ccb80
-    } = await parseAndFormatUserQuery(_0x469cbe, workspace_info.getInstance().getPlatform()),
+    } = await parseAndFormatUserQuery(_0x469cbe, WorkspaceInfoManager.getInstance().getPlatform()),
     _0x4486e0 = _0x58dd0a;
   (_0x4486e0?.['files']?.["length"] || _0x4486e0?.["directories"]?.['length']) && (_0x4486e0 = await enrichAttachmentContext(_0x4486e0));
   let _0x4f745a = await resolveGitMentions(_0x9ccb80);
@@ -4238,7 +4210,7 @@ var initPlanOutputModule = __esmModule(() => {
         return {
           implementationPlan: {
             ..._0x5172a4,
-            output: await na.convertFilePath(_0x5172a4.output)
+            output: await FilePathHandler.convertFilePath(_0x5172a4.output)
           },
           reviewOutput: void 0
         };
@@ -4477,8 +4449,8 @@ var initPlanOutputModule = __esmModule(() => {
         if (_0x10ff30.length === 0) return;
         let _0x3834de = this.buildCombinedContentFromComments(_0x10ff30),
           _0x18276c = "Review : " + _0x51296a,
-          _0x1f4876 = await br.getInstance().getPromptTemplate(_0x24668c).applyTemplate('---\x0a' + _0x3834de);
-        _0x23b53e && (_0x1f4876 += '\x0a\x0a' + _0x23b53e), await debounce(_0x1f4876, _0x18276c, _0x740164, _0x189f70), _0x10ff30.forEach(_0x406311 => _0x406311.markAsApplied()), await _0xbb929f(), await Vt.getInstance().setLastUsedIDEAgents("review", _0x740164);
+          _0x1f4876 = await TemplateManager.getInstance().getPromptTemplate(_0x24668c).applyTemplate('---\x0a' + _0x3834de);
+        _0x23b53e && (_0x1f4876 += '\x0a\x0a' + _0x23b53e), await debounce(_0x1f4876, _0x18276c, _0x740164, _0x189f70), _0x10ff30.forEach(_0x406311 => _0x406311.markAsApplied()), await _0xbb929f(), await TaskSettingsHandler.getInstance().setLastUsedIDEAgents("review", _0x740164);
       }
       ["buildCombinedContentFromComments"](_0x28eb1c) {
         let _0x794c96 = '';
@@ -4531,7 +4503,7 @@ var initPlanOutputModule = __esmModule(() => {
         let {
           userQueryWithMentions: _0x37c8e6,
           attachments: _0x261916
-        } = parseUserQueryContent(_0xc5e000, workspace_info.getInstance().getPlatform());
+        } = parseUserQueryContent(_0xc5e000, WorkspaceInfoManager.getInstance().getPlatform());
         (!_0x261916.length || _0x5328dd) && (this._queryJSONContent = _0xc5e000), this._queryWithMentions = _0x37c8e6, this._payload = _0x2e56a7, this._logs = _0x22a957, this._isStreaming = _0x5328dd, this._isAborted = _0xe72ed6, this._hasFailed = _0x436ab2;
       }
       get ['id']() {
@@ -4570,7 +4542,7 @@ var initPlanOutputModule = __esmModule(() => {
 
     initWorkspaceInfo(), initUserQueryMessage(), PlanConversation = class _0x47e2c7 extends UserQueryMessage {
       constructor(_0x5124c7, _0x5501ea, _0x449db9, _0x292314 = {}) {
-        super(_0x5501ea, _0x292314.plan, _0x449db9, _0x292314.logs ?? [], _0x292314.isStreaming ?? false, _0x292314.isAborted ?? false, _0x292314.hasFailed ?? false, _0x292314.id ?? Ut()), this._storageAPI = _0x5124c7;
+        super(_0x5501ea, _0x292314.plan, _0x449db9, _0x292314.logs ?? [], _0x292314.isStreaming ?? false, _0x292314.isAborted ?? false, _0x292314.hasFailed ?? false, _0x292314.id ?? createUuid()), this._storageAPI = _0x5124c7;
       }
       static async ['createNewInstance'](_0x171cab, _0x17aaf1, _0x4851ae, _0x161f58, _0x489787 = {}) {
         let _0x4d5765 = new _0x47e2c7(_0x171cab, _0x17aaf1, _0x4851ae, _0x489787);
@@ -4601,7 +4573,7 @@ var initPlanOutputModule = __esmModule(() => {
         let {
           userQueryWithMentions: _0x374762,
           attachments: _0x44d2e6
-        } = parseUserQueryContent(_0xba36e3, workspace_info.getInstance().getPlatform());
+        } = parseUserQueryContent(_0xba36e3, WorkspaceInfoManager.getInstance().getPlatform());
         if (this._queryWithMentions = _0x374762, !_0x44d2e6.length || this._isStreaming ? this._queryJSONContent = _0xba36e3 : this._queryJSONContent = null, _0x5d7a9e) return this.upsertOnDisk(_0x2f7640 => {
           _0x2f7640.userQuery = _0xba36e3;
         });
@@ -4668,7 +4640,7 @@ function deletePlanConversation(_0x266d7d, _0x45098c) {
   let _0x9fb2bc = findPlanConversationIndex(_0x266d7d, _0x45098c);
   _0x266d7d.planConversations.splice(_0x9fb2bc, 1);
 }
-var NP = class {
+var PlanConversationStorageAPI = class {
     constructor(_0x164bab) {
       this.planStorageAPI = _0x164bab;
     }
@@ -4692,17 +4664,17 @@ var NP = class {
     }
   },
   CW = class extends BaseStorage {},
-  Uf,
+  PlanStepManager,
   initTaskExecution = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initPlanOutputModule(), initPlanEditorDeps(), initImplementationPlanOutput(), initPlanEditor(), initPlanConversation(), Uf = class _0x41754d {
+    initWorkspaceInfo(), initPlanOutputModule(), initPlanEditorDeps(), initImplementationPlanOutput(), initPlanEditor(), initPlanConversation(), PlanStepManager = class _0x41754d {
       constructor(_0x167b0c, _0x15c7b8, _0x325423, _0x5e0628, _0xc66fdd, _0x910f84, _0x314df0, _0x45b3ed = {}) {
-        this._parentPlan = _0x167b0c, this._planStorageAdapter = _0x15c7b8, this._planArtifactType = _0x325423, this._generatedPlan = null, this._queryJSONContent = null, this._isExecuted = false, this._executedWithAgent = null, this._isPayAsYouGo = false, this._planOutputHandler = null, this._isQueryExecutedDirectly = false, this._id = _0x45b3ed.id ?? Ut(), this._planConversations = _0x45b3ed.planConversations ?? [], this._executedWithAgent = _0x45b3ed.executedWithAgent ? AgentRegistry.getInstance().getAgentInfoIfExists(_0x45b3ed.executedWithAgent) : null, this._isExecuted = _0x45b3ed.isExecuted ?? false, this._isPayAsYouGo = _0x45b3ed.isPayAsYouGo ?? false, this._logs = _0x45b3ed.logs ?? [], this._hasSentCreationMetrics = _0x45b3ed.hasSentCreationMetrics ?? false, this._generatedPlan = _0x5e0628;
+        this._parentPlan = _0x167b0c, this._planStorageAdapter = _0x15c7b8, this._planArtifactType = _0x325423, this._generatedPlan = null, this._queryJSONContent = null, this._isExecuted = false, this._executedWithAgent = null, this._isPayAsYouGo = false, this._planOutputHandler = null, this._isQueryExecutedDirectly = false, this._id = _0x45b3ed.id ?? createUuid(), this._planConversations = _0x45b3ed.planConversations ?? [], this._executedWithAgent = _0x45b3ed.executedWithAgent ? AgentRegistry.getInstance().getAgentInfoIfExists(_0x45b3ed.executedWithAgent) : null, this._isExecuted = _0x45b3ed.isExecuted ?? false, this._isPayAsYouGo = _0x45b3ed.isPayAsYouGo ?? false, this._logs = _0x45b3ed.logs ?? [], this._hasSentCreationMetrics = _0x45b3ed.hasSentCreationMetrics ?? false, this._generatedPlan = _0x5e0628;
         let {
           userQueryWithMentions: _0x4b4184,
           attachments: _0x570610
-        } = parseUserQueryContent(_0xc66fdd, workspace_info.getInstance().getPlatform());
+        } = parseUserQueryContent(_0xc66fdd, WorkspaceInfoManager.getInstance().getPlatform());
         (!_0x570610.length || _0x910f84) && (this._queryJSONContent = _0xc66fdd), this._queryWithMentions = _0x4b4184, this._isStreaming = _0x910f84, this._isQueryExecutedDirectly = _0x45b3ed.isQueryExecutedDirectly ?? false;
       }
       static async ["createNewInstance"](_0x397e30, _0x939807, _0x2e8f77, _0x454419, _0x274903, _0x1677f5, _0x5767f5 = {}) {
@@ -4824,7 +4796,7 @@ var NP = class {
         let {
           userQueryWithMentions: _0x591241,
           attachments: _0x7e96e1
-        } = parseUserQueryContent(_0x44466e, workspace_info.getInstance().getPlatform());
+        } = parseUserQueryContent(_0x44466e, WorkspaceInfoManager.getInstance().getPlatform());
         !_0x7e96e1.length || this._isStreaming ? this._queryJSONContent = _0x44466e : this._queryJSONContent = null, this._queryWithMentions = _0x591241, _0x22b5ab && (await this.upsertToDisk(_0x21d8de => {
           _0x21d8de.queryJsonContent = _0x44466e;
         }));
@@ -4891,13 +4863,13 @@ var NP = class {
         this._planConversations.pop(), this._activeConversation = void 0;
       }
       async ["startNewConversation"](_0x39ce8d) {
-        let _0x2a146e = Ut(),
+        let _0x2a146e = createUuid(),
           _0x2ee92d = async _0x143618 => {
             await this.upsertToDisk(_0x4bfc79 => {
               _0x4bfc79.planConversations.push(_0x143618);
             });
           },
-          _0x39c010 = await PlanConversation.createNewInstance(new NP(this.storageAPI).getAdapter(_0x2a146e), _0x39ce8d, null, _0x2ee92d, {
+          _0x39c010 = await PlanConversation.createNewInstance(new PlanConversationStorageAPI(this.storageAPI).getAdapter(_0x2a146e), _0x39ce8d, null, _0x2ee92d, {
             id: _0x2a146e,
             hasFailed: false,
             isAborted: false,
@@ -4939,7 +4911,7 @@ var NP = class {
         let _0x233367 = _0x4698f7.planArtifactType;
         return _0xae3e7b && (_0xae3e7b.reviewOutput ? _0x233367 = An.REVIEW_ARTIFACT : _0x233367 = An.IMPLEMENTATION_ARTIFACT), new _0x41754d(_0x4907bf, _0x5aefe5, _0x233367, _0xae3e7b, _0x4698f7.queryJsonContent, false, _0x4698f7.planSummary, {
           id: _0x4698f7.id,
-          planConversations: await Promise.all(_0x43d1b5.map(_0xad4d98 => PlanConversation.deserializeFromStorage(_0xad4d98, new NP(_0x5aefe5).getAdapter(_0xad4d98.id)))),
+          planConversations: await Promise.all(_0x43d1b5.map(_0xad4d98 => PlanConversation.deserializeFromStorage(_0xad4d98, new PlanConversationStorageAPI(_0x5aefe5).getAdapter(_0xad4d98.id)))),
           isExecuted: _0x4698f7.isExecuted,
           executedWithAgent: _0x4698f7.executedWithAgent ?? void 0,
           isPayAsYouGo: _0x4698f7.isPayAsYouGo,
@@ -4952,7 +4924,7 @@ var NP = class {
         if (!_0x2bc432.ticketInput) throw new Error("No ticket input found");
         let _0xb7593c = formatVerificationResult(_0x3d5a60).constructJsonQuery(_0x2bc432);
         return {
-          id: Ut(),
+          id: createUuid(),
           queryJsonContent: _0xb7593c,
           logs: _0x2bc432.thinkings,
           planConversations: [],
@@ -4977,7 +4949,7 @@ var NP = class {
       async ['resetPlan'](_0x3af10f, _0x3024cd) {
         let {
           userQueryWithMentions: _0x4abaf0
-        } = parseUserQueryContent(_0x3af10f, workspace_info.getInstance().getPlatform());
+        } = parseUserQueryContent(_0x3af10f, WorkspaceInfoManager.getInstance().getPlatform());
         this._logs = [], this._generatedPlan = null, this._planOutputHandler = null, this._queryWithMentions = _0x4abaf0, this._isQueryExecutedDirectly = false, this._isExecuted = false, this._executedWithAgent = null, await this.setQueryJSONContent(_0x3af10f, false), await Promise.all(this._planConversations.map(_0x488aac => _0x488aac.dispose())), this._planConversations = [], this._activeConversation = void 0, this._planArtifactType = _0x3024cd, await this.upsertToDisk(_0x54c384 => {
           _0x54c384.logs = [], _0x54c384.queryJsonContent = _0x3af10f, _0x54c384.isExecuted = false, _0x54c384.executedWithAgent = null, _0x54c384.planConversations = [], _0x54c384.logs = [], _0x54c384.llmInput = null, _0x54c384.generatedPlan = null, _0x54c384.isQueryExecutedDirectly = false, _0x54c384.planArtifactType = _0x3024cd;
         });
@@ -5079,7 +5051,7 @@ var PlanStepStorageAPI = class {
         this._isApplied = false;
       }
       static ['createFromProto'](_0xef5059) {
-        let _0x49cc06 = Ut(),
+        let _0x49cc06 = createUuid(),
           _0x345fd0 = _0xef5059.referredFiles.map(_0x47d16a => TraycerPath.fromPathProto(_0x47d16a));
         return new _0x115727(_0x49cc06, _0xef5059.title, _0xef5059.description, _0xef5059.promptForAIAgent, _0x345fd0, _0xef5059.severity, _0xef5059.isApplied);
       }
@@ -5181,7 +5153,7 @@ var PlanStepStorageAPI = class {
         };
       }
       static ['createFromProto'](_0xe6b247) {
-        return new _0xeecd8e(Ut(), [AnalysisSuggestion.createFromProto(_0xe6b247)], Ad.UNRESOLVED);
+        return new _0xeecd8e(createUuid(), [AnalysisSuggestion.createFromProto(_0xe6b247)], CommentResolutionStatus.UNRESOLVED);
       }
       static ['deserializeFromStorage'](_0x347948) {
         let _0x8ea9f8 = _0x347948.comments.map(_0x4bd3cb => AnalysisSuggestion.deserializeFromStorage(_0x4bd3cb));
@@ -5213,7 +5185,7 @@ var PlanStepStorageAPI = class {
           status: key.status
         }) : _0x365d2e.push({
           comment: _0x2ea465,
-          status: _0x2ea465.isApplied ? Ad.RESOLVED : Ad.OUTDATED
+          status: _0x2ea465.isApplied ? CommentResolutionStatus.RESOLVED : CommentResolutionStatus.OUTDATED
         });
         return _0x365d2e;
       }
@@ -5286,11 +5258,11 @@ var PlanStepStorageAPI = class {
       super(_0x17042f), this.name = "NoVerificationCommentsToExecuteError";
     }
   },
-  VP,
+  TaskCountManager,
   initTaskPlanDeps = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initTemplateManager(), initTaskContext(), initVerificationOutput(), VP = class _0x16402e {
+    initIDEAgentManager(), initTemplateManager(), initTaskContext(), initVerificationOutput(), TaskCountManager = class _0x16402e {
       constructor(_0x2f462a, _0x50e47, _0xce1cc7 = false, _0x2ee32f, _0x3ca8b2, _0x171ef4) {
         this._verificationOutput = _0x2f462a, this._verificationStorageAPI = _0x50e47, this._isPayAsYouGo = _0xce1cc7, this._logs = _0x2ee32f, this._id = _0x3ca8b2, this._reverificationState = _0x171ef4;
       }
@@ -5333,8 +5305,8 @@ var PlanStepStorageAPI = class {
         if (_0x5a6603.length === 0) throw new NoVerificationCommentsToExecuteError('No verification comments to execute');
         let _0x3453bf = this.buildCombinedContentFromComments(_0x5a6603),
           _0x2f76f6 = "Verification : " + _0x4b397b,
-          _0x3b241e = await br.getInstance().getPromptTemplate(_0x36ac1e).applyTemplate('---\x0a' + _0x3453bf);
-        _0x284412 && (_0x3b241e += '\x0a\x0a' + _0x284412), await debounce(_0x3b241e, _0x2f76f6, _0x39ef04, _0x300f64), _0x5a6603.forEach(_0x5dcf39 => _0x5dcf39.markAsApplied()), await this.persistVerificationOutput(this.verificationOutput), await Vt.getInstance().setLastUsedIDEAgents("verification", _0x39ef04);
+          _0x3b241e = await TemplateManager.getInstance().getPromptTemplate(_0x36ac1e).applyTemplate('---\x0a' + _0x3453bf);
+        _0x284412 && (_0x3b241e += '\x0a\x0a' + _0x284412), await debounce(_0x3b241e, _0x2f76f6, _0x39ef04, _0x300f64), _0x5a6603.forEach(_0x5dcf39 => _0x5dcf39.markAsApplied()), await this.persistVerificationOutput(this.verificationOutput), await TaskSettingsHandler.getInstance().setLastUsedIDEAgents("verification", _0x39ef04);
       }
       async ['persistVerificationOutput'](_0x3995a8) {
         await this.upsertToDisk(_0x45aca7 => {
@@ -5351,7 +5323,7 @@ var PlanStepStorageAPI = class {
         let _0x17c4d3 = this.verificationOutput,
           _0x4f1df9;
         if (_0x4f1df9 = _0x17c4d3.allComments.filter(_0x46582b => !_0x46582b.comment.isApplied), _0x4f1df9.length === 0) throw new NoVerificationCommentsToExecuteError("No verification comments to execute");
-        if (_0x643eba === 'AllExceptOutdated' ? _0x4f1df9 = _0x4f1df9.filter(_0x28bbd1 => _0x28bbd1.status === Ad.UNRESOLVED) : _0x643eba === "Outdated" ? _0x4f1df9 = _0x4f1df9.filter(_0x52da64 => _0x52da64.status !== Ad.UNRESOLVED) : Array.isArray(_0x643eba) && _0x643eba.length > 0 && (_0x4f1df9 = _0x4f1df9.filter(_0x5752a8 => _0x643eba.includes(_0x5752a8.comment.severity) && _0x5752a8.status === Ad.UNRESOLVED)), _0x4f1df9.length === 0) throw new NoVerificationCommentsToExecuteError("No unapplied verification comments to execute");
+        if (_0x643eba === 'AllExceptOutdated' ? _0x4f1df9 = _0x4f1df9.filter(_0x28bbd1 => _0x28bbd1.status === CommentResolutionStatus.UNRESOLVED) : _0x643eba === "Outdated" ? _0x4f1df9 = _0x4f1df9.filter(_0x52da64 => _0x52da64.status !== CommentResolutionStatus.UNRESOLVED) : Array.isArray(_0x643eba) && _0x643eba.length > 0 && (_0x4f1df9 = _0x4f1df9.filter(_0x5752a8 => _0x643eba.includes(_0x5752a8.comment.severity) && _0x5752a8.status === CommentResolutionStatus.UNRESOLVED)), _0x4f1df9.length === 0) throw new NoVerificationCommentsToExecuteError("No unapplied verification comments to execute");
         let _0x818209 = _0x4f1df9.map(_0x12d29 => _0x12d29.comment);
         await this.executeCombinedVerificationComments(_0x4bcc06, _0x818209, _0x3e5e7b, _0x4cb090, _0x2b0a05, _0xf30773);
       }
@@ -5481,11 +5453,11 @@ var TaskCountStorageAPI = class {
     }
   },
   TaskCountStorageAdapter = class extends BaseStorage {},
-  qa,
+  TaskStep,
   initTaskPlan = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initPlanContextModule(), initTaskExecution(), initStatusBar(), initTaskPlanDeps(), initAnalysisSuggestion(), qa = class _0x46545e {
+    initWorkspaceInfo(), initPlanContextModule(), initTaskExecution(), initStatusBar(), initTaskPlanDeps(), initAnalysisSuggestion(), TaskStep = class _0x46545e {
       constructor(_0x103932) {
         this._hasSentCreationMetrics = false, this._abortController = _0x103932.abortController, this._id = _0x103932.id, this._activePlanId = _0x103932.activePlanID, this._title = _0x103932.title, this._creationTime = _0x103932.creationTime, this._lastUpdatedTime = _0x103932.lastUpdatedTime, this._steps = _0x103932.steps, this._plans = _0x103932.plans, this._verification = _0x103932.verification, this._attachmentSummaries = _0x103932.attachmentSummaries, this._storageAPI = _0x103932.storageAPI, this._discardedVerificationComments = _0x103932.discardedVerificationComments, this._retryAfterTimestamp = _0x103932.retryAfterTimestamp;
       }
@@ -5725,7 +5697,7 @@ var TaskCountStorageAPI = class {
           {
             userQueryWithMentions: _0xd7823,
             sourceContext: _0xee7e72
-          } = parseUserQueryContent(_0x3cee03, workspace_info.getInstance().getPlatform());
+          } = parseUserQueryContent(_0x3cee03, WorkspaceInfoManager.getInstance().getPlatform());
         return {
           phase: {
             id: this.id,
@@ -5733,9 +5705,9 @@ var TaskCountStorageAPI = class {
             query: _0xd7823,
             referredFiles: _0xee7e72.files?.["map"](_0xe2ac7d => _0xe2ac7d.path)['filter'](_0x689fe1 => _0x689fe1 !== null),
             referredFolders: _0xee7e72.directories?.['map'](_0x39d4fa => _0x39d4fa.path)["filter"](_0x1fafbe => _0x1fafbe !== null),
-            status: jm.NEW_PHASE,
+            status: PhaseModificationType.NEW_PHASE,
             reasoning: '',
-            phaseSize: $c.ISSUE,
+            phaseSize: PhaseSize.ISSUE,
             planArtifactType: this.activePlan.planArtifactType
           },
           taskSteps: this.steps
@@ -5748,14 +5720,14 @@ var TaskCountStorageAPI = class {
             attachments: _0x70fddd,
             githubTicketRef: _0x1944ad,
             gitMentions: _0x541b66
-          } = parseUserQueryContent(await this.activePlan.getQueryJSONContent(), workspace_info.getInstance().getPlatform()),
+          } = parseUserQueryContent(await this.activePlan.getQueryJSONContent(), WorkspaceInfoManager.getInstance().getPlatform()),
           _0x5350b9 = await resolveGitMentions(_0x541b66),
-          _0x22822e = this.steps.planGeneration === pe.IN_PROGRESS ? Id.TASK_IN_PROGRESS : this.steps.planGeneration === pe.COMPLETED || this.steps.planGeneration === pe.WAITING_FOR_EXECUTION || this.steps.planGeneration === pe.SKIPPED ? Id.TASK_COMPLETED : Id.TASK_NOT_STARTED;
+          _0x22822e = this.steps.planGeneration === pe.IN_PROGRESS ? TaskProgressState.TASK_IN_PROGRESS : this.steps.planGeneration === pe.COMPLETED || this.steps.planGeneration === pe.WAITING_FOR_EXECUTION || this.steps.planGeneration === pe.SKIPPED ? TaskProgressState.TASK_COMPLETED : TaskProgressState.TASK_NOT_STARTED;
         return {
           title: this.title,
           taskID: this.id,
           activePlan: {
-            plan: _0x22822e === Id.TASK_COMPLETED && !this.activePlan.isQueryExecutedDirectly ? {
+            plan: _0x22822e === TaskProgressState.TASK_COMPLETED && !this.activePlan.isQueryExecutedDirectly ? {
               implementationPlan: this.activePlan.planArtifactType === An.IMPLEMENTATION_ARTIFACT ? this.activePlan.mustGetImplementationPlan() : null,
               reviewOutput: this.activePlan.planArtifactType === An.REVIEW_ARTIFACT ? this.activePlan.mustGetReviewOutput() : null
             } : null,
@@ -5776,8 +5748,8 @@ var TaskCountStorageAPI = class {
               planID: this.activePlan.id
             }
           },
-          parentPlans: _0x22822e === Id.TASK_COMPLETED ? await this.serializeParentPlans(this.activePlan, _0x11ca80) : [],
-          state: this.steps.planGeneration === pe.IN_PROGRESS ? Id.TASK_IN_PROGRESS : this.steps.planGeneration === pe.COMPLETED || this.steps.planGeneration === pe.SKIPPED || this.steps.planGeneration === pe.WAITING_FOR_EXECUTION ? Id.TASK_COMPLETED : Id.TASK_NOT_STARTED,
+          parentPlans: _0x22822e === TaskProgressState.TASK_COMPLETED ? await this.serializeParentPlans(this.activePlan, _0x11ca80) : [],
+          state: this.steps.planGeneration === pe.IN_PROGRESS ? TaskProgressState.TASK_IN_PROGRESS : this.steps.planGeneration === pe.COMPLETED || this.steps.planGeneration === pe.SKIPPED || this.steps.planGeneration === pe.WAITING_FOR_EXECUTION ? TaskProgressState.TASK_COMPLETED : TaskProgressState.TASK_NOT_STARTED,
           attachmentSummaries: this._attachmentSummaries
         };
       }
@@ -5832,7 +5804,7 @@ var TaskCountStorageAPI = class {
           _0x28be50 = [];
         for (let key of _0x40ce26.plans ?? []) {
           let _0x39f878 = key.parentPlanID ? _0x28be50.find(_0x47f5f8 => _0x47f5f8.id === key.parentPlanID) ?? null : null,
-            _0x19c848 = await Uf.deserializeFromStorage(key, _0x39f878, new PlanStepStorageAPI(_0x33a44a.storageAPI).getAdapter(key.id));
+            _0x19c848 = await PlanStepManager.deserializeFromStorage(key, _0x39f878, new PlanStepStorageAPI(_0x33a44a.storageAPI).getAdapter(key.id));
           _0x28be50.push(_0x19c848);
         }
         _0x33a44a._plans = _0x28be50, _0x28be50.length > 0 && (_0x28be50.find(_0x47e070 => _0x47e070.id === _0x40ce26.activePlanId) || (_0x33a44a._activePlanId = _0x28be50[_0x28be50.length - 1].id, await _0x33a44a.upsertToDisk(_0x144bb9 => {
@@ -5841,11 +5813,11 @@ var TaskCountStorageAPI = class {
           query: _0x40ce26.failedPlanIterationQuery.query,
           status: "failed"
         });
-        let _0x8a1cd3 = _0x40ce26.verification ? VP.deserializeFromStorage(_0x40ce26.verification, new TaskCountStorageAPI(_0x33a44a.storageAPI).getAdapter(_0x40ce26.verification.id)) : null;
+        let _0x8a1cd3 = _0x40ce26.verification ? TaskCountManager.deserializeFromStorage(_0x40ce26.verification, new TaskCountStorageAPI(_0x33a44a.storageAPI).getAdapter(_0x40ce26.verification.id)) : null;
         return _0x33a44a._verification = _0x8a1cd3, _0x33a44a._hasSentCreationMetrics = _0x40ce26.hasSentCreationMetrics ?? false, _0x33a44a;
       }
       static ["persistedTaskFromPersistedTicket"](_0xfc087c, _0x2de49f, _0xd5fb97, _0x494175) {
-        let _0x143643 = _0x494175.plans.map(_0x46c30f => Uf.persistedPlanFromPersistedTicketPlan(_0xd5fb97, _0x46c30f));
+        let _0x143643 = _0x494175.plans.map(_0x46c30f => PlanStepManager.persistedPlanFromPersistedTicketPlan(_0xd5fb97, _0x46c30f));
         return {
           id: _0xfc087c,
           title: formatTicketReferenceDisplay(_0xd5fb97),
@@ -5894,20 +5866,20 @@ var TaskCountStorageAPI = class {
         });
       }
       async ["addNewVerification"]() {
-        let _0x438527 = Ut(),
+        let _0x438527 = createUuid(),
           _0x4e01ac = async _0x542e12 => {
             await this.upsertToDisk(_0xa1c8c8 => {
               _0xa1c8c8.verification = _0x542e12;
             });
           },
-          _0x3a52e0 = await VP.createNewInstance(new TaskCountStorageAPI(this.storageAPI).getAdapter(_0x438527), false, [], _0x438527, _0x4e01ac);
+          _0x3a52e0 = await TaskCountManager.createNewInstance(new TaskCountStorageAPI(this.storageAPI).getAdapter(_0x438527), false, [], _0x438527, _0x4e01ac);
         return this._verification = _0x3a52e0, _0x3a52e0;
       }
       async ["addNewPlan"](_0x42c449, _0x30b45d, _0x3da77e, _0x253848) {
         let _0x87a96a = async _0x280a2e => this.upsertToDisk(_0x15db23 => {
             _0x15db23.plans.push(_0x280a2e), _0x15db23.activePlanId = _0x30b45d;
           }),
-          _0x400401 = await Uf.createNewInstance(_0x3da77e, _0x253848, new PlanStepStorageAPI(this.storageAPI).getAdapter(_0x30b45d), _0x42c449, true, _0x87a96a, {
+          _0x400401 = await PlanStepManager.createNewInstance(_0x3da77e, _0x253848, new PlanStepStorageAPI(this.storageAPI).getAdapter(_0x30b45d), _0x42c449, true, _0x87a96a, {
             id: _0x30b45d
           });
         return this.plans.push(_0x400401), this._activePlanId = _0x30b45d, _0x400401;
@@ -6071,7 +6043,7 @@ var TaskCountStorageAPI = class {
             lastUpdatedTime: _0x4d695c,
             workspaces: _0xa3015d
           } = _0x1dd360,
-          _0x3369c4 = await (await Pf.deserialize(_0xa3015d)).determineWorkspaceScope(),
+          _0x3369c4 = await (await WorkspaceAssociation.deserialize(_0xa3015d)).determineWorkspaceScope(),
           _0x75d4f2 = this.getUserQuery(_0x1dd360),
           _0x4e344e = this.getActivePhaseBreakdown(_0x1dd360),
           _0x372815 = _0x4e344e ? this.getActiveTaskFromPhaseBreakdown(_0x4e344e) : null,
@@ -6097,7 +6069,7 @@ var TaskCountStorageAPI = class {
         }
         let {
           userQueryWithMentions: _0xe61770
-        } = parseUserQueryContent(_0x5d766e, workspace_info.getInstance().getPlatform());
+        } = parseUserQueryContent(_0x5d766e, WorkspaceInfoManager.getInstance().getPlatform());
         return _0xe61770;
       }
       static ['getActivePhaseBreakdown'](_0x1147d6) {
@@ -6108,7 +6080,7 @@ var TaskCountStorageAPI = class {
         let _0x3d7038 = _0x37123d.tasks.find(_0x2512a9 => _0x2512a9.id === _0x37123d.activeTaskId);
         if (!_0x3d7038) return null;
         let _0x138ce1 = this.getActiveTaskIndex(_0x37123d, _0x37123d.activeTaskId);
-        qa.updatePersistedTaskSteps(_0x3d7038);
+        TaskStep.updatePersistedTaskSteps(_0x3d7038);
         let _0x3c024a = _0x3d7038.plans.find(_0x1570bb => _0x1570bb.id === _0x3d7038.activePlanId);
         return _0x3c024a ? {
           index: _0x138ce1,
@@ -6133,7 +6105,7 @@ var TaskCountStorageAPI = class {
     }
     async ["postToUIHeavy"](_0x15a211, _0x3d7273) {
       let _0x23940d = {
-        type: _n.POST_TASK,
+        type: TaskWebViewMessages.POST_TASK,
         taskChain: _0x15a211,
         silentlyUpdateUI: _0x3d7273
       };
@@ -6141,7 +6113,7 @@ var TaskCountStorageAPI = class {
     }
     async ['postToUILight'](_0x37bed0, _0x2a4657) {
       let _0x5cc4ee = {
-        type: _n.POST_TASK_LIGHT,
+        type: TaskWebViewMessages.POST_TASK_LIGHT,
         taskChain: _0x37bed0,
         silentlyUpdateUI: _0x2a4657
       };
@@ -6149,7 +6121,7 @@ var TaskCountStorageAPI = class {
     }
     async ['postToUIPlanThinking'](_0x3417d7, _0xaf8914) {
       let _0x10e03d = {
-        type: _n.POST_PLAN_THINKING,
+        type: TaskWebViewMessages.POST_PLAN_THINKING,
         planIdentifier: _0x3417d7,
         logs: _0xaf8914
       };
@@ -6157,7 +6129,7 @@ var TaskCountStorageAPI = class {
     }
     async ["postToUIPlanDelta"](_0x142957, _0xffdf62) {
       let _0xcc9e9f = {
-        type: _n.POST_PLAN_DELTA,
+        type: TaskWebViewMessages.POST_PLAN_DELTA,
         planIdentifier: _0x142957,
         generatedPlan: _0xffdf62
       };
@@ -6165,7 +6137,7 @@ var TaskCountStorageAPI = class {
     }
     async ['postToUIVerificationThinking'](_0x60164e, _0x3b7e3b) {
       let _0x2346a6 = {
-        type: _n.POST_VERIFICATION_THINKING,
+        type: TaskWebViewMessages.POST_VERIFICATION_THINKING,
         verificationIdentifier: _0x60164e,
         logs: _0x3b7e3b
       };
@@ -6173,7 +6145,7 @@ var TaskCountStorageAPI = class {
     }
     async ["postToUIPrePhaseConversationThinking"](_0x3c0c33, _0x2976c7) {
       let _0x6eb6d9 = {
-        type: _n.POST_PRE_PHASE_CONVERSATION_THINKING,
+        type: TaskWebViewMessages.POST_PRE_PHASE_CONVERSATION_THINKING,
         phaseConversationIdentifier: _0x3c0c33,
         logs: _0x2976c7
       };
@@ -6191,7 +6163,7 @@ var TaskCountStorageAPI = class {
     async ['showTaskNotificationWithViewOption'](_0xe1a9, _0x59b09b) {
       let _0x551fc0 = async () => {
         let _0x52564c = {
-          type: _n.OPEN_TASK,
+          type: TaskWebViewMessages.OPEN_TASK,
           taskChain: _0x59b09b
         };
         this.webviewProvider.openCommentNavigator(), this.webviewProvider.postToCommentNavigator(_0x52564c);
@@ -6211,7 +6183,7 @@ var TaskCountStorageAPI = class {
         return _0x155860.instance || (_0x155860.instance = new _0x155860()), _0x155860.instance;
       }
       ['enqueueOrSendToCommentNavigator'](_0x57cfb8) {
-        this.commentNavigatorReady || _0x57cfb8.sendToViewImmediately ? Qe.commentNavigatorView?.["webview"]['postMessage'](_0x57cfb8) : this.pendingCommentNavigatorMessages.push(_0x57cfb8);
+        this.commentNavigatorReady || _0x57cfb8.sendToViewImmediately ? CommentNavigator.commentNavigatorView?.["webview"]['postMessage'](_0x57cfb8) : this.pendingCommentNavigatorMessages.push(_0x57cfb8);
       }
       ["markNavigatorReady"]() {
         this.commentNavigatorReady = true, this.flushPendingCommentNavigatorMessages();
@@ -6220,7 +6192,7 @@ var TaskCountStorageAPI = class {
         setTimeout(() => {
           if (this.pendingCommentNavigatorMessages.length > 0) for (; this.pendingCommentNavigatorMessages.length > 0;) {
             let _0x1ac966 = this.pendingCommentNavigatorMessages.shift();
-            _0x1ac966 && Qe.commentNavigatorView?.["webview"]["postMessage"](_0x1ac966);
+            _0x1ac966 && CommentNavigator.commentNavigatorView?.["webview"]["postMessage"](_0x1ac966);
           }
         }, 500);
       }
@@ -6293,13 +6265,11 @@ var TaskStepStorageAPI = class {
     return new ThreadStorage(this, _0x57f1e);
   }
 };
-var XM
-/* [dead-code] Y_e removed */;
 /* [unbundle] 已提取: file_system_watcher.js */
 /* [unbundle] 已提取: yolo_artifact_manager.js */
 function formatStackTrace(_0xebb9d3, _0x4b2e47, _0x49d1b7) {
   let _0xea8847 = _0xebb9d3.phaseBreakdown.getTaskExecutionConfig(_0x49d1b7),
-    _0x277d9b = Vt.getInstance().activePromptTemplates;
+    _0x277d9b = TaskSettingsHandler.getInstance().activePromptTemplates;
   switch (_0x4b2e47) {
     case 'plan':
       return _0xea8847.plan?.['promptTemplateFilePath'] ?? _0x277d9b.plan?.['filePath'] ?? _0x277d9b.generic?.["filePath"] ?? '';
@@ -6315,7 +6285,7 @@ function formatStackTrace(_0xebb9d3, _0x4b2e47, _0x49d1b7) {
 }
 function parseStackFrame(_0x291b2d, _0x503e19, _0x570885) {
   let _0x457944 = _0x291b2d.phaseBreakdown.getTaskExecutionConfig(_0x503e19),
-    _0x3504ba = Vt.getInstance().lastUsedIDEAgents;
+    _0x3504ba = TaskSettingsHandler.getInstance().lastUsedIDEAgents;
   switch (_0x570885) {
     case "plan":
       return _0x457944.plan?.["ideAgent"] ?? _0x3504ba.plan;
@@ -6329,7 +6299,6 @@ function parseStackFrame(_0x291b2d, _0x503e19, _0x570885) {
       throw new Error('Invalid context type: ' + _0x570885);
   }
 }
-
 function extractFunctionName(_0x2fff9b, _0x348bbf, _0x1afc5d) {
   let _0x19b273;
   switch (_0x348bbf) {
@@ -7011,11 +6980,11 @@ var PlanGenerationStep,
           phaseBreakdownID: _0x4d21ff
         });
         let _0x513bbb = {
-          type: _n.YOLO_MODE_STARTED,
+          type: TaskWebViewMessages.YOLO_MODE_STARTED,
           taskChainID: _0x3c4f5a,
           phaseBreakdownID: _0x4d21ff
         };
-        return await Qe.postToAllWebviews(_0x513bbb), this.enqueueAction({
+        return await CommentNavigator.postToAllWebviews(_0x513bbb), this.enqueueAction({
           type: "PROCESS_TASK",
           taskId: _0x302c4a,
           payload: void 0
@@ -7042,13 +7011,13 @@ var PlanGenerationStep,
             phaseBreakdownID: _0x5d6517
           });
           let _0x2c23c8 = {
-            type: _n.YOLO_MODE_STOPPED,
+            type: TaskWebViewMessages.YOLO_MODE_STOPPED,
             taskChainID: _0x5a0030,
             phaseBreakdownID: _0x5d6517,
             reason: _0x35705c,
             error: this._lastError
           };
-          await Qe.postToAllWebviews(_0x2c23c8);
+          await CommentNavigator.postToAllWebviews(_0x2c23c8);
           let _0x19b59d = this.buildStopMessage(_0x35705c, _0x59df40);
           this.showNotification(_0x19b59d);
         } catch (_0x21129d) {
@@ -7152,16 +7121,16 @@ var PlanGenerationStep,
       }
     };
   }),
-  g0,
+  PlanConversationHandler,
   initPlanConversationHandler = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initUserQueryMessage(), initPlanOutputModule(), g0 = class _0x56cba7 extends UserQueryMessage {
+    initWorkspaceInfo(), initUserQueryMessage(), initPlanOutputModule(), PlanConversationHandler = class _0x56cba7 extends UserQueryMessage {
       constructor(_0x183799, _0x1dff0d, _0x41adfb, _0x297ec9 = {}) {
         let _0x2b958b = _0x297ec9.state === pe.IN_PROGRESS,
           _0x170416 = _0x297ec9.state === pe.ABORTING,
           _0x56125c = _0x297ec9.state === pe.FAILED;
-        super(_0x1dff0d, _0x297ec9.output ?? null, _0x41adfb, _0x297ec9.logs ?? [], _0x2b958b, _0x170416, _0x56125c, _0x297ec9.id ?? Ut()), this._phaseConversationStorageAdapter = _0x183799, this._abortController = _0x297ec9.abortController ?? new AbortController(), this._state = _0x297ec9.state ?? pe.NOT_STARTED, this._retryAfterTimestamp = _0x297ec9.retryAfterTimestamp, this._creationTime = _0x297ec9.creationTime ?? Date.now(), this._lastUpdatedTime = _0x297ec9.lastUpdatedTime ?? Date.now();
+        super(_0x1dff0d, _0x297ec9.output ?? null, _0x41adfb, _0x297ec9.logs ?? [], _0x2b958b, _0x170416, _0x56125c, _0x297ec9.id ?? createUuid()), this._phaseConversationStorageAdapter = _0x183799, this._abortController = _0x297ec9.abortController ?? new AbortController(), this._state = _0x297ec9.state ?? pe.NOT_STARTED, this._retryAfterTimestamp = _0x297ec9.retryAfterTimestamp, this._creationTime = _0x297ec9.creationTime ?? Date.now(), this._lastUpdatedTime = _0x297ec9.lastUpdatedTime ?? Date.now();
       }
       static async ['createNewInstance'](_0x1c566a, _0x19394c, _0x52c905, _0x43eb91, _0x3b90e8 = {}) {
         let _0xf2e71d = new _0x56cba7(_0x1c566a, _0x19394c, _0x52c905, _0x3b90e8);
@@ -7206,7 +7175,7 @@ var PlanGenerationStep,
         let {
           userQueryWithMentions: _0x2b4497,
           attachments: _0x2fd665
-        } = parseUserQueryContent(_0x189f16, workspace_info.getInstance().getPlatform());
+        } = parseUserQueryContent(_0x189f16, WorkspaceInfoManager.getInstance().getPlatform());
         if (this._queryWithMentions = _0x2b4497, !_0x2fd665.length || this._isStreaming ? this._queryJSONContent = _0x189f16 : this._queryJSONContent = null, _0x48cfd5) return this.upsertOnDisk(_0x5cb9e6 => {
           _0x5cb9e6.userQuery = _0x189f16;
         });
@@ -7328,7 +7297,7 @@ function deleteReviewStep(_0x4ad61d, _0x1767ed) {
   let _0x1eb69d = findReviewStepIndex(_0x4ad61d, _0x1767ed);
   _0x4ad61d.prePhaseConversations.splice(_0x1eb69d, 1);
 }
-var ZP = class {
+var ReviewStepStorageAPI = class {
     constructor(_0x4d17e0) {
       this.phaseBreakdownStorageAPI = _0x4d17e0;
     }
@@ -7348,16 +7317,16 @@ var ZP = class {
       deleteReviewStep(_0x4d3ec4, _0x12343c), await this.phaseBreakdownStorageAPI.upsert(_0x4d3ec4, _0x34f745);
     }
     ['getAdapter'](_0x37ec3d) {
-      return new YW(this, _0x37ec3d);
+      return new ReviewStepAdapter(this, _0x37ec3d);
     }
   },
-  YW = class extends BaseStorage {},
-  G_,
+  ReviewStepAdapter = class extends BaseStorage {},
+  PhaseBreakdown,
   initTaskOrchestrator = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initWorkspaceInfo(), initAnalytics(), initStatusBar(), initPlanContextModule(), initTemplateManager(), initTaskSettingsHandler(), initUsageInfoHandler(), initTaskContext(), initTaskPlan(), initTaskOrchestrator(), initPlanConversationHandler(), G_ = class _0x5c880e {
-      constructor(_0x20483f = Ut(), _0x35286c = [], _0x528b0a = [], _0x79b5be, _0x395b29, _0x4cbcac, _0x2e734f, _0xbaa6e9) {
+    initIDEAgentManager(), initWorkspaceInfo(), initAnalytics(), initStatusBar(), initPlanContextModule(), initTemplateManager(), initTaskSettingsHandler(), initUsageInfoHandler(), initTaskContext(), initTaskPlan(), initTaskOrchestrator(), initPlanConversationHandler(), PhaseBreakdown = class _0x5c880e {
+      constructor(_0x20483f = createUuid(), _0x35286c = [], _0x528b0a = [], _0x79b5be, _0x395b29, _0x4cbcac, _0x2e734f, _0xbaa6e9) {
         this._taskExecutionConfig = void 0, this.yoloOrchestrator = null, this._id = _0x20483f, this._prePhaseConversations = _0x35286c, this._tasks = _0x528b0a, this.taskChainContext = _0x395b29, this.planGenerationService = _0x4cbcac, this.phaseGenerationService = _0x2e734f, this.verificationService = _0xbaa6e9, this._storageAPI = _0x79b5be, this._taskStorage = new TaskStepStorageAPI(_0x79b5be);
       }
       static async ["createNewInstance"](_0x2440c1, _0x52e649 = [], _0x5971a5 = [], _0x321f0e, _0x1bb397, _0x4f0aef, _0xb91ea7, _0x216d7c, _0x8b25e0) {
@@ -7449,7 +7418,7 @@ var ZP = class {
       }
       ['getTaskExecutionConfig'](_0x1ca561) {
         let _0x583c14 = this._taskExecutionConfig?.[_0x1ca561];
-        return _0x583c14 || Vt.getInstance().defaultTaskExecutionConfig;
+        return _0x583c14 || TaskSettingsHandler.getInstance().defaultTaskExecutionConfig;
       }
       ['getTaskMetricsProperties'](_0x1703e1) {
         return {
@@ -7552,7 +7521,7 @@ var ZP = class {
           _0x4efcd8 = _0xd825ef.getPlan(_0x71645b.planID),
           _0x18d89f = _0xd825ef.plans.findIndex(_0x2d21cb => _0x2d21cb.id === _0x4efcd8.id),
           _0x4993f3 = _0x4efcd8.isQueryExecutedDirectly ? 'Handoff Query : ' + _0xd825ef.title : "Plan v" + (_0x18d89f + 1) + " : " + _0xd825ef.title,
-          _0xc0bf3c = await br.getInstance().getPromptTemplate(_0x1044d7).applyTemplate(_0x4efcd8),
+          _0xc0bf3c = await TemplateManager.getInstance().getPromptTemplate(_0x1044d7).applyTemplate(_0x4efcd8),
           _0x55c404 = _0x4efcd8.id,
           _0x556007 = await this.buildCombinedInstructions(_0x55c404);
         _0x556007 && (_0xc0bf3c += '\x0a\x0a' + _0x556007);
@@ -7561,7 +7530,7 @@ var ZP = class {
           taskChainId: _0x4fd79a.taskChainID,
           phaseBreakdownId: this.id
         };
-        await debounce(_0xc0bf3c, _0x4993f3, _0x3848e2, _0x23264b), yn.getInstance().increment('execute_in_ide', {
+        await debounce(_0xc0bf3c, _0x4993f3, _0x3848e2, _0x23264b), PosthogAnalytics.getInstance().increment('execute_in_ide', {
           defaultProperties: {
             agent: _0x3848e2.id
           },
@@ -7576,9 +7545,9 @@ var ZP = class {
         await _0x36b010.setQueryJSONContentAndArtifactType(_0x4abf9c, _0x4d3b73, true);
         let {
             userQuery: _0xefbf26
-          } = parseUserQueryContent(_0x4abf9c, workspace_info.getInstance().getPlatform()),
+          } = parseUserQueryContent(_0x4abf9c, WorkspaceInfoManager.getInstance().getPlatform()),
           _0x3c8c12 = "Handoff Query : " + _0xae98ae.title,
-          _0xaa2f57 = await br.getInstance().getPromptTemplate(_0x1552b1).applyTemplate(_0xefbf26);
+          _0xaa2f57 = await TemplateManager.getInstance().getPromptTemplate(_0x1552b1).applyTemplate(_0xefbf26);
         if (this.isYoloModeRunning()) {
           let _0x119397 = await this.buildCombinedInstructions(_0x36b010.id);
           _0x119397 && (_0xaa2f57 += '\x0a\x0a' + _0x119397);
@@ -7588,7 +7557,7 @@ var ZP = class {
           taskChainId: _0xb057ad.taskChainID,
           phaseBreakdownId: this.id
         };
-        await debounce(_0xaa2f57, _0x3c8c12, _0x404f0a, _0x1880b9), yn.getInstance().increment("user_query_executed_in_ide", {
+        await debounce(_0xaa2f57, _0x3c8c12, _0x404f0a, _0x1880b9), PosthogAnalytics.getInstance().increment("user_query_executed_in_ide", {
           defaultProperties: {
             agent: _0x404f0a.id
           },
@@ -7640,16 +7609,16 @@ var ZP = class {
                   {
                     userQueryWithMentions: _0x197a32,
                     sourceContext: _0x2a93fe
-                  } = await parseAndFormatUserQuery(_0x37d6b7, workspace_info.getInstance().getPlatform());
+                  } = await parseAndFormatUserQuery(_0x37d6b7, WorkspaceInfoManager.getInstance().getPlatform());
                 return {
                   id: _0x180664.id,
                   title: _0x180664.title,
                   query: _0x197a32,
                   referredFiles: _0x2a93fe.files.map(_0x27dd22 => _0x27dd22.path).filter(_0x5b3187 => _0x5b3187 !== null),
                   referredFolders: _0x2a93fe.directories.map(_0x5eb087 => _0x5eb087.path).filter(_0x4c1ab3 => _0x4c1ab3 !== null),
-                  status: jm.NEW_PHASE,
+                  status: PhaseModificationType.NEW_PHASE,
                   reasoning: '',
-                  phaseSize: $c.ISSUE,
+                  phaseSize: PhaseSize.ISSUE,
                   planArtifactType: _0x180664.activePlan.planArtifactType
                 };
               }))
@@ -7681,7 +7650,7 @@ var ZP = class {
               let _0x1cd5c6 = await _0x3b9f5f.getInitialUserQueryJSONContent(),
                 {
                   sourceContext: _0x334dac
-                } = parseUserQueryContent(_0x1cd5c6, workspace_info.getInstance().getPlatform());
+                } = parseUserQueryContent(_0x1cd5c6, WorkspaceInfoManager.getInstance().getPlatform());
               return {
                 sourceContext: _0x334dac
               };
@@ -7739,19 +7708,19 @@ var ZP = class {
               taskChainID: _0x631822.taskChainID,
               phaseBreakdownID: this.id
             },
-            taskID: Ut(),
-            planID: Ut()
+            taskID: createUuid(),
+            planID: createUuid()
           },
           _0x18d97d = async _0x19d9d2 => {
             await this.upsertToDisk(_0x487f69 => {
               _0x487f69.tasks.push(_0x19d9d2), _0x487f69.activeTaskId = _0x19d9d2.id;
             });
           },
-          _0x493c12 = await qa.fromPhaseOutput(_0xc6ae4d, _0x454262.taskID, _0x454262.planID, new TaskStepStorageAPI(this._storageAPI), _0x18d97d);
+          _0x493c12 = await TaskStep.fromPhaseOutput(_0xc6ae4d, _0x454262.taskID, _0x454262.planID, new TaskStepStorageAPI(this._storageAPI), _0x18d97d);
         this._tasks.push(_0x493c12);
         let _0x35fea8 = parseMarkdownToDoc(_0xc6ae4d.query);
         if (_0xc6ae4d.referredFiles) {
-          let _0x4224cd = await qa.convertPathsToJSONContentMentions(_0xc6ae4d.referredFiles || [], _0xc6ae4d.referredFolders || []);
+          let _0x4224cd = await TaskStep.convertPathsToJSONContentMentions(_0xc6ae4d.referredFiles || [], _0xc6ae4d.referredFolders || []);
           _0x4224cd.length > 0 && (_0x35fea8 = spliceIntoDocContent(_0x35fea8, _0x4224cd));
         }
         return await this.addNewPlan(_0x454262, _0x35fea8, _0xc6ae4d.planArtifactType, null), _0x493c12;
@@ -7766,8 +7735,8 @@ var ZP = class {
         try {
           let {
             userQueryWithMentions: _0x193bfe
-          } = await parseAndFormatUserQuery(_0x511531, workspace_info.getInstance().getPlatform());
-          _0x1a4344 = _0x193bfe, _0x21b27d || yn.getInstance().increment("phase_generation", {
+          } = await parseAndFormatUserQuery(_0x511531, WorkspaceInfoManager.getInstance().getPlatform());
+          _0x1a4344 = _0x193bfe, _0x21b27d || PosthogAnalytics.getInstance().increment("phase_generation", {
             ...this.getTaskMetricsProperties(_0x193bfe)
           });
           let _0x41edbc = await _0x3de9e6(_0x26710c, _0x422646);
@@ -7776,11 +7745,11 @@ var ZP = class {
             let _0x5c4245 = _0x2b3e4a.phaseBreakdownIdentifier;
             if (!_0x5c4245) throw new Error('Phase breakdown identifier is required');
             switch (_0x5a7ce2.status) {
-              case jm.NEW_PHASE:
-              case jm.MODIFIED_PHASE:
+              case PhaseModificationType.NEW_PHASE:
+              case PhaseModificationType.MODIFIED_PHASE:
                 await this.addTaskFromPhaseOutput(_0x5a7ce2, _0x5c4245);
                 break;
-              case jm.UNCHANGED_PHASE:
+              case PhaseModificationType.UNCHANGED_PHASE:
                 {
                   let _0x412ade = _0x27f0c6.find(_0x279832 => _0x279832.id === _0x5a7ce2.id);
                   if (_0x412ade?.["isNotStarted"]()) await this.addTaskFromPhaseOutput(_0x5a7ce2, _0x5c4245);else {
@@ -7808,14 +7777,14 @@ var ZP = class {
         };
         {
           let _0xc704c = new ConversationStorage(this._storageAPI, this.id),
-            _0x12b163 = new ZP(_0xc704c).getAdapter(_0x4c3ed9),
+            _0x12b163 = new ReviewStepStorageAPI(_0xc704c).getAdapter(_0x4c3ed9),
             _0x318ba3 = async _0x221b43 => {
               await this.upsertToDisk(_0x39becd => {
                 _0x39becd.prePhaseConversations.push(_0x221b43);
               });
             },
             _0x13ff7 = Date.now(),
-            _0x3d9c9a = await g0.createNewInstance(_0x12b163, _0x56b5d3, null, _0x318ba3, {
+            _0x3d9c9a = await PlanConversationHandler.createNewInstance(_0x12b163, _0x56b5d3, null, _0x318ba3, {
               id: _0x4c3ed9,
               creationTime: _0x13ff7,
               lastUpdatedTime: _0x13ff7,
@@ -7902,17 +7871,17 @@ var ZP = class {
         return await this.getTask(_0x1f7028.taskID).getPlan(_0x1f7028.planID).handleImplementationPlanDelta(_0x4a47db);
       }
       async ['handleRateLimitExceedError'](_0x4bb51e, _0x57d347, _0x368b8a) {
-        if (Xr.updateRateLimitTimestamp(_0x368b8a.retryAfter), this.taskChainContext.client.auth.traycerUser) {
+        if (RateLimitHandler.updateRateLimitTimestamp(_0x368b8a.retryAfter), this.taskChainContext.client.auth.traycerUser) {
           this.taskChainContext.client.auth.traycerUser.payAsYouGoUsage.allowPayAsYouGo = _0x368b8a.allowPayAsYouGo, _0x368b8a.invoiceUrl && (this.taskChainContext.client.auth.traycerUser.payAsYouGoUsage.meteredUsage ? this.taskChainContext.client.auth.traycerUser.payAsYouGoUsage.meteredUsage.invoiceUrl = _0x368b8a.invoiceUrl : (await this.taskChainContext.client.auth.refreshTraycerToken()) || this.taskChainContext.client.auth.handleDeactivation());
-          let _0x393866 = new Gf(this.taskChainContext.client.auth);
+          let _0x393866 = new SubscriptionHandler(this.taskChainContext.client.auth);
           await _0x393866.handle({
-            type: il.FETCH_SUBSCRIPTION
+            type: subscriptionActions.FETCH_SUBSCRIPTION
           });
           let _0xe4c86c = _0x393866.getSubscriptionMetrics();
-          yn.getInstance().increment(_0x57d347, {
+          PosthogAnalytics.getInstance().increment(_0x57d347, {
             defaultProperties: {
-              isChainedTask: _0x4bb51e instanceof qa ? this._tasks.length > 1 : null,
-              isPrePhase: _0x4bb51e instanceof g0 ? true : null,
+              isChainedTask: _0x4bb51e instanceof TaskStep ? this._tasks.length > 1 : null,
+              isPrePhase: _0x4bb51e instanceof PlanConversationHandler ? true : null,
               ..._0xe4c86c
             },
             userProperties: {}
@@ -7929,7 +7898,7 @@ var ZP = class {
                 _0x314d44.tasks.push(_0x4a8207), _0x314d44.activeTaskId = _0x4a8207.id;
               });
             },
-            _0x4000e2 = await qa.createNewInstance({
+            _0x4000e2 = await TaskStep.createNewInstance({
               id: _0x44af27,
               activePlanID: _0x5b1497.planID,
               title: '',
@@ -7978,11 +7947,11 @@ var ZP = class {
             }
           },
           _0x566018;
-        _0x3b11ad === this.tasks.length ? (_0x566018 = await qa.createNewInstance(_0x2c6c2c), this.tasks.push(_0x566018)) : (_0x2c6c2c.upsertToDisk = async _0x4e46da => {
+        _0x3b11ad === this.tasks.length ? (_0x566018 = await TaskStep.createNewInstance(_0x2c6c2c), this.tasks.push(_0x566018)) : (_0x2c6c2c.upsertToDisk = async _0x4e46da => {
           await this.upsertToDisk(_0x208b70 => {
             _0x208b70.tasks.splice(_0x3b11ad, 0, _0x4e46da);
           });
-        }, _0x566018 = await qa.createNewInstance(_0x2c6c2c), this.tasks.splice(_0x3b11ad, 0, _0x566018));
+        }, _0x566018 = await TaskStep.createNewInstance(_0x2c6c2c), this.tasks.splice(_0x3b11ad, 0, _0x566018));
         let _0x3dab0e = await _0x566018.addNewPlan(_0x2953b6, _0x215cc0.planID, _0x2a1d27, null);
         return {
           task: _0x566018,
@@ -8131,21 +8100,21 @@ var ZP = class {
             let _0x329f40 = _0x2386f4.get(_0x1db15d.id);
             if (_0x329f40) return _0x329f40;
             throw new Error("Referred task " + _0x1db15d.id + ' not found');
-          } else return qa.deserializeFromStorage(_0x1db15d, _0x16c2a4.taskStorage.getAdapter(_0x1db15d.id));
+          } else return TaskStep.deserializeFromStorage(_0x1db15d, _0x16c2a4.taskStorage.getAdapter(_0x1db15d.id));
         }));
         _0x16c2a4._tasks = _0x1b033a;
         let _0x318d8c = _0x419137.getAdapter(_0x5dcddd.id),
-          _0x2f37ca = new ZP(_0x318d8c);
+          _0x2f37ca = new ReviewStepStorageAPI(_0x318d8c);
         return _0x16c2a4._prePhaseConversations = await Promise.all(_0x5dcddd.prePhaseConversations.map(async _0x106475 => {
           let _0x5184ad = _0x2f37ca.getAdapter(_0x106475.id);
-          return g0.deserializeFromStorage(_0x106475, _0x5184ad);
+          return PlanConversationHandler.deserializeFromStorage(_0x106475, _0x5184ad);
         })), await _0x16c2a4.validateAndFixupAgentReferences(), _0x16c2a4;
       }
       static ['persistedPhaseBreakdownFromPersistedTicket'](_0x335040, _0x38b27b, _0x3c05e6) {
-        let _0xb28874 = Ut(),
-          _0xf89fb6 = qa.persistedTaskFromPersistedTicket(_0xb28874, _0x38b27b, _0x335040, _0x3c05e6);
+        let _0xb28874 = createUuid(),
+          _0xf89fb6 = TaskStep.persistedTaskFromPersistedTicket(_0xb28874, _0x38b27b, _0x335040, _0x3c05e6);
         return {
-          id: Ut(),
+          id: createUuid(),
           tasks: [_0xf89fb6],
           activeTaskId: _0xb28874,
           prePhaseConversations: [],
@@ -8195,11 +8164,11 @@ var PhaseBreakdownStorageAPI = class {
       return new ConversationStorage(this, _0xbd8072);
     }
   },
-  y0,
+  TaskChainPersistenceManager,
   initTaskChainDeps = __esmModule(() => {
     'use strict';
 
-    initStatusBar(), initTaskOrchestrator(), y0 = class {
+    initStatusBar(), initTaskOrchestrator(), TaskChainPersistenceManager = class {
       constructor(_0x1b89e7) {
         this.dbStorageAPI = _0x1b89e7;
       }
@@ -8223,7 +8192,7 @@ var PhaseBreakdownStorageAPI = class {
         let _0x107778 = new Map(),
           _0x45b807 = [];
         for (let key of _0x51ddaf.phaseBreakdowns) {
-          let _0x569eb3 = await G_.deserializeFromStorage(key, _0x107778, _0x188163, _0x3ed3ac, _0x5db341, _0x45c307, _0x5c5993);
+          let _0x569eb3 = await PhaseBreakdown.deserializeFromStorage(key, _0x107778, _0x188163, _0x3ed3ac, _0x5db341, _0x45c307, _0x5c5993);
           _0x45b807.push(_0x569eb3), _0x569eb3.tasks.forEach(_0x15c0fa => {
             _0x107778.has(_0x15c0fa.id) || _0x107778.set(_0x15c0fa.id, _0x15c0fa);
           });
@@ -8232,7 +8201,7 @@ var PhaseBreakdownStorageAPI = class {
       }
       static async ["persistedTaskChainFromPersistedTicket"](_0x2ea85d, _0x36f236, _0x550bc2) {
         let _0xc64c0d = Date.now(),
-          _0x24053f = G_.persistedPhaseBreakdownFromPersistedTicket(_0x2ea85d, _0xc64c0d, _0x36f236),
+          _0x24053f = PhaseBreakdown.persistedPhaseBreakdownFromPersistedTicket(_0x2ea85d, _0xc64c0d, _0x36f236),
           _0x474e86 = {
             workspaceFile: void 0,
             workspaceFolders: [{
@@ -8241,7 +8210,7 @@ var PhaseBreakdownStorageAPI = class {
             }]
           };
         return {
-          id: Ut(),
+          id: createUuid(),
           phaseBreakdowns: [_0x24053f],
           activePhaseBreakdownId: _0x24053f.id,
           title: formatTicketReferenceDisplay(_0x2ea85d),
@@ -8421,11 +8390,11 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  mD,
+  PlanGenerationHandler,
   initPlanGenerationHandler = __esmModule(() => {
     'use strict';
 
-    initAnalytics(), initPlanContextModule(), initQueryThrottleConfig(), initPlanOutputModule(), initWorkspaceInfo(), mD = class {
+    initAnalytics(), initPlanContextModule(), initQueryThrottleConfig(), initPlanOutputModule(), initWorkspaceInfo(), PlanGenerationHandler = class {
       constructor(_0x4b5e6a) {
         this.context = _0x4b5e6a;
       }
@@ -8435,13 +8404,13 @@ var QUERY_THROTTLE_MS,
         try {
           let {
             userQueryWithMentions: _0xdec5f3
-          } = await parseAndFormatUserQuery(_0x40717b, workspace_info.getInstance().getPlatform());
+          } = await parseAndFormatUserQuery(_0x40717b, WorkspaceInfoManager.getInstance().getPlatform());
           if (_0x57a15b = _0xdec5f3, _0x5cf23f.steps.planGeneration === pe.IN_PROGRESS) {
             Logger.warn('Plan is already getting generated', _0x5cf23f.id);
             return;
           }
           let _0x53a69c = _0x210062(_0xdec5f3);
-          await _0x5cf23f.sendCreationMetrics(yn.getInstance(), _0x53a69c), await _0x326b6c(_0x5cf23f.id, 'planGeneration', pe.IN_PROGRESS), await _0x146b84(false);
+          await _0x5cf23f.sendCreationMetrics(PosthogAnalytics.getInstance(), _0x53a69c), await _0x326b6c(_0x5cf23f.id, 'planGeneration', pe.IN_PROGRESS), await _0x146b84(false);
           let _0x4247c7 = await parseAndEnrichUserQuery(_0x40717b),
             _0x52f40a = _0xe3ff75.phaseBreakdownIdentifier;
           if (!_0x52f40a) throw new Error('Phase breakdown identifier is required');
@@ -8457,7 +8426,7 @@ var QUERY_THROTTLE_MS,
               phaseBreakdownsTillCurrent: _0x135eb9,
               phaseConversation: []
             };
-          await _0xd824ea.sendCreationMetrics(yn.getInstance(), _0x53a69c);
+          await _0xd824ea.sendCreationMetrics(PosthogAnalytics.getInstance(), _0x53a69c);
           let _0x4fd6e7 = await this.context.client.sendPlanGenerationRequest(_0x1d04f8, _0x5cf23f.abortController, _0x279db5),
             _0x2b2641 = _0x4fd6e7.plan;
           if (!_0x2b2641) throw new Error('Failed to generate plan for task');
@@ -8479,7 +8448,7 @@ var QUERY_THROTTLE_MS,
           status: 'pending'
         };
         _0x277237.failedPlanIterationQuery && (await _0x277237.resetFailedPlanIterationQuery()), _0x277237.planChatQuery = _0x333e98, await _0x1bf33f(false);
-        let _0x5729f2 = Ut(),
+        let _0x5729f2 = createUuid(),
           _0x10ac27 = {
             planIdentifier: _0x3e4145,
             newPlanID: _0x5729f2
@@ -8487,7 +8456,7 @@ var QUERY_THROTTLE_MS,
         try {
           let {
               userQueryWithMentions: _0x3f686f
-            } = await parseAndFormatUserQuery(_0x20b737, workspace_info.getInstance().getPlatform()),
+            } = await parseAndFormatUserQuery(_0x20b737, WorkspaceInfoManager.getInstance().getPlatform()),
             _0x3bdfa5 = await parseAndEnrichUserQuery(_0x277237.getInitialUserQueryJSONContent()),
             _0x3153e0 = await parseAndEnrichUserQuery(_0x20b737),
             _0x3e82c6 = _0x15d855.mustGetPlanOutput,
@@ -8510,13 +8479,13 @@ var QUERY_THROTTLE_MS,
             priorPlanChatIterationCount: _0x3a4aac,
             workspaceRepoMappings: await getWorkspaceDirectoryPreviews(_0x1b5c02)
           };
-          yn.getInstance().increment('task_plan_iteration', _0x4af206(_0x3f686f));
+          PosthogAnalytics.getInstance().increment('task_plan_iteration', _0x4af206(_0x3f686f));
           let _0x41770c = await this.context.client.sendPlanChatRequest(_0x1b0657, _0x20842c, _0x208b79);
           if (!_0x41770c.plan) throw new Error("Failed to chat about plan for task");
           let _0x538260 = {
             ..._0x3e4145
           };
-          _0x41770c.queryType === HO.ITERATION && (_0x538260.planID = _0x5729f2), await this.handleTaskPlan(_0x538260, _0x41770c.plan, _0x41770c.llmInput, _0x277237, _0x5b5a11, void 0, pe.COMPLETED);
+          _0x41770c.queryType === QueryType.ITERATION && (_0x538260.planID = _0x5729f2), await this.handleTaskPlan(_0x538260, _0x41770c.plan, _0x41770c.llmInput, _0x277237, _0x5b5a11, void 0, pe.COMPLETED);
         } catch (_0x369473) {
           Logger.warn('Failed to chat about plan for task', _0x369473), _0x277237.pendingPlanChat || _0x15d855.isPlanConvInProgress() && _0x15d855.removeActiveConversation(), await _0x277237.removePlan(_0x5729f2);
           let _0x4b7a69 = {
@@ -8533,7 +8502,7 @@ var QUERY_THROTTLE_MS,
       async ["handlePlanChatQueryType"](_0x39b1e9, _0x3356c6, _0x45759a, _0x33ce34, _0x5c1819, _0x3ae357, _0x3ad207) {
         let _0x946977 = _0x33ce34.consumePendingPlanChat();
         if (_0x946977) switch (_0x3356c6) {
-          case HO.ITERATION:
+          case QueryType.ITERATION:
             {
               let _0x10c7fb = _0x33ce34.getPlan(_0x39b1e9.planID),
                 _0x3758b4 = {
@@ -8543,7 +8512,7 @@ var QUERY_THROTTLE_MS,
               await _0x5c1819(_0x3758b4, _0x946977.query, _0x10c7fb.planArtifactType, _0x10c7fb), await _0x3ad207(_0x33ce34.id, "planGeneration", pe.IN_PROGRESS);
               break;
             }
-          case HO.EXPLANATION:
+          case QueryType.EXPLANATION:
             {
               await _0x3ae357(_0x39b1e9, _0x946977.query);
               break;
@@ -8637,20 +8606,20 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  v0,
-  gD,
+  TaskChain,
+  TaskChainStorage,
   initTaskChain = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initWorkspaceAssociation(), initWorkspaceInfo(), initTaskChainPersistence(), initCommentNavigatorDeps(), initTaskContext(), initTaskOrchestrator(), initTaskChainDeps(), initPlanOutputHandler(), initPlanGenerationHandler(), initVerificationHandler(), v0 = class _0x534a40 {
+    initIDEAgentManager(), initWorkspaceAssociation(), initWorkspaceInfo(), initTaskChainPersistence(), initCommentNavigatorDeps(), initTaskContext(), initTaskOrchestrator(), initTaskChainDeps(), initPlanOutputHandler(), initPlanGenerationHandler(), initVerificationHandler(), TaskChain = class _0x534a40 {
       constructor(_0x2ec0b7) {
         this._phaseBreakdowns = [], this._activePhaseBreakdownId = null, this.upsertOnUIWithTimestamp = _0x2bae97 => this.upsertOnUI(true, _0x2bae97), this.upsertOnUIWithoutTimestamp = _0x43959b => this.upsertOnUI(false, _0x43959b), this.client = _0x2ec0b7.client, this._id = _0x2ec0b7.id, this._title = _0x2ec0b7.title, this._displayState = _0x2ec0b7.displayState, this._creationTimestamp = _0x2ec0b7.creationTimestamp, this._lastUpdatedTime = _0x2ec0b7.lastUpdatedTime, this._workspaceScope = _0x2ec0b7.workspaceScope;
         let _0x42c45f = TaskChainPersistence.getInstance();
-        this.dbStorageAPI = new gD(_0x42c45f, this.id), this.phaseBreakdownStorageAPI = new PhaseBreakdownStorageAPI(this.dbStorageAPI), this.uiAdapter = new TaskChainNotifier(Qe), this.context = {
+        this.dbStorageAPI = new TaskChainStorage(_0x42c45f, this.id), this.phaseBreakdownStorageAPI = new PhaseBreakdownStorageAPI(this.dbStorageAPI), this.uiAdapter = new TaskChainNotifier(CommentNavigator), this.context = {
           client: this.client,
           uiAdapter: this.uiAdapter,
           taskChain: this
-        }, this.planGenerationService = new mD(this.context), this.phaseGenerationService = new PlanOutputHandler(this.context), this.persistenceManager = new y0(this.dbStorageAPI), this.verificationService = new VerificationHandler(this.context);
+        }, this.planGenerationService = new PlanGenerationHandler(this.context), this.phaseGenerationService = new PlanOutputHandler(this.context), this.persistenceManager = new TaskChainPersistenceManager(this.dbStorageAPI), this.verificationService = new VerificationHandler(this.context);
       }
       static async ["createNewInstance"](_0x1da058) {
         let _0xdec175 = new _0x534a40({
@@ -8672,7 +8641,7 @@ var QUERY_THROTTLE_MS,
       }
       async ["getTaskWorkspaces"]() {
         if (this._workspaceScope.association !== "current") throw new Error("Cannot access workspaces for out of workspace task chains");
-        return (await workspace_info.getInstance().getCurrentWSInfo()).WSAssociation.workspaceFolders;
+        return (await WorkspaceInfoManager.getInstance().getCurrentWSInfo()).WSAssociation.workspaceFolders;
       }
       get ["workspaceScope"]() {
         return this._workspaceScope;
@@ -8732,7 +8701,7 @@ var QUERY_THROTTLE_MS,
               _0x29412e.phaseBreakdowns.push(_0x42f07b), _0x29412e.activePhaseBreakdownId = _0x42f07b.id, _0x29412e.displayState = _0x123fe8;
             }, true);
           },
-          _0x119a4f = await G_.createNewInstance(_0x5f4f2d, [], [], this.phaseBreakdownStorageAPI.getAdapter(_0x5f4f2d), this.context, this.planGenerationService, this.phaseGenerationService, this.verificationService, _0x132153),
+          _0x119a4f = await PhaseBreakdown.createNewInstance(_0x5f4f2d, [], [], this.phaseBreakdownStorageAPI.getAdapter(_0x5f4f2d), this.context, this.planGenerationService, this.phaseGenerationService, this.verificationService, _0x132153),
           _0x497268 = null;
         return this._activePhaseBreakdownId && (_0x497268 = this.activePhaseBreakdown), this.phaseBreakdowns.push(_0x119a4f), this._activePhaseBreakdownId = _0x5f4f2d, this._displayState = _0x123fe8, {
           newPhaseBreakdown: _0x119a4f,
@@ -8812,7 +8781,7 @@ var QUERY_THROTTLE_MS,
       async ["exportPhaseBreakdown"](_0xd00bad, _0x350af4, _0x223f9b) {
         let _0x3f76fc = this.getPhaseBreakdown(_0xd00bad.phaseBreakdownID),
           _0x43755e = await _0x3f76fc.serializeToUIHeavy(_0xd00bad.phaseBreakdownID),
-          _0x32f099 = formatPhaseBreakdownToMarkdown(_0x43755e, _0x223f9b, workspace_info.getInstance().getPlatform());
+          _0x32f099 = formatPhaseBreakdownToMarkdown(_0x43755e, _0x223f9b, WorkspaceInfoManager.getInstance().getPlatform());
         await debounce(_0x32f099, "phase-breakdown", _0x350af4, {
           taskId: _0x3f76fc.tasks?.[0]?.['id'] ?? '',
           taskChainId: this.id,
@@ -8827,12 +8796,12 @@ var QUERY_THROTTLE_MS,
       async ['executeInIDE'](_0x30f28a, _0x138d95, _0x460c35) {
         let _0x1ae801 = _0x30f28a.phaseBreakdownIdentifier;
         if (!_0x1ae801) throw new Error('Phase breakdown identifier is required');
-        await this.markPlanAsActive(_0x30f28a), await this.getPhaseBreakdown(_0x1ae801.phaseBreakdownID).executeInIDE(_0x30f28a, _0x138d95, _0x460c35), await Vt.getInstance().setLastUsedIDEAgents("plan", _0x138d95), await this.upsertOnUI(true, false);
+        await this.markPlanAsActive(_0x30f28a), await this.getPhaseBreakdown(_0x1ae801.phaseBreakdownID).executeInIDE(_0x30f28a, _0x138d95, _0x460c35), await TaskSettingsHandler.getInstance().setLastUsedIDEAgents("plan", _0x138d95), await this.upsertOnUI(true, false);
       }
       async ["executeQueryDirectlyInIDE"](_0x2c4b03, _0x45cdd7, _0x4d49aa, _0x42160b, _0x4f332d) {
         let _0x355454 = _0x2c4b03.phaseBreakdownIdentifier;
         if (!_0x355454) throw new Error("Phase breakdown identifier is required");
-        await this.markPlanAsActive(_0x2c4b03), await this.getPhaseBreakdown(_0x355454.phaseBreakdownID).executeQueryDirectlyInIDE(_0x2c4b03, _0x45cdd7, _0x4d49aa, _0x42160b, _0x4f332d), await Vt.getInstance().setLastUsedIDEAgents('userQuery', _0x45cdd7), await this.upsertOnUI(true, false);
+        await this.markPlanAsActive(_0x2c4b03), await this.getPhaseBreakdown(_0x355454.phaseBreakdownID).executeQueryDirectlyInIDE(_0x2c4b03, _0x45cdd7, _0x4d49aa, _0x42160b, _0x4f332d), await TaskSettingsHandler.getInstance().setLastUsedIDEAgents('userQuery', _0x45cdd7), await this.upsertOnUI(true, false);
       }
       async ["disposeVerification"](_0x24ad01) {
         let _0x1d3624 = _0x24ad01.phaseBreakdownIdentifier;
@@ -8900,15 +8869,15 @@ var QUERY_THROTTLE_MS,
             displayState: _0x455086.displayState,
             creationTimestamp: _0x455086.creationTimestamp,
             lastUpdatedTime: _0x455086.lastUpdatedTime,
-            workspaceScope: await (await Pf.deserialize(_0x455086.workspaces)).determineWorkspaceScope()
+            workspaceScope: await (await WorkspaceAssociation.deserialize(_0x455086.workspaces)).determineWorkspaceScope()
           }),
-          _0x41be9a = await y0.deserializeFromStorage(_0x455086, new PhaseBreakdownStorageAPI(_0x26ae5e.dbStorageAPI), _0x26ae5e.context, _0x26ae5e.planGenerationService, _0x26ae5e.phaseGenerationService, _0x26ae5e.verificationService);
+          _0x41be9a = await TaskChainPersistenceManager.deserializeFromStorage(_0x455086, new PhaseBreakdownStorageAPI(_0x26ae5e.dbStorageAPI), _0x26ae5e.context, _0x26ae5e.planGenerationService, _0x26ae5e.phaseGenerationService, _0x26ae5e.verificationService);
         return _0x26ae5e._phaseBreakdowns = _0x41be9a, _0x26ae5e._activePhaseBreakdownId = _0x455086.activePhaseBreakdownId, _0x26ae5e;
       }
       static async ["deserializeFromPersistedTicket"](_0x23a663, _0x1458b3, _0x5eae2e, _0x40a044) {
-        let _0x2a53c5 = await y0.persistedTaskChainFromPersistedTicket(_0x23a663, _0x1458b3, _0x40a044),
+        let _0x2a53c5 = await TaskChainPersistenceManager.persistedTaskChainFromPersistedTicket(_0x23a663, _0x1458b3, _0x40a044),
           _0x1d97e2 = TaskChainPersistence.getInstance(),
-          _0x54d863 = new gD(_0x1d97e2, _0x2a53c5.id);
+          _0x54d863 = new TaskChainStorage(_0x1d97e2, _0x2a53c5.id);
         return await _0x54d863.runInTransaction(async _0x5d8387 => {
           await _0x54d863.upsert(_0x2a53c5, _0x5d8387);
         }), await _0x534a40.deserializeFromStorage(_0x2a53c5, _0x5eae2e);
@@ -8982,7 +8951,7 @@ var QUERY_THROTTLE_MS,
           let _0x9c5a29 = _0x9f40ba?.['lastPrePhaseConversation'];
           _0x9c5a29 && (await _0x9c5a29.saveInterviewAnswers(_0x13e6ef));
         }
-        _0x9f40ba?.['tasks']["length"] && (_0x36def4.phaseBreakdownID = Ut());
+        _0x9f40ba?.['tasks']["length"] && (_0x36def4.phaseBreakdownID = createUuid());
         let {
             newPhaseBreakdown: _0x1b55db,
             previousActivePhaseBreakdown: _0xf742cb
@@ -9140,7 +9109,7 @@ var QUERY_THROTTLE_MS,
       async ["setTaskExecutionConfig"](_0x2b08d2, _0x44ae40, _0x1cba93, _0x35017b, _0x2ac6e9) {
         let _0x4ddef3 = this.getPhaseBreakdown(_0x2b08d2);
         if (!_0x4ddef3.getTask(_0x44ae40)) throw new Error("Task " + _0x44ae40 + " not found");
-        if (_0x35017b && (await Vt.getInstance().setDefaultTaskExecutionConfig(_0x1cba93)), _0x2ac6e9) {
+        if (_0x35017b && (await TaskSettingsHandler.getInstance().setDefaultTaskExecutionConfig(_0x1cba93)), _0x2ac6e9) {
           for (let key of _0x4ddef3.tasks) await _0x4ddef3.setTaskExecutionConfig(key.id, _0x1cba93);
         } else await _0x4ddef3.setTaskExecutionConfig(_0x44ae40, _0x1cba93);
         await this.upsertOnUI(false, false);
@@ -9149,21 +9118,21 @@ var QUERY_THROTTLE_MS,
         for (let key of this._phaseBreakdowns) await key.validateAndFixupAgentReferences();
         await this.upsertOnUI(false, false);
       }
-    }, gD = class extends BaseStorage {
+    }, TaskChainStorage = class extends BaseStorage {
       async ["upsert"](_0x59d967, _0x9d752c) {
         let _0x13f0c4 = {
           ..._0x59d967,
-          workspaces: (await workspace_info.getInstance().getCurrentWSInfo()).persistedWSAssociation
+          workspaces: (await WorkspaceInfoManager.getInstance().getCurrentWSInfo()).persistedWSAssociation
         };
         return super.upsert(_0x13f0c4, _0x9d752c);
       }
     };
   }),
-  yD,
+  TaskChainMemoryManager,
   initTaskChainExports = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initAnalytics(), initStatusBar(), initTaskChainPersistence(), initTaskChain(), yD = class {
+    initWorkspaceInfo(), initAnalytics(), initStatusBar(), initTaskChainPersistence(), initTaskChain(), TaskChainMemoryManager = class {
       constructor(_0x281b2f) {
         this._activeTaskChains = new Map(), this._currentVisibleTaskChains = new lru_map_module.LRUMap(5), this._operationCounter = 0, this._taskChainIDs = new Set(), this._currentVisibleTaskChainMutex = new Mutex(), this._activeTaskChainsMutex = new Map(), this._pendingUIRequests = new Set(), this._inflightUIRequests = new Map(), this._client = _0x281b2f;
       }
@@ -9187,8 +9156,8 @@ var QUERY_THROTTLE_MS,
             title: _0x1190db,
             displayState: _0xec7454
           } = _0x555ed5,
-          _0x3f2eff = await workspace_info.getInstance().getCurrentWSInfo(),
-          _0x5d9e1c = await v0.createNewInstance({
+          _0x3f2eff = await WorkspaceInfoManager.getInstance().getCurrentWSInfo(),
+          _0x5d9e1c = await TaskChain.createNewInstance({
             client: this._client,
             id: _0x2ca37b,
             title: _0x1190db,
@@ -9198,10 +9167,10 @@ var QUERY_THROTTLE_MS,
             persistedWS: _0x3f2eff.persistedWSAssociation,
             workspaceScope: _0x3f2eff.workspaceScope
           });
-        return this._currentVisibleTaskChains.set(_0x2ca37b, _0x5d9e1c), this._taskChainIDs.add(_0x2ca37b), yn.getInstance().increment("task_chain_creation", null), _0x5d9e1c;
+        return this._currentVisibleTaskChains.set(_0x2ca37b, _0x5d9e1c), this._taskChainIDs.add(_0x2ca37b), PosthogAnalytics.getInstance().increment("task_chain_creation", null), _0x5d9e1c;
       }
       async ["addTaskChainFromPersistedTicket"](_0x4ec097, _0x16067d, _0x5b97b0) {
-        let _0xda9046 = await v0.deserializeFromPersistedTicket(_0x16067d, _0x4ec097, this._client, _0x5b97b0);
+        let _0xda9046 = await TaskChain.deserializeFromPersistedTicket(_0x16067d, _0x4ec097, this._client, _0x5b97b0);
         return this._currentVisibleTaskChains.set(_0xda9046.id, _0xda9046), this._taskChainIDs.add(_0xda9046.id), await _0xda9046.upsertOnUI(true, false), _0xda9046;
       }
       async ["getAndResetCurrentlyVisibleTaskChain"](_0x228395) {
@@ -9285,7 +9254,7 @@ var QUERY_THROTTLE_MS,
       }
       async ["getTaskChainFromPersistence"](_0x32a1d9) {
         let _0x180b51 = await TaskChainPersistence.getInstance().read(_0x32a1d9);
-        return v0.deserializeFromStorage(_0x180b51, this._client);
+        return TaskChain.deserializeFromStorage(_0x180b51, this._client);
       }
       async ["deregisterConnection"](_0x1f6806, _0xe78ee5) {
         let _0x29bb31 = await this.getOrCreateActiveTaskChainsMutex(_0x1f6806).acquire();
@@ -9298,13 +9267,13 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  zn,
+  TaskRunner,
   initTaskRunner = __esmModule(() => {
     'use strict';
 
-    initTaskChainPersistence(), initTaskPlanExports(), initCommentNavigatorDeps(), initMcpHandler(), initTaskChainExports(), zn = class _0x17835e {
+    initTaskChainPersistence(), initTaskPlanExports(), initCommentNavigatorDeps(), initMcpHandler(), initTaskChainExports(), TaskRunner = class _0x17835e {
       constructor(_0x48dab9) {
-        this._isBootstrapping = false, this.client = _0x48dab9, this.taskChainMemoryManager = new yD(_0x48dab9);
+        this._isBootstrapping = false, this.client = _0x48dab9, this.taskChainMemoryManager = new TaskChainMemoryManager(_0x48dab9);
       }
       static ['getInstance'](_0x583b66) {
         if (!_0x17835e.instance) {
@@ -9318,7 +9287,7 @@ var QUERY_THROTTLE_MS,
       }
       ["postIsBootstrappingToUI"]() {
         Bf.getInstance().enqueueOrSendToCommentNavigator({
-          type: _n.TASK_LIST_BOOTSTRAPPING,
+          type: TaskWebViewMessages.TASK_LIST_BOOTSTRAPPING,
           isLoading: this._isBootstrapping
         });
       }
@@ -9713,7 +9682,7 @@ var QUERY_THROTTLE_MS,
       }
       async ["addLightTaskChainFromStorage"](_0x219ccd) {
         let _0x1fe64f = await HM.fromPersisted(_0x219ccd);
-        this.taskChainMemoryManager.registerTaskChainID(_0x1fe64f.id), await new TaskChainNotifier(Qe).postToUILight(_0x1fe64f, true);
+        this.taskChainMemoryManager.registerTaskChainID(_0x1fe64f.id), await new TaskChainNotifier(CommentNavigator).postToUILight(_0x1fe64f, true);
       }
       async ["fetchTaskHistory"]() {
         if (!this._isBootstrapping) {
@@ -9802,17 +9771,17 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  Vt,
+  TaskSettingsHandler,
   initTaskContext = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initWorkspaceInfo(), initWorkspaceSettingsPersistence(), initStatusBar(), initTaskRunner(), initTemplateManager(), initUsageInfoHandler(), Vt = class _0x43a5b4 {
+    initIDEAgentManager(), initWorkspaceInfo(), initWorkspaceSettingsPersistence(), initStatusBar(), initTaskRunner(), initTemplateManager(), initUsageInfoHandler(), TaskSettingsHandler = class _0x43a5b4 {
       static {
         this.instance = null;
       }
       static ["getInstance"]() {
         if (!_0x43a5b4.instance) {
-          let _0x402f9e = workspace_info.getInstance().getWorkspaceDirs();
+          let _0x402f9e = WorkspaceInfoManager.getInstance().getWorkspaceDirs();
           if (_0x402f9e.length === 0) throw new Error('No workspace found');
           let _0x1c6724 = _0x402f9e[0];
           _0x43a5b4.instance = new _0x43a5b4(_0x1c6724);
@@ -9844,10 +9813,10 @@ var QUERY_THROTTLE_MS,
       }
       get ["lastUsedIDEAgents"]() {
         return this._lastUsedIDEAgents || (this._lastUsedIDEAgents = {
-          plan: workspace_info.getInstance().getIdeAgentInfo(),
-          verification: workspace_info.getInstance().getIdeAgentInfo(),
-          review: workspace_info.getInstance().getIdeAgentInfo(),
-          userQuery: workspace_info.getInstance().getIdeAgentInfo()
+          plan: WorkspaceInfoManager.getInstance().getIdeAgentInfo(),
+          verification: WorkspaceInfoManager.getInstance().getIdeAgentInfo(),
+          review: WorkspaceInfoManager.getInstance().getIdeAgentInfo(),
+          userQuery: WorkspaceInfoManager.getInstance().getIdeAgentInfo()
         }, this.upsertToStorageInBackground()), this._lastUsedIDEAgents;
       }
       get ["defaultTaskExecutionConfig"]() {
@@ -9857,20 +9826,20 @@ var QUERY_THROTTLE_MS,
             plan: {
               ideAgent: _0x3040e2.find(_0xafccc0 => isTerminalAgent(_0xafccc0)) ?? this.lastUsedIDEAgents.plan,
               skipStep: false,
-              promptTemplateFilePath: this.activePromptTemplates.plan?.["filePath"] ?? this.activePromptTemplates.generic?.["filePath"] ?? br.getInstance().getDefaultPromptTemplateFilePath("plan"),
+              promptTemplateFilePath: this.activePromptTemplates.plan?.["filePath"] ?? this.activePromptTemplates.generic?.["filePath"] ?? TemplateManager.getInstance().getDefaultPromptTemplateFilePath("plan"),
               executionTimeoutMinutes: 10
             },
             review: {
               ideAgent: _0x3040e2.find(_0x4c40f8 => isTerminalAgent(_0x4c40f8)) ?? this.lastUsedIDEAgents.review,
               skipStep: false,
-              promptTemplateFilePath: this.activePromptTemplates.review?.["filePath"] ?? this.activePromptTemplates.generic?.["filePath"] ?? br.getInstance().getDefaultPromptTemplateFilePath('review'),
+              promptTemplateFilePath: this.activePromptTemplates.review?.["filePath"] ?? this.activePromptTemplates.generic?.["filePath"] ?? TemplateManager.getInstance().getDefaultPromptTemplateFilePath('review'),
               reviewCategories: [],
               executionTimeoutMinutes: 10
             },
             verification: {
               ideAgent: _0x3040e2.find(_0x206dea => isTerminalAgent(_0x206dea)) ?? this.lastUsedIDEAgents.verification,
               skipStep: false,
-              promptTemplateFilePath: this.activePromptTemplates.verification?.["filePath"] ?? this.activePromptTemplates.generic?.['filePath'] ?? br.getInstance().getDefaultPromptTemplateFilePath('verification'),
+              promptTemplateFilePath: this.activePromptTemplates.verification?.["filePath"] ?? this.activePromptTemplates.generic?.['filePath'] ?? TemplateManager.getInstance().getDefaultPromptTemplateFilePath('verification'),
               verificationSeverities: [],
               maxReVerificationAttempts: 3,
               executionTimeoutMinutes: 10
@@ -9878,7 +9847,7 @@ var QUERY_THROTTLE_MS,
             userQuery: {
               ideAgent: _0x3040e2.find(_0x2bf511 => isTerminalAgent(_0x2bf511)) ?? this.lastUsedIDEAgents.userQuery,
               skipStep: false,
-              promptTemplateFilePath: this.activePromptTemplates.userQuery?.['filePath'] ?? this.activePromptTemplates.generic?.["filePath"] ?? br.getInstance().getDefaultPromptTemplateFilePath('userQuery'),
+              promptTemplateFilePath: this.activePromptTemplates.userQuery?.['filePath'] ?? this.activePromptTemplates.generic?.["filePath"] ?? TemplateManager.getInstance().getDefaultPromptTemplateFilePath('userQuery'),
               executionTimeoutMinutes: 10
             }
           }, this.upsertToStorageInBackground();
@@ -9891,11 +9860,11 @@ var QUERY_THROTTLE_MS,
         return _0x3b2ead.organizationSubscription && _0x3b2ead.organizationSubscription.organization ? {
           id: _0x3b2ead.organizationSubscription.organization.id,
           providerHandle: _0x3b2ead.organizationSubscription.organization.providerHandle,
-          type: jO.ORGANIZATION
+          type: OrganizationType.ORGANIZATION
         } : {
           id: _0x3b2ead.user.id,
           providerHandle: _0x3b2ead.user.providerHandle,
-          type: jO.USER
+          type: OrganizationType.USER
         };
       }
       async ['setSelectedMCPParent'](_0x3a4b43) {
@@ -9925,10 +9894,10 @@ var QUERY_THROTTLE_MS,
           default:
             throw new Error('Invalid context type: ' + _0x5d456b);
         }
-        this._lastUsedIDEAgents = _0x1c195d, await this.upsertInStorage(), Xr.syncStateToWebview();
+        this._lastUsedIDEAgents = _0x1c195d, await this.upsertInStorage(), RateLimitHandler.syncStateToWebview();
       }
       async ['setDefaultTaskExecutionConfig'](_0x1b2170) {
-        this._defaultTaskExecutionConfig = _0x1b2170 ? structuredClone(_0x1b2170) : null, await this.upsertInStorage(), Xr.syncDefaultTaskExecutionConfigToWebview();
+        this._defaultTaskExecutionConfig = _0x1b2170 ? structuredClone(_0x1b2170) : null, await this.upsertInStorage(), RateLimitHandler.syncDefaultTaskExecutionConfigToWebview();
       }
       ['getActiveIDEAgentForContext'](_0xfdf56) {
         let _0x220fdb = this.lastUsedIDEAgents,
@@ -9958,7 +9927,7 @@ var QUERY_THROTTLE_MS,
           _0x123a38 = _0x576bd5.length > 0 ? _0x576bd5[0] : getAgentIcon("claude-code"),
           _0x2e0978 = _0x4fa08c => _0x122c8.getAgent(_0x4fa08c.id) ? _0x4fa08c : (_0x1fadd8 = true, _0x123a38),
           _0x5e51cd = this.lastUsedIDEAgents;
-        _0x5e51cd.plan = _0x2e0978(_0x5e51cd.plan), _0x5e51cd.verification = _0x2e0978(_0x5e51cd.verification), _0x5e51cd.review = _0x2e0978(_0x5e51cd.review), _0x5e51cd.userQuery = _0x2e0978(_0x5e51cd.userQuery), this._lastUsedIDEAgents = _0x5e51cd, this._defaultTaskExecutionConfig && (this._defaultTaskExecutionConfig.plan.ideAgent = _0x2e0978(this._defaultTaskExecutionConfig.plan.ideAgent), this._defaultTaskExecutionConfig.verification.ideAgent = _0x2e0978(this._defaultTaskExecutionConfig.verification.ideAgent), this._defaultTaskExecutionConfig.review.ideAgent = _0x2e0978(this._defaultTaskExecutionConfig.review.ideAgent), this._defaultTaskExecutionConfig.userQuery.ideAgent = _0x2e0978(this._defaultTaskExecutionConfig.userQuery.ideAgent)), _0x1fadd8 && (await this.upsertInStorage(), Xr.syncStateToWebview()), await zn.getInstance().validateAndFixupAgentReferences();
+        _0x5e51cd.plan = _0x2e0978(_0x5e51cd.plan), _0x5e51cd.verification = _0x2e0978(_0x5e51cd.verification), _0x5e51cd.review = _0x2e0978(_0x5e51cd.review), _0x5e51cd.userQuery = _0x2e0978(_0x5e51cd.userQuery), this._lastUsedIDEAgents = _0x5e51cd, this._defaultTaskExecutionConfig && (this._defaultTaskExecutionConfig.plan.ideAgent = _0x2e0978(this._defaultTaskExecutionConfig.plan.ideAgent), this._defaultTaskExecutionConfig.verification.ideAgent = _0x2e0978(this._defaultTaskExecutionConfig.verification.ideAgent), this._defaultTaskExecutionConfig.review.ideAgent = _0x2e0978(this._defaultTaskExecutionConfig.review.ideAgent), this._defaultTaskExecutionConfig.userQuery.ideAgent = _0x2e0978(this._defaultTaskExecutionConfig.userQuery.ideAgent)), _0x1fadd8 && (await this.upsertInStorage(), RateLimitHandler.syncStateToWebview()), await TaskRunner.getInstance().validateAndFixupAgentReferences();
       }
       async ['fetchFromStorage']() {
         try {
@@ -9991,32 +9960,32 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  Xr,
+  RateLimitHandler,
   initUsageInfoHandler = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initTaskContext(), initCommentNavigatorDeps(), Xr = class _0x3b1630 {
+    initSearchConfig(), initTaskContext(), initCommentNavigatorDeps(), RateLimitHandler = class _0x3b1630 {
       async ["handle"](_0x529100) {
         switch (_0x529100.type) {
-          case Ou.GET_TASK_SETTINGS_STATE:
+          case TaskSettingsActions.GET_TASK_SETTINGS_STATE:
             _0x3b1630.syncStateToWebview();
             break;
-          case Ou.UPDATE_LAST_SELECTED_IDE_AGENT:
+          case TaskSettingsActions.UPDATE_LAST_SELECTED_IDE_AGENT:
             await _0x3b1630.updateLastSelectedIDEAgent(_0x529100.agent, _0x529100.contextType);
             break;
-          case Ou.UPDATE_ALWAYS_ALLOW_PAY_TO_RUN:
+          case TaskSettingsActions.UPDATE_ALWAYS_ALLOW_PAY_TO_RUN:
             _0x3b1630.updateAlwaysAllowPayToRun(_0x529100.alwaysAllowPayToRun);
             break;
-          case Ou.GET_DEFAULT_TASK_EXECUTION_CONFIG:
+          case TaskSettingsActions.GET_DEFAULT_TASK_EXECUTION_CONFIG:
             _0x3b1630.syncDefaultTaskExecutionConfigToWebview();
             break;
-          case Ou.SET_DEFAULT_TASK_EXECUTION_CONFIG:
+          case TaskSettingsActions.SET_DEFAULT_TASK_EXECUTION_CONFIG:
             await _0x3b1630.updateDefaultTaskExecutionConfig(_0x529100.config);
             break;
-          case Ou.TOGGLE_INTERVIEW_TEXT_ONLY_MODE:
+          case TaskSettingsActions.TOGGLE_INTERVIEW_TEXT_ONLY_MODE:
             await _0x3b1630.toggleInterviewTextOnlyMode(_0x529100.interviewTextOnlyMode);
             break;
-          case Ou.OPEN_SETTINGS:
+          case TaskSettingsActions.OPEN_SETTINGS:
             vscode_module.commands.executeCommand("traycer.openSettings");
             break;
         }
@@ -10025,13 +9994,13 @@ var QUERY_THROTTLE_MS,
         config.retryAfterTimestamp = _0x4d5f6e ? new Date().getTime() + _0x4d5f6e * 1000 : void 0, _0x3b1630.syncStateToWebview();
       }
       static ["syncStateToWebview"]() {
-        Qe.postToCommentNavigator({
-          type: Av.SYNC_TASK_SETTINGS,
+        CommentNavigator.postToCommentNavigator({
+          type: TaskSettingsWebViewMessages.SYNC_TASK_SETTINGS,
           taskSettings: getExtensionSettings()
         }), _0x3b1630.syncDefaultTaskExecutionConfigToWebview();
       }
       static async ['updateLastSelectedIDEAgent'](_0xbcfbb2, _0x56f275) {
-        let _0x4e504d = Vt.getInstance(),
+        let _0x4e504d = TaskSettingsHandler.getInstance(),
           _0x3f6517 = _0x4e504d.lastUsedIDEAgents;
         switch (_0x56f275) {
           case 'plan':
@@ -10055,35 +10024,35 @@ var QUERY_THROTTLE_MS,
         config.setAlwaysAllowPayToRun(_0x513697);
       }
       static ['syncDefaultTaskExecutionConfigToWebview']() {
-        let _0x5333ac = Vt.getInstance().defaultTaskExecutionConfig;
-        Qe.postToCommentNavigator({
-          type: Av.SYNC_DEFAULT_TASK_EXECUTION_CONFIG,
+        let _0x5333ac = TaskSettingsHandler.getInstance().defaultTaskExecutionConfig;
+        CommentNavigator.postToCommentNavigator({
+          type: TaskSettingsWebViewMessages.SYNC_DEFAULT_TASK_EXECUTION_CONFIG,
           defaultTaskExecutionConfig: _0x5333ac
         });
       }
       static async ['updateDefaultTaskExecutionConfig'](_0x520f5f) {
-        await Vt.getInstance().setDefaultTaskExecutionConfig(_0x520f5f), _0x3b1630.syncDefaultTaskExecutionConfigToWebview();
+        await TaskSettingsHandler.getInstance().setDefaultTaskExecutionConfig(_0x520f5f), _0x3b1630.syncDefaultTaskExecutionConfigToWebview();
       }
       static async ['toggleInterviewTextOnlyMode'](_0x2b877f) {
-        await Vt.getInstance().setInterviewTextOnlyMode(_0x2b877f), _0x3b1630.syncStateToWebview();
+        await TaskSettingsHandler.getInstance().setInterviewTextOnlyMode(_0x2b877f), _0x3b1630.syncStateToWebview();
       }
     };
   }),
-  Gf,
+  SubscriptionHandler,
   initTaskSettingsHandler = __esmModule(() => {
     'use strict';
 
-    initCommentNavigatorDeps(), initUsageInfoHandler(), Gf = class _0x1bea46 {
+    initCommentNavigatorDeps(), initUsageInfoHandler(), SubscriptionHandler = class _0x1bea46 {
       constructor(_0x521c64) {
         this.auth = _0x521c64;
       }
       ["handle"](_0x1c220b) {
         switch (_0x1c220b.type) {
-          case il.FETCH_SUBSCRIPTION:
+          case subscriptionActions.FETCH_SUBSCRIPTION:
             return _0x1bea46.postSubscriptionInfo(this.auth);
-          case il.VALIDATE_INVOICE:
+          case subscriptionActions.VALIDATE_INVOICE:
             return this.validateInvoice();
-          case il.REFRESH_USER:
+          case subscriptionActions.REFRESH_USER:
             return this.refreshUser();
         }
       }
@@ -10091,7 +10060,7 @@ var QUERY_THROTTLE_MS,
         return await this.auth.validateInvoice(), _0x1bea46.postSubscriptionInfo(this.auth);
       }
       async ['refreshUser']() {
-        return await this.auth.refreshTraycerToken(), Xr.updateRateLimitTimestamp(void 0), _0x1bea46.postSubscriptionInfo(this.auth);
+        return await this.auth.refreshTraycerToken(), RateLimitHandler.updateRateLimitTimestamp(void 0), _0x1bea46.postSubscriptionInfo(this.auth);
       }
       static ["postSubscriptionInfo"](_0x548550) {
         let _0x6d1e68 = _0x548550.traycerUser?.["organizationSubscription"] ?? _0x548550.traycerUser?.['userSubscription'],
@@ -10106,11 +10075,11 @@ var QUERY_THROTTLE_MS,
             email: _0x548550.traycerUser?.['user']?.["email"] ?? null
           },
           _0x3056ab = {
-            type: yw.POST_SUBSCRIPTION,
+            type: SubscriptionWebViewActions.POST_SUBSCRIPTION,
             subscription: _0x4181a8,
             sendToViewImmediately: true
           };
-        return Qe.postToCommentNavigator(_0x3056ab);
+        return CommentNavigator.postToCommentNavigator(_0x3056ab);
       }
       ['getSubscriptionMetrics']() {
         let _0x37df99 = this.auth.traycerUser?.['organizationSubscription'] ?? this.auth.traycerUser?.['userSubscription'];
@@ -10130,95 +10099,95 @@ var QUERY_THROTTLE_MS,
     initSearchUtils(), initDocumentManager(), initWorkspaceInfo(), initTaskRunner(), initCommentNavigatorDeps(), ED = class {
       constructor() {}
       ["handle"](_0x191b6f) {
-        let _0x46fa50 = zn.getInstance();
+        let _0x46fa50 = TaskRunner.getInstance();
         switch (_0x191b6f.type) {
-          case vt.NEW_TASK:
+          case TaskMessageTypes.NEW_TASK:
             return _0x46fa50.newTask(_0x191b6f);
-          case vt.NEW_TASK_BREAKDOWN:
+          case TaskMessageTypes.NEW_TASK_BREAKDOWN:
             return _0x46fa50.newTaskBreakdown(_0x191b6f);
-          case vt.PLAN_ITERATION_USER_QUERY:
+          case TaskMessageTypes.PLAN_ITERATION_USER_QUERY:
             return _0x46fa50.planIterationUserQuery(_0x191b6f);
-          case vt.DELETE_TASK_CHAIN:
+          case TaskMessageTypes.DELETE_TASK_CHAIN:
             return _0x46fa50.deleteTaskChain(_0x191b6f);
-          case vt.DELETE_TASK:
+          case TaskMessageTypes.DELETE_TASK:
             return _0x46fa50.deleteTask(_0x191b6f);
-          case vt.FETCH_TASK_CHAIN:
+          case TaskMessageTypes.FETCH_TASK_CHAIN:
             return _0x46fa50.postTaskChainToUI(_0x191b6f);
-          case vt.FETCH_FILE_AND_FOLDER:
+          case TaskMessageTypes.FETCH_FILE_AND_FOLDER:
             return this.fetchFilesAndFolders(_0x191b6f);
-          case vt.FETCH_GIT_CONTEXT:
+          case TaskMessageTypes.FETCH_GIT_CONTEXT:
             return this.fetchGitContext(_0x191b6f);
-          case vt.OPEN_FILE:
+          case TaskMessageTypes.OPEN_FILE:
             return this.openFile(_0x191b6f);
-          case vt.ABORT_TASK:
+          case TaskMessageTypes.ABORT_TASK:
             return _0x46fa50.abortTask(_0x191b6f);
-          case vt.ABORT_PRE_PHASE:
+          case TaskMessageTypes.ABORT_PRE_PHASE:
             return _0x46fa50.abortPrePhase(_0x191b6f);
-          case vt.OPEN_EXTERNAL_LINK:
+          case TaskMessageTypes.OPEN_EXTERNAL_LINK:
             return this.openExternalLink(_0x191b6f);
-          case vt.OPEN_ATTACHMENT:
+          case TaskMessageTypes.OPEN_ATTACHMENT:
             return this.openAttachment(_0x191b6f);
-          case vt.EXECUTE_IN_PLATFORM:
+          case TaskMessageTypes.EXECUTE_IN_PLATFORM:
             return _0x46fa50.executeInIDE(_0x191b6f);
-          case vt.REORDER_TASKS:
+          case TaskMessageTypes.REORDER_TASKS:
             return _0x46fa50.reorderTasks(_0x191b6f);
-          case vt.UPDATE_TASK_QUERY:
+          case TaskMessageTypes.UPDATE_TASK_QUERY:
             return _0x46fa50.updateTaskQuery(_0x191b6f);
-          case vt.INSERT_TASK:
+          case TaskMessageTypes.INSERT_TASK:
             return _0x46fa50.insertTask(_0x191b6f);
-          case vt.TASK_LIST_BOOTSTRAPPING:
+          case TaskMessageTypes.TASK_LIST_BOOTSTRAPPING:
             return _0x46fa50.postIsBootstrappingToUI();
-          case vt.START_TASK_VERIFICATION:
+          case TaskMessageTypes.START_TASK_VERIFICATION:
             return _0x46fa50.startTaskVerification(_0x191b6f);
-          case vt.SKIP_TASK_VERIFICATION:
+          case TaskMessageTypes.SKIP_TASK_VERIFICATION:
             return _0x46fa50.skipTaskVerification(_0x191b6f);
-          case vt.REVERIFY_TASK:
+          case TaskMessageTypes.REVERIFY_TASK:
             return _0x46fa50.reVerifyTask(_0x191b6f);
-          case vt.EXECUTE_VERIFICATION_COMMENT_IN_IDE:
+          case TaskMessageTypes.EXECUTE_VERIFICATION_COMMENT_IN_IDE:
             return _0x46fa50.executeVerificationCommentsInIDE(_0x191b6f);
-          case vt.DISCARD_VERIFICATION_COMMENT:
+          case TaskMessageTypes.DISCARD_VERIFICATION_COMMENT:
             return _0x46fa50.discardVerificationComment(_0x191b6f);
-          case vt.TOGGLE_VERIFICATION_COMMENTS_APPLIED:
+          case TaskMessageTypes.TOGGLE_VERIFICATION_COMMENTS_APPLIED:
             return _0x46fa50.toggleVerificationCommentsApplied(_0x191b6f);
-          case vt.EXECUTE_ALL_VERIFICATION_COMMENTS_IN_IDE:
+          case TaskMessageTypes.EXECUTE_ALL_VERIFICATION_COMMENTS_IN_IDE:
             return _0x46fa50.executeAllVerificationCommentsInIDE(_0x191b6f);
-          case vt.EXECUTE_REVIEW_COMMENTS_IN_IDE:
+          case TaskMessageTypes.EXECUTE_REVIEW_COMMENTS_IN_IDE:
             return _0x46fa50.executeReviewCommentsInIDE(_0x191b6f);
-          case vt.EXECUTE_ALL_REVIEW_COMMENTS_IN_IDE:
+          case TaskMessageTypes.EXECUTE_ALL_REVIEW_COMMENTS_IN_IDE:
             return _0x46fa50.executeAllReviewCommentsInIDE(_0x191b6f);
-          case vt.DISCARD_REVIEW_COMMENT:
+          case TaskMessageTypes.DISCARD_REVIEW_COMMENT:
             return _0x46fa50.discardReviewComment(_0x191b6f);
-          case vt.TOGGLE_REVIEW_COMMENTS_APPLIED:
+          case TaskMessageTypes.TOGGLE_REVIEW_COMMENTS_APPLIED:
             return _0x46fa50.toggleReviewCommentsApplied(_0x191b6f);
-          case vt.EDIT_PRE_PHASE_CONVERSATION:
+          case TaskMessageTypes.EDIT_PRE_PHASE_CONVERSATION:
             return _0x46fa50.editPrePhaseConversation(_0x191b6f);
-          case vt.UPDATE_FAILED_PLAN_ITERATION_QUERY:
+          case TaskMessageTypes.UPDATE_FAILED_PLAN_ITERATION_QUERY:
             return _0x46fa50.updateFailedPlanIterationQuery(_0x191b6f);
-          case vt.UPDATE_FAILED_OR_ABORTED_CONVERSATION_QUERY:
+          case TaskMessageTypes.UPDATE_FAILED_OR_ABORTED_CONVERSATION_QUERY:
             return _0x46fa50.updateFailedOrAbortedConversationQuery(_0x191b6f);
-          case vt.DELETE_PHASE_CONVERSATION:
+          case TaskMessageTypes.DELETE_PHASE_CONVERSATION:
             return _0x46fa50.deletePhaseConversation(_0x191b6f);
-          case vt.DISPOSE_VERIFICATION:
+          case TaskMessageTypes.DISPOSE_VERIFICATION:
             return _0x46fa50.disposeVerification(_0x191b6f);
-          case vt.FETCH_TASK_HISTORY:
+          case TaskMessageTypes.FETCH_TASK_HISTORY:
             return _0x46fa50.fetchTaskHistory();
-          case vt.EXECUTE_QUERY_DIRECTLY_IN_IDE:
+          case TaskMessageTypes.EXECUTE_QUERY_DIRECTLY_IN_IDE:
             return _0x46fa50.executeQueryDirectlyInIDE(_0x191b6f);
-          case vt.DISCARD_PLAN:
+          case TaskMessageTypes.DISCARD_PLAN:
             return _0x46fa50.discardPlan(_0x191b6f);
-          case vt.MARK_PLAN_AS_EXECUTED:
+          case TaskMessageTypes.MARK_PLAN_AS_EXECUTED:
             return _0x46fa50.markPlanAsExecuted(_0x191b6f);
-          case vt.START_YOLO_MODE:
+          case TaskMessageTypes.START_YOLO_MODE:
             return _0x46fa50.startYoloMode(_0x191b6f);
-          case vt.STOP_YOLO_MODE:
+          case TaskMessageTypes.STOP_YOLO_MODE:
             return _0x46fa50.stopYoloMode(_0x191b6f);
-          case vt.SET_TASK_EXECUTION_CONFIG:
+          case TaskMessageTypes.SET_TASK_EXECUTION_CONFIG:
             return _0x46fa50.setTaskExecutionConfig(_0x191b6f);
-          case vt.STOP_WAITING_FOR_EXECUTION:
+          case TaskMessageTypes.STOP_WAITING_FOR_EXECUTION:
             return _0x46fa50.stopWaitingForExecution(_0x191b6f);
-          case vt.RESET_REVERIFICATION_STATE:
+          case TaskMessageTypes.RESET_REVERIFICATION_STATE:
             return _0x46fa50.resetReverificationState(_0x191b6f);
-          case vt.EXPORT_PHASE_BREAKDOWN:
+          case TaskMessageTypes.EXPORT_PHASE_BREAKDOWN:
             return _0x46fa50.exportPhaseBreakdown(_0x191b6f);
         }
       }
@@ -10236,11 +10205,11 @@ var QUERY_THROTTLE_MS,
         await vscode_module.commands.executeCommand("vscode.open", _0x9bc8a7);
       }
       async ['openExternalLink'](_0x1a556f) {
-        await workspace_info.getInstance().openExternalLink(_0x1a556f.url);
+        await WorkspaceInfoManager.getInstance().openExternalLink(_0x1a556f.url);
       }
       async ['openFile'](_0x4c897f) {
         let _0x48f725 = TraycerPath.fromPathProto(_0x4c897f.fsPath),
-          _0x4f1626 = await In.getTextDocument(_0x48f725.absPath);
+          _0x4f1626 = await DocumentManager.getTextDocument(_0x48f725.absPath);
         await vscode_module.window.showTextDocument(_0x4f1626);
       }
       async ['fetchFilesAndFolders'](_0x10b914) {
@@ -10256,11 +10225,11 @@ var QUERY_THROTTLE_MS,
           Logger.warn("Failed to fetch file and folder list", _0x5be011);
         }
         let _0xcb6976 = {
-          type: _n.FETCH_FILE_AND_FOLDER,
+          type: TaskWebViewMessages.FETCH_FILE_AND_FOLDER,
           files: _0x2b73e2,
           folders: _0x1d68de
         };
-        return Qe.postToAllWebviews(_0xcb6976);
+        return CommentNavigator.postToAllWebviews(_0xcb6976);
       }
       async ['fetchGitContext'](_0x5754fa) {
         let _0x5c688a;
@@ -10274,18 +10243,16 @@ var QUERY_THROTTLE_MS,
           _0x5c1f66 = await hasUncommittedChanges(_0x5c688a),
           _0x28a4b2 = await getGitDiff(_0x5c688a, 50),
           _0x445524 = {
-            type: _n.FETCH_GIT_CONTEXT,
+            type: TaskWebViewMessages.FETCH_GIT_CONTEXT,
             branches: _0x34ad07,
             defaultBranch: _0x3c7f35,
             hasUncommittedChanges: _0x5c1f66,
             recentCommits: _0x28a4b2
           };
-        return Qe.postToAllWebviews(_0x445524);
+        return CommentNavigator.postToAllWebviews(_0x445524);
       }
     };
   }),
-  
-
   PromptTemplateFactory,
   initPromptTemplateFactory = __esmModule(() => {
     'use strict';
@@ -10293,16 +10260,16 @@ var QUERY_THROTTLE_MS,
     initWorkspaceInfo(), PromptTemplateFactory = class {
       static ["createMetadata"](_0x5c6012) {
         return {
-          displayName: workspace_info.getInstance().getFileNameWithoutExtension(_0x5c6012)
+          displayName: WorkspaceInfoManager.getInstance().getFileNameWithoutExtension(_0x5c6012)
         };
       }
       static ["createBuiltInAgentMetadata"](_0x39ca4f) {
         return {
-          displayName: wm[_0x39ca4f].displayName
+          displayName: agentRegistry[_0x39ca4f].displayName
         };
       }
       static ["instantiateTemplate"](_0x47e592, _0x2f731a, _0x572c08, _0x289b48, _0x5ee6e7, _0x44b2d7) {
-        let _0x22dade = _0x2f731a.displayName || workspace_info.getInstance().getFileNameWithoutExtension(_0x47e592);
+        let _0x22dade = _0x2f731a.displayName || WorkspaceInfoManager.getInstance().getFileNameWithoutExtension(_0x47e592);
         return new PromptTemplate(_0x22dade, _0x47e592, _0x5ee6e7, _0x2f731a, _0x572c08, _0x289b48, _0x44b2d7);
       }
       static async ["createTemplateOnDisk"](_0x234b05, _0x5a7b5d, _0x373feb) {
@@ -10383,15 +10350,15 @@ var QUERY_THROTTLE_MS,
       }
       ['resolveCLIAgentPath'](_0x165634) {
         let _0x3854d9 = [...Array.from(this.userCLIAgents.values()), ...Array.from(this.workspaceCLIAgents.values()), ...Array.from(this.defaultCLIAgents.values())];
-        for (let key of _0x3854d9) if (key.name === _0x165634 || workspace_info.getInstance().getFileNameWithoutExtension(key.filePath) === _0x165634) return key.filePath;
+        for (let key of _0x3854d9) if (key.name === _0x165634 || WorkspaceInfoManager.getInstance().getFileNameWithoutExtension(key.filePath) === _0x165634) return key.filePath;
       }
       async ["validateCLIAgentFile"](_0x2ea826) {
-        if (!(await workspace_info.getInstance().fileExists(_0x2ea826))) throw new TemplateFileNotFoundError(_0x2ea826);
-        let _0x4616d0 = workspace_info.getInstance().getPlatform() === xr.WINDOWS,
+        if (!(await WorkspaceInfoManager.getInstance().fileExists(_0x2ea826))) throw new TemplateFileNotFoundError(_0x2ea826);
+        let _0x4616d0 = WorkspaceInfoManager.getInstance().getPlatform() === xr.WINDOWS,
           _0x5eaa7c = path_module.extname(_0x2ea826);
         if (_0x4616d0 && _0x5eaa7c.toLowerCase() !== ".bat") throw new CLIAgentInvalidPlatformError(_0x5eaa7c, xr.WINDOWS, '.bat');
         if (!_0x4616d0 && _0x5eaa7c.toLowerCase() !== ".sh") throw new CLIAgentInvalidPlatformError(_0x5eaa7c, xr.POSIX, ".sh");
-        if (!(await workspace_info.getInstance().readFile(_0x2ea826)).length) throw new TemplateFileEmptyError();
+        if (!(await WorkspaceInfoManager.getInstance().readFile(_0x2ea826)).length) throw new TemplateFileEmptyError();
       }
       async ["createUserCLIAgent"](_0x42ea21, _0x90e3ab, _0x3bd927) {
         let _0x482ae5 = path_module.join(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR, '' + _0x42ea21 + _0x90e3ab);
@@ -10407,7 +10374,7 @@ var QUERY_THROTTLE_MS,
       }
       async ["createCLIAgent"](_0x52de30, _0x8b3c7a, _0x43d594, _0x3ab378, _0xf9c93) {
         if (!(await this.isNameAllowed(_0x8b3c7a, _0x43d594, path_module.dirname(_0x52de30)))) throw new TemplateNameNotAllowedError(_0x52de30);
-        let _0x144f69 = workspace_info.getInstance().getPlatform() === xr.WINDOWS;
+        let _0x144f69 = WorkspaceInfoManager.getInstance().getPlatform() === xr.WINDOWS;
         if (_0x144f69 && _0x43d594 !== '.bat') throw new CLIAgentInvalidPlatformError(_0x43d594, xr.WINDOWS, '.bat');
         if (!_0x144f69 && _0x43d594 !== ".sh") throw new CLIAgentInvalidPlatformError(_0x43d594, xr.POSIX, ".sh");
         let _0x225839 = _0xf9c93 ? this.getCLIAgent(_0xf9c93).content : void 0;
@@ -10415,28 +10382,28 @@ var QUERY_THROTTLE_MS,
       }
       async ['openCLIAgent'](_0x4f3c2d) {
         let _0x408eec = vscode_module.Uri.parse(_0x4f3c2d);
-        workspace_info.getInstance().isVirtualUri(_0x408eec) || (_0x408eec = vscode_module.Uri.file(_0x4f3c2d)), await vscode_module.commands.executeCommand("vscode.open", _0x408eec);
+        WorkspaceInfoManager.getInstance().isVirtualUri(_0x408eec) || (_0x408eec = vscode_module.Uri.file(_0x4f3c2d)), await vscode_module.commands.executeCommand("vscode.open", _0x408eec);
       }
       async ["isUserCLIAgentNameAllowed"](_0x44a861, _0x29c97f) {
         let _0x3f6a8f = await this.isNameAllowed(_0x44a861, _0x29c97f, _0x3e7e8c.DEFAULT_CLI_AGENTS_DIR),
           _0x2da13b = {
-            type: Um.IS_USER_CLI_AGENT_NAME_ALLOWED,
+            type: CLIAgentWebViewMessages.IS_USER_CLI_AGENT_NAME_ALLOWED,
             templateName: _0x44a861,
             fileExtension: _0x29c97f,
             isAllowed: _0x3f6a8f
           };
-        Qe.postToCommentNavigator(_0x2da13b);
+        CommentNavigator.postToCommentNavigator(_0x2da13b);
       }
       async ["isWorkspaceCLIAgentNameAllowed"](_0x33834e, _0x4146cc, _0x2fdbfd) {
         let _0x2ef4ce = await this.isNameAllowed(_0x33834e, _0x4146cc, path_module.join(_0x2fdbfd, ".traycer", 'cli-agents')),
           _0x320bc4 = {
-            type: Um.IS_WORKSPACE_CLI_AGENT_NAME_ALLOWED,
+            type: CLIAgentWebViewMessages.IS_WORKSPACE_CLI_AGENT_NAME_ALLOWED,
             templateName: _0x33834e,
             fileExtension: _0x4146cc,
             workspaceDirPath: _0x2fdbfd,
             isAllowed: _0x2ef4ce
           };
-        Qe.postToCommentNavigator(_0x320bc4);
+        CommentNavigator.postToCommentNavigator(_0x320bc4);
       }
       async ['isNameAllowed'](_0x5be920, _0x46ca69, _0x3845c9) {
         let _0x23ca5e = true;
@@ -10450,7 +10417,7 @@ var QUERY_THROTTLE_MS,
             }
             if (_0x23ca5e) {
               let _0x3809ef = path_module.join(_0x3845c9, '' + _0x5be920 + _0x46ca69);
-              _0x23ca5e = !(await workspace_info.getInstance().fileExists(_0x3809ef));
+              _0x23ca5e = !(await WorkspaceInfoManager.getInstance().fileExists(_0x3809ef));
             }
           }
         }
@@ -10459,7 +10426,7 @@ var QUERY_THROTTLE_MS,
       async ["loadCLIAgentFromDisk"](_0x40e697) {
         let _0x53e52d = this.userCLIAgents.get(_0x40e697) ?? this.workspaceCLIAgents.get(_0x40e697);
         _0x53e52d && AgentRegistry.getInstance().unregisterAgent(_0x53e52d.name), this.userCLIAgents.has(_0x40e697) ? this.userCLIAgents.delete(_0x40e697) : this.workspaceCLIAgents.has(_0x40e697) && this.workspaceCLIAgents.delete(_0x40e697), await this.validateCLIAgentFile(_0x40e697);
-        let _0x4d30a3 = workspace_info.getInstance().getFileNameWithoutExtension(_0x40e697),
+        let _0x4d30a3 = WorkspaceInfoManager.getInstance().getFileNameWithoutExtension(_0x40e697),
           _0x3ea929 = AgentRegistry.getInstance().getConflictingWithBuiltInAgent(_0x4d30a3);
         if (_0x3ea929) throw new CLIAgentNameConflictsWithBuiltInAgentError(_0x4d30a3, _0x3ea929.displayName);
         let _0x56d9ff = path_module.extname(_0x40e697);
@@ -10474,17 +10441,17 @@ var QUERY_THROTTLE_MS,
           displayName: _0x33f51c.name,
           type: 'terminal',
           source: _0x2e5f1f === "user" ? 'user' : "workspace"
-        }), Xr.syncStateToWebview()), _0x33f51c;
+        }), RateLimitHandler.syncStateToWebview()), _0x33f51c;
       }
       async ['sendCLIAgentsToUI']() {
         let _0x210f09 = [...Array.from(this.userCLIAgents.values()), ...Array.from(this.defaultCLIAgents.values())],
           _0x1349a6 = {
-            type: Um.LIST_CLI_AGENTS,
+            type: CLIAgentWebViewMessages.LIST_CLI_AGENTS,
             userCLIAgents: _0x210f09.map(_0x231f1a => _0x231f1a.serializeToUI()),
             workspaceCLIAgents: Array.from(this.workspaceCLIAgents.values()).map(_0x284872 => _0x284872.serializeToUI()),
             invalidTemplates: Array.from(this.invalidTemplates)
           };
-        Qe.postToCommentNavigator(_0x1349a6), Xr.syncStateToWebview();
+        CommentNavigator.postToCommentNavigator(_0x1349a6), RateLimitHandler.syncStateToWebview();
       }
       ["getCLIAgent"](_0x4b6a2a) {
         let _0x30279d = this.userCLIAgents.get(_0x4b6a2a) ?? this.workspaceCLIAgents.get(_0x4b6a2a) ?? this.defaultCLIAgents.get(_0x4b6a2a);
@@ -10503,7 +10470,7 @@ var QUERY_THROTTLE_MS,
         }
       }
       ['createDefaultTemplates']() {
-        let _0x35e782 = workspace_info.getInstance().getPlatform() === xr.WINDOWS ? ".bat" : '.sh',
+        let _0x35e782 = WorkspaceInfoManager.getInstance().getPlatform() === xr.WINDOWS ? ".bat" : '.sh',
           _0x2be827 = ["claude-code", 'gemini', "codex"];
         for (let key of _0x2be827) {
           let _0x19a1c8 = PromptTemplateFactory.createBuiltInAgentTemplate(key, _0x35e782);
@@ -10529,18 +10496,18 @@ var QUERY_THROTTLE_MS,
           } catch (_0x3f1584) {
             this.invalidTemplates.add(_0x354de9);
             let _0xc2bf7e = this.userCLIAgents.get(_0x354de9) ?? this.workspaceCLIAgents.get(_0x354de9);
-            throw _0xc2bf7e && AgentRegistry.getInstance().unregisterAgent(_0xc2bf7e.name), this.userCLIAgents.delete(_0x354de9), this.workspaceCLIAgents.delete(_0x354de9), TemplateErrorManager.addTemplateErrors(vscode_module.Uri.file(_0x354de9), _0x3f1584 instanceof Error ? [_0x3f1584.message] : [String(_0x3f1584)]), _0x352fea && (_0x56ad0e = true), await Vt.getInstance().validateAndFixupAgentReferences(), _0x3f1584;
+            throw _0xc2bf7e && AgentRegistry.getInstance().unregisterAgent(_0xc2bf7e.name), this.userCLIAgents.delete(_0x354de9), this.workspaceCLIAgents.delete(_0x354de9), TemplateErrorManager.addTemplateErrors(vscode_module.Uri.file(_0x354de9), _0x3f1584 instanceof Error ? [_0x3f1584.message] : [String(_0x3f1584)]), _0x352fea && (_0x56ad0e = true), await TaskSettingsHandler.getInstance().validateAndFixupAgentReferences(), _0x3f1584;
           }
         } catch (_0x1257ac) {
           Logger.error(_0x1257ac, 'Failed to load created CLI agent template: ' + _0x354de9);
         } finally {
-          _0x56ad0e && (await Vt.getInstance().validateAndFixupAgentReferences());
+          _0x56ad0e && (await TaskSettingsHandler.getInstance().validateAndFixupAgentReferences());
         }
       }
       async ['handleFileDelete'](_0x2dd086) {
         try {
           let _0x52b4d8 = this.userCLIAgents.get(_0x2dd086) ?? this.workspaceCLIAgents.get(_0x2dd086);
-          _0x52b4d8 && !this.defaultCLIAgents.get(_0x2dd086) && (AgentRegistry.getInstance().unregisterAgent(_0x52b4d8.name), Xr.syncStateToWebview()), this.userCLIAgents.delete(_0x2dd086), this.workspaceCLIAgents.delete(_0x2dd086), this.invalidTemplates.delete(_0x2dd086), TemplateErrorManager.removeTemplateErrors(vscode_module.Uri.file(_0x2dd086)), await this.sendCLIAgentsToUI(), await Vt.getInstance().validateAndFixupAgentReferences();
+          _0x52b4d8 && !this.defaultCLIAgents.get(_0x2dd086) && (AgentRegistry.getInstance().unregisterAgent(_0x52b4d8.name), RateLimitHandler.syncStateToWebview()), this.userCLIAgents.delete(_0x2dd086), this.workspaceCLIAgents.delete(_0x2dd086), this.invalidTemplates.delete(_0x2dd086), TemplateErrorManager.removeTemplateErrors(vscode_module.Uri.file(_0x2dd086)), await this.sendCLIAgentsToUI(), await TaskSettingsHandler.getInstance().validateAndFixupAgentReferences();
         } catch (_0x40a673) {
           Logger.error(_0x40a673, 'Failed to handle CLI agent template deletion: ' + _0x2dd086);
         }
@@ -10556,7 +10523,7 @@ var QUERY_THROTTLE_MS,
       }
       async ['watchWorkspaceCLIAgentsPath'](_0x21d388, _0x529e52) {
         if (!_0x21d388.includes(".traycer")) return;
-        let _0x10bfe8 = workspace_info.getInstance().getWorkspaceDirs(),
+        let _0x10bfe8 = WorkspaceInfoManager.getInstance().getWorkspaceDirs(),
           _0x94cb1f = false;
         if (_0x10bfe8.some(_0x4f0a70 => {
           let _0x1d0309 = path_module.join(_0x4f0a70, '.traycer', _0x3e7e8c.DEFAULT_CLI_AGENTS_DIR_NAME);
@@ -10572,13 +10539,13 @@ var QUERY_THROTTLE_MS,
         }
       }
       ["getWorkspaceCLIAgentsPaths"]() {
-        let _0x324e21 = workspace_info.getInstance().getWorkspaceDirs();
+        let _0x324e21 = WorkspaceInfoManager.getInstance().getWorkspaceDirs();
         return _0x324e21 ? _0x324e21.map(_0x2d8b10 => path_module.join(_0x2d8b10, '.traycer', 'cli-agents')) : [];
       }
       async ['loadWorkspaceTemplateDirectories']() {
-        let _0x3aa448 = workspace_info.getInstance().getPlatform() === xr.WINDOWS ? '.bat' : '.sh',
+        let _0x3aa448 = WorkspaceInfoManager.getInstance().getPlatform() === xr.WINDOWS ? '.bat' : '.sh',
           _0x160b37 = this.getWorkspaceCLIAgentsPaths();
-        for (let key of _0x160b37) if (await workspace_info.getInstance().fileExists(key)) {
+        for (let key of _0x160b37) if (await WorkspaceInfoManager.getInstance().fileExists(key)) {
           let _0x2cda8a = await (0, fs_promises_module.readdir)(key);
           for (let _0x1c9850 of _0x2cda8a) if (_0x1c9850.endsWith(_0x3aa448)) {
             let _0x349372 = path_module.join(key, _0x1c9850);
@@ -10591,14 +10558,14 @@ var QUERY_THROTTLE_MS,
         let _0x182e8b = path_module.normalize(_0x4c347c),
           _0x10e55a = path_module.normalize(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR);
         if (_0x182e8b.startsWith(_0x10e55a)) return 'user';
-        if (workspace_info.getInstance().getWorkspaceDirs().some(_0x2b0636 => _0x182e8b.startsWith(_0x2b0636))) return "workspace";
+        if (WorkspaceInfoManager.getInstance().getWorkspaceDirs().some(_0x2b0636 => _0x182e8b.startsWith(_0x2b0636))) return "workspace";
         throw new Error('Invalid file path: ' + _0x4c347c);
       }
       async ['startGlobalWatcher']() {
-        (await workspace_info.getInstance().fileExists(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR)) || (await (0, fs_promises_module.mkdir)(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR, {
+        (await WorkspaceInfoManager.getInstance().fileExists(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR)) || (await (0, fs_promises_module.mkdir)(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR, {
           recursive: true
         }));
-        let _0x11fdb6 = workspace_info.getInstance().getPlatform() === xr.WINDOWS ? '.bat' : '.sh',
+        let _0x11fdb6 = WorkspaceInfoManager.getInstance().getPlatform() === xr.WINDOWS ? '.bat' : '.sh',
           _0x15f10e = chokidar_module.watch(_0x3e7e8c.DEFAULT_CLI_AGENTS_DIR, {
             ignoreInitial: false,
             followSymlinks: false,
@@ -10652,25 +10619,25 @@ var QUERY_THROTTLE_MS,
     initCliAgentService(), bD = class {
       async ['handle'](_0xd3e916) {
         switch (_0xd3e916.type) {
-          case Ru.CREATE_USER_CLI_AGENT:
+          case CLIAgentManagementActions.CREATE_USER_CLI_AGENT:
             await this.createUserCLIAgent(_0xd3e916.templateName, _0xd3e916.fileExtension, _0xd3e916.cloneTemplatePath);
             break;
-          case Ru.CREATE_WORKSPACE_CLI_AGENT:
+          case CLIAgentManagementActions.CREATE_WORKSPACE_CLI_AGENT:
             await this.createWorkspaceCLIAgent(_0xd3e916.templateName, _0xd3e916.fileExtension, _0xd3e916.workspaceDirPath, _0xd3e916.cloneTemplatePath);
             break;
-          case Ru.DELETE_CLI_AGENT:
+          case CLIAgentManagementActions.DELETE_CLI_AGENT:
             await this.deleteCLIAgent(_0xd3e916.filePath);
             break;
-          case Ru.REFRESH_CLI_AGENTS:
+          case CLIAgentManagementActions.REFRESH_CLI_AGENTS:
             await this.refreshCLIAgents();
             break;
-          case Ru.OPEN_CLI_AGENT:
+          case CLIAgentManagementActions.OPEN_CLI_AGENT:
             await this.openCLIAgent(_0xd3e916.filePath);
             break;
-          case Ru.IS_USER_CLI_AGENT_NAME_ALLOWED:
+          case CLIAgentManagementActions.IS_USER_CLI_AGENT_NAME_ALLOWED:
             await this.isUserCLIAgentNameAllowed(_0xd3e916.templateName, _0xd3e916.fileExtension);
             break;
-          case Ru.IS_WORKSPACE_CLI_AGENT_NAME_ALLOWED:
+          case CLIAgentManagementActions.IS_WORKSPACE_CLI_AGENT_NAME_ALLOWED:
             await this.isWorkspaceCLIAgentNameAllowed(_0xd3e916.templateName, _0xd3e916.fileExtension, _0xd3e916.workspaceDirPath);
             break;
         }
@@ -10706,17 +10673,17 @@ var QUERY_THROTTLE_MS,
       constructor() {}
       ['handle'](_0xdf6e40) {
         switch (_0xdf6e40.type) {
-          case bO.ACTIVATION_STATUS:
+          case ActivationMessageTypes.ACTIVATION_STATUS:
             return _0x38838b.sendExtensionActivationStatus();
         }
       }
       static async ['sendExtensionActivationStatus']() {
         let _0x30da54 = {
-          type: kO.ACTIVATED,
+          type: ActivationWebViewMessages.ACTIVATED,
           isActivated: config.activated,
           sendToViewImmediately: true
         };
-        await Qe.postToCommentNavigator(_0x30da54);
+        await CommentNavigator.postToCommentNavigator(_0x30da54);
       }
     };
   }),
@@ -10730,33 +10697,33 @@ var QUERY_THROTTLE_MS,
       }
       async ["handle"](_0x2fee81) {
         switch (_0x2fee81.type) {
-          case mw.STATUS_REFRESH:
+          case MCPServerActions.STATUS_REFRESH:
             await this.handleStatusRefresh();
             break;
-          case mw.SET_ACTIVE_ACCOUNT_FOR_MCP_SERVER:
+          case MCPServerActions.SET_ACTIVE_ACCOUNT_FOR_MCP_SERVER:
             await this.handleSetActiveAccountForMCPServer(_0x2fee81);
             break;
         }
       }
       async ['handleStatusRefresh']() {
         let _0x2cfa72 = await this.auth.listAllMCPServers(),
-          _0x34660d = Vt.getInstance().selectedMCPParent,
+          _0x34660d = TaskSettingsHandler.getInstance().selectedMCPParent,
           _0x316c0d = {
-            type: vw.SYNC_MCP_SERVERS,
+            type: MCPServerWebViewMessages.SYNC_MCP_SERVERS,
             mcpServersResponse: _0x2cfa72,
             selectedMCPParent: _0x34660d
           };
-        return Qe.postToCommentNavigator(_0x316c0d);
+        return CommentNavigator.postToCommentNavigator(_0x316c0d);
       }
       async ["handleSetActiveAccountForMCPServer"](_0x33fec5) {
-        await Vt.getInstance().setSelectedMCPParent(_0x33fec5.mcpAccountIdentifier), await this.ackSetActiveAccountForMCPServer(_0x33fec5.mcpAccountIdentifier);
+        await TaskSettingsHandler.getInstance().setSelectedMCPParent(_0x33fec5.mcpAccountIdentifier), await this.ackSetActiveAccountForMCPServer(_0x33fec5.mcpAccountIdentifier);
       }
       async ["ackSetActiveAccountForMCPServer"](_0x4bc463) {
         let _0x99e122 = {
-          type: vw.ACKNOWLEDGE_SET_ACTIVE_ACCOUNT_FOR_MCP_SERVER,
+          type: MCPServerWebViewMessages.ACKNOWLEDGE_SET_ACTIVE_ACCOUNT_FOR_MCP_SERVER,
           accountIdentifier: _0x4bc463
         };
-        return Qe.postToCommentNavigator(_0x99e122);
+        return CommentNavigator.postToCommentNavigator(_0x99e122);
       }
     };
   }),
@@ -10767,67 +10734,67 @@ var QUERY_THROTTLE_MS,
     initTemplateManager(), ID = class {
       async ["handle"](_0x29a803) {
         switch (_0x29a803.type) {
-          case ea.CREATE_USER_PROMPT_TEMPLATE:
+          case PromptTemplateActions.CREATE_USER_PROMPT_TEMPLATE:
             await this.createUserPromptTemplate(_0x29a803.templateName, _0x29a803.templateType, _0x29a803.cloneTemplatePath);
             break;
-          case ea.CREATE_WORKSPACE_PROMPT_TEMPLATE:
+          case PromptTemplateActions.CREATE_WORKSPACE_PROMPT_TEMPLATE:
             await this.createWorkspacePromptTemplate(_0x29a803.templateName, _0x29a803.templateType, _0x29a803.workspaceDirPath, _0x29a803.cloneTemplatePath);
             break;
-          case ea.ACTIVATE_PROMPT_TEMPLATE:
+          case PromptTemplateActions.ACTIVATE_PROMPT_TEMPLATE:
             await this.activateTemplate(_0x29a803.filePath);
             break;
-          case ea.DEACTIVATE_PROMPT_TEMPLATE:
+          case PromptTemplateActions.DEACTIVATE_PROMPT_TEMPLATE:
             await this.deactivateTemplate(_0x29a803.filePath);
             break;
-          case ea.DELETE_PROMPT_TEMPLATE:
+          case PromptTemplateActions.DELETE_PROMPT_TEMPLATE:
             await this.deleteTemplate(_0x29a803.filePath);
             break;
-          case ea.REFRESH_PROMPT_TEMPLATES:
+          case PromptTemplateActions.REFRESH_PROMPT_TEMPLATES:
             await this.refreshTemplates();
             break;
-          case ea.OPEN_PROMPT_TEMPLATE:
+          case PromptTemplateActions.OPEN_PROMPT_TEMPLATE:
             await this.openTemplate(_0x29a803.filePath);
             break;
-          case ea.IS_USER_PROMPT_TEMPLATE_NAME_ALLOWED:
+          case PromptTemplateActions.IS_USER_PROMPT_TEMPLATE_NAME_ALLOWED:
             await this.isUserPromptTemplateNameAllowed(_0x29a803.templateName);
             break;
-          case ea.IS_WORKSPACE_PROMPT_TEMPLATE_NAME_ALLOWED:
+          case PromptTemplateActions.IS_WORKSPACE_PROMPT_TEMPLATE_NAME_ALLOWED:
             await this.isWorkspacePromptTemplateNameAllowed(_0x29a803.templateName, _0x29a803.workspaceDirPath);
             break;
-          case ea.LIST_WORKSPACE_DIRECTORIES:
+          case PromptTemplateActions.LIST_WORKSPACE_DIRECTORIES:
             await this.listWorkspaceDirectories();
             break;
         }
       }
       async ['createUserPromptTemplate'](_0xfd8aeb, _0x21115e, _0x386466) {
-        return br.getInstance().createUserPromptTemplate(_0xfd8aeb, _0x21115e, _0x386466);
+        return TemplateManager.getInstance().createUserPromptTemplate(_0xfd8aeb, _0x21115e, _0x386466);
       }
       async ["createWorkspacePromptTemplate"](_0xc80ba, _0x189301, _0x278912, _0x5b237e) {
-        return br.getInstance().createWorkspacePromptTemplate(_0xc80ba, _0x189301, _0x278912, _0x5b237e);
+        return TemplateManager.getInstance().createWorkspacePromptTemplate(_0xc80ba, _0x189301, _0x278912, _0x5b237e);
       }
       async ["activateTemplate"](_0x5d0903) {
-        return br.getInstance().activatePromptTemplate(_0x5d0903);
+        return TemplateManager.getInstance().activatePromptTemplate(_0x5d0903);
       }
       async ["deactivateTemplate"](_0x5df769) {
-        return br.getInstance().deactivatePromptTemplate(_0x5df769);
+        return TemplateManager.getInstance().deactivatePromptTemplate(_0x5df769);
       }
       async ["deleteTemplate"](_0x23f682) {
-        return br.getInstance().deletePromptTemplate(_0x23f682);
+        return TemplateManager.getInstance().deletePromptTemplate(_0x23f682);
       }
       async ["refreshTemplates"]() {
-        await br.getInstance().refreshPromptTemplates();
+        await TemplateManager.getInstance().refreshPromptTemplates();
       }
       async ['openTemplate'](_0x26ec4b) {
-        return br.getInstance().openPromptTemplate(_0x26ec4b);
+        return TemplateManager.getInstance().openPromptTemplate(_0x26ec4b);
       }
       async ["isUserPromptTemplateNameAllowed"](_0x30fe77) {
-        return br.getInstance().isUserPromptTemplateNameAllowed(_0x30fe77);
+        return TemplateManager.getInstance().isUserPromptTemplateNameAllowed(_0x30fe77);
       }
       async ['isWorkspacePromptTemplateNameAllowed'](_0xb9df70, _0xcfbad8) {
-        return br.getInstance().isWorkspacePromptTemplateNameAllowed(_0xb9df70, _0xcfbad8);
+        return TemplateManager.getInstance().isWorkspacePromptTemplateNameAllowed(_0xb9df70, _0xcfbad8);
       }
       async ['listWorkspaceDirectories']() {
-        return br.getInstance().listWorkspaceDirectories();
+        return TemplateManager.getInstance().listWorkspaceDirectories();
       }
     };
   }),
@@ -10854,7 +10821,7 @@ var QUERY_THROTTLE_MS,
         this.reFetchTimer && (clearTimeout(this.reFetchTimer), this.reFetchTimer = null);
       }
       set ["latestRateLimitInfo"](_0xfd58e5) {
-        this._latestRateLimitInfo = _0xfd58e5, _0xfd58e5.retryAfter && _0xfd58e5.remainingTokens < 1 && Xr.updateRateLimitTimestamp(_0xfd58e5.retryAfter), _0xfd58e5.remainingTokens >= 1 && Xr.updateRateLimitTimestamp(void 0);
+        this._latestRateLimitInfo = _0xfd58e5, _0xfd58e5.retryAfter && _0xfd58e5.remainingTokens < 1 && RateLimitHandler.updateRateLimitTimestamp(_0xfd58e5.retryAfter), _0xfd58e5.remainingTokens >= 1 && RateLimitHandler.updateRateLimitTimestamp(void 0);
       }
       get ["latestRateLimitInfo"]() {
         return this._latestRateLimitInfo;
@@ -10894,18 +10861,18 @@ var QUERY_THROTTLE_MS,
       }
       async ["sendFetchStatusToWebview"]() {
         let _0x461cac = {
-          type: Tw.SEND_FETCH_STATUS,
+          type: UsageInformationWebViewMessages.SEND_FETCH_STATUS,
           isFetching: this.isFetching
         };
-        this.lastSentFetchStatus && (0, lodash_module.isEqual)(this.lastSentFetchStatus, _0x461cac) || (this.lastSentFetchStatus = _0x461cac, await Qe.postToCommentNavigator(_0x461cac));
+        this.lastSentFetchStatus && (0, lodash_module.isEqual)(this.lastSentFetchStatus, _0x461cac) || (this.lastSentFetchStatus = _0x461cac, await CommentNavigator.postToCommentNavigator(_0x461cac));
       }
       async ['sendUsageInformationToWebview'](_0x2d71e2) {
         let _0x5c56e3 = this.convertToUsageInformation(this.latestRateLimitInfo),
           _0x1451f7 = {
-            type: Tw.SEND_USAGE_INFORMATION,
+            type: UsageInformationWebViewMessages.SEND_USAGE_INFORMATION,
             usageInformation: _0x5c56e3
           };
-        this.deduplicateMessage(_0x1451f7) && !_0x2d71e2 || (this.lastSentMessage = _0x1451f7, this.latestRateLimitInfo.retryAfter && this.startRetryTimer(this.latestRateLimitInfo.retryAfter), await Qe.postToCommentNavigator(_0x1451f7));
+        this.deduplicateMessage(_0x1451f7) && !_0x2d71e2 || (this.lastSentMessage = _0x1451f7, this.latestRateLimitInfo.retryAfter && this.startRetryTimer(this.latestRateLimitInfo.retryAfter), await CommentNavigator.postToCommentNavigator(_0x1451f7));
       }
       ["deduplicateMessage"](_0x36debc) {
         return !!(this.lastSentMessage && (0, lodash_module.isEqual)(this.lastSentMessage, _0x36debc));
@@ -10927,10 +10894,10 @@ var QUERY_THROTTLE_MS,
       constructor() {}
       async ['handle'](_0x5679fc) {
         switch (_0x5679fc.type) {
-          case _w.FETCH_USAGE_INFORMATION:
+          case UsageInformationActions.FETCH_USAGE_INFORMATION:
             await this.fetchUsageInformation(_0x5679fc);
             break;
-          case _w.SEND_FETCH_STATUS:
+          case UsageInformationActions.SEND_FETCH_STATUS:
             await this.sendFetchStatus();
             break;
           default:
@@ -10952,7 +10919,7 @@ var QUERY_THROTTLE_MS,
     initMcpHandler(), kD = class {
       ["handle"](_0x1b8045) {
         switch (_0x1b8045.type) {
-          case IO.LISTENERS_READY:
+          case ListenersReadyMessage.LISTENERS_READY:
             _0x1b8045.webviewChannel === 'commentNavigator' && Bf.getInstance().markNavigatorReady();
             break;
           default:
@@ -10972,9 +10939,9 @@ var QUERY_THROTTLE_MS,
       }
       ['handle'](_0x46b20d) {
         switch (_0x46b20d.type) {
-          case gw.OPEN_FOLDER:
+          case WorkspaceActions.OPEN_FOLDER:
             return this.openFolder(_0x46b20d.workspace);
-          case gw.GET_WORKSPACE_STATUS:
+          case WorkspaceActions.GET_WORKSPACE_STATUS:
             return this.sendWorkspaceStatus();
         }
       }
@@ -10987,13 +10954,13 @@ var QUERY_THROTTLE_MS,
         } else await vscode_module.commands.executeCommand('vscode.openFolder');
       }
       async ['sendWorkspaceStatus']() {
-        let _0x40b61e = workspace_info.getInstance().getWorkspaceDirs().length > 0,
+        let _0x40b61e = WorkspaceInfoManager.getInstance().getWorkspaceDirs().length > 0,
           _0x21db31 = {
-            type: RO.WORKSPACE_STATUS,
+            type: WorkspaceWebViewMessages.WORKSPACE_STATUS,
             hasOpenedFolder: _0x40b61e,
             sendToViewImmediately: true
           };
-        await Qe.postToCommentNavigator(_0x21db31);
+        await CommentNavigator.postToCommentNavigator(_0x21db31);
       }
     };
   });
@@ -11003,11 +10970,11 @@ function normalizePathSeparators() {
   for (let _0x266123 = 0; _0x266123 < 32; _0x266123++) _0x542ee4 += 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random() * 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.length));
   return _0x542ee4;
 }
-var Qe,
+var CommentNavigator,
   initCommentNavigator = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), initAnalytics(), initFilePathHandler(), initMetricsHandler(), initTaskSettingsHandler(), initWebviewStatusHandler(), initUsageInfoHandler(), initMcpHandler(), initPromptTemplateHandler(), initCliAgentHandler(), initGitHubAuthHandler(), initCloudUIAuthHandler(), initSubscriptionHandler(), initExtensionActivationHandler(), initTrackMetricsHandler(), Qe = class _0x23672d {
+    initWorkspaceInfo(), initAnalytics(), initFilePathHandler(), initMetricsHandler(), initTaskSettingsHandler(), initWebviewStatusHandler(), initUsageInfoHandler(), initMcpHandler(), initPromptTemplateHandler(), initCliAgentHandler(), initGitHubAuthHandler(), initCloudUIAuthHandler(), initSubscriptionHandler(), initExtensionActivationHandler(), initTrackMetricsHandler(), CommentNavigator = class _0x23672d {
       constructor(_0x2c906e) {
         this.context = _0x2c906e;
         let _0x5b9eb1 = vscode_module.window.registerWebviewViewProvider(COMMENT_NAVIGATOR_WEBVIEW_ID, this, {
@@ -11024,7 +10991,7 @@ var Qe,
         return _0x23672d._commentNavigatorView;
       }
       static ["getInstance"](_0x5b07df, _0x5b3c9a) {
-        return _0x23672d.instance ? _0x23672d.instance.context = _0x5b07df : _0x23672d.instance = new _0x23672d(_0x5b07df), _0x23672d.instance.taskHandler = new ED(), _0x23672d.instance.extensionActivationHandler = new S0(), _0x23672d.instance.subscriptionHandler = new Gf(_0x5b3c9a), _0x23672d.instance.trackMetricsHandler = new U1(), _0x23672d.instance.gitHubAuthenticationHandler = new GitHubAuthHandler(_0x5b3c9a), _0x23672d.instance.cloudUIAuthenticationHandler = new CloudAuthHandler(_0x5b3c9a), _0x23672d.instance.taskSettingsHandler = new Xr(), _0x23672d.instance.webviewStatusMessageHandler = new kD(), _0x23672d.instance.usageInformationHandler = new AD(), _0x23672d.instance.mcpHandler = new CD(_0x5b3c9a), _0x23672d.instance.promptTemplateHandler = new ID(), _0x23672d.instance.cliAgentHandler = new bD(), _0x23672d.instance.fileHandler = na.getInstance(), _0x23672d.instance;
+        return _0x23672d.instance ? _0x23672d.instance.context = _0x5b07df : _0x23672d.instance = new _0x23672d(_0x5b07df), _0x23672d.instance.taskHandler = new ED(), _0x23672d.instance.extensionActivationHandler = new S0(), _0x23672d.instance.subscriptionHandler = new SubscriptionHandler(_0x5b3c9a), _0x23672d.instance.trackMetricsHandler = new MetricsHandler(), _0x23672d.instance.gitHubAuthenticationHandler = new GitHubAuthHandler(_0x5b3c9a), _0x23672d.instance.cloudUIAuthenticationHandler = new CloudAuthHandler(_0x5b3c9a), _0x23672d.instance.taskSettingsHandler = new RateLimitHandler(), _0x23672d.instance.webviewStatusMessageHandler = new kD(), _0x23672d.instance.usageInformationHandler = new AD(), _0x23672d.instance.mcpHandler = new CD(_0x5b3c9a), _0x23672d.instance.promptTemplateHandler = new ID(), _0x23672d.instance.cliAgentHandler = new bD(), _0x23672d.instance.fileHandler = FilePathHandler.getInstance(), _0x23672d.instance;
       }
       ["dispose"]() {
         this._visibilityChangeWatcher?.['dispose']();
@@ -11033,8 +11000,8 @@ var Qe,
         return this._commentNavigatorContext;
       }
       async ['resolveWebviewView'](_0x17a040, _0x493e44) {
-        _0x17a040.viewType === COMMENT_NAVIGATOR_WEBVIEW_ID && (this._commentNavigatorContext = _0x493e44, this._commentNavigatorState = _0x493e44.state, yn.getInstance().increment("navigator_view", null), this._visibilityChangeWatcher = _0x17a040.onDidChangeVisibility(() => {
-          _0x17a040.visible && yn.getInstance().increment('navigator_view', null);
+        _0x17a040.viewType === COMMENT_NAVIGATOR_WEBVIEW_ID && (this._commentNavigatorContext = _0x493e44, this._commentNavigatorState = _0x493e44.state, PosthogAnalytics.getInstance().increment("navigator_view", null), this._visibilityChangeWatcher = _0x17a040.onDidChangeVisibility(() => {
+          _0x17a040.visible && PosthogAnalytics.getInstance().increment('navigator_view', null);
         }), _0x23672d.commentNavigatorView = _0x17a040), _0x17a040.webview.options = {
           enableScripts: true,
           localResourceRoots: [this.context.extensionUri]
@@ -11105,7 +11072,7 @@ var Qe,
           _0x274c8a = _0x1aa01e.webview.asWebviewUri(vscode_module.Uri.joinPath(_0x535b51, "global.js")),
           _0x29e1cb = _0x1aa01e.webview.asWebviewUri(vscode_module.Uri.joinPath(_0x535b51, 'global.css')),
           _0x507afa = normalizePathSeparators(),
-          _0x570ae4 = workspace_info.getInstance().getIdeInfo().name;
+          _0x570ae4 = WorkspaceInfoManager.getInstance().getIdeInfo().name;
         return "<!DOCTYPE html>\n    <html lang=\"en\">\n      <head>\n        <title>Traycer</title>\n        <meta charset=\"utf-8\" />\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n        <meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src " + _0x1aa01e.webview.cspSource + ' \x27unsafe-inline\x27; script-src \x27nonce-' + _0x507afa + "'; img-src " + _0x1aa01e.webview.cspSource + " https://avatars.githubusercontent.com/ https://github.com/ data:;\">\n        <meta\n          name=\"description\"\n          content=\"Traycer is a vscode extension that trace your code and provide you valuable insights.\"\n        />\n        <meta\n          name=\"traycerDetectedPlatform\"\n          content=" + process.platform + "\n        />\n        <meta\n          name=\"traycerDetectedIDE\"\n          content=" + _0x570ae4 + '\x0a        />\x0a        <title>Traycer</title>\x0a        <link href=\x22' + _0x12c129 + '\x22 rel=\x22stylesheet\x22 />\x0a        <link href=\x22' + _0x29e1cb + '\x22 rel=\x22stylesheet\x22 />\x0a        <script nonce=\x22' + _0x507afa + "\" type=\"module\" defer=\"defer\" src=\"" + _0x2136e7 + "\"></script>\n        <script nonce=\"" + _0x507afa + "\" type=\"module\" defer=\"defer\" src=\"" + _0x274c8a + '\x22></script>\x0a      </head>\x0a      <body>\x0a        <div id=\x22root\x22></div>\x0a      </body>\x0a    </html>';
       }
       ["_getHtmlForWebview"](_0x28f2cd) {
@@ -11185,14 +11152,14 @@ var Qe,
 /* [dead-code] ajv/gray-matter 相关 dead-code 已清理 */
 /* [unbundle] gray-matter 已移至顶部导入区 */
 function parseJsonSafe() {
-  return oH || (oH = new ajv_module()), oH;
+  return ajvValidatorInstance || (ajvValidatorInstance = new ajv_module()), ajvValidatorInstance;
 }
-var oH,
+var ajvValidatorInstance,
   TemplateFile,
   initTemplateFile = __esmModule(() => {
     'use strict';
 
-    initWorkspaceInfo(), oH = null, TemplateFile = class {
+    initWorkspaceInfo(), ajvValidatorInstance = null, TemplateFile = class {
       constructor(_0x38c1e6, _0xd68cca, _0x2af77d) {
         this._filePath = _0x38c1e6, this._metadata = _0xd68cca, this._validationResult = _0x2af77d;
       }
@@ -11206,11 +11173,11 @@ var oH,
         return this._validationResult;
       }
       async ['getContent']() {
-        let _0x3af6ff = await workspace_info.getInstance().readFile(this.filePath);
+        let _0x3af6ff = await WorkspaceInfoManager.getInstance().readFile(this.filePath);
         return (0, gray_matter_module)(_0x3af6ff).content.replaceAll(/<!--[\s\S]*?-->\s*/g, '').trim();
       }
       async ["createOnDisk"](_0x5c95b5) {
-        if (await workspace_info.getInstance().fileExists(this.filePath)) throw new TemplateFileAlreadyExistsError(this.filePath);
+        if (await WorkspaceInfoManager.getInstance().fileExists(this.filePath)) throw new TemplateFileAlreadyExistsError(this.filePath);
         let _0x2f836e = gray_matter_module.stringify(_0x5c95b5, this.metadata);
         await (0, fs_promises_module.mkdir)(path_module.dirname(this.filePath), {
           recursive: true
@@ -11219,9 +11186,9 @@ var oH,
         });
       }
       static async ['validateTemplateFile'](_0x49c732, _0x45712a) {
-        if (!(await workspace_info.getInstance().fileExists(_0x49c732))) throw new TemplateFileNotFoundError(_0x49c732);
+        if (!(await WorkspaceInfoManager.getInstance().fileExists(_0x49c732))) throw new TemplateFileNotFoundError(_0x49c732);
         if (path_module.extname(_0x49c732).toLowerCase() !== '.md') throw new TemplateFileNotMarkdownError();
-        let _0x4e31e2 = await workspace_info.getInstance().readFile(_0x49c732);
+        let _0x4e31e2 = await WorkspaceInfoManager.getInstance().readFile(_0x49c732);
         if (!_0x4e31e2.length) throw new TemplateFileEmptyError();
         if (!gray_matter_module.test(_0x4e31e2)) throw new TemplateMissingMetadataError();
         let _0x5e0a45 = (0, gray_matter_module)(_0x4e31e2),
@@ -11247,7 +11214,7 @@ var oH,
     initWorkspaceInfo(), PromptMetadata = class {
       static ['createMetadata'](_0x4ed3ea, _0x590039) {
         return {
-          displayName: workspace_info.getInstance().getFileNameWithoutExtension(_0x4ed3ea),
+          displayName: WorkspaceInfoManager.getInstance().getFileNameWithoutExtension(_0x4ed3ea),
           applicableFor: _0x590039
         };
       }
@@ -11360,7 +11327,7 @@ var oH,
       }
       async ["applyTemplate"](_0x4fbeee) {
         let _0x218fc7 = _0x4fbeee;
-        return _0x4fbeee instanceof Uf && (_0x218fc7 = await _0x4fbeee.getMarkdown()), super.applyTemplate(_0x218fc7);
+        return _0x4fbeee instanceof PlanStepManager && (_0x218fc7 = await _0x4fbeee.getMarkdown()), super.applyTemplate(_0x218fc7);
       }
     };
   }),
@@ -11523,20 +11490,20 @@ var oH,
       }
       async ['openPromptTemplate'](_0x11024c) {
         let _0x3ad791 = vscode_module.Uri.parse(_0x11024c);
-        workspace_info.getInstance().isVirtualUri(_0x3ad791) || (_0x3ad791 = vscode_module.Uri.file(_0x11024c)), await vscode_module.commands.executeCommand('vscode.open', _0x3ad791);
+        WorkspaceInfoManager.getInstance().isVirtualUri(_0x3ad791) || (_0x3ad791 = vscode_module.Uri.file(_0x11024c)), await vscode_module.commands.executeCommand('vscode.open', _0x3ad791);
       }
       async ["isUserPromptTemplateNameAllowed"](_0x3cf1a6) {
         let _0x2fc739 = await this.isNameAllowed(_0x3cf1a6, _0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR);
-        await Qe.postToCommentNavigator({
-          type: Ef.IS_USER_PROMPT_TEMPLATE_NAME_ALLOWED,
+        await CommentNavigator.postToCommentNavigator({
+          type: PromptTemplateWebViewMessages.IS_USER_PROMPT_TEMPLATE_NAME_ALLOWED,
           templateName: _0x3cf1a6,
           isAllowed: _0x2fc739
         });
       }
       async ['isWorkspacePromptTemplateNameAllowed'](_0xea2bee, _0xd3d9cb) {
         let _0x2060d9 = await this.isNameAllowed(_0xea2bee, path_module.join(_0xd3d9cb, ".traycer", 'prompt-templates'));
-        await Qe.postToCommentNavigator({
-          type: Ef.IS_WORKSPACE_PROMPT_TEMPLATE_NAME_ALLOWED,
+        await CommentNavigator.postToCommentNavigator({
+          type: PromptTemplateWebViewMessages.IS_WORKSPACE_PROMPT_TEMPLATE_NAME_ALLOWED,
           templateName: _0xea2bee,
           workspaceDirPath: _0xd3d9cb,
           isAllowed: _0x2060d9
@@ -11547,7 +11514,7 @@ var oH,
         if (_0xf263f5.endsWith('.md')) _0x1585c7 = false;else {
           if (_0xf263f5.toLocaleLowerCase() === 'default') _0x1585c7 = false;else {
             let _0x2bbf1f = path_module.join(_0x155411, _0xf263f5 + ".md");
-            _0x1585c7 = !(await workspace_info.getInstance().fileExists(_0x2bbf1f));
+            _0x1585c7 = !(await WorkspaceInfoManager.getInstance().fileExists(_0x2bbf1f));
           }
         }
         return _0x1585c7;
@@ -11555,8 +11522,8 @@ var oH,
       async ["loadPromptTemplateFromDisk"](_0x54a4fd) {
         try {
           this.userPromptTemplates.has(_0x54a4fd) ? this.userPromptTemplates.delete(_0x54a4fd) : this.workspacePromptTemplates.has(_0x54a4fd) && this.workspacePromptTemplates.delete(_0x54a4fd);
-          let _0x64cf4d = await TemplateFile.validateTemplateFile(_0x54a4fd, ice);
-          _0x64cf4d.displayName || (_0x64cf4d.displayName = workspace_info.getInstance().getFileNameWithoutExtension(_0x54a4fd));
+          let _0x64cf4d = await TemplateFile.validateTemplateFile(_0x54a4fd, fullTemplateSchema);
+          _0x64cf4d.displayName || (_0x64cf4d.displayName = WorkspaceInfoManager.getInstance().getFileNameWithoutExtension(_0x54a4fd));
           let _0x132c2a = this.determineScopeFromFilePath(_0x54a4fd),
             _0x48a23b;
           switch (_0x64cf4d.applicableFor) {
@@ -11586,13 +11553,13 @@ var oH,
       async ['sendPromptTemplatesToUI']() {
         let _0x2ed249 = [...Array.from(this.userPromptTemplates.values()), ...Array.from(this.defaultPromptTemplates.values())],
           _0x233246 = {
-            type: Ef.LIST_PROMPT_TEMPLATES,
+            type: PromptTemplateWebViewMessages.LIST_PROMPT_TEMPLATES,
             userPromptTemplates: _0x2ed249.map(_0xd94801 => _0xd94801.serializeToUI()),
             workspacePromptTemplates: Array.from(this.workspacePromptTemplates.values()).map(_0x54d0ca => _0x54d0ca.serializeToUI()),
             invalidTemplates: Array.from(this.invalidTemplates),
             activeTemplates: this.getActivePromptTemplates()
           };
-        await Qe.postToCommentNavigator(_0x233246);
+        await CommentNavigator.postToCommentNavigator(_0x233246);
       }
       ["getPromptTemplate"](_0x11fbf9) {
         let _0x376e0b = this.userPromptTemplates.get(_0x11fbf9) ?? this.workspacePromptTemplates.get(_0x11fbf9) ?? this.defaultPromptTemplates.get(_0x11fbf9);
@@ -11617,7 +11584,7 @@ var oH,
         }
       }
       async ['activatePromptTemplate'](_0x4401f4) {
-        let _0x589455 = Vt.getInstance(),
+        let _0x589455 = TaskSettingsHandler.getInstance(),
           _0x578879 = _0x589455.activePromptTemplates,
           _0x25ed4d = this.getPromptTemplate(_0x4401f4);
         switch (_0x25ed4d.metadata.applicableFor) {
@@ -11652,7 +11619,7 @@ var oH,
         await _0x589455.setActivePromptTemplates(_0x578879), await this.sendPromptTemplatesToUI();
       }
       async ['deactivatePromptTemplate'](_0x43e6f6) {
-        let _0x51a60a = Vt.getInstance(),
+        let _0x51a60a = TaskSettingsHandler.getInstance(),
           _0x1e1479 = _0x51a60a.activePromptTemplates,
           _0x6b3786 = this.getPromptTemplate(_0x43e6f6);
         _0x1e1479[_0x6b3786.metadata.applicableFor] = null, await _0x51a60a.setActivePromptTemplates(_0x1e1479), await this.sendPromptTemplatesToUI();
@@ -11682,9 +11649,9 @@ var oH,
       async ['handleFileDelete'](_0x16f9bb) {
         try {
           this.userPromptTemplates.delete(_0x16f9bb), this.workspacePromptTemplates.delete(_0x16f9bb), this.invalidTemplates.delete(_0x16f9bb);
-          let _0x3d3ffc = Vt.getInstance().activePromptTemplates,
+          let _0x3d3ffc = TaskSettingsHandler.getInstance().activePromptTemplates,
             _0x28814e = false;
-          _0x3d3ffc.plan?.['filePath'] === _0x16f9bb ? (_0x3d3ffc.plan = null, _0x28814e = true) : _0x3d3ffc.verification?.["filePath"] === _0x16f9bb ? (_0x3d3ffc.verification = null, _0x28814e = true) : _0x3d3ffc.generic?.['filePath'] === _0x16f9bb ? (_0x3d3ffc.generic = null, _0x28814e = true) : _0x3d3ffc.review?.['filePath'] === _0x16f9bb && (_0x3d3ffc.review = null, _0x28814e = true), _0x28814e && (await Vt.getInstance().setActivePromptTemplates(_0x3d3ffc)), TemplateErrorManager.removeTemplateErrors(vscode_module.Uri.file(_0x16f9bb)), await this.sendPromptTemplatesToUI();
+          _0x3d3ffc.plan?.['filePath'] === _0x16f9bb ? (_0x3d3ffc.plan = null, _0x28814e = true) : _0x3d3ffc.verification?.["filePath"] === _0x16f9bb ? (_0x3d3ffc.verification = null, _0x28814e = true) : _0x3d3ffc.generic?.['filePath'] === _0x16f9bb ? (_0x3d3ffc.generic = null, _0x28814e = true) : _0x3d3ffc.review?.['filePath'] === _0x16f9bb && (_0x3d3ffc.review = null, _0x28814e = true), _0x28814e && (await TaskSettingsHandler.getInstance().setActivePromptTemplates(_0x3d3ffc)), TemplateErrorManager.removeTemplateErrors(vscode_module.Uri.file(_0x16f9bb)), await this.sendPromptTemplatesToUI();
         } catch (_0x45df40) {
           Logger.error(_0x45df40, 'Failed to handle prompt template deletion: ' + _0x16f9bb);
         }
@@ -11699,7 +11666,7 @@ var oH,
         for (let key of _0x10590e) await this.handleFileDelete(key);
       }
       ['getActivePromptTemplates']() {
-        let _0x12abca = Vt.getInstance().activePromptTemplates;
+        let _0x12abca = TaskSettingsHandler.getInstance().activePromptTemplates;
         return {
           plan: this.getActivePlanTemplate(_0x12abca),
           verification: this.getActiveVerificationTemplate(_0x12abca),
@@ -11734,7 +11701,7 @@ var oH,
       }
       async ["watchWorkspaceTemplatePath"](_0x87eed8, _0x5d58d6) {
         if (!_0x87eed8.includes('.traycer')) return;
-        let _0x52d998 = workspace_info.getInstance().getWorkspaceDirs(),
+        let _0x52d998 = WorkspaceInfoManager.getInstance().getWorkspaceDirs(),
           _0x71c6fc = false;
         if (_0x52d998.some(_0x66eee5 => {
           let _0x4f6e6d = path_module.join(_0x66eee5, '.traycer', _0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR_NAME);
@@ -11753,12 +11720,12 @@ var oH,
         }
       }
       ['getWorkspaceTemplatePaths']() {
-        let _0x428286 = workspace_info.getInstance().getWorkspaceDirs();
+        let _0x428286 = WorkspaceInfoManager.getInstance().getWorkspaceDirs();
         return _0x428286 ? _0x428286.map(_0x4b51fc => path_module.join(_0x4b51fc, ".traycer", "prompt-templates")) : [];
       }
       async ["loadWorkspaceTemplateDirectories"]() {
         let _0x3dbc5b = this.getWorkspaceTemplatePaths();
-        for (let key of _0x3dbc5b) if (await workspace_info.getInstance().fileExists(key)) {
+        for (let key of _0x3dbc5b) if (await WorkspaceInfoManager.getInstance().fileExists(key)) {
           let _0x20b90f = await (0, fs_promises_module.readdir)(key);
           for (let _0x5eb3e8 of _0x20b90f) {
             let _0xdb2375 = path_module.join(key, _0x5eb3e8);
@@ -11771,11 +11738,11 @@ var oH,
         let _0x2e9642 = path_module.normalize(_0x3cc8d6),
           _0x431280 = path_module.normalize(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR);
         if (_0x2e9642.startsWith(_0x431280)) return "user";
-        if (workspace_info.getInstance().getWorkspaceDirs().some(_0x58f4fe => _0x2e9642.startsWith(_0x58f4fe))) return "workspace";
+        if (WorkspaceInfoManager.getInstance().getWorkspaceDirs().some(_0x58f4fe => _0x2e9642.startsWith(_0x58f4fe))) return "workspace";
         throw new Error("Invalid file path: " + _0x3cc8d6);
       }
       async ["startGlobalWatcher"]() {
-        (await workspace_info.getInstance().fileExists(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR)) || (await (0, fs_promises_module.mkdir)(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR, {
+        (await WorkspaceInfoManager.getInstance().fileExists(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR)) || (await (0, fs_promises_module.mkdir)(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR, {
           recursive: true
         }));
         let _0x365491 = chokidar_module.watch(_0x389cf0.DEFAULT_PROMPT_TEMPLATE_DIR, {
@@ -11816,19 +11783,19 @@ var oH,
         });
       }
       async ['listWorkspaceDirectories']() {
-        let _0x3cf66a = workspace_info.getInstance().getWorkspaceDirs();
-        await Qe.postToCommentNavigator({
-          type: Ef.LIST_WORKSPACE_DIRECTORIES,
+        let _0x3cf66a = WorkspaceInfoManager.getInstance().getWorkspaceDirs();
+        await CommentNavigator.postToCommentNavigator({
+          type: PromptTemplateWebViewMessages.LIST_WORKSPACE_DIRECTORIES,
           workspaceDirectories: _0x3cf66a
         });
       }
     };
   }),
-  br,
+  TemplateManager,
   initTemplateManager = __esmModule(() => {
     'use strict';
 
-    initPromptTemplateService(), initCliAgentService(), br = class _0x3bf0d8 {
+    initPromptTemplateService(), initCliAgentService(), TemplateManager = class _0x3bf0d8 {
       static {
         this.instance = null;
       }
@@ -11940,7 +11907,7 @@ var oH,
       }
       async ['handle']() {
         try {
-          let _0x81d6cf = br.getInstance().getCLIAgentTemplateByName(this.name);
+          let _0x81d6cf = TemplateManager.getInstance().getCLIAgentTemplateByName(this.name);
           if (!_0x81d6cf) throw new Error("CLI agent template not found: " + this.name);
           let _0x4ef827 = _0x81d6cf.getContent(),
             _0x4324e3 = _0x18a868.isTmpFileReferenced(_0x4ef827),
@@ -11985,7 +11952,7 @@ var oH,
       }
       ["getDefaultFilename"]() {
         let _0x3104f7 = this.title.replaceAll(' ', '-').toLocaleLowerCase() + '.' + this.getFileExtension(),
-          _0x35e01e = workspace_info.getInstance().getWorkspaceDirs();
+          _0x35e01e = WorkspaceInfoManager.getInstance().getWorkspaceDirs();
         return _0x35e01e.length > 0 ? path_module.join(_0x35e01e[0], _0x3104f7) : path_module.join(os_module.homedir(), _0x3104f7);
       }
       async ['getSaveUri'](_0x3b461c, _0x75b21f) {
@@ -12101,7 +12068,7 @@ async function debounce(_0xad5586, _0x184124, _0x2514c4, _0x227745) {
 }
 function getAllAvailableAgents() {
   let _0x4fac27 = AgentRegistry.getInstance(),
-    _0x2174d4 = [getAgentIcon("copy"), getAgentIcon("markdown-export"), workspace_info.getInstance().getIdeAgentInfo()],
+    _0x2174d4 = [getAgentIcon("copy"), getAgentIcon("markdown-export"), WorkspaceInfoManager.getInstance().getIdeAgentInfo()],
     _0x81c382 = vscode_module.workspace.getConfiguration("traycer").get('additionalAgents') || [],
     _0x673545 = [];
   for (let key of _0x81c382) {
@@ -12117,7 +12084,7 @@ var initIDEAgentManager = __esmModule(() => {
   initWorkspaceInfo(), initTemplateManagerDeps(), initExportHandlerExports();
 });
 function getExtensionSettings() {
-  let _0x24a484 = Vt.getInstance();
+  let _0x24a484 = TaskSettingsHandler.getInstance();
   return {
     sendKey: config.sendKey,
     supportedIDEAgents: getAllAvailableAgents(),
@@ -12174,9 +12141,9 @@ async function registerVscodeCommand(_0x2acc8f, _0xb621c1, _0x23c705, _0x2cc0a0 
   }
 }
 var RSe,
-  Kwr,
+  repoSettingsSchema,
   initRepoSettingsSchema = __esmModule(() => {
-    RSe = prisma, Kwr = {
+    RSe = prisma, repoSettingsSchema = {
       type: 'object',
       required: ["repoID", 'providerType', "settings"],
       properties: {
@@ -12213,7 +12180,7 @@ var RSe,
     };
   });
 function parseDateFromJson(_0x265b18, _0x4b3b79) {
-  if (Mit.test(_0x4b3b79)) {
+  if (ISO8601_DATETIME_REGEX.test(_0x4b3b79)) {
     let _0x1a9765 = new Date(_0x4b3b79);
     return isNaN(_0x1a9765.getTime()) ? _0x4b3b79 : _0x1a9765;
   }
@@ -12222,7 +12189,7 @@ function parseDateFromJson(_0x265b18, _0x4b3b79) {
 function parseJsonWithDates(_0xe6dfc) {
   return JSON.parse(_0xe6dfc, parseDateFromJson);
 }
-var Mit = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d*)?(?:Z|[-+]\d{2}:?\d{2})?$/,
+var ISO8601_DATETIME_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d*)?(?:Z|[-+]\d{2}:?\d{2})?$/,
   ApiClient = class {
     constructor(_0x539fdd, _0x12f1db, _0x3a1735) {
       this.token = _0x12f1db, this.headers = _0x3a1735, _0x539fdd.pathname.endsWith('/') ? this.base = _0x539fdd : this.base = new URL(_0x539fdd.href + '/'), this.base.pathname.includes('api') || (this.base.pathname = this.base.pathname + "api/");
@@ -12572,16 +12539,16 @@ var Mit = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d*)?(?:Z|[-+]\d{2}:?\d{2})?
           type: _0x42b2df,
           sendToViewImmediately: true
         };
-        await Qe.postToCommentNavigator(_0x5efd6e);
+        await CommentNavigator.postToCommentNavigator(_0x5efd6e);
       }
       static async ["sendSigningInMessage"]() {
-        await this.sendAuthStatus(Iv.SIGNING_IN);
+        await this.sendAuthStatus(AuthenticationWebViewMessages.SIGNING_IN);
       }
       static async ["sendSignedInMessage"]() {
-        await this.sendAuthStatus(Iv.SIGNED_IN);
+        await this.sendAuthStatus(AuthenticationWebViewMessages.SIGNED_IN);
       }
       static async ['sendSignedOutMessage']() {
-        await this.sendAuthStatus(Iv.SIGNED_OUT);
+        await this.sendAuthStatus(AuthenticationWebViewMessages.SIGNED_OUT);
       }
       static async ["updateVSCodeContext"](_0x18f442) {
         _0x18f442 ? await this.setSignedInContext() : await this.setSignedOutContext();
@@ -12660,8 +12627,7 @@ var Mit = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d*)?(?:Z|[-+]\d{2}:?\d{2})?
         await this.context.secrets.delete(this.getTokenKey());
       }
     };
-  })
- 
+  });
 async function fetchGoogleIapToken() {
   let _0x1f74ad = config.iapTargetAudience;
   if (!_0x1f74ad?.["trim"]()) return Logger.warn("No target audience provided"), null;
@@ -12743,11 +12709,11 @@ var initGoogleAuth = __esmModule(() => {
       }
     };
   }),
-  IC,
+  TokenManager,
   initTokenValidator = __esmModule(() => {
     'use strict';
 
-    initGoogleAuth(), initSearchConfig(), initRetryExecutor(), IC = class {
+    initGoogleAuth(), initSearchConfig(), initRetryExecutor(), TokenManager = class {
       constructor(_0x292285) {
         this.authClient = _0x292285;
       }
@@ -12812,7 +12778,7 @@ var initGoogleAuth = __esmModule(() => {
 
     initSearchConfig(), initWorkspaceInfo(), initUsageTracker(), initRepoSettingsExports(), initAuthModule(), TraycerCredentials = class TraycerCredentials {
       constructor(context, onActivation, onDeactivation) {
-        this.context = context, this._traycerUser = null, this._traycerToken = null, this.currentAuthController = null, Logger.info("Initializing Traycer credentials"), this.authClient = new TraycerApiClient(new URL(config.authnApiUrl)), this.onActivation = onActivation, this.onDeactivation = onDeactivation, this.authStateManager = new AuthStatusHandlerExports(), this.contextStorageManager = new ContextStorageManager(context), this.tokenManager = new IC(this.authClient);
+        this.context = context, this._traycerUser = null, this._traycerToken = null, this.currentAuthController = null, Logger.info("Initializing Traycer credentials"), this.authClient = new TraycerApiClient(new URL(config.authnApiUrl)), this.onActivation = onActivation, this.onDeactivation = onDeactivation, this.authStateManager = new AuthStatusHandlerExports(), this.contextStorageManager = new ContextStorageManager(context), this.tokenManager = new TokenManager(this.authClient);
       }
       static {
         this.SIGN_IN_COMMAND = "traycer.signIn";
@@ -12946,9 +12912,9 @@ var initGoogleAuth = __esmModule(() => {
         selection === "Sign in with Traycer" ? (await this.authStateManager.setState("SigningIn"), await this.openCloudUI()) : selection === "Paste token" && (await this.promptPasteToken());
       }
       async ['openCloudUI']() {
-        let callbackUri = workspace_info.getInstance().getIdeInfo().uriScheme + "://" + IT + '/' + AUTH_CALLBACK_COMMAND,
+        let callbackUri = WorkspaceInfoManager.getInstance().getIdeInfo().uriScheme + "://" + IT + '/' + AUTH_CALLBACK_COMMAND,
           cloudUrl = config.cloudUIUrl + '?redirect_uri=' + encodeURIComponent(callbackUri);
-        await workspace_info.getInstance().openExternalLink(cloudUrl);
+        await WorkspaceInfoManager.getInstance().openExternalLink(cloudUrl);
       }
       async ['promptPasteToken']() {
         let pastedToken = await vscode_module.window.showInputBox({
@@ -12976,7 +12942,7 @@ var initGoogleAuth = __esmModule(() => {
   initGrpcMessageTracker = __esmModule(() => {
     'use strict';
 
-    maxMissedPings = un.MAX_MISSED_PINGS, GrpcMessageTracker = class {
+    maxMissedPings = streamConstants.MAX_MISSED_PINGS, GrpcMessageTracker = class {
       constructor() {
         this.messageMap = new Map(), this.grpcConnectionsMap = new Map(), this.messageId = 1;
       }
@@ -13170,7 +13136,7 @@ async function listDirectoryOrThrow(_0x4ed450, _0x3c698b) {
 }
 async function throwFolderNotFoundError(_0xea7770) {
   let _0x42670b = TraycerPath.fromPathProto(_0xea7770),
-    _0x53261c = workspace_info.getInstance().getWorkspaceDirs(),
+    _0x53261c = WorkspaceInfoManager.getInstance().getWorkspaceDirs(),
     _0x43df9b = await Promise.all(_0x53261c.map(async _0x43e7ca => await searchFoldersWithRipgrep(_0x43e7ca, '', null, Number.MAX_SAFE_INTEGER, true))),
     _0x5c3cdd = (0, fuzzysort_module.go)(_0x42670b.absPath, _0x43df9b.flat(), {
       limit: 5,
@@ -13185,20 +13151,20 @@ var initSymbolSearchHandler = __esmModule(() => {
   initSearchUtils(), initWorkspaceInfo(), initQueryProcessor();
 });
 async function enqueueLanguageRequest(_0x40b48a, _0x43314f) {
-  if (!AC.has(_0x43314f)) {
+  if (!languageRequestQueues.has(_0x43314f)) {
     if (_0x43314f === 'python') {
       let _0x398ce1 = vscode_module.workspace.getConfiguration("python").get("languageServer"),
         _0x395b16 = vscode_module.extensions.getExtension('ms-python.vscode-pylance');
-      (_0x398ce1 === 'Pylance' || _0x398ce1 === 'Default') && _0x395b16 && _0x395b16.isActive ? AC.set(_0x43314f, new RequestQueue(5, 200, 2000)) : AC.set(_0x43314f, new RequestQueue(3, 500, 2000));
-    } else AC.set(_0x43314f, new RequestQueue(10, 100, 2000));
+      (_0x398ce1 === 'Pylance' || _0x398ce1 === 'Default') && _0x395b16 && _0x395b16.isActive ? languageRequestQueues.set(_0x43314f, new RequestQueue(5, 200, 2000)) : languageRequestQueues.set(_0x43314f, new RequestQueue(3, 500, 2000));
+    } else languageRequestQueues.set(_0x43314f, new RequestQueue(10, 100, 2000));
   }
-  return AC.get(_0x43314f).enqueueRequest(_0x40b48a);
+  return languageRequestQueues.get(_0x43314f).enqueueRequest(_0x40b48a);
 }
-var AC,
+var languageRequestQueues,
   initRequestQueueHelper = __esmModule(() => {
     'use strict';
 
-    AC = new Map();
+    languageRequestQueues = new Map();
   });
 async function enqueueDefinitionRequest(_0x5144cc, _0x34e08b) {
   return enqueueLanguageRequest(() => getDefinitionLocation(_0x5144cc), _0x34e08b);
@@ -13327,7 +13293,7 @@ var initSymbolCache = __esmModule(() => {
         return this.instance || (this.instance = new _0x303f28()), this.instance;
       }
       async ['getSnippetContextsFromLocalSymbol'](_0x2cf233) {
-        let _0x41a4f6 = await In.getSourceCode(_0x2cf233.filePath.absPath),
+        let _0x41a4f6 = await DocumentManager.getSourceCode(_0x2cf233.filePath.absPath),
           _0x53b621 = createCodeSnippetFromRange(_0x2cf233.filePath.proto, _0x41a4f6, {
             line: _0x2cf233.range.startLine,
             context: 5
@@ -13645,7 +13611,7 @@ var initSymbolCache = __esmModule(() => {
       }
       async ["getSnippetContextsFromLocalSymbol"](_0x84ee3c) {
         let _0x3a516f = vscode_module.Uri.file(_0x84ee3c.filePath.absPath),
-          _0x3a3293 = await In.getSourceCode(_0x3a516f.fsPath),
+          _0x3a3293 = await DocumentManager.getSourceCode(_0x3a516f.fsPath),
           _0x378688 = await this.getSnippetAtLineFromFile(_0x84ee3c.filePath.absPath, _0x3a3293, LineRange.fromEndLine(_0x84ee3c.range.startLine, _0x84ee3c.range.endLine));
         return {
           path: _0x84ee3c.filePath.proto,
@@ -13677,11 +13643,11 @@ function createLineRangeFromTreeNode(_0x27680e) {
 var initParserBase = __esmModule(() => {
     'use strict';
   }),
-  MT,
+  GoFileParser,
   initGoParser = __esmModule(() => {
     'use strict';
 
-    initLanguageParsers(), initTreeSitterParser(), initParserBase(), MT = class _0x1b3373 extends TreeSitterFileParser {
+    initLanguageParsers(), initTreeSitterParser(), initParserBase(), GoFileParser = class _0x1b3373 extends TreeSitterFileParser {
       constructor(_0x4ec59a) {
         super(_0x4ec59a, "tree-sitter-go.wasm");
       }
@@ -13718,11 +13684,11 @@ var initParserBase = __esmModule(() => {
       }
     };
   }),
-  DT,
+  JavaScriptFileParser,
   initJavaScriptParser = __esmModule(() => {
     'use strict';
 
-    initLanguageParsers(), initTreeSitterParser(), initParserBase(), DT = class _0x800683 extends TreeSitterFileParser {
+    initLanguageParsers(), initTreeSitterParser(), initParserBase(), JavaScriptFileParser = class _0x800683 extends TreeSitterFileParser {
       constructor(_0xceea01) {
         super(_0xceea01, 'tree-sitter-javascript.wasm');
       }
@@ -13805,11 +13771,11 @@ var initParserBase = __esmModule(() => {
       }
     };
   }),
-  Cg,
+  PythonFileParser,
   initPythonParser = __esmModule(() => {
     'use strict';
 
-    initLanguageParsers(), initTreeSitterParser(), initParserBase(), Cg = class _0x47a743 extends TreeSitterFileParser {
+    initLanguageParsers(), initTreeSitterParser(), initParserBase(), PythonFileParser = class _0x47a743 extends TreeSitterFileParser {
       static {
         this.fileExtensions = ['py', 'pyw'];
       }
@@ -13862,11 +13828,11 @@ var initParserBase = __esmModule(() => {
       }
     };
   }),
-  NT,
+  RustFileParser,
   initRustParser = __esmModule(() => {
     'use strict';
 
-    initLanguageParsers(), initTreeSitterParser(), initParserBase(), NT = class _0x26957b extends TreeSitterFileParser {
+    initLanguageParsers(), initTreeSitterParser(), initParserBase(), RustFileParser = class _0x26957b extends TreeSitterFileParser {
       constructor(_0x327978) {
         super(_0x327978, "tree-sitter-rust.wasm");
       }
@@ -13918,11 +13884,11 @@ var initParserBase = __esmModule(() => {
       }
     };
   }),
-  hh,
+  TypeScriptFileParser,
   initTypeScriptParser = __esmModule(() => {
     'use strict';
 
-    initLanguageParsers(), initTreeSitterParser(), initParserBase(), hh = class _0x3507b7 extends TreeSitterFileParser {
+    initLanguageParsers(), initTreeSitterParser(), initParserBase(), TypeScriptFileParser = class _0x3507b7 extends TreeSitterFileParser {
       constructor(_0x545b0c, _0x13a498 = 'tree-sitter-typescript.wasm') {
         super(_0x545b0c, _0x13a498);
       }
@@ -13976,7 +13942,7 @@ var initParserBase = __esmModule(() => {
   initTypeScriptParserExports = __esmModule(() => {
     'use strict';
 
-    initTypeScriptParser(), LT = class _0x36a311 extends hh {
+    initTypeScriptParser(), LT = class _0x36a311 extends TypeScriptFileParser {
       constructor(_0x10eecc) {
         super(_0x10eecc, 'tree-sitter-typescript-jsx.wasm');
       }
@@ -13994,19 +13960,19 @@ function getParserForLanguage(_0x4fd726, _0x11c195) {
     case 'python':
       {
         let _0x542d2a = _0x11c195.split('.').pop();
-        if (_0x542d2a && Cg.fileExtensions.includes(_0x542d2a)) return Cg.getInstance();
+        if (_0x542d2a && PythonFileParser.fileExtensions.includes(_0x542d2a)) return PythonFileParser.getInstance();
         break;
       }
     case "typescript":
-      return hh.getInstance();
+      return TypeScriptFileParser.getInstance();
     case 'typescriptreact':
       return LT.getInstance();
     case 'javascript':
-      return DT.getInstance();
+      return JavaScriptFileParser.getInstance();
     case 'go':
-      return MT.getInstance();
+      return GoFileParser.getInstance();
     case "rust":
-      return NT.getInstance();
+      return RustFileParser.getInstance();
   }
   return SnippetContextProvider.getInstance();
 }
@@ -14034,11 +14000,11 @@ async function handleFindSymbolReferencesRequest(_0x50845c) {
 }
 async function findSymbolReferencesInFile(_0x349e72, _0x1ad2d6, _0x3d75d2, _0x5c2f09, _0xa9dde0) {
   let _0x2e656c = TraycerPath.fromPathProto(_0x349e72),
-    _0x3d7763 = await In.getTextDocument(_0x2e656c.absPath),
+    _0x3d7763 = await DocumentManager.getTextDocument(_0x2e656c.absPath),
     _0xe0cb70 = findFuzzyTextPosition(_0x3d7763.getText(), _0x1ad2d6, _0x3d75d2, _0x5c2f09),
     _0x41cfc4;
   switch (_0xa9dde0) {
-    case WO.DEFINITION:
+    case SymbolQueryType.DEFINITION:
       {
         let _0x560bc4 = await enqueueDefinitionRequest({
           filePath: _0x2e656c,
@@ -14048,7 +14014,7 @@ async function findSymbolReferencesInFile(_0x349e72, _0x1ad2d6, _0x3d75d2, _0x5c
         _0x560bc4 && (_0x41cfc4 = [_0x560bc4]);
         break;
       }
-    case WO.REFERENCE:
+    case SymbolQueryType.REFERENCE:
       {
         _0x41cfc4 = await enqueueReferenceRequest({
           filePath: _0x2e656c,
@@ -14057,7 +14023,7 @@ async function findSymbolReferencesInFile(_0x349e72, _0x1ad2d6, _0x3d75d2, _0x5c
         }, void 0, _0x3d7763.languageId);
         break;
       }
-    case WO.IMPLEMENTATION:
+    case SymbolQueryType.IMPLEMENTATION:
       {
         _0x41cfc4 = await enqueueImplementationRequest({
           filePath: _0x2e656c,
@@ -14072,7 +14038,7 @@ async function findSymbolReferencesInFile(_0x349e72, _0x1ad2d6, _0x3d75d2, _0x5c
   };
   let _0x166df1 = [];
   for (let key of _0x41cfc4) {
-    let _0xe931 = await In.getTextDocument(key.filePath.absPath),
+    let _0xe931 = await DocumentManager.getTextDocument(key.filePath.absPath),
       _0x2201ac = getParserForLanguage(_0xe931.languageId, key.filePath.absPath);
     _0x166df1.push(_0x2201ac.getSnippetContextsFromLocalSymbol(key));
   }
@@ -14098,8 +14064,8 @@ async function readMultipleFilesWithMetadata(_0x9a3d1e) {
       if (!_0x5cc73c.path) throw new Error('File path is required');
       let _0x13326d = TraycerPath.fromPathProto(_0x5cc73c.path),
         _0x91e1dd = _0x13326d.absPath;
-      if (await workspace_info.getInstance().fileExists(_0x91e1dd)) {
-        let _0xa10ee4 = await In.getSourceCode(_0x91e1dd),
+      if (await WorkspaceInfoManager.getInstance().fileExists(_0x91e1dd)) {
+        let _0xa10ee4 = await DocumentManager.getSourceCode(_0x91e1dd),
           _0x4c4a45 = await (await LlmCacheHandler.getInstance()).getSummaryFromCache(_0x91e1dd, _0xa10ee4),
           _0x5af019 = config.enableAgentsMd ? await getAgentsMdContent(_0x91e1dd) : [];
         return {
@@ -14163,7 +14129,7 @@ async function executeRipgrepSearch(_0x69db30, _0x52ce70, _0x2c2ca8, _0x4e227c) 
   let _0x5a92ab = await config.getRipgrepBinPath();
   if (!_0x5a92ab) throw new Error('ripgrep binary not found');
   let _0x4b7770 = async (_0x37fa24, _0x1a4055, _0xa9ab3a) => WorkerPoolManager.exec("ripgrep-processor.cjs", "processRipgrepOutput", [_0x37fa24, _0x1a4055, _0xa9ab3a]);
-  return formatCodeBlockContent(workspace_info.getInstance(), _0x5a92ab, _0x69db30, _0x52ce70, _0x2c2ca8, _0x4e227c, workspace_info.getInstance().getPlatform(), _0x4b7770);
+  return formatCodeBlockContent(WorkspaceInfoManager.getInstance(), _0x5a92ab, _0x69db30, _0x52ce70, _0x2c2ca8, _0x4e227c, WorkspaceInfoManager.getInstance().getPlatform(), _0x4b7770);
 }
 var initRipgrepSearchModule = __esmModule(() => {
     'use strict';
@@ -14176,7 +14142,7 @@ var initRipgrepSearchModule = __esmModule(() => {
   initGrpcClient = __esmModule(() => {
     'use strict';
 
-    initGoogleAuth(), initGrpcMessageTracker(), initSearchConfig(), initStatusBar(), initLlmCacheHandler(), initSymbolSearch(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initRipgrepSearchModule(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = un.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
+    initGoogleAuth(), initGrpcMessageTracker(), initSearchConfig(), initStatusBar(), initLlmCacheHandler(), initSymbolSearch(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initRipgrepSearchModule(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = streamConstants.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
       constructor(_0x30dd48, _0x34bdfa) {
         super(_0x30dd48, Logger), this.grpcConnection = null, this.id = null, this.client = _0x34bdfa;
       }
@@ -14303,7 +14269,7 @@ var initRipgrepSearchModule = __esmModule(() => {
           let _0x384fe4 = _0x136873.rpcResponse;
           _0x384fe4?.['id'] && this.rpcTracker.resolveMessage(_0x384fe4.id, _0x384fe4);
         }
-        if (_0x136873.syncTaskTitle && (await zn.getInstance().handleTaskTitle(_0x136873.syncTaskTitle)), _0x136873.syncTaskChainTitle && (await zn.getInstance().handleTaskChainTitle(_0x136873.syncTaskChainTitle)), _0x136873.syncTaskSummary && (await zn.getInstance().updateTaskSummary(_0x136873.syncTaskSummary)), _0x136873.streamThinking && (await zn.getInstance().handleThinkingStream(_0x136873.streamThinking)), _0x136873.streamImplementationPlanDelta && (await zn.getInstance().handleImplementationPlanDelta(_0x136873.streamImplementationPlanDelta)), _0x136873.syncPlanChatQueryType && (await zn.getInstance().handlePlanChatQueryType(_0x136873.syncPlanChatQueryType)), _0x136873.syncRateLimitUsageRequest?.["rateLimitInfo"] && (await UsageTracker.getInstance().handleSyncRateLimitUsage(_0x136873.syncRateLimitUsageRequest.rateLimitInfo)), _0x136873.syncFileSummary) {
+        if (_0x136873.syncTaskTitle && (await TaskRunner.getInstance().handleTaskTitle(_0x136873.syncTaskTitle)), _0x136873.syncTaskChainTitle && (await TaskRunner.getInstance().handleTaskChainTitle(_0x136873.syncTaskChainTitle)), _0x136873.syncTaskSummary && (await TaskRunner.getInstance().updateTaskSummary(_0x136873.syncTaskSummary)), _0x136873.streamThinking && (await TaskRunner.getInstance().handleThinkingStream(_0x136873.streamThinking)), _0x136873.streamImplementationPlanDelta && (await TaskRunner.getInstance().handleImplementationPlanDelta(_0x136873.streamImplementationPlanDelta)), _0x136873.syncPlanChatQueryType && (await TaskRunner.getInstance().handlePlanChatQueryType(_0x136873.syncPlanChatQueryType)), _0x136873.syncRateLimitUsageRequest?.["rateLimitInfo"] && (await UsageTracker.getInstance().handleSyncRateLimitUsage(_0x136873.syncRateLimitUsageRequest.rateLimitInfo)), _0x136873.syncFileSummary) {
           let _0x4f1d2e = await LlmCacheHandler.getInstance();
           _0x136873.syncFileSummary.path && (await _0x4f1d2e.setSummaryToCache(_0x136873.syncFileSummary.path, _0x136873.syncFileSummary.summary));
         }
@@ -14369,9 +14335,9 @@ var initRipgrepSearchModule = __esmModule(() => {
       }
       ['handleRPCError'](_0x4e1c9d) {
         switch (_0x4e1c9d.errorType) {
-          case l4.RATE_LIMIT_EXCEEDED:
+          case TaskFailureReason.RATE_LIMIT_EXCEEDED:
             throw new RateLimitExceededError(_0x4e1c9d.retryAfter ?? 0, _0x4e1c9d.allowPayToRun ?? false, _0x4e1c9d.invoiceUrl);
-          case l4.USER_ABORTED:
+          case TaskFailureReason.USER_ABORTED:
             throw new UserAbortedError();
           default:
             return Promise.reject(_0x4e1c9d.message);
@@ -14414,9 +14380,9 @@ var initRipgrepSearchModule = __esmModule(() => {
         };
       }
       async ["startPingMechanism"](_0x1ab7b6) {
-        let _0x392186 = un.PING_INTERVAL_MS;
+        let _0x392186 = streamConstants.PING_INTERVAL_MS;
         _0x1ab7b6.pingState.pingIntervalTimer && clearInterval(_0x1ab7b6.pingState.pingIntervalTimer), _0x1ab7b6.pingState.pingInFlight = false, await this.sendPing(_0x1ab7b6), _0x1ab7b6.pingState.pingIntervalTimer = setInterval(async () => {
-          _0x1ab7b6.pingState.pingInFlight ? (_0x1ab7b6.pingState.missedPings++, Logger.warn("Missed ping " + _0x1ab7b6.pingState.missedPings + '/' + un.MAX_MISSED_PINGS), _0x1ab7b6.pingState.missedPings >= un.MAX_MISSED_PINGS && (Logger.error("Exceeded maximum missed pings (" + un.MAX_MISSED_PINGS + "). Disconnecting."), await this.handleServerDisconnection(_0x1ab7b6, bu.PING_TIMEOUT))) : await this.sendPing(_0x1ab7b6);
+          _0x1ab7b6.pingState.pingInFlight ? (_0x1ab7b6.pingState.missedPings++, Logger.warn("Missed ping " + _0x1ab7b6.pingState.missedPings + '/' + streamConstants.MAX_MISSED_PINGS), _0x1ab7b6.pingState.missedPings >= streamConstants.MAX_MISSED_PINGS && (Logger.error("Exceeded maximum missed pings (" + streamConstants.MAX_MISSED_PINGS + "). Disconnecting."), await this.handleServerDisconnection(_0x1ab7b6, StreamCloseReason.PING_TIMEOUT))) : await this.sendPing(_0x1ab7b6);
         }, _0x392186);
       }
       async ["sendPing"](_0x1c642e) {
@@ -14425,8 +14391,8 @@ var initRipgrepSearchModule = __esmModule(() => {
             ping: {}
           }, Logger, MAX_WRITE_RETRIES, false, this.chunkMessage.bind(this)), _0x1c642e.pingState.pingInFlight = true;
         } catch (_0x2f0bf7) {
-          Logger.error(_0x2f0bf7, 'Failed sending ping to server'), await this.handleServerDisconnection(_0x1c642e, bu.PING_WRITE_FAILURE);
-        } else Logger.error("Failed sending ping to server. Stream is not writable"), await this.handleServerDisconnection(_0x1c642e, bu.PING_WRITE_FAILURE);
+          Logger.error(_0x2f0bf7, 'Failed sending ping to server'), await this.handleServerDisconnection(_0x1c642e, StreamCloseReason.PING_WRITE_FAILURE);
+        } else Logger.error("Failed sending ping to server. Stream is not writable"), await this.handleServerDisconnection(_0x1c642e, StreamCloseReason.PING_WRITE_FAILURE);
       }
       ["handlePongResponse"](_0x2b1f09) {
         _0x2b1f09.pingState.pingInFlight = false, _0x2b1f09.pingState.missedPings = 0;
@@ -14461,7 +14427,7 @@ var initRipgrepSearchModule = __esmModule(() => {
               id: _0x13ef52,
               platform: isConnected(),
               isPayToRun: config.alwaysAllowPayToRun || _0x2b3641,
-              selectedMCPParent: Vt.getInstance().getSelectedOrDefaultMCPParent(this.auth.traycerUser) ?? void 0,
+              selectedMCPParent: TaskSettingsHandler.getInstance().getSelectedOrDefaultMCPParent(this.auth.traycerUser) ?? void 0,
               languagePreference: config.languagePreference
             };
           Logger.debug('Sending ' + _0x128d30 + " request with ID " + _0x13ef52);
@@ -14491,7 +14457,7 @@ var initRipgrepSearchModule = __esmModule(() => {
         if (_0x483d66.signal.aborted) this.rpcTracker.rejectMessage(_0x494c25.id, new UserAbortedError());else {
           let _0x34c148 = _0x2cd718.stream;
           _0x483d66.signal.addEventListener("abort", () => {
-            this.sendAbortRPC(_0x494c25.id, _0x34c148, bu.USER_ABORT);
+            this.sendAbortRPC(_0x494c25.id, _0x34c148, StreamCloseReason.USER_ABORT);
           });
           let _0x42202f = {
             rpcRequest: _0x494c25
@@ -14535,18 +14501,18 @@ var initRipgrepSearchModule = __esmModule(() => {
       }
       ["close"]() {
         this.rpcTracker.inflightGrpcConnections.forEach((_0x3f5ee4, _0x4eb909) => {
-          this.sendAbortRPC(_0x4eb909, _0x3f5ee4.stream, bu.EXTENSION_CLOSED);
+          this.sendAbortRPC(_0x4eb909, _0x3f5ee4.stream, StreamCloseReason.EXTENSION_CLOSED);
         }), this.rpcTracker.clearAll();
       }
     };
   });
 async function navigateToTaskWithPrefill(_0x3c9b57) {
   let _0x29a0da = {
-    type: sl.NAVIGATE_TO_TASK_LANDING_WITH_PREFILL,
+    type: NavigationMessages.NAVIGATE_TO_TASK_LANDING_WITH_PREFILL,
     queryContent: _0x3c9b57,
     switchToReview: true
   };
-  await Qe.openCommentNavigator(), await Qe.postToCommentNavigator(_0x29a0da);
+  await CommentNavigator.openCommentNavigator(), await CommentNavigator.postToCommentNavigator(_0x29a0da);
 }
 async function triggerManualAnalysisFile() {
   try {
@@ -14644,29 +14610,29 @@ async function registerExtensionCommands(_0x2ed719) {
     vscode_module.commands.executeCommand("workbench.action.openSettings", "@ext:Traycer.traycer-vscode");
   }), await registerVscodeCommand(_0x2ed719, START_NEW_TASK_COMMAND, async () => {
     let _0x44aa1c = {
-      type: sl.NAVIGATE_TO_NEW_TASK
+      type: NavigationMessages.NAVIGATE_TO_NEW_TASK
     };
-    await Qe.postToCommentNavigator(_0x44aa1c);
+    await CommentNavigator.postToCommentNavigator(_0x44aa1c);
   }), await registerVscodeCommand(_0x2ed719, OPEN_TASK_HISTORY_COMMAND, async () => {
     let _0x5b8fdc = {
-      type: sl.NAVIGATE_TO_TASK_HISTORY
+      type: NavigationMessages.NAVIGATE_TO_TASK_HISTORY
     };
-    await Qe.postToCommentNavigator(_0x5b8fdc);
+    await CommentNavigator.postToCommentNavigator(_0x5b8fdc);
   }), await registerVscodeCommand(_0x2ed719, LIST_MCP_SERVERS_COMMAND, async () => {
     let _0x2e5cd9 = {
-      type: sl.NAVIGATE_TO_MCP_SERVERS
+      type: NavigationMessages.NAVIGATE_TO_MCP_SERVERS
     };
-    await Qe.postToCommentNavigator(_0x2e5cd9);
+    await CommentNavigator.postToCommentNavigator(_0x2e5cd9);
   }), await registerVscodeCommand(_0x2ed719, MANAGE_PROMPT_TEMPLATES_COMMAND, async () => {
     let _0xa15a6c = {
-      type: sl.NAVIGATE_TO_PROMPT_TEMPLATES
+      type: NavigationMessages.NAVIGATE_TO_PROMPT_TEMPLATES
     };
-    await Qe.postToCommentNavigator(_0xa15a6c);
+    await CommentNavigator.postToCommentNavigator(_0xa15a6c);
   }), await registerVscodeCommand(_0x2ed719, MANAGE_CLI_AGENTS_COMMAND, async () => {
     let _0x1b87b4 = {
-      type: sl.NAVIGATE_TO_CLI_AGENTS
+      type: NavigationMessages.NAVIGATE_TO_CLI_AGENTS
     };
-    await Qe.postToCommentNavigator(_0x1b87b4);
+    await CommentNavigator.postToCommentNavigator(_0x1b87b4);
   }), await registerVscodeCommand(_0x2ed719, TRIGGER_MANUAL_ANALYSIS_FILE_COMMAND, triggerManualAnalysisFile), await registerVscodeCommand(_0x2ed719, TRIGGER_MANUAL_ANALYSIS_CHANGES_COMMAND, triggerManualAnalysisChanges), await registerVscodeCommand(_0x2ed719, TRIGGER_MANUAL_ANALYSIS_ALL_CHANGES_COMMAND, triggerManualAnalysisAllChanges);
 }
 var initExtensionCommands = __esmModule(() => {
@@ -14686,18 +14652,18 @@ var TicketLoadingNotifier,
     initCommentNavigator(), TicketLoadingNotifier = class {
       async ['notifyLoading'](_0x448f67, _0x4492c7) {
         let _0xf26ff7 = {
-          type: _n.TICKET_LOADING,
+          type: TaskWebViewMessages.TICKET_LOADING,
           isLoading: _0x448f67,
           ticketSource: _0x4492c7
         };
-        await Qe.postToCommentNavigator(_0xf26ff7);
+        await CommentNavigator.postToCommentNavigator(_0xf26ff7);
       }
       async ['notifyTaskOpened'](_0x3f05bc) {
         let _0x572243 = {
-          type: _n.OPEN_TASK,
+          type: TaskWebViewMessages.OPEN_TASK,
           taskChain: _0x3f05bc
         };
-        await Qe.postToCommentNavigator(_0x572243);
+        await CommentNavigator.postToCommentNavigator(_0x572243);
       }
     };
   }),
@@ -14705,7 +14671,7 @@ var TicketLoadingNotifier,
   initPersistedTicketLoading = __esmModule(() => {
     'use strict';
 
-    initSearchConfig(), initWorkspaceInfo(), initTaskChainManager(), initFileOperations(), initCommentNavigatorDeps(), Xg = class _0x1c824e extends ol {
+    initSearchConfig(), initWorkspaceInfo(), initTaskChainManager(), initFileOperations(), initCommentNavigatorDeps(), Xg = class _0x1c824e extends BaseStorageAPI {
       constructor(_0x21c199, _0x49d2fc) {
         super(_0x21c199, 'PersistedTicketLoading', _0x49d2fc, config.CURRENT_IMPORT_TICKET_VERSION, config.IMPORT_TICKET_SIZE), this.shouldInvalidateData = false, this.shouldInvalidateData = false;
       }
@@ -14721,8 +14687,8 @@ var TicketLoadingNotifier,
       }
       async ["_addFromStorage"](_0x11366f) {
         return Promise.allSettled(_0x11366f.map(async _0x28e650 => {
-          if (workspace_info.getInstance().isWorkspaceOpen(_0x28e650.workspacePath)) try {
-            await Qe.openCommentNavigator();
+          if (WorkspaceInfoManager.getInstance().isWorkspaceOpen(_0x28e650.workspacePath)) try {
+            await CommentNavigator.openCommentNavigator();
             let _0x4d1dd8 = await Nh.getInstance().addTaskChainForPersistedTicket(_0x28e650.persistedTicket, _0x28e650.workspacePath, _0x28e650.ticketReferenceInfo);
             _0x4d1dd8.showNotification("Imported plan for ticket: " + _0x4d1dd8.activePhaseBreakdown.activeTask.title);
           } finally {
@@ -14760,12 +14726,12 @@ var TicketLoadingNotifier,
         return _0x21dae1.instance;
       }
       async ["importPersistedTicket"](_0x23ea02) {
-        yn.getInstance().increment('ticket_imported', {
+        PosthogAnalytics.getInstance().increment('ticket_imported', {
           defaultProperties: {
             source: formatPathForDisplay(_0x23ea02.ticketSource)
           },
           userProperties: {}
-        }), await Qe.openCommentNavigator(), await this.uiNotifier.notifyLoading(true, _0x23ea02.ticketSource);
+        }), await CommentNavigator.openCommentNavigator(), await this.uiNotifier.notifyLoading(true, _0x23ea02.ticketSource);
         try {
           let _0x254fe4 = await this.importTicketFromServer(this.client, _0x23ea02);
           if (!_0x254fe4.ticket) throw new Error("Ticket not found");
@@ -14792,12 +14758,12 @@ var TicketLoadingNotifier,
             default:
               throw new Error("Unsupported ticket source: " + _0x35c9d1.ticketSource);
           }
-          _0x274b57 = await Du.getInstance().fetchRepoMapping(_0x58d4ec, _0x161696);
+          _0x274b57 = await RepoMappingManager.getInstance().fetchRepoMapping(_0x58d4ec, _0x161696);
         } catch (_0x4765f4) {
           Logger.error("Failed to fetch repo mapping: " + String(_0x4765f4)), vscode_module.window.showErrorMessage("Failed to import ticket due to locally cloned repository not found. Please clone the repository manually and try again.");
           return;
         }
-        workspace_info.getInstance().isWorkspaceOpen(_0x274b57.gitRoot) ? await this.addTaskChainForPersistedTicket(_0x32069c, _0x274b57.gitRoot, _0x35c9d1) : await this.openNewWorkspace(_0x487948, _0x274b57.gitRoot, _0x32069c, _0x35c9d1);
+        WorkspaceInfoManager.getInstance().isWorkspaceOpen(_0x274b57.gitRoot) ? await this.addTaskChainForPersistedTicket(_0x32069c, _0x274b57.gitRoot, _0x35c9d1) : await this.openNewWorkspace(_0x487948, _0x274b57.gitRoot, _0x32069c, _0x35c9d1);
       }
       async ['openNewWorkspace'](_0x55434e, _0x35a82c, _0x16a01e, _0x4d0f71) {
         let _0x3e597f = {
@@ -14818,7 +14784,7 @@ var TicketLoadingNotifier,
         });
       }
       async ['addTaskChainForPersistedTicket'](_0x38ee44, _0x56557a, _0x46e246) {
-        let _0x139de3 = await zn.getInstance().addTaskChainFromPersistedTicket(_0x38ee44, _0x46e246, _0x56557a);
+        let _0x139de3 = await TaskRunner.getInstance().addTaskChainFromPersistedTicket(_0x38ee44, _0x46e246, _0x56557a);
         return await this.uiNotifier.notifyTaskOpened(await _0x139de3.serializeToUI()), _0x139de3;
       }
       async ["importTicketFromServer"](_0x3add29, _0x364687) {
@@ -14884,10 +14850,10 @@ var initTaskChainCommands = __esmModule(() => {
         return _0x445c6c.instancePromise;
       }
       static async ["getInstanceImpl"](_0x55b6a2, _0x40a478) {
-        let _0x482fdf = await ox.getInstance();
+        let _0x482fdf = await DatabaseTransactionWrapper.getInstance();
         await SqliteMigrator.migrateToSqlite(_0x55b6a2, _0x482fdf);
         let _0x5fb830 = TaskChainPersistence.getInstance(_0x55b6a2, _0x40a478, _0x482fdf),
-          _0x7db756 = Qm.getInstance(_0x55b6a2, _0x482fdf),
+          _0x7db756 = RepoMappingStorage.getInstance(_0x55b6a2, _0x482fdf),
           _0x478e57 = Xg.getInstance(_0x55b6a2, _0x482fdf),
           _0x3efe36 = WorkspaceSettingsPersistence.getInstance(_0x55b6a2, _0x482fdf);
         return new _0x445c6c(_0x5fb830, _0x7db756, _0x478e57, _0x482fdf, _0x3efe36);
@@ -14900,7 +14866,7 @@ var initTaskChainCommands = __esmModule(() => {
         }
       }
       async ['loadInBackground']() {
-        let _0x597af7 = zn.getInstance();
+        let _0x597af7 = TaskRunner.getInstance();
         await _0x597af7.setIsBootstrapping(true);
         let _0x1df02f = [{
             name: "taskHistory",
@@ -14953,11 +14919,11 @@ var initTaskChainCommands = __esmModule(() => {
       }
     };
   }),
-  U3,
+  UriCommandHandler,
   initMigrationLogger = __esmModule(() => {
     'use strict';
 
-    U3 = class {
+    UriCommandHandler = class {
       async ["handleUri"](_0x416157) {
         if (_0x416157.scheme !== vscode_module.env.uriScheme) return;
         let _0x20eab0 = _0x416157.path.slice(1),
@@ -14999,17 +14965,17 @@ var initTaskChainCommands = __esmModule(() => {
       }
       ["handleSendKeyChange"]() {
         let _0x2830cb = vscode_module.workspace.getConfiguration(config.extensionName).get("sendKey");
-        config.sendKey = _0x2830cb, Xr.syncStateToWebview(), Logger.debug('Send key preference changed to', config.sendKey);
+        config.sendKey = _0x2830cb, RateLimitHandler.syncStateToWebview(), Logger.debug('Send key preference changed to', config.sendKey);
       }
       ['handleAutoOpenDiffOnApplyChange']() {
         config.autoOpenDiffOnApply = vscode_module.workspace.getConfiguration(config.extensionName).get("autoOpenDiffOnApply"), Logger.debug("Auto open diff on apply changed to", config.autoOpenDiffOnApply);
       }
       ['handleAlwaysAllowPayToRunChange']() {
         let _0x509a1a = vscode_module.workspace.getConfiguration(config.extensionName).get('alwaysAllowPayToRun');
-        config.alwaysAllowPayToRun !== _0x509a1a && (config.alwaysAllowPayToRun = _0x509a1a, Xr.syncStateToWebview(), Logger.debug('Auto allow pay to run changed to', config.alwaysAllowPayToRun));
+        config.alwaysAllowPayToRun !== _0x509a1a && (config.alwaysAllowPayToRun = _0x509a1a, RateLimitHandler.syncStateToWebview(), Logger.debug('Auto allow pay to run changed to', config.alwaysAllowPayToRun));
       }
       ["handleEnablePromptSelectionTemplatePopoverChange"]() {
-        config.enablePromptTemplateSelector = vscode_module.workspace.getConfiguration(config.extensionName).get('enablePromptTemplateSelector'), Logger.debug('Enable prompt selection template popover changed to', config.enablePromptTemplateSelector), Xr.syncStateToWebview();
+        config.enablePromptTemplateSelector = vscode_module.workspace.getConfiguration(config.extensionName).get('enablePromptTemplateSelector'), Logger.debug('Enable prompt selection template popover changed to', config.enablePromptTemplateSelector), RateLimitHandler.syncStateToWebview();
       }
       ["handleLanguagePreferenceChange"]() {
         let _0x400b0b = vscode_module.workspace.getConfiguration(config.extensionName).get('languagePreference') ?? 'en',
@@ -15080,17 +15046,17 @@ var initTaskChainCommands = __esmModule(() => {
 
     initCliAgentService(), initPromptTemplateService(), initFilePathHandler(), FileWatcher = class {
       constructor() {
-        this.ignoreFilePatterns = getGlobalIgnoreInstance().add(rue);
+        this.ignoreFilePatterns = getGlobalIgnoreInstance().add(IGNORE_ALL_PATTERNS);
       }
       ['activate'](_0x5a0c45) {
         this.fileSystemWatcher = vscode_module.workspace.createFileSystemWatcher(vscode_module.workspace.asRelativePath("**/*"), false, false, false), this.fileSystemWatcher.onDidChange(async _0x2582a1 => {
-          await Promise.all([Sl.getInstance().watchWorkspaceTemplatePath(_0x2582a1.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x2582a1.fsPath, "upsert"), na.getInstance().invalidatePath(_0x2582a1.fsPath)]);
+          await Promise.all([Sl.getInstance().watchWorkspaceTemplatePath(_0x2582a1.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x2582a1.fsPath, "upsert"), FilePathHandler.getInstance().invalidatePath(_0x2582a1.fsPath)]);
         }), this.fileSystemWatcher.onDidCreate(async _0xf17a5c => {
-          await Promise.all([Sl.getInstance().watchWorkspaceTemplatePath(_0xf17a5c.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0xf17a5c.fsPath, "upsert"), na.getInstance().invalidatePath(_0xf17a5c.fsPath)]);
+          await Promise.all([Sl.getInstance().watchWorkspaceTemplatePath(_0xf17a5c.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0xf17a5c.fsPath, "upsert"), FilePathHandler.getInstance().invalidatePath(_0xf17a5c.fsPath)]);
         }), this.fileSystemWatcher.onDidDelete(async _0x3ef5e6 => {
-          await Promise.all([Sl.getInstance().watchWorkspaceTemplatePath(_0x3ef5e6.fsPath, 'delete'), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x3ef5e6.fsPath, 'delete'), na.getInstance().invalidatePath(_0x3ef5e6.fsPath)]);
+          await Promise.all([Sl.getInstance().watchWorkspaceTemplatePath(_0x3ef5e6.fsPath, 'delete'), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x3ef5e6.fsPath, 'delete'), FilePathHandler.getInstance().invalidatePath(_0x3ef5e6.fsPath)]);
         }), this.fileRenameWatcher = vscode_module.workspace.onDidRenameFiles(async _0x1e1398 => {
-          await Promise.all(_0x1e1398.files.flatMap(_0x24923e => [Sl.getInstance().watchWorkspaceTemplatePath(_0x24923e.oldUri.fsPath, 'delete'), Sl.getInstance().watchWorkspaceTemplatePath(_0x24923e.newUri.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.oldUri.fsPath, "delete"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.newUri.fsPath, 'upsert'), na.getInstance().invalidatePath(_0x24923e.oldUri.fsPath), na.getInstance().invalidatePath(_0x24923e.newUri.fsPath)]));
+          await Promise.all(_0x1e1398.files.flatMap(_0x24923e => [Sl.getInstance().watchWorkspaceTemplatePath(_0x24923e.oldUri.fsPath, 'delete'), Sl.getInstance().watchWorkspaceTemplatePath(_0x24923e.newUri.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.oldUri.fsPath, "delete"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.newUri.fsPath, 'upsert'), FilePathHandler.getInstance().invalidatePath(_0x24923e.oldUri.fsPath), FilePathHandler.getInstance().invalidatePath(_0x24923e.newUri.fsPath)]));
         }), _0x5a0c45.subscriptions.push(this.fileRenameWatcher), _0x5a0c45.subscriptions.push(this.fileSystemWatcher);
       }
       ['deactivate']() {
@@ -15149,7 +15115,7 @@ var initTaskChainCommands = __esmModule(() => {
         this.workspaceChangeWatcher?.['dispose']();
       }
       async ["handleWorkspaceChange"]() {
-        na.getInstance().clearCache(), workspace_info.getInstance().invalidateWSInfo();
+        FilePathHandler.getInstance().clearCache(), WorkspaceInfoManager.getInstance().invalidateWSInfo();
       }
     };
   }),
@@ -15175,7 +15141,7 @@ var initTaskChainCommands = __esmModule(() => {
 async function showReleaseNotesPanel(_0x2347a1, _0x56df76) {
   try {
     let _0x50fa66 = path_module.join(_0x2347a1.extensionPath, "resources", "changelog.md"),
-      _0x54ed5 = await workspace_info.getInstance().readFile(_0x50fa66, false),
+      _0x54ed5 = await WorkspaceInfoManager.getInstance().readFile(_0x50fa66, false),
       _0x6b164a = _0x56df76.organizationSubscription ?? _0x56df76.userSubscription;
     _0x54ed5 = _0x54ed5 + '\x0a\x0a<hr>\x0a\x0a## Your Subscription Status: **' + createUuid(!_0x6b164a?.['orgID'], _0x6b164a.subscriptionStatus, _0x6b164a.isInTrial) + '**\x0a';
     let _0x45ad27 = _0x6b164a?.['subscriptionStatus'];
@@ -15196,8 +15162,8 @@ function generateReleaseNotesHtml(_0x56f4a6) {
     html: true
   }).render(_0x56f4a6) + '\x0a            </div>\x0a\x0a            <!-- Footer section with buttons -->\x0a            <footer>\x0a                <div class=\x22footer-buttons\x22>\x0a                    <a href=\x22' + wE.mainWebsitePricing + '\x22 target=\x22_blank\x22>Plans & Pricing</a>\x0a                    <a href=\x22' + wE.mainWebsiteFAQ + '\x22 target=\x22_blank\x22>FAQs</a>\x0a                    <a href=\x22' + wE.discord + "\" target=\"_blank\">Join Discord</a>\n                    <a href=\"" + wE.twitter + "\" target=\"_blank\">Follow on X (Twitter)</a>\n                </div>\n            </footer>\n        </body>\n        <script>\n            function copyCouponCode() {\n                const couponCodeElement = document.getElementById('coupon-code');\n                const couponCode = couponCodeElement.innerText;\n                const copiedMessage = document.getElementById('copied-message');\n\n                // Create a temporary input element\n                const tempInput = document.createElement('input');\n                tempInput.style.position = 'absolute';\n                tempInput.style.left = '-9999px';\n                tempInput.value = couponCode;\n\n                // Append the input element to the document body\n                document.body.appendChild(tempInput);\n\n                // Select the content of the input\n                tempInput.select();\n                tempInput.setSelectionRange(0, 99999); // For mobile devices\n\n                // Try to execute the copy command\n                try {\n                    document.execCommand('copy');\n\n                    // Show the \"Copied!\" message\n                    copiedMessage.classList.add('active');\n\n                    // Hide the message after 2 seconds\n                    setTimeout(() => {\n                        copiedMessage.classList.remove('active');\n                    }, 2000);\n                } catch (err) {\n                    console.error('Failed to copy the coupon code: ', err);\n                    alert('Failed to copy the coupon code.');\n                }\n\n                // Remove the temporary input element\n                document.body.removeChild(tempInput);\n            }\n        </script>\n      </html>\n      ";
 }
-var xQ = {};
-__export(xQ, {
+var emptyExports = {};
+__export(emptyExports, {
   activateExtension: () => initializeExtensionWithAuth,
   deactivateExtension: () => cleanupExtensionResources
 });
@@ -15222,9 +15188,9 @@ async function initializeExtensionWithAuth(vscode_context) {
     },
     _0x2feb83 = new TraycerCredentials(vscode_context, _0x17e4bf, _0x41b689);
   AuthCallbackHandler.getInstance(_0x2feb83);
-  let _0x1655f7 = vscode_module.window.registerUriHandler(new U3());
+  let _0x1655f7 = vscode_module.window.registerUriHandler(new UriCommandHandler());
   vscode_context.subscriptions.push(_0x1655f7), extensionContext = _0x2feb83;
-  let _0x39ac3c = Qe.getInstance(vscode_context, _0x2feb83);
+  let _0x39ac3c = CommentNavigator.getInstance(vscode_context, _0x2feb83);
   await H_.getInstance().sendWorkspaceStatus(), (vscode_module.workspace.workspaceFolders?.['length'] ?? 0) !== 0 && (vscode_context.subscriptions.push(_0x39ac3c), _0x2feb83.setupAuth().catch(_0x3728ea => {
     Logger.error(_0x3728ea, "Failed to activate Traycer"), vscode_module.Disposable.from(...disposables).dispose(), disposables = [];
   }));
@@ -15266,7 +15232,7 @@ async function initializeExtensionServices(context, authState_local) {
   await WorkerPoolManager.initWorkerPool();
 
   // 初始化PostHog分析实例
-  yn.getInstance(providerHandle, traycerUser.user.email ?? void 0, traycerUser.user.privacyMode);
+  PosthogAnalytics.getInstance(providerHandle, traycerUser.user.email ?? void 0, traycerUser.user.privacyMode);
 
   // 创建gRPC凭证
   let grpcCredentials = config.nodeEnv !== 'local' ? grpc_module.ChannelCredentials.createSsl() : grpc_module.credentials.createSsl(null, null, null, {
@@ -15304,15 +15270,15 @@ async function initializeExtensionServices(context, authState_local) {
   disposables.push(editableDiffFsProvider);
 
   // 初始化存储服务
-  let storageService = zn.getInstance(grpcClient),
+  let storageService = TaskRunner.getInstance(grpcClient),
     persistenceManager = await PersistenceManager.getInstancePromise(context, storageService);
 
   // 从存储加载数据
-  await Vt.getInstance().fetchFromStorage();
+  await TaskSettingsHandler.getInstance().fetchFromStorage();
 
   // 获取订阅信息
-  new Gf(authState_local).handle({
-    type: il.FETCH_SUBSCRIPTION
+  new SubscriptionHandler(authState_local).handle({
+    type: subscriptionActions.FETCH_SUBSCRIPTION
   }).catch(subscriptionError => {
     Logger.error(subscriptionError, "Failed to fetch subscription");
   });
@@ -15328,7 +15294,7 @@ async function initializeExtensionServices(context, authState_local) {
   disposables.push(usageTrackerDisposable);
 
   // 更新仓库映射
-  await Du.getInstance().upsertRepoMappings();
+  await RepoMappingManager.getInstance().upsertRepoMappings();
 
   // 创建文件监视器
   let {
@@ -15341,7 +15307,7 @@ async function initializeExtensionServices(context, authState_local) {
 
   // 监听配置变化
   let configChangeDisposable = vscode_module.workspace.onDidChangeConfiguration(configEvent => {
-    configEvent.affectsConfiguration("traycer.additionalAgents") && Xr.syncStateToWebview();
+    configEvent.affectsConfiguration("traycer.additionalAgents") && RateLimitHandler.syncStateToWebview();
   });
   disposables.push(configChangeDisposable);
 
@@ -15356,7 +15322,7 @@ async function initializeExtensionServices(context, authState_local) {
   persistenceManager.loadDataFromDisk();
 
   // 初始化文件监视器管理器
-  let fileWatcherManager = br.getInstance();
+  let fileWatcherManager = TemplateManager.getInstance();
   await fileWatcherManager.startWatcher();
   let fileWatcherDisposable = {
     dispose: () => fileWatcherManager.dispose()
@@ -15394,7 +15360,7 @@ function isMinorOrMajorVersionChange(_0x2192e4, _0x4068d2) {
   return !_0x2fa6b5 || !_0x40b882 ? false : _0x2fa6b5.major !== _0x40b882.major || _0x2fa6b5.minor !== _0x40b882.minor;
 }
 function initializeLanguageParsers(_0x1c0698) {
-  Cg.getInstance(_0x1c0698.extensionUri), hh.getInstance(_0x1c0698.extensionUri), LT.getInstance(_0x1c0698.extensionUri), DT.getInstance(_0x1c0698.extensionUri), MT.getInstance(_0x1c0698.extensionUri), NT.getInstance(_0x1c0698.extensionUri), SnippetContextProvider.getInstance();
+  PythonFileParser.getInstance(_0x1c0698.extensionUri), TypeScriptFileParser.getInstance(_0x1c0698.extensionUri), LT.getInstance(_0x1c0698.extensionUri), JavaScriptFileParser.getInstance(_0x1c0698.extensionUri), GoFileParser.getInstance(_0x1c0698.extensionUri), RustFileParser.getInstance(_0x1c0698.extensionUri), SnippetContextProvider.getInstance();
 }
 function createWatchers(_0x350ec6, _0x1620ee) {
   let _0xc4def2 = new DocsWatcher();
@@ -15447,13 +15413,13 @@ __export(sSt, {
 async function activateExtensionAsync(_0x426cfb) {
   let {
     activateExtension: _0x3cce95
-  } = await Promise.resolve().then(() => (initExtension(), xQ));
+  } = await Promise.resolve().then(() => (initExtension(), emptyExports));
   return _0x3cce95(_0x426cfb);
 }
 async function deactivateExtensionAsync() {
   let {
     deactivateExtension: _0x5cadab
-  } = await Promise.resolve().then(() => (initExtension(), xQ));
+  } = await Promise.resolve().then(() => (initExtension(), emptyExports));
   return _0x5cadab();
 }
 async function activateExtension(_0x1a0601) {

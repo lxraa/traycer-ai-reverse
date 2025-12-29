@@ -1,0 +1,6219 @@
+{
+  "timestamp": "2025-12-29T03:36:35.617Z",
+  "summary": {
+    "totalRenamed": 1035,
+    "totalSkipped": 169
+  },
+  "locations": [
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 159,
+      "column": 2
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 159,
+      "column": 2
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 170,
+      "column": 16
+    },
+    {
+      "oldName": "bu",
+      "newName": "StreamCloseReason",
+      "line": 285,
+      "column": 2
+    },
+    {
+      "oldName": "$c",
+      "newName": "PhaseSize",
+      "line": 292,
+      "column": 2
+    },
+    {
+      "oldName": "FileContent",
+      "newName": "FileContent",
+      "line": 404,
+      "column": 18
+    },
+    {
+      "oldName": "wm",
+      "newName": "agentRegistry",
+      "line": 517,
+      "column": 21
+    },
+    {
+      "oldName": "wm",
+      "newName": "agentRegistry",
+      "line": 520,
+      "column": 51
+    },
+    {
+      "oldName": "wm",
+      "newName": "agentRegistry",
+      "line": 524,
+      "column": 21
+    },
+    {
+      "oldName": "wm",
+      "newName": "agentRegistry",
+      "line": 524,
+      "column": 47
+    },
+    {
+      "oldName": "wm",
+      "newName": "agentRegistry",
+      "line": 524,
+      "column": 63
+    },
+    {
+      "oldName": "wm",
+      "newName": "agentRegistry",
+      "line": 532,
+      "column": 4
+    },
+    {
+      "oldName": "FileContent",
+      "newName": "FileContent",
+      "line": 654,
+      "column": 4
+    },
+    {
+      "oldName": "oie",
+      "newName": "createErrorFromMessage",
+      "line": 662,
+      "column": 40
+    },
+    {
+      "oldName": "oie",
+      "newName": "createErrorFromMessage",
+      "line": 667,
+      "column": 42
+    },
+    {
+      "oldName": "oie",
+      "newName": "createErrorFromMessage",
+      "line": 707,
+      "column": 2
+    },
+    {
+      "oldName": "w5e",
+      "newName": "STREAM_DRAIN_TIMEOUT_ERROR_MSG",
+      "line": 906,
+      "column": 4
+    },
+    {
+      "oldName": "w5e",
+      "newName": "STREAM_DRAIN_TIMEOUT_ERROR_MSG",
+      "line": 909,
+      "column": 12
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 920,
+      "column": 4
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 925,
+      "column": 4
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 939,
+      "column": 26
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 940,
+      "column": 18
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 941,
+      "column": 45
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 944,
+      "column": 32
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 945,
+      "column": 39
+    },
+    {
+      "oldName": "x5e",
+      "newName": "DRAIN_TIMEOUT_MS",
+      "line": 1022,
+      "column": 11
+    },
+    {
+      "oldName": "x5e",
+      "newName": "DRAIN_TIMEOUT_MS",
+      "line": 1051,
+      "column": 4
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 1051,
+      "column": 10
+    },
+    {
+      "oldName": "u$",
+      "newName": "IGNORE_DIRECTORIES",
+      "line": 1053,
+      "column": 4
+    },
+    {
+      "oldName": "yO",
+      "newName": "IGNORE_FILES",
+      "line": 1054,
+      "column": 2
+    },
+    {
+      "oldName": "rue",
+      "newName": "IGNORE_ALL_PATTERNS",
+      "line": 1055,
+      "column": 2
+    },
+    {
+      "oldName": "AsyncQueue",
+      "newName": "AsyncQueue",
+      "line": 1057,
+      "column": 2
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 1067,
+      "column": 31
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 1067,
+      "column": 98
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 1114,
+      "column": 50
+    },
+    {
+      "oldName": "StreamMessageHandler",
+      "newName": "StreamMessageHandler",
+      "line": 1151,
+      "column": 2
+    },
+    {
+      "oldName": "AsyncQueue",
+      "newName": "AsyncQueue",
+      "line": 1161,
+      "column": 83
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 1163,
+      "column": 23
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 1208,
+      "column": 90
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 1209,
+      "column": 9
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 1249,
+      "column": 2
+    },
+    {
+      "oldName": "t9e",
+      "newName": "platformTypeNames",
+      "line": 1272,
+      "column": 9
+    },
+    {
+      "oldName": "t9e",
+      "newName": "platformTypeNames",
+      "line": 1324,
+      "column": 4
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 1325,
+      "column": 3
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 1326,
+      "column": 3
+    },
+    {
+      "oldName": "il",
+      "newName": "subscriptionActions",
+      "line": 1328,
+      "column": 4
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 1333,
+      "column": 2
+    },
+    {
+      "oldName": "PO",
+      "newName": "PathConversionMessageTypes",
+      "line": 1381,
+      "column": 2
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 1386,
+      "column": 2
+    },
+    {
+      "oldName": "Ru",
+      "newName": "CLIAgentManagementActions",
+      "line": 1387,
+      "column": 2
+    },
+    {
+      "oldName": "hw",
+      "newName": "CloudUIActions",
+      "line": 1396,
+      "column": 2
+    },
+    {
+      "oldName": "bO",
+      "newName": "ActivationMessageTypes",
+      "line": 1400,
+      "column": 2
+    },
+    {
+      "oldName": "Cv",
+      "newName": "AuthenticationActions",
+      "line": 1403,
+      "column": 2
+    },
+    {
+      "oldName": "mw",
+      "newName": "MCPServerActions",
+      "line": 1408,
+      "column": 2
+    },
+    {
+      "oldName": "CO",
+      "newName": "MetricsActions",
+      "line": 1412,
+      "column": 2
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 1415,
+      "column": 2
+    },
+    {
+      "oldName": "Ou",
+      "newName": "TaskSettingsActions",
+      "line": 1427,
+      "column": 2
+    },
+    {
+      "oldName": "_w",
+      "newName": "UsageInformationActions",
+      "line": 1436,
+      "column": 2
+    },
+    {
+      "oldName": "IO",
+      "newName": "ListenersReadyMessage",
+      "line": 1440,
+      "column": 2
+    },
+    {
+      "oldName": "gw",
+      "newName": "WorkspaceActions",
+      "line": 1443,
+      "column": 2
+    },
+    {
+      "oldName": "c9e",
+      "newName": "fileOperationSet",
+      "line": 1448,
+      "column": 9
+    },
+    {
+      "oldName": "l9e",
+      "newName": "subscriptionActionSet",
+      "line": 1451,
+      "column": 9
+    },
+    {
+      "oldName": "d9e",
+      "newName": "taskMessageTypeSet",
+      "line": 1454,
+      "column": 9
+    },
+    {
+      "oldName": "p9e",
+      "newName": "planMessageTypeSet",
+      "line": 1457,
+      "column": 9
+    },
+    {
+      "oldName": "f9e",
+      "newName": "phaseBreakdownMessageTypeSet",
+      "line": 1460,
+      "column": 9
+    },
+    {
+      "oldName": "h9e",
+      "newName": "taskStepMessageTypeSet",
+      "line": 1463,
+      "column": 9
+    },
+    {
+      "oldName": "m9e",
+      "newName": "planConversationMessageTypeSet",
+      "line": 1466,
+      "column": 9
+    },
+    {
+      "oldName": "_9e",
+      "newName": "reviewStepMessageTypeSet",
+      "line": 1469,
+      "column": 9
+    },
+    {
+      "oldName": "g9e",
+      "newName": "planGenerationStepMessageTypeSet",
+      "line": 1472,
+      "column": 9
+    },
+    {
+      "oldName": "y9e",
+      "newName": "verificationStepMessageTypeSet",
+      "line": 1475,
+      "column": 9
+    },
+    {
+      "oldName": "v9e",
+      "newName": "orchestratorMessageTypeSet",
+      "line": 1478,
+      "column": 9
+    },
+    {
+      "oldName": "T9e",
+      "newName": "taskContextMessageTypeSet",
+      "line": 1481,
+      "column": 9
+    },
+    {
+      "oldName": "E9e",
+      "newName": "commentNavigatorMessageTypeSet",
+      "line": 1484,
+      "column": 9
+    },
+    {
+      "oldName": "S9e",
+      "newName": "gitignoreChangeSet",
+      "line": 1487,
+      "column": 9
+    },
+    {
+      "oldName": "c9e",
+      "newName": "fileOperationSet",
+      "line": 1489,
+      "column": 4
+    },
+    {
+      "oldName": "Ou",
+      "newName": "TaskSettingsActions",
+      "line": 1489,
+      "column": 32
+    },
+    {
+      "oldName": "l9e",
+      "newName": "subscriptionActionSet",
+      "line": 1490,
+      "column": 2
+    },
+    {
+      "oldName": "il",
+      "newName": "subscriptionActions",
+      "line": 1490,
+      "column": 30
+    },
+    {
+      "oldName": "d9e",
+      "newName": "taskMessageTypeSet",
+      "line": 1491,
+      "column": 2
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 1491,
+      "column": 30
+    },
+    {
+      "oldName": "p9e",
+      "newName": "planMessageTypeSet",
+      "line": 1492,
+      "column": 2
+    },
+    {
+      "oldName": "CO",
+      "newName": "MetricsActions",
+      "line": 1492,
+      "column": 30
+    },
+    {
+      "oldName": "f9e",
+      "newName": "phaseBreakdownMessageTypeSet",
+      "line": 1493,
+      "column": 2
+    },
+    {
+      "oldName": "Cv",
+      "newName": "AuthenticationActions",
+      "line": 1493,
+      "column": 30
+    },
+    {
+      "oldName": "h9e",
+      "newName": "taskStepMessageTypeSet",
+      "line": 1494,
+      "column": 2
+    },
+    {
+      "oldName": "hw",
+      "newName": "CloudUIActions",
+      "line": 1494,
+      "column": 30
+    },
+    {
+      "oldName": "m9e",
+      "newName": "planConversationMessageTypeSet",
+      "line": 1495,
+      "column": 2
+    },
+    {
+      "oldName": "bO",
+      "newName": "ActivationMessageTypes",
+      "line": 1495,
+      "column": 30
+    },
+    {
+      "oldName": "_9e",
+      "newName": "reviewStepMessageTypeSet",
+      "line": 1496,
+      "column": 2
+    },
+    {
+      "oldName": "IO",
+      "newName": "ListenersReadyMessage",
+      "line": 1496,
+      "column": 30
+    },
+    {
+      "oldName": "g9e",
+      "newName": "planGenerationStepMessageTypeSet",
+      "line": 1497,
+      "column": 2
+    },
+    {
+      "oldName": "_w",
+      "newName": "UsageInformationActions",
+      "line": 1497,
+      "column": 30
+    },
+    {
+      "oldName": "y9e",
+      "newName": "verificationStepMessageTypeSet",
+      "line": 1498,
+      "column": 2
+    },
+    {
+      "oldName": "gw",
+      "newName": "WorkspaceActions",
+      "line": 1498,
+      "column": 30
+    },
+    {
+      "oldName": "v9e",
+      "newName": "orchestratorMessageTypeSet",
+      "line": 1499,
+      "column": 2
+    },
+    {
+      "oldName": "mw",
+      "newName": "MCPServerActions",
+      "line": 1499,
+      "column": 30
+    },
+    {
+      "oldName": "T9e",
+      "newName": "taskContextMessageTypeSet",
+      "line": 1500,
+      "column": 2
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 1500,
+      "column": 30
+    },
+    {
+      "oldName": "E9e",
+      "newName": "commentNavigatorMessageTypeSet",
+      "line": 1501,
+      "column": 2
+    },
+    {
+      "oldName": "Ru",
+      "newName": "CLIAgentManagementActions",
+      "line": 1501,
+      "column": 30
+    },
+    {
+      "oldName": "S9e",
+      "newName": "gitignoreChangeSet",
+      "line": 1502,
+      "column": 2
+    },
+    {
+      "oldName": "PO",
+      "newName": "PathConversionMessageTypes",
+      "line": 1502,
+      "column": 30
+    },
+    {
+      "oldName": "yw",
+      "newName": "SubscriptionWebViewActions",
+      "line": 1503,
+      "column": 2
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 1506,
+      "column": 2
+    },
+    {
+      "oldName": "AO",
+      "newName": "PathConversionWebViewMessages",
+      "line": 1522,
+      "column": 2
+    },
+    {
+      "oldName": "kO",
+      "newName": "ActivationWebViewMessages",
+      "line": 1525,
+      "column": 2
+    },
+    {
+      "oldName": "Iv",
+      "newName": "AuthenticationWebViewMessages",
+      "line": 1528,
+      "column": 2
+    },
+    {
+      "oldName": "vw",
+      "newName": "MCPServerWebViewMessages",
+      "line": 1533,
+      "column": 2
+    },
+    {
+      "oldName": "Um",
+      "newName": "CLIAgentWebViewMessages",
+      "line": 1537,
+      "column": 2
+    },
+    {
+      "oldName": "sl",
+      "newName": "NavigationMessages",
+      "line": 1542,
+      "column": 2
+    },
+    {
+      "oldName": "Ef",
+      "newName": "PromptTemplateWebViewMessages",
+      "line": 1550,
+      "column": 2
+    },
+    {
+      "oldName": "Av",
+      "newName": "TaskSettingsWebViewMessages",
+      "line": 1556,
+      "column": 2
+    },
+    {
+      "oldName": "Tw",
+      "newName": "UsageInformationWebViewMessages",
+      "line": 1560,
+      "column": 2
+    },
+    {
+      "oldName": "RO",
+      "newName": "WorkspaceWebViewMessages",
+      "line": 1564,
+      "column": 2
+    },
+    {
+      "oldName": "OO",
+      "newName": "baseTemplateSchema",
+      "line": 1567,
+      "column": 2
+    },
+    {
+      "oldName": "ice",
+      "newName": "fullTemplateSchema",
+      "line": 1578,
+      "column": 2
+    },
+    {
+      "oldName": "OO",
+      "newName": "baseTemplateSchema",
+      "line": 1581,
+      "column": 9
+    },
+    {
+      "oldName": "OO",
+      "newName": "baseTemplateSchema",
+      "line": 1588,
+      "column": 35
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 1591,
+      "column": 2
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 1654,
+      "column": 14
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 1670,
+      "column": 14
+    },
+    {
+      "oldName": "I9e",
+      "newName": "latestRequestLimiter",
+      "line": 1733,
+      "column": 17
+    },
+    {
+      "oldName": "I9e",
+      "newName": "latestRequestLimiter",
+      "line": 1740,
+      "column": 4
+    },
+    {
+      "oldName": "I9e",
+      "newName": "latestRequestLimiter",
+      "line": 1744,
+      "column": 71
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 1746,
+      "column": 2
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 1750,
+      "column": 25
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 1756,
+      "column": 49
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 1804,
+      "column": 4
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 1808,
+      "column": 48
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 1814,
+      "column": 26
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 1841,
+      "column": 30
+    },
+    {
+      "oldName": "WO",
+      "newName": "SymbolQueryType",
+      "line": 1910,
+      "column": 2
+    },
+    {
+      "oldName": "jO",
+      "newName": "OrganizationType",
+      "line": 1915,
+      "column": 2
+    },
+    {
+      "oldName": "jm",
+      "newName": "PhaseModificationType",
+      "line": 1919,
+      "column": 2
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 1924,
+      "column": 2
+    },
+    {
+      "oldName": "HO",
+      "newName": "QueryType",
+      "line": 1928,
+      "column": 2
+    },
+    {
+      "oldName": "l4",
+      "newName": "TaskFailureReason",
+      "line": 1932,
+      "column": 2
+    },
+    {
+      "oldName": "Id",
+      "newName": "TaskProgressState",
+      "line": 1938,
+      "column": 2
+    },
+    {
+      "oldName": "Ad",
+      "newName": "CommentResolutionStatus",
+      "line": 1943,
+      "column": 2
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 1950,
+      "column": 22
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 1952,
+      "column": 28
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 1993,
+      "column": 46
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 1993,
+      "column": 59
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 2012,
+      "column": 26
+    },
+    {
+      "oldName": "Pf",
+      "newName": "WorkspaceAssociation",
+      "line": 2035,
+      "column": 4
+    },
+    {
+      "oldName": "Pf",
+      "newName": "WorkspaceAssociation",
+      "line": 2039,
+      "column": 25
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 2052,
+      "column": 36
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 2055,
+      "column": 47
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 2072,
+      "column": 2
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 2076,
+      "column": 25
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 2089,
+      "column": 32
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2150,
+      "column": 6
+    },
+    {
+      "oldName": "ThreadStorage",
+      "newName": "ThreadStorage",
+      "line": 2167,
+      "column": 8
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2167,
+      "column": 30
+    },
+    {
+      "oldName": "ConversationStorage",
+      "newName": "ConversationStorage",
+      "line": 2168,
+      "column": 8
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2168,
+      "column": 36
+    },
+    {
+      "oldName": "TaskStorage",
+      "newName": "TaskStorage",
+      "line": 2169,
+      "column": 8
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2169,
+      "column": 28
+    },
+    {
+      "oldName": "PlanStorage",
+      "newName": "PlanStorage",
+      "line": 2170,
+      "column": 8
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2170,
+      "column": 28
+    },
+    {
+      "oldName": "AttachmentStorage",
+      "newName": "AttachmentStorage",
+      "line": 2171,
+      "column": 8
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2171,
+      "column": 34
+    },
+    {
+      "oldName": "EmptyStorage",
+      "newName": "EmptyStorage",
+      "line": 2172,
+      "column": 8
+    },
+    {
+      "oldName": "ox",
+      "newName": "DatabaseTransactionWrapper",
+      "line": 2176,
+      "column": 4
+    },
+    {
+      "oldName": "Bv",
+      "newName": "RowParseError",
+      "line": 2177,
+      "column": 2
+    },
+    {
+      "oldName": "ox",
+      "newName": "DatabaseTransactionWrapper",
+      "line": 2181,
+      "column": 21
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 2256,
+      "column": 30
+    },
+    {
+      "oldName": "Bv",
+      "newName": "RowParseError",
+      "line": 2268,
+      "column": 53
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 2274,
+      "column": 28
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 2295,
+      "column": 30
+    },
+    {
+      "oldName": "Bv",
+      "newName": "RowParseError",
+      "line": 2309,
+      "column": 28
+    },
+    {
+      "oldName": "EmptyStorage",
+      "newName": "EmptyStorage",
+      "line": 2324,
+      "column": 30
+    },
+    {
+      "oldName": "Bv",
+      "newName": "RowParseError",
+      "line": 2342,
+      "column": 7
+    },
+    {
+      "oldName": "ol",
+      "newName": "BaseStorageAPI",
+      "line": 2348,
+      "column": 2
+    },
+    {
+      "oldName": "ol",
+      "newName": "BaseStorageAPI",
+      "line": 2352,
+      "column": 28
+    },
+    {
+      "oldName": "Bv",
+      "newName": "RowParseError",
+      "line": 2419,
+      "column": 50
+    },
+    {
+      "oldName": "RepoMappingMigrator",
+      "newName": "RepoMappingMigrator",
+      "line": 2510,
+      "column": 2
+    },
+    {
+      "oldName": "RepoMappingMigrator",
+      "newName": "RepoMappingMigrator",
+      "line": 2514,
+      "column": 24
+    },
+    {
+      "oldName": "Qm",
+      "newName": "RepoMappingStorage",
+      "line": 2531,
+      "column": 2
+    },
+    {
+      "oldName": "Qm",
+      "newName": "RepoMappingStorage",
+      "line": 2535,
+      "column": 73
+    },
+    {
+      "oldName": "ol",
+      "newName": "BaseStorageAPI",
+      "line": 2535,
+      "column": 102
+    },
+    {
+      "oldName": "RepoMappingMigrator",
+      "newName": "RepoMappingMigrator",
+      "line": 2556,
+      "column": 15
+    },
+    {
+      "oldName": "Jm",
+      "newName": "RepoMapping",
+      "line": 2563,
+      "column": 2
+    },
+    {
+      "oldName": "Jm",
+      "newName": "RepoMapping",
+      "line": 2567,
+      "column": 32
+    },
+    {
+      "oldName": "Qm",
+      "newName": "RepoMappingStorage",
+      "line": 2570,
+      "column": 24
+    },
+    {
+      "oldName": "PlanStorage",
+      "newName": "PlanStorage",
+      "line": 2571,
+      "column": 30
+    },
+    {
+      "oldName": "Qm",
+      "newName": "RepoMappingStorage",
+      "line": 2589,
+      "column": 22
+    },
+    {
+      "oldName": "PlanStorage",
+      "newName": "PlanStorage",
+      "line": 2590,
+      "column": 32
+    },
+    {
+      "oldName": "Du",
+      "newName": "RepoMappingManager",
+      "line": 2606,
+      "column": 2
+    },
+    {
+      "oldName": "Du",
+      "newName": "RepoMappingManager",
+      "line": 2610,
+      "column": 46
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 2623,
+      "column": 24
+    },
+    {
+      "oldName": "Jm",
+      "newName": "RepoMapping",
+      "line": 2633,
+      "column": 21
+    },
+    {
+      "oldName": "Du",
+      "newName": "RepoMappingManager",
+      "line": 2665,
+      "column": 24
+    },
+    {
+      "oldName": "Jm",
+      "newName": "RepoMapping",
+      "line": 2703,
+      "column": 15
+    },
+    {
+      "oldName": "Jm",
+      "newName": "RepoMapping",
+      "line": 2712,
+      "column": 63
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2770,
+      "column": 99
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 30
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 66
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 100
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 139
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 177
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 219
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 259
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 299
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 336
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 375
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 415
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 452
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 491
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 530
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 568
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 606
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 645
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 679
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 712
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2773,
+      "column": 791
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2804,
+      "column": 13
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2806,
+      "column": 13
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2808,
+      "column": 13
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2810,
+      "column": 13
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2812,
+      "column": 13
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2814,
+      "column": 13
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2816,
+      "column": 13
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2818,
+      "column": 69
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2876,
+      "column": 22
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 2880,
+      "column": 24
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2888,
+      "column": 22
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2888,
+      "column": 50
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2895,
+      "column": 20
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2895,
+      "column": 48
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2895,
+      "column": 179
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 2918,
+      "column": 24
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2926,
+      "column": 65
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2931,
+      "column": 55
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2980,
+      "column": 22
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2980,
+      "column": 50
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2980,
+      "column": 161
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2980,
+      "column": 193
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2982,
+      "column": 26
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2982,
+      "column": 54
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 2984,
+      "column": 28
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2986,
+      "column": 22
+    },
+    {
+      "oldName": "yt",
+      "newName": "GitFileStatus",
+      "line": 2986,
+      "column": 54
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 3004,
+      "column": 4
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 3008,
+      "column": 77
+    },
+    {
+      "oldName": "Pf",
+      "newName": "WorkspaceAssociation",
+      "line": 3037,
+      "column": 30
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 3082,
+      "column": 46
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 3082,
+      "column": 59
+    },
+    {
+      "oldName": "Du",
+      "newName": "RepoMappingManager",
+      "line": 3181,
+      "column": 32
+    },
+    {
+      "oldName": "TemplateFileNotFoundError",
+      "newName": "TemplateFileNotFoundError",
+      "line": 3202,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateFileEmptyError",
+      "newName": "TemplateFileEmptyError",
+      "line": 3207,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateFileNotMarkdownError",
+      "newName": "TemplateFileNotMarkdownError",
+      "line": 3212,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateMissingMetadataError",
+      "newName": "TemplateMissingMetadataError",
+      "line": 3217,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateInvalidMetadataError",
+      "newName": "TemplateInvalidMetadataError",
+      "line": 3222,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateFileAlreadyExistsError",
+      "newName": "TemplateFileAlreadyExistsError",
+      "line": 3227,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateNotFoundError",
+      "newName": "TemplateNotFoundError",
+      "line": 3232,
+      "column": 2
+    },
+    {
+      "oldName": "CLIAgentNameConflictsWithBuiltInAgentError",
+      "newName": "CLIAgentNameConflictsWithBuiltInAgentError",
+      "line": 3237,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateNameNotAllowedError",
+      "newName": "TemplateNameNotAllowedError",
+      "line": 3242,
+      "column": 2
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 3247,
+      "column": 2
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 3252,
+      "column": 2
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 3256,
+      "column": 24
+    },
+    {
+      "oldName": "CloudAuthHandler",
+      "newName": "CloudAuthHandler",
+      "line": 3316,
+      "column": 2
+    },
+    {
+      "oldName": "hw",
+      "newName": "CloudUIActions",
+      "line": 3322,
+      "column": 13
+    },
+    {
+      "oldName": "hw",
+      "newName": "CloudUIActions",
+      "line": 3324,
+      "column": 13
+    },
+    {
+      "oldName": "kYe",
+      "newName": "FILE_PATH_PATTERN_REGEX",
+      "line": 3340,
+      "column": 2
+    },
+    {
+      "oldName": "RYe",
+      "newName": "PATH_CACHE_SIZE",
+      "line": 3341,
+      "column": 2
+    },
+    {
+      "oldName": "na",
+      "newName": "FilePathHandler",
+      "line": 3342,
+      "column": 2
+    },
+    {
+      "oldName": "kYe",
+      "newName": "FILE_PATH_PATTERN_REGEX",
+      "line": 3346,
+      "column": 53
+    },
+    {
+      "oldName": "RYe",
+      "newName": "PATH_CACHE_SIZE",
+      "line": 3346,
+      "column": 96
+    },
+    {
+      "oldName": "na",
+      "newName": "FilePathHandler",
+      "line": 3346,
+      "column": 107
+    },
+    {
+      "oldName": "RYe",
+      "newName": "PATH_CACHE_SIZE",
+      "line": 3348,
+      "column": 51
+    },
+    {
+      "oldName": "PO",
+      "newName": "PathConversionMessageTypes",
+      "line": 3362,
+      "column": 15
+    },
+    {
+      "oldName": "AO",
+      "newName": "PathConversionWebViewMessages",
+      "line": 3377,
+      "column": 18
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 3381,
+      "column": 15
+    },
+    {
+      "oldName": "kYe",
+      "newName": "FILE_PATH_PATTERN_REGEX",
+      "line": 3386,
+      "column": 64
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 3427,
+      "column": 20
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 3431,
+      "column": 34
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 3440,
+      "column": 24
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 3443,
+      "column": 22
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 3444,
+      "column": 36
+    },
+    {
+      "oldName": "GitHubAuthHandler",
+      "newName": "GitHubAuthHandler",
+      "line": 3471,
+      "column": 2
+    },
+    {
+      "oldName": "Cv",
+      "newName": "AuthenticationActions",
+      "line": 3477,
+      "column": 13
+    },
+    {
+      "oldName": "Cv",
+      "newName": "AuthenticationActions",
+      "line": 3479,
+      "column": 13
+    },
+    {
+      "oldName": "Cv",
+      "newName": "AuthenticationActions",
+      "line": 3481,
+      "column": 13
+    },
+    {
+      "oldName": "U1",
+      "newName": "MetricsHandler",
+      "line": 3495,
+      "column": 2
+    },
+    {
+      "oldName": "U1",
+      "newName": "MetricsHandler",
+      "line": 3499,
+      "column": 21
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 3501,
+      "column": 24
+    },
+    {
+      "oldName": "CO",
+      "newName": "MetricsActions",
+      "line": 3503,
+      "column": 15
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV1",
+      "newName": "WorkspaceSettingsMigratorV1",
+      "line": 3510,
+      "column": 2
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV2",
+      "newName": "WorkspaceSettingsMigratorV2",
+      "line": 3523,
+      "column": 2
+    },
+    {
+      "oldName": "IdeAgentMigrator",
+      "newName": "IdeAgentMigrator",
+      "line": 3537,
+      "column": 2
+    },
+    {
+      "oldName": "IdeAgentMigrator",
+      "newName": "IdeAgentMigrator",
+      "line": 3541,
+      "column": 24
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV3",
+      "newName": "WorkspaceSettingsMigratorV3",
+      "line": 3564,
+      "column": 2
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV4",
+      "newName": "WorkspaceSettingsMigratorV4",
+      "line": 3592,
+      "column": 2
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3599,
+      "column": 22
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3603,
+      "column": 22
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3607,
+      "column": 22
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3611,
+      "column": 22
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3615,
+      "column": 16
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3616,
+      "column": 24
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3617,
+      "column": 18
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3618,
+      "column": 21
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV5",
+      "newName": "WorkspaceSettingsMigratorV5",
+      "line": 3623,
+      "column": 2
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV1",
+      "newName": "WorkspaceSettingsMigratorV1",
+      "line": 3649,
+      "column": 106
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV2",
+      "newName": "WorkspaceSettingsMigratorV2",
+      "line": 3652,
+      "column": 106
+    },
+    {
+      "oldName": "IdeAgentMigrator",
+      "newName": "IdeAgentMigrator",
+      "line": 3655,
+      "column": 106
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV3",
+      "newName": "WorkspaceSettingsMigratorV3",
+      "line": 3658,
+      "column": 106
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV4",
+      "newName": "WorkspaceSettingsMigratorV4",
+      "line": 3661,
+      "column": 106
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV5",
+      "newName": "WorkspaceSettingsMigratorV5",
+      "line": 3664,
+      "column": 106
+    },
+    {
+      "oldName": "ol",
+      "newName": "BaseStorageAPI",
+      "line": 3679,
+      "column": 134
+    },
+    {
+      "oldName": "ol",
+      "newName": "BaseStorageAPI",
+      "line": 3864,
+      "column": 113
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 3910,
+      "column": 24
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 3949,
+      "column": 21
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 3976,
+      "column": 39
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 4057,
+      "column": 24
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 4061,
+      "column": 51
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 4103,
+      "column": 16
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 4175,
+      "column": 49
+    },
+    {
+      "oldName": "na",
+      "newName": "FilePathHandler",
+      "line": 4241,
+      "column": 26
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 4480,
+      "column": 28
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 4481,
+      "column": 204
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 4534,
+      "column": 45
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 4573,
+      "column": 182
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 4604,
+      "column": 45
+    },
+    {
+      "oldName": "NP",
+      "newName": "PlanConversationStorageAPI",
+      "line": 4671,
+      "column": 4
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 4694,
+      "column": 21
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 4701,
+      "column": 355
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 4701,
+      "column": 478
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 4705,
+      "column": 45
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 4791,
+      "column": 46
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 4827,
+      "column": 45
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 4894,
+      "column": 24
+    },
+    {
+      "oldName": "NP",
+      "newName": "PlanConversationStorageAPI",
+      "line": 4900,
+      "column": 67
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 4940,
+      "column": 66
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 4940,
+      "column": 99
+    },
+    {
+      "oldName": "NP",
+      "newName": "PlanConversationStorageAPI",
+      "line": 4942,
+      "column": 129
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 4955,
+      "column": 14
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 4969,
+      "column": 28
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 4980,
+      "column": 45
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 5066,
+      "column": 41
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 5082,
+      "column": 24
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 5184,
+      "column": 29
+    },
+    {
+      "oldName": "Ad",
+      "newName": "CommentResolutionStatus",
+      "line": 5184,
+      "column": 84
+    },
+    {
+      "oldName": "Ad",
+      "newName": "CommentResolutionStatus",
+      "line": 5216,
+      "column": 40
+    },
+    {
+      "oldName": "Ad",
+      "newName": "CommentResolutionStatus",
+      "line": 5216,
+      "column": 54
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 5336,
+      "column": 28
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 5337,
+      "column": 248
+    },
+    {
+      "oldName": "Ad",
+      "newName": "CommentResolutionStatus",
+      "line": 5354,
+      "column": 111
+    },
+    {
+      "oldName": "Ad",
+      "newName": "CommentResolutionStatus",
+      "line": 5354,
+      "column": 218
+    },
+    {
+      "oldName": "Ad",
+      "newName": "CommentResolutionStatus",
+      "line": 5354,
+      "column": 401
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 5483,
+      "column": 42
+    },
+    {
+      "oldName": "qa",
+      "newName": "TaskStep",
+      "line": 5484,
+      "column": 2
+    },
+    {
+      "oldName": "qa",
+      "newName": "TaskStep",
+      "line": 5488,
+      "column": 134
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5544,
+      "column": 25
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5545,
+      "column": 30
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5546,
+      "column": 28
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5654,
+      "column": 21
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5655,
+      "column": 26
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5656,
+      "column": 24
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 5728,
+      "column": 47
+    },
+    {
+      "oldName": "jm",
+      "newName": "PhaseModificationType",
+      "line": 5736,
+      "column": 20
+    },
+    {
+      "oldName": "$c",
+      "newName": "PhaseSize",
+      "line": 5738,
+      "column": 23
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 5751,
+      "column": 81
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5753,
+      "column": 52
+    },
+    {
+      "oldName": "Id",
+      "newName": "TaskProgressState",
+      "line": 5753,
+      "column": 69
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5753,
+      "column": 121
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5753,
+      "column": 167
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5753,
+      "column": 225
+    },
+    {
+      "oldName": "Id",
+      "newName": "TaskProgressState",
+      "line": 5753,
+      "column": 238
+    },
+    {
+      "oldName": "Id",
+      "newName": "TaskProgressState",
+      "line": 5753,
+      "column": 258
+    },
+    {
+      "oldName": "Id",
+      "newName": "TaskProgressState",
+      "line": 5758,
+      "column": 32
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 5759,
+      "column": 71
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 5760,
+      "column": 65
+    },
+    {
+      "oldName": "Id",
+      "newName": "TaskProgressState",
+      "line": 5779,
+      "column": 37
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5780,
+      "column": 47
+    },
+    {
+      "oldName": "Id",
+      "newName": "TaskProgressState",
+      "line": 5780,
+      "column": 64
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5780,
+      "column": 116
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5780,
+      "column": 162
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5780,
+      "column": 206
+    },
+    {
+      "oldName": "Id",
+      "newName": "TaskProgressState",
+      "line": 5780,
+      "column": 233
+    },
+    {
+      "oldName": "Id",
+      "newName": "TaskProgressState",
+      "line": 5780,
+      "column": 253
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5793,
+      "column": 25
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5793,
+      "column": 41
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5793,
+      "column": 54
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5794,
+      "column": 142
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5794,
+      "column": 188
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5799,
+      "column": 311
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5800,
+      "column": 52
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5801,
+      "column": 43
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5802,
+      "column": 95
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5802,
+      "column": 144
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5802,
+      "column": 191
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5806,
+      "column": 126
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5840,
+      "column": 49
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5855,
+      "column": 23
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5856,
+      "column": 28
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5857,
+      "column": 26
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5871,
+      "column": 39
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5871,
+      "column": 85
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5871,
+      "column": 128
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5871,
+      "column": 174
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 5892,
+      "column": 62
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 5897,
+      "column": 24
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6006,
+      "column": 37
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6006,
+      "column": 140
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6015,
+      "column": 21
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6016,
+      "column": 26
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6017,
+      "column": 24
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6027,
+      "column": 21
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6028,
+      "column": 26
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6029,
+      "column": 24
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6039,
+      "column": 50
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6050,
+      "column": 41
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6050,
+      "column": 90
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6050,
+      "column": 137
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6053,
+      "column": 46
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6053,
+      "column": 93
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6056,
+      "column": 41
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6056,
+      "column": 88
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6056,
+      "column": 135
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6056,
+      "column": 180
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 6056,
+      "column": 252
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6056,
+      "column": 311
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6056,
+      "column": 356
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6056,
+      "column": 399
+    },
+    {
+      "oldName": "Pf",
+      "newName": "WorkspaceAssociation",
+      "line": 6074,
+      "column": 35
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 6100,
+      "column": 45
+    },
+    {
+      "oldName": "qa",
+      "newName": "TaskStep",
+      "line": 6111,
+      "column": 8
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 6136,
+      "column": 14
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 6144,
+      "column": 14
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 6152,
+      "column": 14
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 6160,
+      "column": 14
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 6168,
+      "column": 14
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 6176,
+      "column": 14
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 6194,
+      "column": 16
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 6214,
+      "column": 72
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 6223,
+      "column": 25
+    },
+    {
+      "oldName": "ThreadStorage",
+      "newName": "ThreadStorage",
+      "line": 6293,
+      "column": 15
+    },
+    {
+      "oldName": "XM",
+      "newName": "FileSystemWatcherInstance",
+      "line": 6296,
+      "column": 4
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 6302,
+      "column": 16
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 6318,
+      "column": 16
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6389,
+      "column": 186
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6395,
+      "column": 59
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 6424,
+      "column": 66
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 6426,
+      "column": 92
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6433,
+      "column": 59
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6441,
+      "column": 55
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6457,
+      "column": 57
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6476,
+      "column": 84
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6482,
+      "column": 41
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6482,
+      "column": 182
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6525,
+      "column": 53
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6533,
+      "column": 57
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6539,
+      "column": 59
+    },
+    {
+      "oldName": "TaskStepProcessor",
+      "newName": "TaskStepProcessor",
+      "line": 6560,
+      "column": 2
+    },
+    {
+      "oldName": "TaskStepProcessor",
+      "newName": "TaskStepProcessor",
+      "line": 6564,
+      "column": 29
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6626,
+      "column": 50
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6626,
+      "column": 101
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6626,
+      "column": 150
+    },
+    {
+      "oldName": "VerificationTaskStepProcessor",
+      "newName": "VerificationTaskStepProcessor",
+      "line": 6630,
+      "column": 2
+    },
+    {
+      "oldName": "VerificationTaskStepProcessor",
+      "newName": "VerificationTaskStepProcessor",
+      "line": 6634,
+      "column": 54
+    },
+    {
+      "oldName": "TaskStepProcessor",
+      "newName": "TaskStepProcessor",
+      "line": 6634,
+      "column": 100
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 6639,
+      "column": 50
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 6650,
+      "column": 72
+    },
+    {
+      "oldName": "SimpleTaskStepProcessor",
+      "newName": "SimpleTaskStepProcessor",
+      "line": 6696,
+      "column": 2
+    },
+    {
+      "oldName": "SimpleTaskStepProcessor",
+      "newName": "SimpleTaskStepProcessor",
+      "line": 6700,
+      "column": 29
+    },
+    {
+      "oldName": "TaskStepProcessor",
+      "newName": "TaskStepProcessor",
+      "line": 6700,
+      "column": 69
+    },
+    {
+      "oldName": "TaskOrchestrator",
+      "newName": "TaskOrchestrator",
+      "line": 6718,
+      "column": 2
+    },
+    {
+      "oldName": "TaskOrchestrator",
+      "newName": "TaskOrchestrator",
+      "line": 6722,
+      "column": 60
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 6724,
+      "column": 486
+    },
+    {
+      "oldName": "VerificationTaskStepProcessor",
+      "newName": "VerificationTaskStepProcessor",
+      "line": 6733,
+      "column": 47
+    },
+    {
+      "oldName": "SimpleTaskStepProcessor",
+      "newName": "SimpleTaskStepProcessor",
+      "line": 6733,
+      "column": 133
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 7014,
+      "column": 16
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 7018,
+      "column": 21
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 7045,
+      "column": 18
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 7051,
+      "column": 16
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 7060,
+      "column": 26
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 7061,
+      "column": 26
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7127,
+      "column": 47
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7128,
+      "column": 47
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 7130,
+      "column": 45
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 7135,
+      "column": 45
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7140,
+      "column": 48
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7140,
+      "column": 150
+    },
+    {
+      "oldName": "An",
+      "newName": "PlanArtifactType",
+      "line": 7146,
+      "column": 96
+    },
+    {
+      "oldName": "g0",
+      "newName": "PlanConversationHandler",
+      "line": 7155,
+      "column": 2
+    },
+    {
+      "oldName": "g0",
+      "newName": "PlanConversationHandler",
+      "line": 7159,
+      "column": 73
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7161,
+      "column": 44
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7162,
+      "column": 42
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7163,
+      "column": 42
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 7164,
+      "column": 133
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7164,
+      "column": 300
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7173,
+      "column": 17
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7201,
+      "column": 22
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7202,
+      "column": 28
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 7209,
+      "column": 45
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7225,
+      "column": 76
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7226,
+      "column": 128
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7253,
+      "column": 53
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7254,
+      "column": 28
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7292,
+      "column": 35
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7292,
+      "column": 72
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7292,
+      "column": 104
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7292,
+      "column": 138
+    },
+    {
+      "oldName": "ZP",
+      "newName": "ReviewStepStorageAPI",
+      "line": 7331,
+      "column": 4
+    },
+    {
+      "oldName": "YW",
+      "newName": "ReviewStepAdapter",
+      "line": 7351,
+      "column": 17
+    },
+    {
+      "oldName": "YW",
+      "newName": "ReviewStepAdapter",
+      "line": 7354,
+      "column": 2
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 7354,
+      "column": 21
+    },
+    {
+      "oldName": "G_",
+      "newName": "PhaseBreakdown",
+      "line": 7355,
+      "column": 2
+    },
+    {
+      "oldName": "G_",
+      "newName": "PhaseBreakdown",
+      "line": 7359,
+      "column": 271
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 7360,
+      "column": 30
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 7452,
+      "column": 28
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 7466,
+      "column": 93
+    },
+    {
+      "oldName": "TaskOrchestrator",
+      "newName": "TaskOrchestrator",
+      "line": 7466,
+      "column": 171
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 7479,
+      "column": 18
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 7483,
+      "column": 18
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 7486,
+      "column": 18
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7486,
+      "column": 131
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 7518,
+      "column": 22
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7545,
+      "column": 162
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 7555,
+      "column": 28
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 7564,
+      "column": 68
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 7579,
+      "column": 47
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 7581,
+      "column": 28
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 7591,
+      "column": 68
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7596,
+      "column": 188
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7603,
+      "column": 160
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 7643,
+      "column": 63
+    },
+    {
+      "oldName": "jm",
+      "newName": "PhaseModificationType",
+      "line": 7650,
+      "column": 26
+    },
+    {
+      "oldName": "$c",
+      "newName": "PhaseSize",
+      "line": 7652,
+      "column": 29
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 7684,
+      "column": 53
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 7742,
+      "column": 20
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 7743,
+      "column": 20
+    },
+    {
+      "oldName": "qa",
+      "newName": "TaskStep",
+      "line": 7750,
+      "column": 28
+    },
+    {
+      "oldName": "qa",
+      "newName": "TaskStep",
+      "line": 7754,
+      "column": 32
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 7769,
+      "column": 55
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 7770,
+      "column": 46
+    },
+    {
+      "oldName": "jm",
+      "newName": "PhaseModificationType",
+      "line": 7779,
+      "column": 19
+    },
+    {
+      "oldName": "jm",
+      "newName": "PhaseModificationType",
+      "line": 7780,
+      "column": 19
+    },
+    {
+      "oldName": "jm",
+      "newName": "PhaseModificationType",
+      "line": 7783,
+      "column": 19
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7797,
+      "column": 173
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7797,
+      "column": 454
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7797,
+      "column": 498
+    },
+    {
+      "oldName": "ConversationStorage",
+      "newName": "ConversationStorage",
+      "line": 7810,
+      "column": 29
+    },
+    {
+      "oldName": "ZP",
+      "newName": "ReviewStepStorageAPI",
+      "line": 7811,
+      "column": 28
+    },
+    {
+      "oldName": "g0",
+      "newName": "PlanConversationHandler",
+      "line": 7818,
+      "column": 30
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7824,
+      "column": 21
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7899,
+      "column": 134
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 7905,
+      "column": 12
+    },
+    {
+      "oldName": "Gf",
+      "newName": "SubscriptionHandler",
+      "line": 7907,
+      "column": 30
+    },
+    {
+      "oldName": "il",
+      "newName": "subscriptionActions",
+      "line": 7909,
+      "column": 18
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 7912,
+      "column": 10
+    },
+    {
+      "oldName": "qa",
+      "newName": "TaskStep",
+      "line": 7914,
+      "column": 50
+    },
+    {
+      "oldName": "g0",
+      "newName": "PlanConversationHandler",
+      "line": 7915,
+      "column": 47
+    },
+    {
+      "oldName": "qa",
+      "newName": "TaskStep",
+      "line": 7932,
+      "column": 30
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7939,
+      "column": 27
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7940,
+      "column": 32
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7941,
+      "column": 30
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7964,
+      "column": 25
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7965,
+      "column": 30
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 7966,
+      "column": 28
+    },
+    {
+      "oldName": "qa",
+      "newName": "TaskStep",
+      "line": 7981,
+      "column": 61
+    },
+    {
+      "oldName": "qa",
+      "newName": "TaskStep",
+      "line": 7985,
+      "column": 29
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8124,
+      "column": 32
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8124,
+      "column": 65
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8124,
+      "column": 99
+    },
+    {
+      "oldName": "qa",
+      "newName": "TaskStep",
+      "line": 8134,
+      "column": 24
+    },
+    {
+      "oldName": "ZP",
+      "newName": "ReviewStepStorageAPI",
+      "line": 8138,
+      "column": 26
+    },
+    {
+      "oldName": "g0",
+      "newName": "PlanConversationHandler",
+      "line": 8141,
+      "column": 17
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 8145,
+      "column": 24
+    },
+    {
+      "oldName": "qa",
+      "newName": "TaskStep",
+      "line": 8146,
+      "column": 22
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 8148,
+      "column": 14
+    },
+    {
+      "oldName": "ConversationStorage",
+      "newName": "ConversationStorage",
+      "line": 8195,
+      "column": 17
+    },
+    {
+      "oldName": "y0",
+      "newName": "TaskChainPersistenceManager",
+      "line": 8198,
+      "column": 2
+    },
+    {
+      "oldName": "y0",
+      "newName": "TaskChainPersistenceManager",
+      "line": 8202,
+      "column": 45
+    },
+    {
+      "oldName": "G_",
+      "newName": "PhaseBreakdown",
+      "line": 8226,
+      "column": 32
+    },
+    {
+      "oldName": "G_",
+      "newName": "PhaseBreakdown",
+      "line": 8235,
+      "column": 22
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 8244,
+      "column": 14
+    },
+    {
+      "oldName": "PlanOutputHandler",
+      "newName": "PlanOutputHandler",
+      "line": 8368,
+      "column": 2
+    },
+    {
+      "oldName": "PlanOutputHandler",
+      "newName": "PlanOutputHandler",
+      "line": 8372,
+      "column": 55
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8388,
+      "column": 92
+    },
+    {
+      "oldName": "mD",
+      "newName": "PlanGenerationHandler",
+      "line": 8424,
+      "column": 2
+    },
+    {
+      "oldName": "mD",
+      "newName": "PlanGenerationHandler",
+      "line": 8428,
+      "column": 118
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 8438,
+      "column": 55
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8439,
+      "column": 72
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 8444,
+      "column": 46
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8444,
+      "column": 124
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 8460,
+      "column": 46
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8464,
+      "column": 122
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8466,
+      "column": 171
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8466,
+      "column": 357
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8466,
+      "column": 419
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8470,
+      "column": 47
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8476,
+      "column": 56
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 8482,
+      "column": 24
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 8490,
+      "column": 57
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 8513,
+      "column": 10
+    },
+    {
+      "oldName": "HO",
+      "newName": "QueryType",
+      "line": 8519,
+      "column": 34
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8519,
+      "column": 185
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8530,
+      "column": 58
+    },
+    {
+      "oldName": "HO",
+      "newName": "QueryType",
+      "line": 8536,
+      "column": 15
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8543,
+      "column": 146
+    },
+    {
+      "oldName": "HO",
+      "newName": "QueryType",
+      "line": 8546,
+      "column": 15
+    },
+    {
+      "oldName": "VerificationHandler",
+      "newName": "VerificationHandler",
+      "line": 8558,
+      "column": 2
+    },
+    {
+      "oldName": "VerificationHandler",
+      "newName": "VerificationHandler",
+      "line": 8562,
+      "column": 31
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8574,
+      "column": 56
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8587,
+      "column": 118
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8605,
+      "column": 89
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8621,
+      "column": 113
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8623,
+      "column": 150
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8631,
+      "column": 60
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 8635,
+      "column": 60
+    },
+    {
+      "oldName": "v0",
+      "newName": "TaskChain",
+      "line": 8640,
+      "column": 2
+    },
+    {
+      "oldName": "gD",
+      "newName": "TaskChainStorage",
+      "line": 8641,
+      "column": 2
+    },
+    {
+      "oldName": "v0",
+      "newName": "TaskChain",
+      "line": 8645,
+      "column": 277
+    },
+    {
+      "oldName": "gD",
+      "newName": "TaskChainStorage",
+      "line": 8649,
+      "column": 32
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 8649,
+      "column": 176
+    },
+    {
+      "oldName": "mD",
+      "newName": "PlanGenerationHandler",
+      "line": 8653,
+      "column": 44
+    },
+    {
+      "oldName": "PlanOutputHandler",
+      "newName": "PlanOutputHandler",
+      "line": 8653,
+      "column": 96
+    },
+    {
+      "oldName": "y0",
+      "newName": "TaskChainPersistenceManager",
+      "line": 8653,
+      "column": 159
+    },
+    {
+      "oldName": "VerificationHandler",
+      "newName": "VerificationHandler",
+      "line": 8653,
+      "column": 213
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 8675,
+      "column": 22
+    },
+    {
+      "oldName": "G_",
+      "newName": "PhaseBreakdown",
+      "line": 8735,
+      "column": 28
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 8815,
+      "column": 75
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 8830,
+      "column": 158
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 8835,
+      "column": 193
+    },
+    {
+      "oldName": "Pf",
+      "newName": "WorkspaceAssociation",
+      "line": 8903,
+      "column": 41
+    },
+    {
+      "oldName": "y0",
+      "newName": "TaskChainPersistenceManager",
+      "line": 8905,
+      "column": 28
+    },
+    {
+      "oldName": "y0",
+      "newName": "TaskChainPersistenceManager",
+      "line": 8909,
+      "column": 30
+    },
+    {
+      "oldName": "gD",
+      "newName": "TaskChainStorage",
+      "line": 8911,
+      "column": 26
+    },
+    {
+      "oldName": "Ut",
+      "newName": "createUuid",
+      "line": 8985,
+      "column": 72
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 9143,
+      "column": 32
+    },
+    {
+      "oldName": "gD",
+      "newName": "TaskChainStorage",
+      "line": 9152,
+      "column": 7
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 9152,
+      "column": 26
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 9156,
+      "column": 29
+    },
+    {
+      "oldName": "yD",
+      "newName": "TaskChainMemoryManager",
+      "line": 9162,
+      "column": 2
+    },
+    {
+      "oldName": "yD",
+      "newName": "TaskChainMemoryManager",
+      "line": 9166,
+      "column": 104
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 9190,
+      "column": 28
+    },
+    {
+      "oldName": "v0",
+      "newName": "TaskChain",
+      "line": 9191,
+      "column": 28
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 9201,
+      "column": 108
+    },
+    {
+      "oldName": "v0",
+      "newName": "TaskChain",
+      "line": 9204,
+      "column": 30
+    },
+    {
+      "oldName": "v0",
+      "newName": "TaskChain",
+      "line": 9288,
+      "column": 15
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 9301,
+      "column": 2
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 9305,
+      "column": 125
+    },
+    {
+      "oldName": "yD",
+      "newName": "TaskChainMemoryManager",
+      "line": 9307,
+      "column": 98
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 9321,
+      "column": 16
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 9379,
+      "column": 66
+    },
+    {
+      "oldName": "pe",
+      "newName": "TaskStepStatus",
+      "line": 9506,
+      "column": 464
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 9716,
+      "column": 99
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 9805,
+      "column": 2
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 9809,
+      "column": 166
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 9815,
+      "column": 26
+    },
+    {
+      "oldName": "AttachmentStorage",
+      "newName": "AttachmentStorage",
+      "line": 9825,
+      "column": 30
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 9847,
+      "column": 16
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 9848,
+      "column": 24
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 9849,
+      "column": 18
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 9850,
+      "column": 21
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 9860,
+      "column": 139
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 9866,
+      "column": 141
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 9873,
+      "column": 147
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 9881,
+      "column": 144
+    },
+    {
+      "oldName": "jO",
+      "newName": "OrganizationType",
+      "line": 9894,
+      "column": 16
+    },
+    {
+      "oldName": "jO",
+      "newName": "OrganizationType",
+      "line": 9898,
+      "column": 16
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 9928,
+      "column": 75
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 9931,
+      "column": 120
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 9956,
+      "column": 21
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 9961,
+      "column": 795
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 9961,
+      "column": 827
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 9994,
+      "column": 2
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 9998,
+      "column": 71
+    },
+    {
+      "oldName": "Ou",
+      "newName": "TaskSettingsActions",
+      "line": 10001,
+      "column": 15
+    },
+    {
+      "oldName": "Ou",
+      "newName": "TaskSettingsActions",
+      "line": 10004,
+      "column": 15
+    },
+    {
+      "oldName": "Ou",
+      "newName": "TaskSettingsActions",
+      "line": 10007,
+      "column": 15
+    },
+    {
+      "oldName": "Ou",
+      "newName": "TaskSettingsActions",
+      "line": 10010,
+      "column": 15
+    },
+    {
+      "oldName": "Ou",
+      "newName": "TaskSettingsActions",
+      "line": 10013,
+      "column": 15
+    },
+    {
+      "oldName": "Ou",
+      "newName": "TaskSettingsActions",
+      "line": 10016,
+      "column": 15
+    },
+    {
+      "oldName": "Ou",
+      "newName": "TaskSettingsActions",
+      "line": 10019,
+      "column": 15
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10028,
+      "column": 8
+    },
+    {
+      "oldName": "Av",
+      "newName": "TaskSettingsWebViewMessages",
+      "line": 10029,
+      "column": 16
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 10034,
+      "column": 24
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 10058,
+      "column": 24
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10059,
+      "column": 8
+    },
+    {
+      "oldName": "Av",
+      "newName": "TaskSettingsWebViewMessages",
+      "line": 10060,
+      "column": 16
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 10065,
+      "column": 14
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 10068,
+      "column": 14
+    },
+    {
+      "oldName": "Gf",
+      "newName": "SubscriptionHandler",
+      "line": 10072,
+      "column": 2
+    },
+    {
+      "oldName": "Gf",
+      "newName": "SubscriptionHandler",
+      "line": 10076,
+      "column": 56
+    },
+    {
+      "oldName": "il",
+      "newName": "subscriptionActions",
+      "line": 10082,
+      "column": 15
+    },
+    {
+      "oldName": "il",
+      "newName": "subscriptionActions",
+      "line": 10084,
+      "column": 15
+    },
+    {
+      "oldName": "il",
+      "newName": "subscriptionActions",
+      "line": 10086,
+      "column": 15
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 10094,
+      "column": 54
+    },
+    {
+      "oldName": "yw",
+      "newName": "SubscriptionWebViewActions",
+      "line": 10109,
+      "column": 18
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10113,
+      "column": 15
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 10133,
+      "column": 24
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10135,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10137,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10139,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10141,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10143,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10145,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10147,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10149,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10151,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10153,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10155,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10157,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10159,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10161,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10163,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10165,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10167,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10169,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10171,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10173,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10175,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10177,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10179,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10181,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10183,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10185,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10187,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10189,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10191,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10193,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10195,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10197,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10199,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10201,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10203,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10205,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10207,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10209,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10211,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10213,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10215,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10217,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10219,
+      "column": 15
+    },
+    {
+      "oldName": "vt",
+      "newName": "TaskMessageTypes",
+      "line": 10221,
+      "column": 15
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10239,
+      "column": 14
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 10243,
+      "column": 28
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 10259,
+      "column": 16
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10263,
+      "column": 15
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 10277,
+      "column": 18
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10283,
+      "column": 15
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10296,
+      "column": 23
+    },
+    {
+      "oldName": "wm",
+      "newName": "agentRegistry",
+      "line": 10301,
+      "column": 23
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10305,
+      "column": 49
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10386,
+      "column": 65
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10389,
+      "column": 20
+    },
+    {
+      "oldName": "TemplateFileNotFoundError",
+      "newName": "TemplateFileNotFoundError",
+      "line": 10389,
+      "column": 83
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10390,
+      "column": 24
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10390,
+      "column": 71
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10392,
+      "column": 71
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10392,
+      "column": 111
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10393,
+      "column": 71
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10393,
+      "column": 111
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10394,
+      "column": 20
+    },
+    {
+      "oldName": "TemplateFileEmptyError",
+      "newName": "TemplateFileEmptyError",
+      "line": 10394,
+      "column": 88
+    },
+    {
+      "oldName": "TemplateNameNotAllowedError",
+      "newName": "TemplateNameNotAllowedError",
+      "line": 10409,
+      "column": 105
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10410,
+      "column": 24
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10410,
+      "column": 71
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10411,
+      "column": 57
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10411,
+      "column": 97
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10412,
+      "column": 57
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10412,
+      "column": 97
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10418,
+      "column": 8
+    },
+    {
+      "oldName": "Um",
+      "newName": "CLIAgentWebViewMessages",
+      "line": 10423,
+      "column": 18
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10428,
+      "column": 8
+    },
+    {
+      "oldName": "Um",
+      "newName": "CLIAgentWebViewMessages",
+      "line": 10433,
+      "column": 18
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10439,
+      "column": 8
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10444,
+      "column": 14
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10453,
+      "column": 34
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10461,
+      "column": 21
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10462,
+      "column": 24
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10463,
+      "column": 22
+    },
+    {
+      "oldName": "CLIAgentNameConflictsWithBuiltInAgentError",
+      "newName": "CLIAgentNameConflictsWithBuiltInAgentError",
+      "line": 10464,
+      "column": 33
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10466,
+      "column": 57
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10466,
+      "column": 97
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10467,
+      "column": 57
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10467,
+      "column": 97
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10472,
+      "column": 193
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 10477,
+      "column": 12
+    },
+    {
+      "oldName": "Um",
+      "newName": "CLIAgentWebViewMessages",
+      "line": 10482,
+      "column": 18
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10487,
+      "column": 8
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 10487,
+      "column": 46
+    },
+    {
+      "oldName": "TemplateNotFoundError",
+      "newName": "TemplateNotFoundError",
+      "line": 10492,
+      "column": 18
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10506,
+      "column": 24
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10506,
+      "column": 71
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10510,
+      "column": 10
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10532,
+      "column": 31
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 10532,
+      "column": 359
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 10537,
+      "column": 30
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10543,
+      "column": 65
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 10543,
+      "column": 126
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 10543,
+      "column": 390
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10559,
+      "column": 24
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10575,
+      "column": 24
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10579,
+      "column": 24
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10579,
+      "column": 71
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10581,
+      "column": 45
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10594,
+      "column": 12
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10598,
+      "column": 15
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10601,
+      "column": 24
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10601,
+      "column": 71
+    },
+    {
+      "oldName": "Ru",
+      "newName": "CLIAgentManagementActions",
+      "line": 10655,
+      "column": 15
+    },
+    {
+      "oldName": "Ru",
+      "newName": "CLIAgentManagementActions",
+      "line": 10658,
+      "column": 15
+    },
+    {
+      "oldName": "Ru",
+      "newName": "CLIAgentManagementActions",
+      "line": 10661,
+      "column": 15
+    },
+    {
+      "oldName": "Ru",
+      "newName": "CLIAgentManagementActions",
+      "line": 10664,
+      "column": 15
+    },
+    {
+      "oldName": "Ru",
+      "newName": "CLIAgentManagementActions",
+      "line": 10667,
+      "column": 15
+    },
+    {
+      "oldName": "Ru",
+      "newName": "CLIAgentManagementActions",
+      "line": 10670,
+      "column": 15
+    },
+    {
+      "oldName": "Ru",
+      "newName": "CLIAgentManagementActions",
+      "line": 10673,
+      "column": 15
+    },
+    {
+      "oldName": "bO",
+      "newName": "ActivationMessageTypes",
+      "line": 10709,
+      "column": 15
+    },
+    {
+      "oldName": "kO",
+      "newName": "ActivationWebViewMessages",
+      "line": 10715,
+      "column": 16
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10719,
+      "column": 14
+    },
+    {
+      "oldName": "mw",
+      "newName": "MCPServerActions",
+      "line": 10733,
+      "column": 15
+    },
+    {
+      "oldName": "mw",
+      "newName": "MCPServerActions",
+      "line": 10736,
+      "column": 15
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 10743,
+      "column": 22
+    },
+    {
+      "oldName": "vw",
+      "newName": "MCPServerWebViewMessages",
+      "line": 10745,
+      "column": 18
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10749,
+      "column": 15
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 10752,
+      "column": 14
+    },
+    {
+      "oldName": "vw",
+      "newName": "MCPServerWebViewMessages",
+      "line": 10756,
+      "column": 16
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10759,
+      "column": 15
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 10770,
+      "column": 15
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 10773,
+      "column": 15
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 10776,
+      "column": 15
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 10779,
+      "column": 15
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 10782,
+      "column": 15
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 10785,
+      "column": 15
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 10788,
+      "column": 15
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 10791,
+      "column": 15
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 10794,
+      "column": 15
+    },
+    {
+      "oldName": "ea",
+      "newName": "PromptTemplateActions",
+      "line": 10797,
+      "column": 15
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 10803,
+      "column": 15
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 10806,
+      "column": 15
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 10809,
+      "column": 15
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 10812,
+      "column": 15
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 10815,
+      "column": 15
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 10818,
+      "column": 14
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 10821,
+      "column": 15
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 10824,
+      "column": 15
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 10827,
+      "column": 15
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 10830,
+      "column": 15
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 10857,
+      "column": 104
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 10857,
+      "column": 189
+    },
+    {
+      "oldName": "Tw",
+      "newName": "UsageInformationWebViewMessages",
+      "line": 10897,
+      "column": 16
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10900,
+      "column": 148
+    },
+    {
+      "oldName": "Tw",
+      "newName": "UsageInformationWebViewMessages",
+      "line": 10905,
+      "column": 18
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10908,
+      "column": 199
+    },
+    {
+      "oldName": "_w",
+      "newName": "UsageInformationActions",
+      "line": 10930,
+      "column": 15
+    },
+    {
+      "oldName": "_w",
+      "newName": "UsageInformationActions",
+      "line": 10933,
+      "column": 15
+    },
+    {
+      "oldName": "IO",
+      "newName": "ListenersReadyMessage",
+      "line": 10955,
+      "column": 15
+    },
+    {
+      "oldName": "gw",
+      "newName": "WorkspaceActions",
+      "line": 10975,
+      "column": 15
+    },
+    {
+      "oldName": "gw",
+      "newName": "WorkspaceActions",
+      "line": 10977,
+      "column": 15
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 10990,
+      "column": 24
+    },
+    {
+      "oldName": "RO",
+      "newName": "WorkspaceWebViewMessages",
+      "line": 10992,
+      "column": 18
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 10996,
+      "column": 14
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 11006,
+      "column": 4
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 11010,
+      "column": 375
+    },
+    {
+      "oldName": "Gf",
+      "newName": "SubscriptionHandler",
+      "line": 11027,
+      "column": 270
+    },
+    {
+      "oldName": "U1",
+      "newName": "MetricsHandler",
+      "line": 11027,
+      "column": 330
+    },
+    {
+      "oldName": "GitHubAuthHandler",
+      "newName": "GitHubAuthHandler",
+      "line": 11027,
+      "column": 389
+    },
+    {
+      "oldName": "CloudAuthHandler",
+      "newName": "CloudAuthHandler",
+      "line": 11027,
+      "column": 473
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 11027,
+      "column": 547
+    },
+    {
+      "oldName": "na",
+      "newName": "FilePathHandler",
+      "line": 11027,
+      "column": 851
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 11036,
+      "column": 154
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 11037,
+      "column": 31
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11108,
+      "column": 22
+    },
+    {
+      "oldName": "oH",
+      "newName": "ajvValidatorInstance",
+      "line": 11188,
+      "column": 9
+    },
+    {
+      "oldName": "oH",
+      "newName": "ajvValidatorInstance",
+      "line": 11188,
+      "column": 16
+    },
+    {
+      "oldName": "oH",
+      "newName": "ajvValidatorInstance",
+      "line": 11188,
+      "column": 40
+    },
+    {
+      "oldName": "oH",
+      "newName": "ajvValidatorInstance",
+      "line": 11190,
+      "column": 4
+    },
+    {
+      "oldName": "oH",
+      "newName": "ajvValidatorInstance",
+      "line": 11195,
+      "column": 25
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11209,
+      "column": 30
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11213,
+      "column": 18
+    },
+    {
+      "oldName": "TemplateFileAlreadyExistsError",
+      "newName": "TemplateFileAlreadyExistsError",
+      "line": 11213,
+      "column": 84
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11222,
+      "column": 20
+    },
+    {
+      "oldName": "TemplateFileNotFoundError",
+      "newName": "TemplateFileNotFoundError",
+      "line": 11222,
+      "column": 83
+    },
+    {
+      "oldName": "TemplateFileNotMarkdownError",
+      "newName": "TemplateFileNotMarkdownError",
+      "line": 11223,
+      "column": 78
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11224,
+      "column": 30
+    },
+    {
+      "oldName": "TemplateFileEmptyError",
+      "newName": "TemplateFileEmptyError",
+      "line": 11225,
+      "column": 41
+    },
+    {
+      "oldName": "TemplateMissingMetadataError",
+      "newName": "TemplateMissingMetadataError",
+      "line": 11226,
+      "column": 59
+    },
+    {
+      "oldName": "TemplateInvalidMetadataError",
+      "newName": "TemplateInvalidMetadataError",
+      "line": 11237,
+      "column": 20
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11250,
+      "column": 23
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11526,
+      "column": 8
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 11530,
+      "column": 14
+    },
+    {
+      "oldName": "Ef",
+      "newName": "PromptTemplateWebViewMessages",
+      "line": 11531,
+      "column": 16
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 11538,
+      "column": 14
+    },
+    {
+      "oldName": "Ef",
+      "newName": "PromptTemplateWebViewMessages",
+      "line": 11539,
+      "column": 16
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11550,
+      "column": 32
+    },
+    {
+      "oldName": "ice",
+      "newName": "fullTemplateSchema",
+      "line": 11558,
+      "column": 77
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11559,
+      "column": 60
+    },
+    {
+      "oldName": "Ef",
+      "newName": "PromptTemplateWebViewMessages",
+      "line": 11589,
+      "column": 18
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 11595,
+      "column": 14
+    },
+    {
+      "oldName": "TemplateNotFoundError",
+      "newName": "TemplateNotFoundError",
+      "line": 11600,
+      "column": 18
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 11620,
+      "column": 24
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 11655,
+      "column": 24
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 11685,
+      "column": 26
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 11687,
+      "column": 412
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 11702,
+      "column": 24
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11737,
+      "column": 24
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11756,
+      "column": 24
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11761,
+      "column": 45
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11774,
+      "column": 12
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11778,
+      "column": 15
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11819,
+      "column": 24
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 11820,
+      "column": 14
+    },
+    {
+      "oldName": "Ef",
+      "newName": "PromptTemplateWebViewMessages",
+      "line": 11821,
+      "column": 16
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 11827,
+      "column": 2
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 11831,
+      "column": 56
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 11943,
+      "column": 26
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 11988,
+      "column": 22
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 12047,
+      "column": 7
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 12103,
+      "column": 18
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 12104,
+      "column": 72
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 12120,
+      "column": 18
+    },
+    {
+      "oldName": "RSe",
+      "newName": "prismaClient",
+      "line": 12176,
+      "column": 4
+    },
+    {
+      "oldName": "Kwr",
+      "newName": "repoSettingsSchema",
+      "line": 12177,
+      "column": 2
+    },
+    {
+      "oldName": "RSe",
+      "newName": "prismaClient",
+      "line": 12179,
+      "column": 4
+    },
+    {
+      "oldName": "Kwr",
+      "newName": "repoSettingsSchema",
+      "line": 12179,
+      "column": 18
+    },
+    {
+      "oldName": "RSe",
+      "newName": "prismaClient",
+      "line": 12188,
+      "column": 30
+    },
+    {
+      "oldName": "Mit",
+      "newName": "ISO8601_DATETIME_REGEX",
+      "line": 12216,
+      "column": 6
+    },
+    {
+      "oldName": "Mit",
+      "newName": "ISO8601_DATETIME_REGEX",
+      "line": 12225,
+      "column": 4
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 12575,
+      "column": 14
+    },
+    {
+      "oldName": "Iv",
+      "newName": "AuthenticationWebViewMessages",
+      "line": 12578,
+      "column": 34
+    },
+    {
+      "oldName": "Iv",
+      "newName": "AuthenticationWebViewMessages",
+      "line": 12581,
+      "column": 34
+    },
+    {
+      "oldName": "Iv",
+      "newName": "AuthenticationWebViewMessages",
+      "line": 12584,
+      "column": 34
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 12949,
+      "column": 26
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 12951,
+      "column": 14
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 12979,
+      "column": 21
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 13173,
+      "column": 16
+    },
+    {
+      "oldName": "AC",
+      "newName": "languageRequestQueues",
+      "line": 13188,
+      "column": 7
+    },
+    {
+      "oldName": "AC",
+      "newName": "languageRequestQueues",
+      "line": 13192,
+      "column": 96
+    },
+    {
+      "oldName": "AC",
+      "newName": "languageRequestQueues",
+      "line": 13192,
+      "column": 148
+    },
+    {
+      "oldName": "AC",
+      "newName": "languageRequestQueues",
+      "line": 13193,
+      "column": 11
+    },
+    {
+      "oldName": "AC",
+      "newName": "languageRequestQueues",
+      "line": 13195,
+      "column": 9
+    },
+    {
+      "oldName": "AC",
+      "newName": "languageRequestQueues",
+      "line": 13197,
+      "column": 4
+    },
+    {
+      "oldName": "AC",
+      "newName": "languageRequestQueues",
+      "line": 13201,
+      "column": 4
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 13330,
+      "column": 30
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 13613,
+      "column": 32
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 13648,
+      "column": 28
+    },
+    {
+      "oldName": "MT",
+      "newName": "GoFileParser",
+      "line": 13680,
+      "column": 2
+    },
+    {
+      "oldName": "MT",
+      "newName": "GoFileParser",
+      "line": 13684,
+      "column": 69
+    },
+    {
+      "oldName": "MT",
+      "newName": "GoFileParser",
+      "line": 14007,
+      "column": 13
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 14037,
+      "column": 22
+    },
+    {
+      "oldName": "WO",
+      "newName": "SymbolQueryType",
+      "line": 14041,
+      "column": 9
+    },
+    {
+      "oldName": "WO",
+      "newName": "SymbolQueryType",
+      "line": 14051,
+      "column": 9
+    },
+    {
+      "oldName": "WO",
+      "newName": "SymbolQueryType",
+      "line": 14060,
+      "column": 9
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 14075,
+      "column": 24
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 14101,
+      "column": 16
+    },
+    {
+      "oldName": "In",
+      "newName": "DocumentManager",
+      "line": 14102,
+      "column": 30
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 14103,
+      "column": 35
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 14165,
+      "column": 61
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 14166,
+      "column": 32
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 14166,
+      "column": 117
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 14179,
+      "column": 374
+    },
+    {
+      "oldName": "StreamMessageHandler",
+      "newName": "StreamMessageHandler",
+      "line": 14179,
+      "column": 430
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 14306,
+      "column": 46
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 14306,
+      "column": 145
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 14306,
+      "column": 251
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 14306,
+      "column": 350
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 14306,
+      "column": 466
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 14306,
+      "column": 598
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 14307,
+      "column": 32
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 14312,
+      "column": 30
+    },
+    {
+      "oldName": "l4",
+      "newName": "TaskFailureReason",
+      "line": 14372,
+      "column": 15
+    },
+    {
+      "oldName": "l4",
+      "newName": "TaskFailureReason",
+      "line": 14374,
+      "column": 15
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 14417,
+      "column": 24
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 14419,
+      "column": 150
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 14419,
+      "column": 207
+    },
+    {
+      "oldName": "un",
+      "newName": "streamConstants",
+      "line": 14419,
+      "column": 280
+    },
+    {
+      "oldName": "bu",
+      "newName": "StreamCloseReason",
+      "line": 14419,
+      "column": 372
+    },
+    {
+      "oldName": "bu",
+      "newName": "StreamCloseReason",
+      "line": 14428,
+      "column": 116
+    },
+    {
+      "oldName": "bu",
+      "newName": "StreamCloseReason",
+      "line": 14429,
+      "column": 134
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 14464,
+      "column": 33
+    },
+    {
+      "oldName": "bu",
+      "newName": "StreamCloseReason",
+      "line": 14494,
+      "column": 55
+    },
+    {
+      "oldName": "bu",
+      "newName": "StreamCloseReason",
+      "line": 14538,
+      "column": 57
+    },
+    {
+      "oldName": "sl",
+      "newName": "NavigationMessages",
+      "line": 14545,
+      "column": 10
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 14549,
+      "column": 8
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 14549,
+      "column": 41
+    },
+    {
+      "oldName": "sl",
+      "newName": "NavigationMessages",
+      "line": 14647,
+      "column": 12
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 14649,
+      "column": 10
+    },
+    {
+      "oldName": "sl",
+      "newName": "NavigationMessages",
+      "line": 14652,
+      "column": 12
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 14654,
+      "column": 10
+    },
+    {
+      "oldName": "sl",
+      "newName": "NavigationMessages",
+      "line": 14657,
+      "column": 12
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 14659,
+      "column": 10
+    },
+    {
+      "oldName": "sl",
+      "newName": "NavigationMessages",
+      "line": 14662,
+      "column": 12
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 14664,
+      "column": 10
+    },
+    {
+      "oldName": "sl",
+      "newName": "NavigationMessages",
+      "line": 14667,
+      "column": 12
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 14669,
+      "column": 10
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 14689,
+      "column": 16
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 14693,
+      "column": 14
+    },
+    {
+      "oldName": "_n",
+      "newName": "TaskWebViewMessages",
+      "line": 14697,
+      "column": 16
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 14700,
+      "column": 14
+    },
+    {
+      "oldName": "ol",
+      "newName": "BaseStorageAPI",
+      "line": 14708,
+      "column": 148
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 14724,
+      "column": 14
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 14725,
+      "column": 18
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 14763,
+      "column": 8
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 14768,
+      "column": 18
+    },
+    {
+      "oldName": "Du",
+      "newName": "RepoMappingManager",
+      "line": 14795,
+      "column": 28
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 14800,
+      "column": 8
+    },
+    {
+      "oldName": "TaskStorage",
+      "newName": "TaskStorage",
+      "line": 14815,
+      "column": 26
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 14821,
+      "column": 30
+    },
+    {
+      "oldName": "ox",
+      "newName": "DatabaseTransactionWrapper",
+      "line": 14887,
+      "column": 30
+    },
+    {
+      "oldName": "Qm",
+      "newName": "RepoMappingStorage",
+      "line": 14890,
+      "column": 22
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 14903,
+      "column": 24
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 15002,
+      "column": 36
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 15009,
+      "column": 93
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 15012,
+      "column": 252
+    },
+    {
+      "oldName": "rue",
+      "newName": "IGNORE_ALL_PATTERNS",
+      "line": 15083,
+      "column": 64
+    },
+    {
+      "oldName": "na",
+      "newName": "FilePathHandler",
+      "line": 15087,
+      "column": 176
+    },
+    {
+      "oldName": "na",
+      "newName": "FilePathHandler",
+      "line": 15089,
+      "column": 176
+    },
+    {
+      "oldName": "na",
+      "newName": "FilePathHandler",
+      "line": 15091,
+      "column": 176
+    },
+    {
+      "oldName": "na",
+      "newName": "FilePathHandler",
+      "line": 15093,
+      "column": 388
+    },
+    {
+      "oldName": "na",
+      "newName": "FilePathHandler",
+      "line": 15093,
+      "column": 446
+    },
+    {
+      "oldName": "na",
+      "newName": "FilePathHandler",
+      "line": 15152,
+      "column": 8
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 15152,
+      "column": 39
+    },
+    {
+      "oldName": "workspace_info",
+      "newName": "WorkspaceInfoManager",
+      "line": 15178,
+      "column": 23
+    },
+    {
+      "oldName": "xQ",
+      "newName": "emptyExports",
+      "line": 15199,
+      "column": 4
+    },
+    {
+      "oldName": "xQ",
+      "newName": "emptyExports",
+      "line": 15200,
+      "column": 9
+    },
+    {
+      "oldName": "Qe",
+      "newName": "CommentNavigator",
+      "line": 15227,
+      "column": 18
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 15234,
+      "column": 10
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 15266,
+      "column": 8
+    },
+    {
+      "oldName": "yn",
+      "newName": "PosthogAnalytics",
+      "line": 15269,
+      "column": 2
+    },
+    {
+      "oldName": "zn",
+      "newName": "TaskRunner",
+      "line": 15307,
+      "column": 23
+    },
+    {
+      "oldName": "Vt",
+      "newName": "TaskSettingsHandler",
+      "line": 15311,
+      "column": 8
+    },
+    {
+      "oldName": "Gf",
+      "newName": "SubscriptionHandler",
+      "line": 15314,
+      "column": 6
+    },
+    {
+      "oldName": "il",
+      "newName": "subscriptionActions",
+      "line": 15315,
+      "column": 10
+    },
+    {
+      "oldName": "Du",
+      "newName": "RepoMappingManager",
+      "line": 15331,
+      "column": 8
+    },
+    {
+      "oldName": "Xr",
+      "newName": "RateLimitHandler",
+      "line": 15344,
+      "column": 68
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 15349,
+      "column": 30
+    },
+    {
+      "oldName": "br",
+      "newName": "TemplateManager",
+      "line": 15359,
+      "column": 27
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 15367,
+      "column": 28
+    },
+    {
+      "oldName": "MT",
+      "newName": "GoFileParser",
+      "line": 15397,
+      "column": 162
+    },
+    {
+      "oldName": "xQ",
+      "newName": "emptyExports",
+      "line": 15450,
+      "column": 59
+    },
+    {
+      "oldName": "xQ",
+      "newName": "emptyExports",
+      "line": 15456,
+      "column": 59
+    }
+  ]
+}

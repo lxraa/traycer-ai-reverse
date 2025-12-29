@@ -1,0 +1,1563 @@
+{
+  "timestamp": "2025-12-29T07:25:26.342Z",
+  "summary": {
+    "totalRenamed": 259,
+    "totalSkipped": 169
+  },
+  "locations": [
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 150,
+      "column": 2
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 150,
+      "column": 2
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 160,
+      "column": 16
+    },
+    {
+      "oldName": "Hk",
+      "newName": "SUPPORTED_IMAGE_TYPES_MAP",
+      "line": 194,
+      "column": 2
+    },
+    {
+      "oldName": "Hk",
+      "newName": "SUPPORTED_IMAGE_TYPES_MAP",
+      "line": 194,
+      "column": 2
+    },
+    {
+      "oldName": "ex",
+      "newName": "WorkerPoolBase",
+      "line": 219,
+      "column": 2
+    },
+    {
+      "oldName": "ex",
+      "newName": "WorkerPoolBase",
+      "line": 219,
+      "column": 2
+    },
+    {
+      "oldName": "SBe",
+      "newName": "UNSUPPORTED_IMAGE_ERROR_MSG",
+      "line": 249,
+      "column": 2
+    },
+    {
+      "oldName": "wBe",
+      "newName": "SUPPORTED_IMAGE_TYPES_STRING",
+      "line": 250,
+      "column": 2
+    },
+    {
+      "oldName": "Hk",
+      "newName": "SUPPORTED_IMAGE_TYPES_MAP",
+      "line": 250,
+      "column": 19
+    },
+    {
+      "oldName": "SBe",
+      "newName": "UNSUPPORTED_IMAGE_ERROR_MSG",
+      "line": 253,
+      "column": 12
+    },
+    {
+      "oldName": "wBe",
+      "newName": "SUPPORTED_IMAGE_TYPES_STRING",
+      "line": 253,
+      "column": 63
+    },
+    {
+      "oldName": "Ate",
+      "newName": "REQUEST_ABORTED_ERROR_NAME",
+      "line": 261,
+      "column": 2
+    },
+    {
+      "oldName": "Ate",
+      "newName": "REQUEST_ABORTED_ERROR_NAME",
+      "line": 265,
+      "column": 87
+    },
+    {
+      "oldName": "Ate",
+      "newName": "REQUEST_ABORTED_ERROR_NAME",
+      "line": 268,
+      "column": 68
+    },
+    {
+      "oldName": "CustomSet",
+      "newName": "CustomSet",
+      "line": 294,
+      "column": 6
+    },
+    {
+      "oldName": "CustomSet",
+      "newName": "CustomSet",
+      "line": 312,
+      "column": 24
+    },
+    {
+      "oldName": "CustomSet",
+      "newName": "CustomSet",
+      "line": 316,
+      "column": 24
+    },
+    {
+      "oldName": "CustomSet",
+      "newName": "CustomSet",
+      "line": 322,
+      "column": 24
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 337,
+      "column": 6
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 365,
+      "column": 11
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 368,
+      "column": 15
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 371,
+      "column": 15
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 374,
+      "column": 15
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 377,
+      "column": 11
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 380,
+      "column": 11
+    },
+    {
+      "oldName": "FileContent",
+      "newName": "FileContent",
+      "line": 386,
+      "column": 18
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 390,
+      "column": 18
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 447,
+      "column": 11
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 451,
+      "column": 11
+    },
+    {
+      "oldName": "FileContent",
+      "newName": "FileContent",
+      "line": 636,
+      "column": 4
+    },
+    {
+      "oldName": "CustomSet",
+      "newName": "CustomSet",
+      "line": 878,
+      "column": 169
+    },
+    {
+      "oldName": "CustomSet",
+      "newName": "CustomSet",
+      "line": 878,
+      "column": 402
+    },
+    {
+      "oldName": "P5e",
+      "newName": "STREAM_NOT_WRITABLE_ERROR_MSG",
+      "line": 894,
+      "column": 2
+    },
+    {
+      "oldName": "P5e",
+      "newName": "STREAM_NOT_WRITABLE_ERROR_MSG",
+      "line": 897,
+      "column": 12
+    },
+    {
+      "oldName": "AsyncQueue",
+      "newName": "AsyncQueue",
+      "line": 1035,
+      "column": 2
+    },
+    {
+      "oldName": "StreamMessageHandler",
+      "newName": "StreamMessageHandler",
+      "line": 1129,
+      "column": 2
+    },
+    {
+      "oldName": "AsyncQueue",
+      "newName": "AsyncQueue",
+      "line": 1139,
+      "column": 83
+    },
+    {
+      "oldName": "Hk",
+      "newName": "SUPPORTED_IMAGE_TYPES_MAP",
+      "line": 1267,
+      "column": 8
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 1297,
+      "column": 3
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 1298,
+      "column": 3
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 1563,
+      "column": 2
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 1776,
+      "column": 4
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 1780,
+      "column": 48
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 1836,
+      "column": 21
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 1846,
+      "column": 15
+    },
+    {
+      "oldName": "CustomSet",
+      "newName": "CustomSet",
+      "line": 1921,
+      "column": 22
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 1922,
+      "column": 22
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 1965,
+      "column": 46
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 1965,
+      "column": 59
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 2044,
+      "column": 2
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 2048,
+      "column": 25
+    },
+    {
+      "oldName": "ex",
+      "newName": "WorkerPoolBase",
+      "line": 2048,
+      "column": 77
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2122,
+      "column": 6
+    },
+    {
+      "oldName": "ThreadStorage",
+      "newName": "ThreadStorage",
+      "line": 2139,
+      "column": 6
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2139,
+      "column": 28
+    },
+    {
+      "oldName": "ConversationStorage",
+      "newName": "ConversationStorage",
+      "line": 2140,
+      "column": 6
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2140,
+      "column": 34
+    },
+    {
+      "oldName": "TaskStorage",
+      "newName": "TaskStorage",
+      "line": 2141,
+      "column": 6
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2141,
+      "column": 26
+    },
+    {
+      "oldName": "PlanStorage",
+      "newName": "PlanStorage",
+      "line": 2142,
+      "column": 6
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2142,
+      "column": 26
+    },
+    {
+      "oldName": "AttachmentStorage",
+      "newName": "AttachmentStorage",
+      "line": 2143,
+      "column": 6
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 2143,
+      "column": 32
+    },
+    {
+      "oldName": "EmptyStorage",
+      "newName": "EmptyStorage",
+      "line": 2144,
+      "column": 6
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 2228,
+      "column": 30
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 2246,
+      "column": 28
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 2267,
+      "column": 30
+    },
+    {
+      "oldName": "EmptyStorage",
+      "newName": "EmptyStorage",
+      "line": 2296,
+      "column": 30
+    },
+    {
+      "oldName": "RepoMappingMigrator",
+      "newName": "RepoMappingMigrator",
+      "line": 2482,
+      "column": 2
+    },
+    {
+      "oldName": "RepoMappingMigrator",
+      "newName": "RepoMappingMigrator",
+      "line": 2486,
+      "column": 24
+    },
+    {
+      "oldName": "RepoMappingMigrator",
+      "newName": "RepoMappingMigrator",
+      "line": 2528,
+      "column": 15
+    },
+    {
+      "oldName": "PlanStorage",
+      "newName": "PlanStorage",
+      "line": 2543,
+      "column": 30
+    },
+    {
+      "oldName": "PlanStorage",
+      "newName": "PlanStorage",
+      "line": 2562,
+      "column": 32
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 3054,
+      "column": 46
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 3054,
+      "column": 59
+    },
+    {
+      "oldName": "TemplateFileNotFoundError",
+      "newName": "TemplateFileNotFoundError",
+      "line": 3174,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateFileEmptyError",
+      "newName": "TemplateFileEmptyError",
+      "line": 3179,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateFileNotMarkdownError",
+      "newName": "TemplateFileNotMarkdownError",
+      "line": 3184,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateMissingMetadataError",
+      "newName": "TemplateMissingMetadataError",
+      "line": 3189,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateInvalidMetadataError",
+      "newName": "TemplateInvalidMetadataError",
+      "line": 3194,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateFileAlreadyExistsError",
+      "newName": "TemplateFileAlreadyExistsError",
+      "line": 3199,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateNotFoundError",
+      "newName": "TemplateNotFoundError",
+      "line": 3204,
+      "column": 2
+    },
+    {
+      "oldName": "CLIAgentNameConflictsWithBuiltInAgentError",
+      "newName": "CLIAgentNameConflictsWithBuiltInAgentError",
+      "line": 3209,
+      "column": 2
+    },
+    {
+      "oldName": "TemplateNameNotAllowedError",
+      "newName": "TemplateNameNotAllowedError",
+      "line": 3214,
+      "column": 2
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 3219,
+      "column": 2
+    },
+    {
+      "oldName": "CloudAuthHandler",
+      "newName": "CloudAuthHandler",
+      "line": 3288,
+      "column": 2
+    },
+    {
+      "oldName": "GitHubAuthHandler",
+      "newName": "GitHubAuthHandler",
+      "line": 3443,
+      "column": 2
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV1",
+      "newName": "WorkspaceSettingsMigratorV1",
+      "line": 3482,
+      "column": 2
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV2",
+      "newName": "WorkspaceSettingsMigratorV2",
+      "line": 3495,
+      "column": 2
+    },
+    {
+      "oldName": "IdeAgentMigrator",
+      "newName": "IdeAgentMigrator",
+      "line": 3509,
+      "column": 2
+    },
+    {
+      "oldName": "IdeAgentMigrator",
+      "newName": "IdeAgentMigrator",
+      "line": 3513,
+      "column": 24
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV3",
+      "newName": "WorkspaceSettingsMigratorV3",
+      "line": 3536,
+      "column": 2
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV4",
+      "newName": "WorkspaceSettingsMigratorV4",
+      "line": 3564,
+      "column": 2
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3571,
+      "column": 22
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3575,
+      "column": 22
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3579,
+      "column": 22
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3583,
+      "column": 22
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3587,
+      "column": 16
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3588,
+      "column": 24
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3589,
+      "column": 18
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 3590,
+      "column": 21
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV5",
+      "newName": "WorkspaceSettingsMigratorV5",
+      "line": 3595,
+      "column": 2
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV1",
+      "newName": "WorkspaceSettingsMigratorV1",
+      "line": 3621,
+      "column": 106
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV2",
+      "newName": "WorkspaceSettingsMigratorV2",
+      "line": 3624,
+      "column": 106
+    },
+    {
+      "oldName": "IdeAgentMigrator",
+      "newName": "IdeAgentMigrator",
+      "line": 3627,
+      "column": 106
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV3",
+      "newName": "WorkspaceSettingsMigratorV3",
+      "line": 3630,
+      "column": 106
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV4",
+      "newName": "WorkspaceSettingsMigratorV4",
+      "line": 3633,
+      "column": 106
+    },
+    {
+      "oldName": "WorkspaceSettingsMigratorV5",
+      "newName": "WorkspaceSettingsMigratorV5",
+      "line": 3636,
+      "column": 106
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 3921,
+      "column": 21
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 4029,
+      "column": 24
+    },
+    {
+      "oldName": "CustomSet",
+      "newName": "CustomSet",
+      "line": 4050,
+      "column": 20
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 4666,
+      "column": 21
+    },
+    {
+      "oldName": "Uf",
+      "newName": "PlanStepManager",
+      "line": 4667,
+      "column": 2
+    },
+    {
+      "oldName": "Uf",
+      "newName": "PlanStepManager",
+      "line": 4671,
+      "column": 145
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 4673,
+      "column": 486
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 4763,
+      "column": 46
+    },
+    {
+      "oldName": "PlanStepStorageAPI",
+      "newName": "PlanStepStorageAPI",
+      "line": 5015,
+      "column": 4
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 5038,
+      "column": 41
+    },
+    {
+      "oldName": "VP",
+      "newName": "TaskCountManager",
+      "line": 5261,
+      "column": 2
+    },
+    {
+      "oldName": "VP",
+      "newName": "TaskCountManager",
+      "line": 5265,
+      "column": 95
+    },
+    {
+      "oldName": "TaskCountStorageAPI",
+      "newName": "TaskCountStorageAPI",
+      "line": 5432,
+      "column": 4
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 5455,
+      "column": 42
+    },
+    {
+      "oldName": "Uf",
+      "newName": "PlanStepManager",
+      "line": 5807,
+      "column": 30
+    },
+    {
+      "oldName": "PlanStepStorageAPI",
+      "newName": "PlanStepStorageAPI",
+      "line": 5807,
+      "column": 76
+    },
+    {
+      "oldName": "VP",
+      "newName": "TaskCountManager",
+      "line": 5816,
+      "column": 49
+    },
+    {
+      "oldName": "TaskCountStorageAPI",
+      "newName": "TaskCountStorageAPI",
+      "line": 5816,
+      "column": 103
+    },
+    {
+      "oldName": "Uf",
+      "newName": "PlanStepManager",
+      "line": 5820,
+      "column": 57
+    },
+    {
+      "oldName": "VP",
+      "newName": "TaskCountManager",
+      "line": 5875,
+      "column": 28
+    },
+    {
+      "oldName": "TaskCountStorageAPI",
+      "newName": "TaskCountStorageAPI",
+      "line": 5875,
+      "column": 53
+    },
+    {
+      "oldName": "Uf",
+      "newName": "PlanStepManager",
+      "line": 5882,
+      "column": 28
+    },
+    {
+      "oldName": "PlanStepStorageAPI",
+      "newName": "PlanStepStorageAPI",
+      "line": 5882,
+      "column": 75
+    },
+    {
+      "oldName": "TaskStepStorageAPI",
+      "newName": "TaskStepStorageAPI",
+      "line": 6245,
+      "column": 4
+    },
+    {
+      "oldName": "ThreadStorage",
+      "newName": "ThreadStorage",
+      "line": 6265,
+      "column": 15
+    },
+    {
+      "oldName": "TaskStepProcessor",
+      "newName": "TaskStepProcessor",
+      "line": 6529,
+      "column": 2
+    },
+    {
+      "oldName": "TaskStepProcessor",
+      "newName": "TaskStepProcessor",
+      "line": 6533,
+      "column": 29
+    },
+    {
+      "oldName": "VerificationTaskStepProcessor",
+      "newName": "VerificationTaskStepProcessor",
+      "line": 6599,
+      "column": 2
+    },
+    {
+      "oldName": "VerificationTaskStepProcessor",
+      "newName": "VerificationTaskStepProcessor",
+      "line": 6603,
+      "column": 54
+    },
+    {
+      "oldName": "TaskStepProcessor",
+      "newName": "TaskStepProcessor",
+      "line": 6603,
+      "column": 100
+    },
+    {
+      "oldName": "SimpleTaskStepProcessor",
+      "newName": "SimpleTaskStepProcessor",
+      "line": 6665,
+      "column": 2
+    },
+    {
+      "oldName": "SimpleTaskStepProcessor",
+      "newName": "SimpleTaskStepProcessor",
+      "line": 6669,
+      "column": 29
+    },
+    {
+      "oldName": "TaskStepProcessor",
+      "newName": "TaskStepProcessor",
+      "line": 6669,
+      "column": 69
+    },
+    {
+      "oldName": "TaskOrchestrator",
+      "newName": "TaskOrchestrator",
+      "line": 6687,
+      "column": 2
+    },
+    {
+      "oldName": "TaskOrchestrator",
+      "newName": "TaskOrchestrator",
+      "line": 6691,
+      "column": 60
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 6693,
+      "column": 486
+    },
+    {
+      "oldName": "VerificationTaskStepProcessor",
+      "newName": "VerificationTaskStepProcessor",
+      "line": 6702,
+      "column": 47
+    },
+    {
+      "oldName": "SimpleTaskStepProcessor",
+      "newName": "SimpleTaskStepProcessor",
+      "line": 6702,
+      "column": 133
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 7323,
+      "column": 36
+    },
+    {
+      "oldName": "TaskStepStorageAPI",
+      "newName": "TaskStepStorageAPI",
+      "line": 7330,
+      "column": 370
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 7435,
+      "column": 93
+    },
+    {
+      "oldName": "TaskOrchestrator",
+      "newName": "TaskOrchestrator",
+      "line": 7435,
+      "column": 171
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 7448,
+      "column": 18
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 7452,
+      "column": 18
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 7455,
+      "column": 18
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 7487,
+      "column": 22
+    },
+    {
+      "oldName": "CustomSet",
+      "newName": "CustomSet",
+      "line": 7646,
+      "column": 28
+    },
+    {
+      "oldName": "CustomSet",
+      "newName": "CustomSet",
+      "line": 7647,
+      "column": 26
+    },
+    {
+      "oldName": "TaskStepStorageAPI",
+      "newName": "TaskStepStorageAPI",
+      "line": 7719,
+      "column": 104
+    },
+    {
+      "oldName": "ConversationStorage",
+      "newName": "ConversationStorage",
+      "line": 7779,
+      "column": 29
+    },
+    {
+      "oldName": "PhaseBreakdownStorageAPI",
+      "newName": "PhaseBreakdownStorageAPI",
+      "line": 8144,
+      "column": 4
+    },
+    {
+      "oldName": "ConversationStorage",
+      "newName": "ConversationStorage",
+      "line": 8164,
+      "column": 17
+    },
+    {
+      "oldName": "PlanOutputHandler",
+      "newName": "PlanOutputHandler",
+      "line": 8337,
+      "column": 2
+    },
+    {
+      "oldName": "PlanOutputHandler",
+      "newName": "PlanOutputHandler",
+      "line": 8341,
+      "column": 55
+    },
+    {
+      "oldName": "VerificationHandler",
+      "newName": "VerificationHandler",
+      "line": 8527,
+      "column": 2
+    },
+    {
+      "oldName": "VerificationHandler",
+      "newName": "VerificationHandler",
+      "line": 8531,
+      "column": 31
+    },
+    {
+      "oldName": "PhaseBreakdownStorageAPI",
+      "newName": "PhaseBreakdownStorageAPI",
+      "line": 8618,
+      "column": 106
+    },
+    {
+      "oldName": "PlanOutputHandler",
+      "newName": "PlanOutputHandler",
+      "line": 8622,
+      "column": 115
+    },
+    {
+      "oldName": "VerificationHandler",
+      "newName": "VerificationHandler",
+      "line": 8622,
+      "column": 257
+    },
+    {
+      "oldName": "PhaseBreakdownStorageAPI",
+      "newName": "PhaseBreakdownStorageAPI",
+      "line": 8874,
+      "column": 94
+    },
+    {
+      "oldName": "BaseStorage",
+      "newName": "BaseStorage",
+      "line": 9121,
+      "column": 40
+    },
+    {
+      "oldName": "AttachmentStorage",
+      "newName": "AttachmentStorage",
+      "line": 9794,
+      "column": 30
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 9925,
+      "column": 21
+    },
+    {
+      "oldName": "TemplateFileNotFoundError",
+      "newName": "TemplateFileNotFoundError",
+      "line": 10356,
+      "column": 89
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10357,
+      "column": 77
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10359,
+      "column": 71
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10359,
+      "column": 111
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10360,
+      "column": 71
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10360,
+      "column": 111
+    },
+    {
+      "oldName": "TemplateFileEmptyError",
+      "newName": "TemplateFileEmptyError",
+      "line": 10361,
+      "column": 94
+    },
+    {
+      "oldName": "TemplateNameNotAllowedError",
+      "newName": "TemplateNameNotAllowedError",
+      "line": 10376,
+      "column": 105
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10377,
+      "column": 77
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10378,
+      "column": 57
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10378,
+      "column": 97
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10379,
+      "column": 57
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10379,
+      "column": 97
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10411,
+      "column": 14
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10428,
+      "column": 21
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10430,
+      "column": 22
+    },
+    {
+      "oldName": "CLIAgentNameConflictsWithBuiltInAgentError",
+      "newName": "CLIAgentNameConflictsWithBuiltInAgentError",
+      "line": 10431,
+      "column": 33
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10433,
+      "column": 57
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10433,
+      "column": 97
+    },
+    {
+      "oldName": "CLIAgentInvalidPlatformError",
+      "newName": "CLIAgentInvalidPlatformError",
+      "line": 10434,
+      "column": 57
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10434,
+      "column": 97
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10439,
+      "column": 193
+    },
+    {
+      "oldName": "TemplateNotFoundError",
+      "newName": "TemplateNotFoundError",
+      "line": 10459,
+      "column": 18
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10473,
+      "column": 77
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10477,
+      "column": 10
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10499,
+      "column": 31
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 10510,
+      "column": 65
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10546,
+      "column": 77
+    },
+    {
+      "oldName": "xr",
+      "newName": "PlatformType",
+      "line": 10568,
+      "column": 77
+    },
+    {
+      "oldName": "GitHubAuthHandler",
+      "newName": "GitHubAuthHandler",
+      "line": 10994,
+      "column": 418
+    },
+    {
+      "oldName": "CloudAuthHandler",
+      "newName": "CloudAuthHandler",
+      "line": 10994,
+      "column": 502
+    },
+    {
+      "oldName": "TemplateFileAlreadyExistsError",
+      "newName": "TemplateFileAlreadyExistsError",
+      "line": 11180,
+      "column": 90
+    },
+    {
+      "oldName": "TemplateFileNotFoundError",
+      "newName": "TemplateFileNotFoundError",
+      "line": 11189,
+      "column": 89
+    },
+    {
+      "oldName": "TemplateFileNotMarkdownError",
+      "newName": "TemplateFileNotMarkdownError",
+      "line": 11190,
+      "column": 78
+    },
+    {
+      "oldName": "TemplateFileEmptyError",
+      "newName": "TemplateFileEmptyError",
+      "line": 11192,
+      "column": 41
+    },
+    {
+      "oldName": "TemplateMissingMetadataError",
+      "newName": "TemplateMissingMetadataError",
+      "line": 11193,
+      "column": 59
+    },
+    {
+      "oldName": "TemplateInvalidMetadataError",
+      "newName": "TemplateInvalidMetadataError",
+      "line": 11204,
+      "column": 20
+    },
+    {
+      "oldName": "Uf",
+      "newName": "PlanStepManager",
+      "line": 11330,
+      "column": 36
+    },
+    {
+      "oldName": "TemplateNotFoundError",
+      "newName": "TemplateNotFoundError",
+      "line": 11567,
+      "column": 18
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 12014,
+      "column": 7
+    },
+    {
+      "oldName": "AgentRegistry",
+      "newName": "AgentRegistry",
+      "line": 12070,
+      "column": 18
+    },
+    {
+      "oldName": "IC",
+      "newName": "TokenManager",
+      "line": 12712,
+      "column": 2
+    },
+    {
+      "oldName": "IC",
+      "newName": "TokenManager",
+      "line": 12716,
+      "column": 63
+    },
+    {
+      "oldName": "IC",
+      "newName": "TokenManager",
+      "line": 12781,
+      "column": 455
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 13355,
+      "column": 30
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 13369,
+      "column": 35
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 13386,
+      "column": 30
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 13438,
+      "column": 62
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 13502,
+      "column": 48
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 13579,
+      "column": 32
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 13615,
+      "column": 97
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 13619,
+      "column": 17
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 13641,
+      "column": 9
+    },
+    {
+      "oldName": "DT",
+      "newName": "JavaScriptFileParser",
+      "line": 13687,
+      "column": 2
+    },
+    {
+      "oldName": "DT",
+      "newName": "JavaScriptFileParser",
+      "line": 13691,
+      "column": 69
+    },
+    {
+      "oldName": "Cg",
+      "newName": "PythonFileParser",
+      "line": 13774,
+      "column": 2
+    },
+    {
+      "oldName": "Cg",
+      "newName": "PythonFileParser",
+      "line": 13778,
+      "column": 69
+    },
+    {
+      "oldName": "NT",
+      "newName": "RustFileParser",
+      "line": 13831,
+      "column": 2
+    },
+    {
+      "oldName": "NT",
+      "newName": "RustFileParser",
+      "line": 13835,
+      "column": 69
+    },
+    {
+      "oldName": "hh",
+      "newName": "TypeScriptFileParser",
+      "line": 13887,
+      "column": 2
+    },
+    {
+      "oldName": "hh",
+      "newName": "TypeScriptFileParser",
+      "line": 13891,
+      "column": 69
+    },
+    {
+      "oldName": "hh",
+      "newName": "TypeScriptFileParser",
+      "line": 13945,
+      "column": 57
+    },
+    {
+      "oldName": "Cg",
+      "newName": "PythonFileParser",
+      "line": 13963,
+      "column": 25
+    },
+    {
+      "oldName": "Cg",
+      "newName": "PythonFileParser",
+      "line": 13963,
+      "column": 71
+    },
+    {
+      "oldName": "hh",
+      "newName": "TypeScriptFileParser",
+      "line": 13967,
+      "column": 13
+    },
+    {
+      "oldName": "DT",
+      "newName": "JavaScriptFileParser",
+      "line": 13971,
+      "column": 13
+    },
+    {
+      "oldName": "NT",
+      "newName": "RustFileParser",
+      "line": 13975,
+      "column": 13
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 13980,
+      "column": 37
+    },
+    {
+      "oldName": "LineRange",
+      "newName": "LineRange",
+      "line": 13983,
+      "column": 9
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 14069,
+      "column": 35
+    },
+    {
+      "oldName": "CustomSet",
+      "newName": "CustomSet",
+      "line": 14081,
+      "column": 20
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 14131,
+      "column": 61
+    },
+    {
+      "oldName": "StreamMessageHandler",
+      "newName": "StreamMessageHandler",
+      "line": 14145,
+      "column": 443
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 14273,
+      "column": 32
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 14278,
+      "column": 30
+    },
+    {
+      "oldName": "TaskStorage",
+      "newName": "TaskStorage",
+      "line": 14781,
+      "column": 26
+    },
+    {
+      "oldName": "U3",
+      "newName": "UriCommandHandler",
+      "line": 14922,
+      "column": 2
+    },
+    {
+      "oldName": "U3",
+      "newName": "UriCommandHandler",
+      "line": 14926,
+      "column": 4
+    },
+    {
+      "oldName": "U3",
+      "newName": "UriCommandHandler",
+      "line": 15191,
+      "column": 62
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 15200,
+      "column": 10
+    },
+    {
+      "oldName": "WorkerPoolManager",
+      "newName": "WorkerPoolManager",
+      "line": 15232,
+      "column": 8
+    },
+    {
+      "oldName": "LlmCacheHandler",
+      "newName": "LlmCacheHandler",
+      "line": 15315,
+      "column": 30
+    },
+    {
+      "oldName": "YoloArtifactManager",
+      "newName": "YoloArtifactManager",
+      "line": 15333,
+      "column": 28
+    },
+    {
+      "oldName": "Cg",
+      "newName": "PythonFileParser",
+      "line": 15363,
+      "column": 2
+    },
+    {
+      "oldName": "hh",
+      "newName": "TypeScriptFileParser",
+      "line": 15363,
+      "column": 42
+    },
+    {
+      "oldName": "DT",
+      "newName": "JavaScriptFileParser",
+      "line": 15363,
+      "column": 122
+    },
+    {
+      "oldName": "NT",
+      "newName": "RustFileParser",
+      "line": 15363,
+      "column": 212
+    }
+  ]
+}

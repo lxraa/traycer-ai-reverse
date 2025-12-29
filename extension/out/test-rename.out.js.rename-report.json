@@ -1,0 +1,111 @@
+{
+  "timestamp": "2025-12-29T03:47:22.155Z",
+  "summary": {
+    "totalRenamed": 17,
+    "totalSkipped": 0
+  },
+  "locations": [
+    {
+      "oldName": "PhaseSize",
+      "newName": "PhaseSize",
+      "line": 4,
+      "column": 8
+    },
+    {
+      "oldName": "PhaseSize",
+      "newName": "PhaseSize",
+      "line": 4,
+      "column": 8
+    },
+    {
+      "oldName": "CommentSeverity",
+      "newName": "CommentSeverity",
+      "line": 4,
+      "column": 19
+    },
+    {
+      "oldName": "CommentSeverity",
+      "newName": "CommentSeverity",
+      "line": 4,
+      "column": 19
+    },
+    {
+      "oldName": "AgentMode",
+      "newName": "AgentMode",
+      "line": 4,
+      "column": 36
+    },
+    {
+      "oldName": "AgentMode",
+      "newName": "AgentMode",
+      "line": 4,
+      "column": 36
+    },
+    {
+      "oldName": "$c",
+      "newName": "InternalPhaseSize",
+      "line": 7,
+      "column": 4
+    },
+    {
+      "oldName": "tv",
+      "newName": "InternalSeverity",
+      "line": 13,
+      "column": 4
+    },
+    {
+      "oldName": "PhaseSize",
+      "newName": "PhaseSize",
+      "line": 21,
+      "column": 14
+    },
+    {
+      "oldName": "CommentSeverity",
+      "newName": "CommentSeverity",
+      "line": 22,
+      "column": 14
+    },
+    {
+      "oldName": "AgentMode",
+      "newName": "AgentMode",
+      "line": 23,
+      "column": 14
+    },
+    {
+      "oldName": "$c",
+      "newName": "InternalPhaseSize",
+      "line": 28,
+      "column": 14
+    },
+    {
+      "oldName": "tv",
+      "newName": "InternalSeverity",
+      "line": 29,
+      "column": 14
+    },
+    {
+      "oldName": "PhaseSize",
+      "newName": "PhaseSize",
+      "line": 33,
+      "column": 18
+    },
+    {
+      "oldName": "CommentSeverity",
+      "newName": "CommentSeverity",
+      "line": 34,
+      "column": 17
+    },
+    {
+      "oldName": "$c",
+      "newName": "InternalPhaseSize",
+      "line": 37,
+      "column": 13
+    },
+    {
+      "oldName": "tv",
+      "newName": "InternalSeverity",
+      "line": 38,
+      "column": 13
+    }
+  ]
+}
