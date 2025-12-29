@@ -70,9 +70,9 @@ class LatestRequestLimiter extends RequestQueue {
     return this.currentRequest;
   }
 }
-
+var latestRequestLimiter = new LatestRequestLimiter();
 // CommonJS 导出
 module.exports = {
-  LatestRequestLimiter
+  latestRequestLimiter
 };
 
