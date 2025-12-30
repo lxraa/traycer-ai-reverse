@@ -262,6 +262,22 @@ const {
   CodeBlockCache,
   TreeSitterFileParser,
   
+  // 语言特定 Parser
+  GoFileParser,
+  JavaScriptFileParser,
+  PythonFileParser,
+  RustFileParser,
+  TypeScriptFileParser,
+  TypeScriptJSXFileParser,
+  
+  // Parser 工厂函数
+  getParserForLanguage,
+  
+  // 辅助函数
+  hasTreeSitterError,
+  createLineRangeFromTreeNode,
+  mergeLineRanges,
+  
   // 常量
   INVALID_BLOCK_ID
 } = require("./modules/language_parser.js");
@@ -10965,375 +10981,8 @@ async function getReferenceLocations(_0x2f24cd, _0x502375) {
 }
 
 // [unbundle] SnippetContextProvider, INVALID_BLOCK_ID, CodeBlockCache, TreeSitterFileParser 已移至 language_parser.js
-// 保留空的初始化函数以兼容旧代码
-var initSnippetContextProvider = () => {},
-    initCodeBlockCache = () => {},
-    initTreeSitterParser = () => {};
-
-function hasTreeSitterError(_0x12f21e) {
-  if (_0x12f21e.isError) return true;
-  let _0x1e676b = _0x12f21e.walk(),
-    _0x571e28 = _0x1e676b.gotoFirstChild();
-  for (; _0x571e28;) {
-    let _0x472736 = _0x1e676b.currentNode;
-    if (_0x472736.isError || _0x472736.childCount > 0 && hasTreeSitterError(_0x472736)) return true;
-    _0x571e28 = _0x1e676b.gotoNextSibling();
-  }
-  return false;
-}
-function createLineRangeFromTreeNode(_0x27680e) {
-  if (hasTreeSitterError(_0x27680e)) {
-    Logger.warn('There are some errors in the node ' + _0x27680e.type + ". Skipping it.");
-    return;
-  }
-  return LineRange.fromEndLine(_0x27680e.startPosition.row, _0x27680e.endPosition.row);
-}
-var initParserBase = __esmModule(() => {
-    'use strict';
-  }),
-  GoFileParser,
-  initGoParser = __esmModule(() => {
-    'use strict';
-
-    initLanguageParsers(), initTreeSitterParser(), initParserBase(), GoFileParser = class _0x1b3373 extends TreeSitterFileParser {
-      constructor(_0x4ec59a) {
-        super(_0x4ec59a, "tree-sitter-go.wasm");
-      }
-      ["allCodeBlocks"](_0xd824e3) {
-        let _0x4d1b2f = [],
-          _0x2ee2b4 = [];
-        if (_0xd824e3.isError) return Logger.warn("There are some errors in the node " + _0xd824e3.type + '. Skipping it.'), _0x4d1b2f;
-        let _0x9f3633 = _0xd824e3.walk(),
-          _0x5441ea = _0x9f3633.gotoFirstChild();
-        for (; _0x5441ea;) {
-          let _0x4ac0d1 = _0x9f3633.currentNode;
-          if (_0x4ac0d1.type.includes('import_') || _0x4ac0d1.type === "comment" || _0x4ac0d1.type.includes('package_') || _0x4ac0d1.type.trim() === '') {
-            _0x5441ea = _0x9f3633.gotoNextSibling();
-            continue;
-          }
-          if (_0x4ac0d1.type === "function_declaration" || _0x4ac0d1.type === "method_declaration") {
-            _0x2ee2b4.length > 0 && (_0x4d1b2f.push(mergeLineRanges(_0x2ee2b4)), _0x2ee2b4 = []);
-            let _0x3b63a6 = createLineRangeFromTreeNode(_0x4ac0d1);
-            _0x3b63a6 && _0x4d1b2f.push(_0x3b63a6);
-          } else {
-            let _0xbeb159 = createLineRangeFromTreeNode(_0x4ac0d1);
-            _0xbeb159 && _0x2ee2b4.push(_0xbeb159);
-          }
-          _0x5441ea = _0x9f3633.gotoNextSibling();
-        }
-        return _0x2ee2b4.length > 0 && _0x4d1b2f.push(mergeLineRanges(_0x2ee2b4)), _0x4d1b2f;
-      }
-      static ['getInstance'](_0x5db06a) {
-        if (!_0x1b3373.instance) {
-          if (!_0x5db06a) throw new Error("Base URI is not provided");
-          _0x1b3373.instance = new _0x1b3373(_0x5db06a);
-        }
-        return _0x1b3373.instance;
-      }
-    };
-  }),
-  JavaScriptFileParser,
-  initJavaScriptParser = __esmModule(() => {
-    'use strict';
-
-    initLanguageParsers(), initTreeSitterParser(), initParserBase(), JavaScriptFileParser = class _0x800683 extends TreeSitterFileParser {
-      constructor(_0xceea01) {
-        super(_0xceea01, 'tree-sitter-javascript.wasm');
-      }
-      ['checkIfNodeIsRequire'](_0x5da926) {
-        if (_0x5da926.type === "call_expression") {
-          let _0x399ef0 = _0x5da926.firstChild;
-          if (_0x399ef0 && _0x399ef0.type === 'identifier') return _0x399ef0.text === 'require';
-        }
-        if (_0x5da926.namedChildren.length > 0) {
-          for (let key of _0x5da926.namedChildren) if (this.checkIfNodeIsRequire(key)) return true;
-        }
-        return false;
-      }
-      ['checkIfModuleExports'](_0x153caf) {
-        if (_0x153caf.type === 'property_identifier' && _0x153caf.text === "exports" && _0x153caf.parent) {
-          let _0x39340a = _0x153caf.parent;
-          if (_0x39340a.type === 'member_expression' && _0x39340a.text === "module.exports") return true;
-        }
-        if (_0x153caf.namedChildren.length > 0) {
-          for (let key of _0x153caf.namedChildren) if (this.checkIfModuleExports(key)) return true;
-        }
-        return false;
-      }
-      ['allCodeBlocks'](_0x4247da) {
-        let _0x5a8744 = [],
-          _0x1ccc37 = [];
-        if (_0x4247da.isError) return Logger.warn('There are some errors in the node ' + _0x4247da.type + '. Skipping it.'), _0x5a8744;
-        let _0x198a10 = _0x4247da.walk(),
-          _0x204f56 = _0x198a10.gotoFirstChild();
-        for (; _0x204f56;) {
-          let _0x2b61aa = _0x198a10.currentNode;
-          if (_0x2b61aa.type.includes('import') || _0x2b61aa.type.includes('comment')) {
-            _0x204f56 = _0x198a10.gotoNextSibling();
-            continue;
-          }
-          if (_0x2b61aa.type === 'export_statement' || _0x2b61aa.type === "export" || _0x2b61aa.type === "class_body") {
-            if (_0x2b61aa.children.some(_0x2ff4c5 => _0x2ff4c5.type === 'default')) {
-              _0x204f56 = _0x198a10.gotoNextSibling();
-              continue;
-            }
-            _0x1ccc37.length > 0 && (_0x5a8744.push(mergeLineRanges(_0x1ccc37)), _0x1ccc37 = []);
-            let _0xc6fd3a = this.allCodeBlocks(_0x2b61aa);
-            _0x5a8744.push(..._0xc6fd3a);
-          } else {
-            if (_0x2b61aa.type === 'method_definition' || _0x2b61aa.type === 'function_declaration' || _0x2b61aa.type === "function_expression" || _0x2b61aa.type === "class_declaration" || _0x2b61aa.type === 'generator_function' || _0x2b61aa.type === "generator_function_declaration") {
-              if (_0x1ccc37.length > 0 && (_0x5a8744.push(mergeLineRanges(_0x1ccc37)), _0x1ccc37 = []), _0x2b61aa.type === 'function_declaration' || _0x2b61aa.type === "method_definition" || _0x2b61aa.type === "function_expression" || _0x2b61aa.type === "generator_function" || _0x2b61aa.type === 'generator_function_declaration') {
-                let _0x483655 = createLineRangeFromTreeNode(_0x2b61aa);
-                _0x483655 && _0x5a8744.push(_0x483655);
-              } else {
-                let _0x31f510 = this.allCodeBlocks(_0x2b61aa);
-                _0x5a8744.push(..._0x31f510);
-              }
-            } else {
-              if (_0x2b61aa.parent?.['type'] !== "class_declaration") {
-                if (this.checkIfNodeIsRequire(_0x2b61aa) || this.checkIfModuleExports(_0x2b61aa)) {
-                  _0x204f56 = _0x198a10.gotoNextSibling();
-                  continue;
-                }
-                let _0x4772a4 = createLineRangeFromTreeNode(_0x2b61aa);
-                _0x4772a4 && _0x1ccc37.push(_0x4772a4);
-              }
-            }
-          }
-          _0x204f56 = _0x198a10.gotoNextSibling();
-        }
-        return _0x1ccc37.length > 0 && _0x5a8744.push(mergeLineRanges(_0x1ccc37)), _0x5a8744;
-      }
-      static ["getInstance"](_0x209e24) {
-        if (!_0x800683.instance) {
-          if (!_0x209e24) throw new Error('Base URI is not provided');
-          _0x800683.instance = new _0x800683(_0x209e24);
-        }
-        return _0x800683.instance;
-      }
-      ["getParentTypeExclusionList"]() {
-        return ["required_parameter", 'optional_parameter'];
-      }
-      ["getPreviousSiblingInclusionList"]() {
-        return ['identifier', "property_identifier", '.', 'this', 'super'];
-      }
-    };
-  }),
-  PythonFileParser,
-  initPythonParser = __esmModule(() => {
-    'use strict';
-
-    initLanguageParsers(), initTreeSitterParser(), initParserBase(), PythonFileParser = class _0x47a743 extends TreeSitterFileParser {
-      static {
-        this.fileExtensions = ['py', 'pyw'];
-      }
-      constructor(_0x1cb8a8) {
-        super(_0x1cb8a8, 'tree-sitter-python.wasm');
-      }
-      ['allCodeBlocks'](_0x263a66) {
-        let _0x48941f = [],
-          _0x2967b3 = [];
-        if (_0x263a66.isError) return Logger.warn('There are some errors in the node ' + _0x263a66.type + ". Skipping it."), _0x48941f;
-        let _0x292b21 = _0x263a66.walk(),
-          _0x3d20d5 = _0x292b21.gotoFirstChild();
-        for (; _0x3d20d5;) {
-          let _0x5ed80b = _0x292b21.currentNode;
-          if (_0x5ed80b.type.includes('import_') || _0x5ed80b.type === "comment" || _0x5ed80b.type.trim() === '' || _0x5ed80b.type === "expression_statement" && (_0x5ed80b.text.trim().startsWith('\x22\x22\x22') || _0x5ed80b.text.trim().startsWith('\x27\x27\x27'))) {
-            _0x3d20d5 = _0x292b21.gotoNextSibling();
-            continue;
-          }
-          if (_0x5ed80b.type === "block") {
-            let _0x492909 = this.allCodeBlocks(_0x5ed80b);
-            _0x48941f.push(..._0x492909);
-          } else {
-            if (_0x5ed80b.type === "class_definition" || _0x5ed80b.type === "function_definition" || _0x5ed80b.type === "decorated_definition") {
-              if (_0x2967b3.length > 0 && (_0x48941f.push(mergeLineRanges(_0x2967b3)), _0x2967b3 = []), _0x5ed80b.type === "function_definition" || _0x5ed80b.type === 'decorated_definition' && _0x5ed80b.namedChildren.map(_0x584b82 => _0x584b82.type).includes("function_definition")) {
-                Logger.debug('Found function snippet');
-                let _0x24ab82 = createLineRangeFromTreeNode(_0x5ed80b);
-                _0x24ab82 && _0x48941f.push(_0x24ab82);
-              } else {
-                Logger.debug("Found class snippet or decorated definition for class snippet");
-                let _0x1f8b52 = this.allCodeBlocks(_0x5ed80b);
-                _0x48941f.push(..._0x1f8b52);
-              }
-            } else {
-              if (_0x5ed80b.parent?.["type"] !== "class_definition") {
-                let _0x1b5b23 = createLineRangeFromTreeNode(_0x5ed80b);
-                _0x1b5b23 && _0x2967b3.push(_0x1b5b23);
-              }
-            }
-          }
-          _0x3d20d5 = _0x292b21.gotoNextSibling();
-        }
-        return _0x2967b3.length > 0 && _0x48941f.push(mergeLineRanges(_0x2967b3)), _0x48941f;
-      }
-      static ["getInstance"](_0x536c89) {
-        if (!_0x47a743.instance) {
-          if (!_0x536c89) throw new Error('Base URI is not provided');
-          _0x47a743.instance = new _0x47a743(_0x536c89);
-        }
-        return _0x47a743.instance;
-      }
-    };
-  }),
-  RustFileParser,
-  initRustParser = __esmModule(() => {
-    'use strict';
-
-    initLanguageParsers(), initTreeSitterParser(), initParserBase(), RustFileParser = class _0x26957b extends TreeSitterFileParser {
-      constructor(_0x327978) {
-        super(_0x327978, "tree-sitter-rust.wasm");
-      }
-      ['allCodeBlocks'](_0x3e8a4d) {
-        let _0x463e83 = [],
-          _0x2f3403 = [];
-        if (_0x3e8a4d.isError) return Logger.warn('There are some errors in the node ' + _0x3e8a4d.type + '. Skipping it.'), _0x463e83;
-        let _0x40455b = _0x3e8a4d.walk(),
-          _0x2e9d01 = _0x40455b.gotoFirstChild();
-        for (; _0x2e9d01;) {
-          let _0x3b898a = _0x40455b.currentNode;
-          if (_0x3b898a.type.includes('shebang') || _0x3b898a.type.includes("extern_crate_declaration") || _0x3b898a.type.includes("use_as_clause") || _0x3b898a.type.includes('use_declaration') || _0x3b898a.type.includes('line_comment') || _0x3b898a.type.includes("block_comment") || _0x3b898a.type.includes("attribute_item") || _0x3b898a.type === '{' || _0x3b898a.type === '}' || _0x3b898a.type.trim() === '') {
-            _0x2e9d01 = _0x40455b.gotoNextSibling();
-            continue;
-          }
-          if (_0x3b898a.type === "declaration_list") {
-            let _0x457169 = this.allCodeBlocks(_0x3b898a);
-            _0x463e83.push(..._0x457169);
-          } else {
-            if (_0x3b898a.type === 'function_item') {
-              _0x2f3403.length > 0 && (_0x463e83.push(mergeLineRanges(_0x2f3403)), _0x2f3403 = []);
-              let _0xa8309b = createLineRangeFromTreeNode(_0x3b898a);
-              _0xa8309b && _0x463e83.push(_0xa8309b);
-            } else {
-              if (_0x3b898a.type === "mod_item" || _0x3b898a.type === "impl_item" || _0x3b898a.type === "trait_item") {
-                let _0x23ec47 = _0x3b898a.namedChildren.find(_0x3b4c66 => _0x3b4c66.type === "declaration_list");
-                if (_0x23ec47) {
-                  let _0x390fb7 = this.allCodeBlocks(_0x23ec47);
-                  _0x463e83.push(..._0x390fb7);
-                }
-                _0x2e9d01 = _0x40455b.gotoNextSibling();
-                continue;
-              } else {
-                let _0x12e0c3 = createLineRangeFromTreeNode(_0x3b898a);
-                _0x12e0c3 && _0x2f3403.push(_0x12e0c3);
-              }
-            }
-          }
-          _0x2e9d01 = _0x40455b.gotoNextSibling();
-        }
-        return _0x2f3403.length > 0 && _0x463e83.push(mergeLineRanges(_0x2f3403)), _0x463e83;
-      }
-      static ["getInstance"](_0x2d045c) {
-        if (!_0x26957b.instance) {
-          if (!_0x2d045c) throw new Error('Base URI is not provided');
-          _0x26957b.instance = new _0x26957b(_0x2d045c);
-        }
-        return _0x26957b.instance;
-      }
-    };
-  }),
-  TypeScriptFileParser,
-  initTypeScriptParser = __esmModule(() => {
-    'use strict';
-
-    initLanguageParsers(), initTreeSitterParser(), initParserBase(), TypeScriptFileParser = class _0x3507b7 extends TreeSitterFileParser {
-      constructor(_0x545b0c, _0x13a498 = 'tree-sitter-typescript.wasm') {
-        super(_0x545b0c, _0x13a498);
-      }
-      ["allCodeBlocks"](_0x5959dd) {
-        let _0x3305c3 = [],
-          _0x5878a4 = [];
-        if (_0x5959dd.isError) return Logger.warn("There are some errors in the node " + _0x5959dd.type + ". Skipping it."), _0x3305c3;
-        let _0x2678fd = _0x5959dd.walk(),
-          _0x5be2d1 = _0x2678fd.gotoFirstChild();
-        for (; _0x5be2d1;) {
-          let _0x2ad395 = _0x2678fd.currentNode;
-          if (_0x2ad395.type.includes("import") || _0x2ad395.type.includes('comment') || _0x2ad395.type === '{' || _0x2ad395.type === '}') {
-            _0x5be2d1 = _0x2678fd.gotoNextSibling();
-            continue;
-          }
-          if (_0x2ad395.type === 'export_statement' || _0x2ad395.type === "export" || _0x2ad395.type === 'class_body') {
-            _0x5878a4.length > 0 && (_0x3305c3.push(mergeLineRanges(_0x5878a4)), _0x5878a4 = []);
-            let _0x375ec9 = this.allCodeBlocks(_0x2ad395);
-            _0x3305c3.push(..._0x375ec9);
-          } else {
-            if (_0x2ad395.type === 'method_definition' || _0x2ad395.type === 'function_declaration' || _0x2ad395.type === 'function_expression' || _0x2ad395.type === 'class_declaration' || _0x2ad395.type === "abstract_class_declaration" || _0x2ad395.type === 'generator_function' || _0x2ad395.type === "generator_function_declaration") {
-              if (_0x5878a4.length > 0 && (_0x3305c3.push(mergeLineRanges(_0x5878a4)), _0x5878a4 = []), _0x2ad395.type === 'function_declaration' || _0x2ad395.type === "method_definition" || _0x2ad395.type === "function_expression" || _0x2ad395.type === "generator_function" || _0x2ad395.type === "generator_function_declaration") {
-                let _0x5db0d0 = createLineRangeFromTreeNode(_0x2ad395);
-                _0x5db0d0 && _0x3305c3.push(_0x5db0d0);
-              } else {
-                let _0x582a6d = this.allCodeBlocks(_0x2ad395);
-                _0x3305c3.push(..._0x582a6d);
-              }
-            } else {
-              if (_0x2ad395.parent?.["type"] !== 'class_declaration' && _0x2ad395.parent?.["type"] !== "abstract_class_declaration") {
-                Logger.debug("Found non-function snippet, type", _0x2ad395.type);
-                let _0x26bcff = createLineRangeFromTreeNode(_0x2ad395);
-                _0x26bcff && _0x5878a4.push(_0x26bcff);
-              }
-            }
-          }
-          _0x5be2d1 = _0x2678fd.gotoNextSibling();
-        }
-        return _0x5878a4.length > 0 && _0x3305c3.push(mergeLineRanges(_0x5878a4)), _0x3305c3;
-      }
-      static ["getInstance"](_0x893408) {
-        if (!_0x3507b7.instance) {
-          if (!_0x893408) throw new Error("Base URI is not provided");
-          _0x3507b7.instance = new _0x3507b7(_0x893408);
-        }
-        return _0x3507b7.instance;
-      }
-    };
-  }),
-  LT,
-  initTypeScriptParserExports = __esmModule(() => {
-    'use strict';
-
-    initTypeScriptParser(), LT = class _0x36a311 extends TypeScriptFileParser {
-      constructor(_0x10eecc) {
-        super(_0x10eecc, 'tree-sitter-typescript-jsx.wasm');
-      }
-      static ["getInstance"](_0x5a8b43) {
-        if (!_0x36a311.instance) {
-          if (!_0x5a8b43) throw new Error("Base URI is not provided");
-          _0x36a311.instance = new _0x36a311(_0x5a8b43);
-        }
-        return _0x36a311.instance;
-      }
-    };
-  });
-function getParserForLanguage(_0x4fd726, _0x11c195) {
-  switch (_0x4fd726) {
-    case 'python':
-      {
-        let _0x542d2a = _0x11c195.split('.').pop();
-        if (_0x542d2a && PythonFileParser.fileExtensions.includes(_0x542d2a)) return PythonFileParser.getInstance();
-        break;
-      }
-    case "typescript":
-      return TypeScriptFileParser.getInstance();
-    case 'typescriptreact':
-      return LT.getInstance();
-    case 'javascript':
-      return JavaScriptFileParser.getInstance();
-    case 'go':
-      return GoFileParser.getInstance();
-    case "rust":
-      return RustFileParser.getInstance();
-  }
-  return SnippetContextProvider.getInstance();
-}
-function mergeLineRanges(_0x80c5a2) {
-  if (_0x80c5a2.length === 0) return LineRange.fromEndLine(0, 0);
-  let _0x1174bb = _0x80c5a2[0].startLine,
-    _0x46fe17 = _0x80c5a2[_0x80c5a2.length - 1].startLine - _0x80c5a2[0].startLine + _0x80c5a2[_0x80c5a2.length - 1].count;
-  return LineRange.fromCount(_0x1174bb, _0x46fe17);
-}
-var initLanguageParsers = __esmModule(() => {
-  'use strict';
-  initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser();
-});
+// [unbundle] 所有语言特定的 Parser (GoFileParser, JavaScriptFileParser, PythonFileParser, RustFileParser, TypeScriptFileParser, TypeScriptJSXFileParser) 已移至 language_parser.js
+// [unbundle] Parser 辅助函数 (hasTreeSitterError, createLineRangeFromTreeNode, mergeLineRanges, getParserForLanguage) 已移至 language_parser.js
 async function handleFindSymbolReferencesRequest(_0x50845c) {
   let {
       filePath: _0x4af665,
@@ -11400,7 +11049,7 @@ async function findSymbolReferencesInFile(_0x349e72, _0x1ad2d6, _0x3d75d2, _0x5c
 var initFileReadModule = __esmModule(() => {
   'use strict';
 
-  initLanguageParsers();
+  // [unbundle] initLanguageParsers 调用已删除，Parser 类已在 language_parser.js 模块导入时初始化
 });
 async function handleReadFilesRequest(_0x264761) {
   if (!_0x264761.fileRequests.length) throw new Error("Need at least one file path to read");
@@ -12305,7 +11954,8 @@ var initTaskChainCommands = __esmModule(() => {
   initDocsWatcher = __esmModule(() => {
     'use strict';
 
-    initLanguageParsers(), initTreeSitterParser(), DocsWatcher = class {
+    // [unbundle] initLanguageParsers 调用已删除，Parser 类已在 language_parser.js 模块导入时初始化
+    DocsWatcher = class {
       constructor() {
         this.pendingRequests = new Set(), this.inflightRequests = new Map();
       }
@@ -12630,7 +12280,7 @@ function isMinorOrMajorVersionChange(_0x2192e4, _0x4068d2) {
   return !_0x2fa6b5 || !_0x40b882 ? false : _0x2fa6b5.major !== _0x40b882.major || _0x2fa6b5.minor !== _0x40b882.minor;
 }
 function initializeLanguageParsers(_0x1c0698) {
-  PythonFileParser.getInstance(_0x1c0698.extensionUri), TypeScriptFileParser.getInstance(_0x1c0698.extensionUri), LT.getInstance(_0x1c0698.extensionUri), JavaScriptFileParser.getInstance(_0x1c0698.extensionUri), GoFileParser.getInstance(_0x1c0698.extensionUri), RustFileParser.getInstance(_0x1c0698.extensionUri), SnippetContextProvider.getInstance();
+  PythonFileParser.getInstance(_0x1c0698.extensionUri), TypeScriptFileParser.getInstance(_0x1c0698.extensionUri), TypeScriptJSXFileParser.getInstance(_0x1c0698.extensionUri), JavaScriptFileParser.getInstance(_0x1c0698.extensionUri), GoFileParser.getInstance(_0x1c0698.extensionUri), RustFileParser.getInstance(_0x1c0698.extensionUri), SnippetContextProvider.getInstance();
 }
 function createWatchers(_0x350ec6, _0x1620ee) {
   let _0xc4def2 = new DocsWatcher();
@@ -12673,7 +12323,7 @@ var disposables,
   initExtension = __esmModule(() => {
     'use strict';
 
-    initAuthStatusHandler(), initGrpcClient(), initTaskChainCommands(), initIDEAgentManager(), initTaskContext(), initTaskChainManager(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initTaskRunner(), initTemplateManager(), /* initUsageTracker removed */ initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(),  initTaskContext(), disposables = [], extensionContext = null;
+    initAuthStatusHandler(), initGrpcClient(), initTaskChainCommands(), initIDEAgentManager(), initTaskContext(), initTaskChainManager(), initPersistenceManager(), initTaskRunner(), initTemplateManager(), /* initUsageTracker removed */ initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(),  initTaskContext(), disposables = [], extensionContext = null;
   }),
   sSt = {};
 __export(sSt, {

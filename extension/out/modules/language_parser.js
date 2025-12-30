@@ -483,6 +483,357 @@ class TreeSitterFileParser{
     }
   };
 
+// ============== 辅助函数 ==============
+
+// 检查树节点是否有错误
+function hasTreeSitterError(node) {
+  if (node.isError) return true;
+  let cursor = node.walk(),
+    hasChild = cursor.gotoFirstChild();
+  for (; hasChild;) {
+    let currentNode = cursor.currentNode;
+    if (currentNode.isError || currentNode.childCount > 0 && hasTreeSitterError(currentNode)) return true;
+    hasChild = cursor.gotoNextSibling();
+  }
+  return false;
+}
+
+// 从树节点创建行范围
+function createLineRangeFromTreeNode(node) {
+  if (hasTreeSitterError(node)) {
+    Logger.warn('There are some errors in the node ' + node.type + ". Skipping it.");
+    return;
+  }
+  return LineRange.fromEndLine(node.startPosition.row, node.endPosition.row);
+}
+
+// 合并多个行范围
+function mergeLineRanges(ranges) {
+  if (ranges.length === 0) return LineRange.fromEndLine(0, 0);
+  let startLine = ranges[0].startLine,
+    count = ranges[ranges.length - 1].startLine - ranges[0].startLine + ranges[ranges.length - 1].count;
+  return LineRange.fromCount(startLine, count);
+}
+
+// ============== 语言特定 Parser ==============
+
+// Go Parser
+class GoFileParser extends TreeSitterFileParser {
+  constructor(baseUri) {
+    super(baseUri, "tree-sitter-go.wasm");
+  }
+  allCodeBlocks(node) {
+    let codeBlocks = [],
+      nonFunctionBlocks = [];
+    if (node.isError) return Logger.warn("There are some errors in the node " + node.type + '. Skipping it.'), codeBlocks;
+    let cursor = node.walk(),
+      hasChild = cursor.gotoFirstChild();
+    for (; hasChild;) {
+      let currentNode = cursor.currentNode;
+      if (currentNode.type.includes('import_') || currentNode.type === "comment" || currentNode.type.includes('package_') || currentNode.type.trim() === '') {
+        hasChild = cursor.gotoNextSibling();
+        continue;
+      }
+      if (currentNode.type === "function_declaration" || currentNode.type === "method_declaration") {
+        nonFunctionBlocks.length > 0 && (codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), nonFunctionBlocks = []);
+        let lineRange = createLineRangeFromTreeNode(currentNode);
+        lineRange && codeBlocks.push(lineRange);
+      } else {
+        let lineRange = createLineRangeFromTreeNode(currentNode);
+        lineRange && nonFunctionBlocks.push(lineRange);
+      }
+      hasChild = cursor.gotoNextSibling();
+    }
+    return nonFunctionBlocks.length > 0 && codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), codeBlocks;
+  }
+  static getInstance(baseUri) {
+    if (!GoFileParser.instance) {
+      if (!baseUri) throw new Error("Base URI is not provided");
+      GoFileParser.instance = new GoFileParser(baseUri);
+    }
+    return GoFileParser.instance;
+  }
+}
+
+// JavaScript Parser
+class JavaScriptFileParser extends TreeSitterFileParser {
+  constructor(baseUri) {
+    super(baseUri, 'tree-sitter-javascript.wasm');
+  }
+  checkIfNodeIsRequire(node) {
+    if (node.type === "call_expression") {
+      let firstChild = node.firstChild;
+      if (firstChild && firstChild.type === 'identifier') return firstChild.text === 'require';
+    }
+    if (node.namedChildren.length > 0) {
+      for (let child of node.namedChildren) if (this.checkIfNodeIsRequire(child)) return true;
+    }
+    return false;
+  }
+  checkIfModuleExports(node) {
+    if (node.type === 'property_identifier' && node.text === "exports" && node.parent) {
+      let parent = node.parent;
+      if (parent.type === 'member_expression' && parent.text === "module.exports") return true;
+    }
+    if (node.namedChildren.length > 0) {
+      for (let child of node.namedChildren) if (this.checkIfModuleExports(child)) return true;
+    }
+    return false;
+  }
+  allCodeBlocks(node) {
+    let codeBlocks = [],
+      nonFunctionBlocks = [];
+    if (node.isError) return Logger.warn('There are some errors in the node ' + node.type + '. Skipping it.'), codeBlocks;
+    let cursor = node.walk(),
+      hasChild = cursor.gotoFirstChild();
+    for (; hasChild;) {
+      let currentNode = cursor.currentNode;
+      if (currentNode.type.includes('import') || currentNode.type.includes('comment')) {
+        hasChild = cursor.gotoNextSibling();
+        continue;
+      }
+      if (currentNode.type === 'export_statement' || currentNode.type === "export" || currentNode.type === "class_body") {
+        if (currentNode.children.some(child => child.type === 'default')) {
+          hasChild = cursor.gotoNextSibling();
+          continue;
+        }
+        nonFunctionBlocks.length > 0 && (codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), nonFunctionBlocks = []);
+        let childBlocks = this.allCodeBlocks(currentNode);
+        codeBlocks.push(...childBlocks);
+      } else {
+        if (currentNode.type === 'method_definition' || currentNode.type === 'function_declaration' || currentNode.type === "function_expression" || currentNode.type === "class_declaration" || currentNode.type === 'generator_function' || currentNode.type === "generator_function_declaration") {
+          if (nonFunctionBlocks.length > 0 && (codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), nonFunctionBlocks = []), currentNode.type === 'function_declaration' || currentNode.type === "method_definition" || currentNode.type === "function_expression" || currentNode.type === "generator_function" || currentNode.type === 'generator_function_declaration') {
+            let lineRange = createLineRangeFromTreeNode(currentNode);
+            lineRange && codeBlocks.push(lineRange);
+          } else {
+            let childBlocks = this.allCodeBlocks(currentNode);
+            codeBlocks.push(...childBlocks);
+          }
+        } else {
+          if (currentNode.parent?.type !== "class_declaration") {
+            if (this.checkIfNodeIsRequire(currentNode) || this.checkIfModuleExports(currentNode)) {
+              hasChild = cursor.gotoNextSibling();
+              continue;
+            }
+            let lineRange = createLineRangeFromTreeNode(currentNode);
+            lineRange && nonFunctionBlocks.push(lineRange);
+          }
+        }
+      }
+      hasChild = cursor.gotoNextSibling();
+    }
+    return nonFunctionBlocks.length > 0 && codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), codeBlocks;
+  }
+  static getInstance(baseUri) {
+    if (!JavaScriptFileParser.instance) {
+      if (!baseUri) throw new Error('Base URI is not provided');
+      JavaScriptFileParser.instance = new JavaScriptFileParser(baseUri);
+    }
+    return JavaScriptFileParser.instance;
+  }
+  getParentTypeExclusionList() {
+    return ["required_parameter", 'optional_parameter'];
+  }
+  getPreviousSiblingInclusionList() {
+    return ['identifier', "property_identifier", '.', 'this', 'super'];
+  }
+}
+
+// Python Parser
+class PythonFileParser extends TreeSitterFileParser {
+  static fileExtensions = ['py', 'pyw'];
+  
+  constructor(baseUri) {
+    super(baseUri, 'tree-sitter-python.wasm');
+  }
+  allCodeBlocks(node) {
+    let codeBlocks = [],
+      nonFunctionBlocks = [];
+    if (node.isError) return Logger.warn('There are some errors in the node ' + node.type + ". Skipping it."), codeBlocks;
+    let cursor = node.walk(),
+      hasChild = cursor.gotoFirstChild();
+    for (; hasChild;) {
+      let currentNode = cursor.currentNode;
+      if (currentNode.type.includes('import_') || currentNode.type === "comment" || currentNode.type.trim() === '' || currentNode.type === "expression_statement" && (currentNode.text.trim().startsWith('"""') || currentNode.text.trim().startsWith("'''"))) {
+        hasChild = cursor.gotoNextSibling();
+        continue;
+      }
+      if (currentNode.type === "block") {
+        let childBlocks = this.allCodeBlocks(currentNode);
+        codeBlocks.push(...childBlocks);
+      } else {
+        if (currentNode.type === "class_definition" || currentNode.type === "function_definition" || currentNode.type === "decorated_definition") {
+          if (nonFunctionBlocks.length > 0 && (codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), nonFunctionBlocks = []), currentNode.type === "function_definition" || currentNode.type === 'decorated_definition' && currentNode.namedChildren.map(child => child.type).includes("function_definition")) {
+            Logger.debug('Found function snippet');
+            let lineRange = createLineRangeFromTreeNode(currentNode);
+            lineRange && codeBlocks.push(lineRange);
+          } else {
+            Logger.debug("Found class snippet or decorated definition for class snippet");
+            let childBlocks = this.allCodeBlocks(currentNode);
+            codeBlocks.push(...childBlocks);
+          }
+        } else {
+          if (currentNode.parent?.type !== "class_definition") {
+            let lineRange = createLineRangeFromTreeNode(currentNode);
+            lineRange && nonFunctionBlocks.push(lineRange);
+          }
+        }
+      }
+      hasChild = cursor.gotoNextSibling();
+    }
+    return nonFunctionBlocks.length > 0 && codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), codeBlocks;
+  }
+  static getInstance(baseUri) {
+    if (!PythonFileParser.instance) {
+      if (!baseUri) throw new Error('Base URI is not provided');
+      PythonFileParser.instance = new PythonFileParser(baseUri);
+    }
+    return PythonFileParser.instance;
+  }
+}
+
+// Rust Parser
+class RustFileParser extends TreeSitterFileParser {
+  constructor(baseUri) {
+    super(baseUri, "tree-sitter-rust.wasm");
+  }
+  allCodeBlocks(node) {
+    let codeBlocks = [],
+      nonFunctionBlocks = [];
+    if (node.isError) return Logger.warn('There are some errors in the node ' + node.type + '. Skipping it.'), codeBlocks;
+    let cursor = node.walk(),
+      hasChild = cursor.gotoFirstChild();
+    for (; hasChild;) {
+      let currentNode = cursor.currentNode;
+      if (currentNode.type.includes('shebang') || currentNode.type.includes("extern_crate_declaration") || currentNode.type.includes("use_as_clause") || currentNode.type.includes('use_declaration') || currentNode.type.includes('line_comment') || currentNode.type.includes("block_comment") || currentNode.type.includes("attribute_item") || currentNode.type === '{' || currentNode.type === '}' || currentNode.type.trim() === '') {
+        hasChild = cursor.gotoNextSibling();
+        continue;
+      }
+      if (currentNode.type === "declaration_list") {
+        let childBlocks = this.allCodeBlocks(currentNode);
+        codeBlocks.push(...childBlocks);
+      } else {
+        if (currentNode.type === 'function_item') {
+          nonFunctionBlocks.length > 0 && (codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), nonFunctionBlocks = []);
+          let lineRange = createLineRangeFromTreeNode(currentNode);
+          lineRange && codeBlocks.push(lineRange);
+        } else {
+          if (currentNode.type === "mod_item" || currentNode.type === "impl_item" || currentNode.type === "trait_item") {
+            let declarationList = currentNode.namedChildren.find(child => child.type === "declaration_list");
+            if (declarationList) {
+              let childBlocks = this.allCodeBlocks(declarationList);
+              codeBlocks.push(...childBlocks);
+            }
+            hasChild = cursor.gotoNextSibling();
+            continue;
+          } else {
+            let lineRange = createLineRangeFromTreeNode(currentNode);
+            lineRange && nonFunctionBlocks.push(lineRange);
+          }
+        }
+      }
+      hasChild = cursor.gotoNextSibling();
+    }
+    return nonFunctionBlocks.length > 0 && codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), codeBlocks;
+  }
+  static getInstance(baseUri) {
+    if (!RustFileParser.instance) {
+      if (!baseUri) throw new Error('Base URI is not provided');
+      RustFileParser.instance = new RustFileParser(baseUri);
+    }
+    return RustFileParser.instance;
+  }
+}
+
+// TypeScript Parser
+class TypeScriptFileParser extends TreeSitterFileParser {
+  constructor(baseUri, grammarFileName = 'tree-sitter-typescript.wasm') {
+    super(baseUri, grammarFileName);
+  }
+  allCodeBlocks(node) {
+    let codeBlocks = [],
+      nonFunctionBlocks = [];
+    if (node.isError) return Logger.warn("There are some errors in the node " + node.type + ". Skipping it."), codeBlocks;
+    let cursor = node.walk(),
+      hasChild = cursor.gotoFirstChild();
+    for (; hasChild;) {
+      let currentNode = cursor.currentNode;
+      if (currentNode.type.includes("import") || currentNode.type.includes('comment') || currentNode.type === '{' || currentNode.type === '}') {
+        hasChild = cursor.gotoNextSibling();
+        continue;
+      }
+      if (currentNode.type === 'export_statement' || currentNode.type === "export" || currentNode.type === 'class_body') {
+        nonFunctionBlocks.length > 0 && (codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), nonFunctionBlocks = []);
+        let childBlocks = this.allCodeBlocks(currentNode);
+        codeBlocks.push(...childBlocks);
+      } else {
+        if (currentNode.type === 'method_definition' || currentNode.type === 'function_declaration' || currentNode.type === 'function_expression' || currentNode.type === 'class_declaration' || currentNode.type === "abstract_class_declaration" || currentNode.type === 'generator_function' || currentNode.type === "generator_function_declaration") {
+          if (nonFunctionBlocks.length > 0 && (codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), nonFunctionBlocks = []), currentNode.type === 'function_declaration' || currentNode.type === "method_definition" || currentNode.type === "function_expression" || currentNode.type === "generator_function" || currentNode.type === "generator_function_declaration") {
+            let lineRange = createLineRangeFromTreeNode(currentNode);
+            lineRange && codeBlocks.push(lineRange);
+          } else {
+            let childBlocks = this.allCodeBlocks(currentNode);
+            codeBlocks.push(...childBlocks);
+          }
+        } else {
+          if (currentNode.parent?.type !== 'class_declaration' && currentNode.parent?.type !== "abstract_class_declaration") {
+            Logger.debug("Found non-function snippet, type", currentNode.type);
+            let lineRange = createLineRangeFromTreeNode(currentNode);
+            lineRange && nonFunctionBlocks.push(lineRange);
+          }
+        }
+      }
+      hasChild = cursor.gotoNextSibling();
+    }
+    return nonFunctionBlocks.length > 0 && codeBlocks.push(mergeLineRanges(nonFunctionBlocks)), codeBlocks;
+  }
+  static getInstance(baseUri) {
+    if (!TypeScriptFileParser.instance) {
+      if (!baseUri) throw new Error("Base URI is not provided");
+      TypeScriptFileParser.instance = new TypeScriptFileParser(baseUri);
+    }
+    return TypeScriptFileParser.instance;
+  }
+}
+
+// TypeScript JSX Parser
+class TypeScriptJSXFileParser extends TypeScriptFileParser {
+  constructor(baseUri) {
+    super(baseUri, 'tree-sitter-typescript-jsx.wasm');
+  }
+  static getInstance(baseUri) {
+    if (!TypeScriptJSXFileParser.instance) {
+      if (!baseUri) throw new Error("Base URI is not provided");
+      TypeScriptJSXFileParser.instance = new TypeScriptJSXFileParser(baseUri);
+    }
+    return TypeScriptJSXFileParser.instance;
+  }
+}
+
+// ============== Parser 工厂函数 ==============
+
+function getParserForLanguage(languageId, fileName) {
+  switch (languageId) {
+    case 'python':
+      {
+        let extension = fileName.split('.').pop();
+        if (extension && PythonFileParser.fileExtensions.includes(extension)) return PythonFileParser.getInstance();
+        break;
+      }
+    case "typescript":
+      return TypeScriptFileParser.getInstance();
+    case 'typescriptreact':
+      return TypeScriptJSXFileParser.getInstance();
+    case 'javascript':
+      return JavaScriptFileParser.getInstance();
+    case 'go':
+      return GoFileParser.getInstance();
+    case "rust":
+      return RustFileParser.getInstance();
+  }
+  return SnippetContextProvider.getInstance();
+}
+
 // ============== 导出 ==============
 module.exports = {
   // 工具类
@@ -501,6 +852,22 @@ module.exports = {
   SnippetContextProvider,
   CodeBlockCache,
   TreeSitterFileParser,
+  
+  // 语言特定 Parser
+  GoFileParser,
+  JavaScriptFileParser,
+  PythonFileParser,
+  RustFileParser,
+  TypeScriptFileParser,
+  TypeScriptJSXFileParser,
+  
+  // Parser 工厂函数
+  getParserForLanguage,
+  
+  // 辅助函数
+  hasTreeSitterError,
+  createLineRangeFromTreeNode,
+  mergeLineRanges,
   
   // 常量
   INVALID_BLOCK_ID
