@@ -433,6 +433,269 @@ class TraycerFileSystem extends T0 {
 
 
 
+// ============== PromptMetadata 类 ==============
+
+/**
+ * 提示模板元数据工厂类
+ * 用于创建和管理模板元数据、验证结果和模板实例
+ */
+class PromptMetadata {
+  /**
+   * 创建模板元数据
+   * @param {string} filePath - 模板文件路径
+   * @param {string} applicableFor - 模板适用类型
+   * @returns {object} 元数据对象
+   */
+  static createMetadata(filePath, applicableFor) {
+    return {
+      displayName: WorkspaceInfoManager.getInstance().getFileNameWithoutExtension(filePath),
+      applicableFor: applicableFor
+    };
+  }
+
+  /**
+   * 创建默认元数据
+   * @param {string} applicableFor - 模板适用类型
+   * @returns {object} 默认元数据对象
+   */
+  static createDefaultMetadata(applicableFor) {
+    return {
+      displayName: 'Default',
+      applicableFor: applicableFor
+    };
+  }
+
+  /**
+   * 创建验证结果对象
+   * @returns {object} 验证结果对象
+   */
+  static createValidationResult() {
+    return {
+      isValid: true,
+      errors: []
+    };
+  }
+
+  /**
+   * 实例化模板对象
+   * @param {class} TemplateClass - 模板类构造函数
+   * @param {string} filePath - 文件路径
+   * @param {object} metadata - 元数据
+   * @param {object} validationResult - 验证结果
+   * @param {string} scope - 作用域
+   * @param {boolean} isDefault - 是否为默认模板
+   * @returns {object} 模板实例
+   */
+  static instantiateTemplate(TemplateClass, filePath, metadata, validationResult, scope, isDefault) {
+    return new TemplateClass(filePath, metadata, validationResult, scope, isDefault);
+  }
+
+  /**
+   * 在磁盘上创建模板文件
+   * @param {object} template - 模板实例
+   * @param {string} content - 模板内容
+   */
+  static async createTemplateOnDisk(template, content) {
+    await template.createOnDisk(content);
+  }
+
+  /**
+   * 创建默认模板内容
+   * @param {string} initialComment - 初始注释
+   * @param {Array<string>} allowedFields - 允许的字段列表
+   * @returns {string} 默认内容
+   */
+  static createDefaultContent(initialComment, allowedFields) {
+    return '\n<!--\n' + initialComment + '\n\nAllowed tags:\n' + 
+      allowedFields.map(field => '- {{' + field + '}}').join('\n').trimEnd() + 
+      '\n-->\n';
+  }
+
+  /**
+   * 在虚拟文件系统上创建默认模板
+   * @param {object} templateConfig - 模板配置对象
+   */
+  static createDefaultTemplateOnVirtualFileSystem(templateConfig) {
+    let metadata = this.createDefaultMetadata(templateConfig.PROMPT_TEMPLATE_TYPE);
+    let content = grayMatter.stringify(templateConfig.DEFAULT_TEMPLATE_CONTENT, metadata);
+    TraycerFileSystem.getInstance().createFile(
+      templateConfig.DEFAULT_TEMPLATE_FILE_PATH, 
+      Buffer.from(content, 'utf8')
+    );
+  }
+
+  /**
+   * 创建新模板
+   * @param {string} filePath - 文件路径
+   * @param {string} scope - 作用域
+   * @param {object} templateConfig - 模板配置对象
+   * @param {string} [content] - 可选的初始内容
+   * @returns {Promise<object>} 新创建的模板实例
+   */
+  static async createNewTemplate(filePath, scope, templateConfig, content) {
+    let metadata = this.createMetadata(filePath, templateConfig.PROMPT_TEMPLATE_TYPE);
+    let validationResult = this.createValidationResult();
+    let template = this.instantiateTemplate(
+      templateConfig, 
+      filePath, 
+      metadata, 
+      validationResult, 
+      scope, 
+      false
+    );
+    let defaultContent = content || this.createDefaultContent(
+      templateConfig.PROMPT_TEMPLATE_INITIAL_COMMENT, 
+      template.getAllowedFields()
+    );
+    await this.createTemplateOnDisk(template, defaultContent);
+    return template;
+  }
+
+  /**
+   * 从磁盘加载模板
+   * @param {string} filePath - 文件路径
+   * @param {object} metadata - 元数据
+   * @param {string} scope - 作用域
+   * @param {object} templateConfig - 模板配置对象
+   * @returns {Promise<object>} 加载的模板实例
+   */
+  static async loadTemplateFromDisk(filePath, metadata, scope, templateConfig) {
+    let template = this.instantiateTemplate(
+      templateConfig, 
+      filePath, 
+      metadata, 
+      this.createValidationResult(), 
+      scope, 
+      false
+    );
+    await template.validateTemplate();
+    return template;
+  }
+
+  /**
+   * 创建默认模板
+   * @param {object} templateConfig - 模板配置对象
+   * @returns {object} 默认模板实例
+   */
+  static createDefaultTemplate(templateConfig) {
+    let validationResult = this.createValidationResult();
+    this.createDefaultTemplateOnVirtualFileSystem(templateConfig);
+    return this.instantiateTemplate(
+      templateConfig, 
+      templateConfig.DEFAULT_TEMPLATE_FILE_PATH.toString(), 
+      this.createDefaultMetadata(templateConfig.PROMPT_TEMPLATE_TYPE), 
+      validationResult, 
+      'user', 
+      true
+    );
+  }
+}
+
+// ============== TemplateFileBase 类 ==============
+
+/**
+ * 模板文件基类
+ * 扩展 TemplateFile，添加作用域和默认标记功能
+ */
+class TemplateFileBase extends TemplateFile {
+  /**
+   * @param {string} filePath - 文件路径
+   * @param {object} metadata - 元数据
+   * @param {object} validationResult - 验证结果
+   * @param {string} scope - 作用域（'user' 或 'workspace'）
+   * @param {boolean} isDefault - 是否为默认模板
+   */
+  constructor(filePath, metadata, validationResult, scope, isDefault) {
+    super(filePath, metadata, validationResult);
+    this._scope = scope;
+    this._isDefault = isDefault;
+  }
+
+  /**
+   * 获取作用域
+   * @returns {string} 作用域
+   */
+  get scope() {
+    return this._scope;
+  }
+
+  /**
+   * 获取是否为默认模板
+   * @returns {boolean} 是否为默认模板
+   */
+  get isDefault() {
+    return this._isDefault;
+  }
+
+  /**
+   * 序列化为 UI 展示格式
+   * @returns {object} UI 对象
+   */
+  serializeToUI() {
+    return {
+      filePath: this.filePath,
+      metadata: this.metadata,
+      validationResult: this.validationResult,
+      allowedFields: this.getAllowedFields(),
+      scope: this.scope,
+      isDefault: this.isDefault
+    };
+  }
+
+  /**
+   * 验证模板
+   * 检查模板中是否至少包含一个允许的标签
+   */
+  async validateTemplate() {
+    let content = await this.getContent();
+    let errors = [];
+    let allowedFields = this.getAllowedFields();
+
+    if (allowedFields.some(field => content.includes('{{' + field + '}}'))) {
+      this.validationResult.isValid = true;
+      this.validationResult.errors = [];
+    } else {
+      errors.push(
+        "At least one of the tags must be present in the template.\n\nAllowed tags: " + 
+        allowedFields.map(field => '{{' + field + '}}').join(', ')
+      );
+      this.validationResult.isValid = false;
+      this.validationResult.errors = errors;
+    }
+  }
+
+  /**
+   * 为 CLI 清理内容
+   * 如果内容以 '-' 开头，添加换行符避免被解析为命令行参数
+   * @param {string} content - 原始内容
+   * @returns {string} 清理后的内容
+   */
+  sanitizeForCLI(content) {
+    return content.trimStart().startsWith('-') ? '\n' + content : content;
+  }
+
+  /**
+   * 应用模板
+   * 将模板中的占位符替换为实际值
+   * @param {string} value - 替换值
+   * @returns {Promise<string>} 应用后的内容
+   */
+  async applyTemplate(value) {
+    if (typeof value !== 'string') {
+      throw new Error('Method should be overridden in the subclass');
+    }
+    
+    let content = await this.getContent();
+    
+    // 替换所有允许的字段占位符
+    for (let key of this.getAllowedFields()) {
+      content = content.replace('{{' + key + '}}', value);
+    }
+    
+    return this.sanitizeForCLI(content);
+  }
+}
+
 module.exports = {
     PromptTemplate,
     PROMPT_ENV_VAR,
@@ -448,5 +711,7 @@ module.exports = {
     TemplateMissingMetadataError,
     TemplateInvalidMetadataError,
     TemplateFileAlreadyExistsError,
-    getAjvValidator
+    getAjvValidator,
+    PromptMetadata,
+    TemplateFileBase
 };

@@ -37,7 +37,9 @@ const {
   TemplateFileNotMarkdownError,
   TemplateMissingMetadataError,
   TemplateInvalidMetadataError,
-  TemplateFileAlreadyExistsError
+  TemplateFileAlreadyExistsError,
+  PromptMetadata,
+  TemplateFileBase
 } = require("./modules/prompt_template.js");
 const path_module = {
   default: require("path"),
@@ -9736,106 +9738,11 @@ injectFilePathHandlerDependencies({
 /* [unbundle] gray-matter 已移至顶部导入区 */
 /* [unbundle] parseJsonSafe, TemplateFile 已移至 modules/prompt_template.js */
 
-var PromptMetadata,
-  initPromptMetadata = __esmModule(() => {
-    'use strict';
-
-     PromptMetadata = class {
-      static ['createMetadata'](_0x4ed3ea, _0x590039) {
-        return {
-          displayName: WorkspaceInfoManager.getInstance().getFileNameWithoutExtension(_0x4ed3ea),
-          applicableFor: _0x590039
-        };
-      }
-      static ['createDefaultMetadata'](_0x2a5182) {
-        return {
-          displayName: 'Default',
-          applicableFor: _0x2a5182
-        };
-      }
-      static ["createValidationResult"]() {
-        return {
-          isValid: true,
-          errors: []
-        };
-      }
-      static ['instantiateTemplate'](_0x479455, _0x4d8a30, _0x4a6bec, _0x5d529d, _0x5a2ead, _0x1e5452) {
-        return new _0x479455(_0x4d8a30, _0x4a6bec, _0x5d529d, _0x5a2ead, _0x1e5452);
-      }
-      static async ['createTemplateOnDisk'](_0x1b5b87, _0x28a1fe) {
-        await _0x1b5b87.createOnDisk(_0x28a1fe);
-      }
-      static ['createDefaultContent'](_0x5a1b9c, _0x4b4972) {
-        return '\x0a<!--\x0a' + _0x5a1b9c + '\x0a\x0aAllowed tags:\x0a' + _0x4b4972.map(_0x18cab1 => '- {{' + _0x18cab1 + '}}').join('\x0a').trimEnd() + '\x0a-->\x0a';
-      }
-      static ['createDefaultTemplateOnVirtualFileSystem'](_0x1e7521) {
-        let _0x25df35 = this.createDefaultMetadata(_0x1e7521.PROMPT_TEMPLATE_TYPE),
-          _0x3927eb = gray_matter_module.stringify(_0x1e7521.DEFAULT_TEMPLATE_CONTENT, _0x25df35);
-        TraycerFileSystem.getInstance().createFile(_0x1e7521.DEFAULT_TEMPLATE_FILE_PATH, Buffer.from(_0x3927eb, 'utf8'));
-      }
-      static async ["createNewTemplate"](_0x2f1dc2, _0x1ab583, _0x5506e4, _0x370587) {
-        let _0x37849f = this.createMetadata(_0x2f1dc2, _0x5506e4.PROMPT_TEMPLATE_TYPE),
-          _0x28a558 = this.createValidationResult(),
-          _0x2f88cd = this.instantiateTemplate(_0x5506e4, _0x2f1dc2, _0x37849f, _0x28a558, _0x1ab583, false),
-          _0x74db14 = _0x370587 || this.createDefaultContent(_0x5506e4.PROMPT_TEMPLATE_INITIAL_COMMENT, _0x2f88cd.getAllowedFields());
-        return await this.createTemplateOnDisk(_0x2f88cd, _0x74db14), _0x2f88cd;
-      }
-      static async ['loadTemplateFromDisk'](_0x3477d5, _0x4e1b05, _0x1d626e, _0x4ca9b9) {
-        let _0x172ac5 = this.instantiateTemplate(_0x4ca9b9, _0x3477d5, _0x4e1b05, this.createValidationResult(), _0x1d626e, false);
-        return await _0x172ac5.validateTemplate(), _0x172ac5;
-      }
-      static ["createDefaultTemplate"](_0x39c62c) {
-        let _0x38bb22 = this.createValidationResult();
-        return this.createDefaultTemplateOnVirtualFileSystem(_0x39c62c), this.instantiateTemplate(_0x39c62c, _0x39c62c.DEFAULT_TEMPLATE_FILE_PATH.toString(), this.createDefaultMetadata(_0x39c62c.PROMPT_TEMPLATE_TYPE), _0x38bb22, 'user', true);
-      }
-    };
-  }),
-  TemplateFileBase,
-  initTemplateFileBase = __esmModule(() => {
-    'use strict';
-
-    TemplateFileBase = class extends TemplateFile {
-      constructor(_0x2ecbc2, _0x5a1084, _0x5b4717, _0x245384, _0xd45d53) {
-        super(_0x2ecbc2, _0x5a1084, _0x5b4717), this._scope = _0x245384, this._isDefault = _0xd45d53;
-      }
-      get ["scope"]() {
-        return this._scope;
-      }
-      get ['isDefault']() {
-        return this._isDefault;
-      }
-      ['serializeToUI']() {
-        return {
-          filePath: this.filePath,
-          metadata: this.metadata,
-          validationResult: this.validationResult,
-          allowedFields: this.getAllowedFields(),
-          scope: this.scope,
-          isDefault: this.isDefault
-        };
-      }
-      async ["validateTemplate"]() {
-        let _0x1bbec3 = await this.getContent(),
-          _0xedf2e4 = [],
-          _0x3b88a0 = this.getAllowedFields();
-        _0x3b88a0.some(_0x5f07c7 => _0x1bbec3.includes('{{' + _0x5f07c7 + '}}')) ? (this.validationResult.isValid = true, this.validationResult.errors = []) : (_0xedf2e4.push("At least one of the tags must be present in the template.\n\nAllowed tags: " + _0x3b88a0.map(_0x3cdbcc => '{{' + _0x3cdbcc + '}}').join(', ')), this.validationResult.isValid = false, this.validationResult.errors = _0xedf2e4);
-      }
-      ['sanitizeForCLI'](_0x2205a4) {
-        return _0x2205a4.trimStart().startsWith('-') ? '\x0a' + _0x2205a4 : _0x2205a4;
-      }
-      async ['applyTemplate'](_0x5cae0e) {
-        if (typeof _0x5cae0e != 'string') throw new Error('Method should be overridden in the subclass');
-        let _0x11761b = await this.getContent();
-        for (let key of this.getAllowedFields()) _0x11761b = _0x11761b.replace('{{' + key + '}}', _0x5cae0e);
-        return this.sanitizeForCLI(_0x11761b);
-      }
-    };
-  }),
-  GenericTemplate,
+var GenericTemplate,
   initGenericTemplate = __esmModule(() => {
     'use strict';
 
-    initTaskExecution(), initTemplateFileBase(), GenericTemplate = class extends TemplateFileBase {
+    initTaskExecution(), GenericTemplate = class extends TemplateFileBase {
       constructor() {
         super(...arguments), this.allowedFields = ["basePrompt"];
       }
@@ -9864,7 +9771,7 @@ var PromptMetadata,
   initUserQueryTemplate = __esmModule(() => {
     'use strict';
 
-    initTemplateFileBase(), UserQueryTemplate = class extends TemplateFileBase {
+    UserQueryTemplate = class extends TemplateFileBase {
       constructor() {
         super(...arguments), this.allowedFields = ["userQuery"];
       }
@@ -9889,7 +9796,7 @@ var PromptMetadata,
   initPlanTemplate = __esmModule(() => {
     'use strict';
 
-    initTemplateFileBase(), PlanTemplate = class extends TemplateFileBase {
+    PlanTemplate = class extends TemplateFileBase {
       constructor() {
         super(...arguments), this.allowedFields = ["planMarkdown"];
       }
@@ -9920,7 +9827,7 @@ var PromptMetadata,
   initReviewTemplate = __esmModule(() => {
     'use strict';
 
-    initTemplateFileBase(), ReviewTemplate = class extends TemplateFileBase {
+    ReviewTemplate = class extends TemplateFileBase {
       constructor() {
         super(...arguments), this.allowedFields = ['reviewComments'];
       }
@@ -9945,7 +9852,7 @@ var PromptMetadata,
   initVerificationTemplate = __esmModule(() => {
     'use strict';
 
-    initTemplateFileBase(), VerificationTemplate = class extends TemplateFileBase {
+    VerificationTemplate = class extends TemplateFileBase {
       constructor() {
         super(...arguments), this.allowedFields = ['comments'];
       }
@@ -9970,7 +9877,7 @@ var PromptMetadata,
   initPromptTemplateService = __esmModule(() => {
     'use strict';
 
-     initCommentNavigator(), initTaskContext(), initPromptMetadata(), initGenericTemplate(), initUserQueryTemplate(), initPlanTemplate(), initReviewTemplate(), initVerificationTemplate(), PromptTemplateService = class _0x389cf0 {
+     initCommentNavigator(), initTaskContext(), initGenericTemplate(), initUserQueryTemplate(), initPlanTemplate(), initReviewTemplate(), initVerificationTemplate(), PromptTemplateService = class _0x389cf0 {
       constructor() {
         this.userPromptTemplates = new Map(), this.workspacePromptTemplates = new Map(), this.defaultPromptTemplates = new Map(), this.invalidTemplates = new Set(), this.globalWatcher = null;
       }

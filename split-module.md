@@ -315,6 +315,28 @@ read_lints ["extension/out/modules/request_queue.js", "extension/out/extension.j
 - 所有事件跟踪功能正常（task_chain_creation, navigator_view, phase_generation 等）
 - 无 lint 错误
 
+## 示例：PromptMetadata 和 TemplateFileBase 拆解记录
+
+**原位置**：`extension.js` 9739-9833 行  
+**新文件**：`modules/prompt_template.js`（添加到已有文件）  
+**导入位置**：`extension.js` 第 27-43 行（更新现有导入）  
+**删除的 init 调用**：
+- `initPromptMetadata()`: 1 处（行号：9973，在 `PromptTemplateService` 初始化中）
+- `initTemplateFileBase()`: 5 处（行号：9745, 9774, 9799, 9830, 9855）  
+**依赖**：
+- `PromptMetadata`: 依赖 `WorkspaceInfoManager`, `grayMatter`, `TraycerFileSystem`（均已在 `prompt_template.js` 中）
+- `TemplateFileBase`: 继承自 `TemplateFile`（已在 `prompt_template.js` 中）  
+**说明**：
+- `PromptMetadata` 是静态工厂类，提供模板元数据和实例的创建方法
+- `TemplateFileBase` 是模板文件基类，扩展 `TemplateFile`，添加作用域和默认标记功能
+- 两个类关系密切，都属于提示模板系统，放在同一文件中便于维护
+- 清理了混淆的变量名，添加了详细的 JSDoc 注释
+- 将转义序列（`\x0a`）转换为更可读的 `\n`  
+**验证**：
+- 14 处 `PromptMetadata.` 静态方法调用正常
+- 5 处 `extends TemplateFileBase` 继承正常
+- 无 lint 错误
+
 ## 工作流程总结
 
 ```
