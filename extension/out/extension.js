@@ -1509,11 +1509,7 @@ async function listFilesFromPathProto(_0x2629da, _0x580829) {
   let _0x505d89 = TraycerPath.fromPathProto(_0x2629da);
   return listFilesInDirectory(_0x505d89.absPath, _0x580829);
 }
-var initSymbolSearch = __esmModule(() => {
-    'use strict';
-
-  }),
-  SymbolQueryType = {
+var SymbolQueryType = {
     DEFINITION: 0,
     REFERENCE: 1,
     IMPLEMENTATION: 2
@@ -3071,10 +3067,9 @@ var initPlanContextModule = __esmModule(() => {
 
     initIDEAgentManager(), initTaskContext(), initQueryProcessor(), initGitLogModule();
   }),
-  $Ye = 'Implementation plan not found',
   ImplementationPlanNotFoundError = class extends Error {
     constructor() {
-      super($Ye), this.name = 'ImplementationPlanNotFoundError';
+      super('Implementation plan not found'), this.name = 'ImplementationPlanNotFoundError';
     }
   };
 function parseQueryParams(_0x201ec2) {
@@ -3134,24 +3129,24 @@ var initPlanOutputModule = __esmModule(() => {
       throw new Error(_0x104d8b + " not found in plan output");
     }
   },
-  ImplementationPlanNotFoundError,
+  PlanOutputImplementationPlanNotFoundError,
   ImplementationPlanOutput,
   initImplementationPlanOutput = __esmModule(() => {
     'use strict';
 
-    initFilePathHandler(), ImplementationPlanNotFoundError = class extends Error {
+    initFilePathHandler(), PlanOutputImplementationPlanNotFoundError = class extends Error {
       constructor(_0x1a9d35 = "Implementation plan not found in plan output") {
-        super(_0x1a9d35), this.name = "ImplementationPlanNotFoundError";
+        super(_0x1a9d35), this.name = "PlanOutputImplementationPlanNotFoundError";
       }
     }, ImplementationPlanOutput = class extends BasePlanOutput {
       constructor(_0x51bf47) {
         super(_0x51bf47);
       }
       ['validateOutput']() {
-        if (super.validateOutput(), !this.planOutput.implementationPlan) throw new ImplementationPlanNotFoundError();
+        if (super.validateOutput(), !this.planOutput.implementationPlan) throw new PlanOutputImplementationPlanNotFoundError();
       }
       ['setPlanSummary'](_0x35308b) {
-        if (!this.planOutput.implementationPlan) throw new ImplementationPlanNotFoundError();
+        if (!this.planOutput.implementationPlan) throw new PlanOutputImplementationPlanNotFoundError();
         this.planOutput.implementationPlan.aiGeneratedSummary = _0x35308b;
       }
       ['getImplementationPlan']() {
@@ -11981,11 +11976,6 @@ async function handleGetDiagnosticsRequest(_0x2abd42) {
     throw Logger.error(_0x49fea6, _0x169542), new Error(_0x169542);
   }
 }
-var initSymbolSearchExports = __esmModule(() => {
-  'use strict';
-
-  initSymbolSearch();
-});
 async function getUncommittedDiffForFile(_0x18bd48) {
   let {
     filePath: _0xca7ad2
@@ -13069,7 +13059,7 @@ async function createFileNotFoundResponse(_0x1475ef) {
 var initFileReadHandler = __esmModule(() => {
   'use strict';
 
-  initIDEAgentManager(), initTaskContext(),  initGitLogModule(), initSymbolSearch();
+  initIDEAgentManager(), initTaskContext(),  initGitLogModule();
 });
 async function handleRipgrepSearchRequest(_0x2dfbb8) {
   let {
@@ -13094,7 +13084,7 @@ var MAX_WRITE_RETRIES,
   initGrpcClient = __esmModule(() => {
     'use strict';
 
-    initGoogleAuth(), initGrpcMessageTracker(), initIDEAgentManager(), initTaskContext(), initSymbolSearch(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = streamConstants.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
+    initGoogleAuth(), initGrpcMessageTracker(), initIDEAgentManager(), initTaskContext(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = streamConstants.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
       constructor(_0x30dd48, _0x34bdfa) {
         super(_0x30dd48, Logger), this.grpcConnection = null, this.id = null, this.client = _0x34bdfa;
       }
