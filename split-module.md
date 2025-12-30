@@ -271,6 +271,29 @@ read_lints ["extension/out/modules/request_queue.js", "extension/out/extension.j
 - `getSummaryFromCache()` 和 `setSummaryToCache()` 方法使用 `DocumentManager` 和 `TraycerPath` 处理文件操作
 **验证**：5 处 `LlmCacheHandler.getInstance()` 调用正常，无 lint 错误
 
+## 示例：FilePathHandler (initFilePathHandler) 拆解记录
+
+**原位置**：`extension.js` 2266-2396 行  
+**新文件**：`modules/file_path_handler.js`  
+**导入位置**：`extension.js` 第 120-123 行  
+**删除的 init 调用**：4 处（行号：3011, 9803, 13863, 13926）  
+**依赖**：
+- `Logger`（已提取）
+- `TraycerPath`（从 `modules/path_types.js` 导入）
+- `WorkspaceInfoManager`（从 `modules/workspace_info.js` 导入）
+- `TRAYCER_FILE_SCHEME`（从 `modules/constants.js` 导入）
+- `CommentNavigator`, `PathConversionMessageTypes`, `PathConversionWebViewMessages`（主文件全局变量，通过依赖注入）  
+**说明**：
+- 单例模式，用于处理文件路径转换，将相对路径转换为带有绝对路径信息的标记格式
+- 包含 LRU 缓存机制，缓存已解析的路径（100 条）
+- 使用依赖注入模式处理主文件全局变量依赖
+- 在主文件第 9922 行（`CommentNavigator` 初始化后）调用 `injectFilePathHandlerDependencies()` 注入依赖
+- 常量 `FILE_PATH_PATTERN_REGEX` 和 `PATH_CACHE_SIZE` 也一起提取到模块中  
+**验证**：
+- 4 处 `FilePathHandler.getInstance()` 调用正常
+- 1 处 `FilePathHandler.convertFilePath()` 静态方法调用正常
+- 无 lint 错误
+
 ## 工作流程总结
 
 ```

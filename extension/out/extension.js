@@ -120,6 +120,10 @@ const {
   LlmCacheHandler
 } = require("./modules/llm_cache_handler.js");
 const {
+  FilePathHandler,
+  injectFilePathHandlerDependencies
+} = require("./modules/file_path_handler.js");
+const {
   // 枚举
   TaskStepStatus,
   PhaseSize,
@@ -2263,137 +2267,6 @@ var  TemplateFileNotFoundError = class extends Error {
 
     initCommentNavigator();
   }),
-  FILE_PATH_PATTERN_REGEX,
-  PATH_CACHE_SIZE,
-  FilePathHandler,
-  initFilePathHandler = __esmModule(() => {
-    'use strict';
-
-    initCommentNavigatorDeps(), FILE_PATH_PATTERN_REGEX = /`file:([^`]+)`|file:([^\s),;`]+)/g, PATH_CACHE_SIZE = 100, FilePathHandler = class _0x1552a5 {
-      constructor() {
-        this.pathCache = new lru_map_module.LRUMap(PATH_CACHE_SIZE);
-      }
-      static ['getInstance']() {
-        return _0x1552a5.instance || (_0x1552a5.instance = new _0x1552a5()), _0x1552a5.instance;
-      }
-      async ["invalidatePath"](_0x1fc005) {
-        let _0x2c5071 = await TraycerPath.fromPath(_0x1fc005);
-        this.pathCache.delete(_0x2c5071.relPath);
-      }
-      ["clearCache"]() {
-        this.pathCache.clear();
-      }
-      async ['handle'](_0x510cd1) {
-        switch (_0x510cd1.type) {
-          case PathConversionMessageTypes.CONVERT_FILE_PATH:
-            await this.convertFilePathAndReturn(_0x510cd1);
-            return;
-          default:
-            Logger.warn("Unknown file message type: " + _0x510cd1.type);
-            return;
-        }
-      }
-      async ['convertFilePathAndReturn'](_0x12d63d) {
-        let {
-            requestId: _0x5ea94e,
-            content: _0x42860b
-          } = _0x12d63d,
-          _0x113096 = await _0x1552a5.convertFilePath(_0x42860b),
-          _0x2b8613 = {
-            type: PathConversionWebViewMessages.FILE_PATH_CONVERTED,
-            requestId: _0x5ea94e,
-            convertedContent: _0x113096
-          };
-        return CommentNavigator.postToCommentNavigator(_0x2b8613);
-      }
-      static async ['convertFilePath'](_0x2fb9d4) {
-        let _0x5b6343 = _0x2fb9d4;
-        try {
-          _0x5b6343 = await this.processFilePatterns(_0x2fb9d4, FILE_PATH_PATTERN_REGEX);
-        } catch (_0x4a1a0d) {
-          Logger.error("Error converting file paths in content: " + _0x4a1a0d), _0x5b6343 = _0x2fb9d4;
-        }
-        return _0x5b6343;
-      }
-      static async ['processFilePatterns'](_0x31e9cb, _0x2d5fb3) {
-        let _0x1acd6f = _0x31e9cb,
-          _0x358b28 = [],
-          _0x5baee9,
-          _0x3042d8 = new RegExp(_0x2d5fb3.source, _0x2d5fb3.flags);
-        for (; (_0x5baee9 = _0x3042d8.exec(_0x31e9cb)) !== null;) {
-          let _0x1e398d = _0x5baee9[0],
-            _0x157d36 = _0x5baee9[1] ?? _0x5baee9[2];
-          _0x157d36 && _0x358b28.push({
-            match: _0x1e398d,
-            relativePath: _0x157d36,
-            index: _0x5baee9.index
-          });
-        }
-        let _0x55d44e = _0x1552a5.getInstance();
-        for (let _0x867090 = _0x358b28.length - 1; _0x867090 >= 0; _0x867090--) {
-          let {
-              match: _0x51ac63,
-              relativePath: _0x22bfc0,
-              index: _0x21ed19
-            } = _0x358b28[_0x867090],
-            _0x455214 = _0x51ac63,
-            _0xb3a9e8 = path_module.normalize(_0x22bfc0),
-            _0x1ef788 = _0x55d44e.pathCache.get(_0xb3a9e8);
-          if (_0x1ef788) _0x455214 = _0x1ef788.replacement;else {
-            let _0x31a708 = await _0x1552a5.resolveFilePath(_0x22bfc0);
-            _0x31a708 ? (_0x455214 = _0x31a708.replacement, _0x55d44e.pathCache.set(_0xb3a9e8, _0x31a708)) : _0x455214 = _0x22bfc0;
-          }
-          _0x1acd6f = _0x1acd6f.substring(0, _0x21ed19) + _0x455214 + _0x1acd6f.substring(_0x21ed19 + _0x51ac63.length);
-        }
-        return _0x1acd6f;
-      }
-      static async ['resolveFilePath'](_0x2aeda7) {
-        if (path_module.isAbsolute(_0x2aeda7)) {
-          let _0x26af08 = _0x2aeda7;
-          if (await WorkspaceInfoManager.getInstance().fileExists(_0x26af08)) {
-            let _0x107fe2 = TraycerPath.findWorkspaceForPath(_0x26af08),
-              _0x527f91 = _0x26af08;
-            _0x107fe2 && (_0x527f91 = path_module.relative(_0x107fe2, _0x26af08));
-            let _0x2144ec = await WorkspaceInfoManager.getInstance().isDirectory(_0x26af08);
-            return {
-              replacement: '<' + TRAYCER_FILE_SCHEME + ' absPath=\x22' + _0x26af08 + '\x22' + (_0x2144ec ? " isDirectory=\"true\"" : '') + '>' + _0x527f91 + '</' + TRAYCER_FILE_SCHEME + '>',
-              absolutePath: _0x26af08,
-              isDirectory: _0x2144ec
-            };
-          }
-        } else {
-          let _0x5a54f2 = [],
-            _0x3b3cec = WorkspaceInfoManager.getInstance().getWorkspaceDirs();
-          for (let key of _0x3b3cec) {
-            let _0x53e28b = path_module.join(key, _0x2aeda7);
-            if (await WorkspaceInfoManager.getInstance().fileExists(_0x53e28b)) {
-              let _0x13546a = await WorkspaceInfoManager.getInstance().isDirectory(_0x53e28b);
-              _0x5a54f2.push({
-                workspaceDir: key,
-                absolutePath: _0x53e28b,
-                isDirectory: _0x13546a
-              });
-            }
-            if (_0x5a54f2.length > 1) break;
-          }
-          if (_0x5a54f2.length === 1) {
-            let {
-              absolutePath: _0x43d760,
-              isDirectory: _0x1c4e1b
-            } = _0x5a54f2[0];
-            return {
-              replacement: '<' + TRAYCER_FILE_SCHEME + " absPath=\"" + _0x43d760 + '\x22' + (_0x1c4e1b ? " isDirectory=\"true\"" : '') + '>' + _0x2aeda7 + '</' + TRAYCER_FILE_SCHEME + '>',
-              absolutePath: _0x43d760,
-              isDirectory: _0x1c4e1b
-            };
-          } else {
-            if (_0x5a54f2.length > 1) return Logger.warn('FileHandler: Multiple workspace matches found for path: ' + _0x2aeda7), null;
-          }
-        }
-        return null;
-      }
-    };
-  }),
   GitHubAuthHandler = class {
     constructor(_0xf40a84) {
       this.auth = _0xf40a84;
@@ -3129,12 +3002,13 @@ var initPlanOutputModule = __esmModule(() => {
       throw new Error(_0x104d8b + " not found in plan output");
     }
   },
+  
   PlanOutputImplementationPlanNotFoundError,
   ImplementationPlanOutput,
   initImplementationPlanOutput = __esmModule(() => {
     'use strict';
 
-    initFilePathHandler(), PlanOutputImplementationPlanNotFoundError = class extends Error {
+    PlanOutputImplementationPlanNotFoundError = class extends Error {
       constructor(_0x1a9d35 = "Implementation plan not found in plan output") {
         super(_0x1a9d35), this.name = "PlanOutputImplementationPlanNotFoundError";
       }
@@ -3315,37 +3189,37 @@ var initPlanOutputModule = __esmModule(() => {
       }
     };
   }),
-  ll,
-  L_,
+  ReviewOutputNotFoundError,
+  PlanOutputWithReview ,
   initPlanEditor = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initTemplateManager(), initReviewOutput(), initTaskContext(), ll = class extends Error {
+    initIDEAgentManager(), initTemplateManager(), initReviewOutput(), initTaskContext(), ReviewOutputNotFoundError  = class extends Error {
       constructor(_0x13986e = 'Review output not found in plan output') {
         super(_0x13986e), this.name = 'ReviewOutputNotFoundError';
       }
-    }, L_ = class extends BasePlanOutput {
+    }, PlanOutputWithReview  = class extends BasePlanOutput {
       constructor(_0x25d775) {
         super(_0x25d775), this.initializeReviewOutput();
       }
       ["validateOutput"]() {
-        if (super.validateOutput(), !this.planOutput.reviewOutput) throw new ll();
+        if (super.validateOutput(), !this.planOutput.reviewOutput) throw new ReviewOutputNotFoundError ();
       }
       ["initializeReviewOutput"]() {
         let _0x17e6de = this.planOutput.reviewOutput;
-        if (!_0x17e6de) throw new ll("ReviewOutput not found in plan output");
+        if (!_0x17e6de) throw new ReviewOutputNotFoundError ("ReviewOutput not found in plan output");
         this.reviewOutputInstance = ReviewOutput.createFromProto(_0x17e6de);
       }
       ['setPlanSummary'](_0xd2cbdf) {
-        if (!this.planOutput.reviewOutput) throw new ll();
+        if (!this.planOutput.reviewOutput) throw new ReviewOutputNotFoundError ();
         this.planOutput.reviewOutput.aiGeneratedSummary = _0xd2cbdf;
       }
       ["getReviewOutput"]() {
-        if (!this.reviewOutputInstance) throw new ll('ReviewOutput instance not initialized');
+        if (!this.reviewOutputInstance) throw new ReviewOutputNotFoundError ('ReviewOutput instance not initialized');
         return this.reviewOutputInstance;
       }
       ["getReviewOutputProto"]() {
-        if (!this.planOutput.reviewOutput) throw new ll('ReviewOutput not found in plan output');
+        if (!this.planOutput.reviewOutput) throw new ReviewOutputNotFoundError ('ReviewOutput not found in plan output');
         return this.planOutput.reviewOutput;
       }
       ['getReviewComments']() {
@@ -3425,24 +3299,24 @@ var initPlanOutputModule = __esmModule(() => {
       }
     };
   }),
-  o0,
-  WM,
+  InvalidPlanOutputError,
+  PlanOutputFactory,
   initPlanEditorDeps = __esmModule(() => {
     'use strict';
 
-    initImplementationPlanOutput(), initPlanEditor(), o0 = class extends Error {
+    initImplementationPlanOutput(), initPlanEditor(), InvalidPlanOutputError = class extends Error {
       constructor(_0x10908f = 'No valid output type found in plan output') {
         super(_0x10908f), this.name = 'InvalidPlanOutputError';
       }
-    }, WM = class {
+    }, PlanOutputFactory = class {
       static ['createHandler'](_0x259a95) {
-        if (!_0x259a95) throw new o0('Plan output cannot be null or undefined');
+        if (!_0x259a95) throw new InvalidPlanOutputError('Plan output cannot be null or undefined');
         let _0x29cf29 = [_0x259a95.implementationPlan != null, _0x259a95.reviewOutput != null].filter(Boolean).length;
-        if (_0x29cf29 === 0) throw new o0('No output found: expected one of explanationPlan or implementationPlan, reviewOutput');
-        if (_0x29cf29 > 1) throw new o0('Multiple outputs present: plan output must be mutually exclusive. One of explanationPlan or implementationPlan, reviewOutput');
+        if (_0x29cf29 === 0) throw new InvalidPlanOutputError('No output found: expected one of explanationPlan or implementationPlan, reviewOutput');
+        if (_0x29cf29 > 1) throw new InvalidPlanOutputError('Multiple outputs present: plan output must be mutually exclusive. One of explanationPlan or implementationPlan, reviewOutput');
         if (_0x259a95.implementationPlan !== void 0 && _0x259a95.implementationPlan !== null) return new ImplementationPlanOutput(_0x259a95);
-        if (_0x259a95.reviewOutput !== void 0 && _0x259a95.reviewOutput !== null) return new L_(_0x259a95);
-        throw new o0('No valid output type found. Plan output must contain one of: explanationPlan, implementationPlan, or reviewOutput');
+        if (_0x259a95.reviewOutput !== void 0 && _0x259a95.reviewOutput !== null) return new PlanOutputWithReview (_0x259a95);
+        throw new InvalidPlanOutputError('No valid output type found. Plan output must contain one of: explanationPlan, implementationPlan, or reviewOutput');
       }
     };
   }),
@@ -3654,7 +3528,7 @@ var PlanConversationStorageAPI = class {
       }
       ["createOutputHandler"]() {
         if (!this._generatedPlan) return null;
-        let _0x420ee5 = WM.createHandler(this._generatedPlan);
+        let _0x420ee5 = PlanOutputFactory.createHandler(this._generatedPlan);
         return this._planOutputHandler = _0x420ee5, _0x420ee5;
       }
       ['mustGetOutputHandler']() {
@@ -3839,13 +3713,13 @@ var PlanConversationStorageAPI = class {
       }
       ['mustGetReviewOutput']() {
         let _0x2991f7 = this.mustGetOutputHandler();
-        if (_0x2991f7 instanceof L_) return _0x2991f7.getReviewOutputProto();
-        throw new ll();
+        if (_0x2991f7 instanceof PlanOutputWithReview ) return _0x2991f7.getReviewOutputProto();
+        throw new ReviewOutputNotFoundError ();
       }
       ["mustGetReviewOutputHandler"]() {
         let _0x169f7b = this.mustGetOutputHandler();
-        if (_0x169f7b instanceof L_) return _0x169f7b;
-        throw new ll();
+        if (_0x169f7b instanceof PlanOutputWithReview ) return _0x169f7b;
+        throw new ReviewOutputNotFoundError ();
       }
       ['mustGetImplementationPlan']() {
         let _0x222425 = this.mustGetOutputHandler();
@@ -9926,7 +9800,7 @@ var CommentNavigator,
   initCommentNavigator = __esmModule(() => {
     'use strict';
 
-     initAnalytics(), initFilePathHandler(), initMetricsHandler(), initTaskSettingsHandler(), initWebviewStatusHandler(), initUsageInfoHandler(), initMcpHandler(), initPromptTemplateHandler(), initCliAgentHandler(), initGitHubAuthHandler(), initCloudUIAuthHandler(), initSubscriptionHandler(), initExtensionActivationHandler(), initTrackMetricsHandler(), CommentNavigator = class _0x23672d {
+     initAnalytics(), initMetricsHandler(), initTaskSettingsHandler(), initWebviewStatusHandler(), initUsageInfoHandler(), initMcpHandler(), initPromptTemplateHandler(), initCliAgentHandler(), initGitHubAuthHandler(), initCloudUIAuthHandler(), initSubscriptionHandler(), initExtensionActivationHandler(), initTrackMetricsHandler(), CommentNavigator = class _0x23672d {
       constructor(_0x2c906e) {
         this.context = _0x2c906e;
         let _0x5b9eb1 = vscode_module.window.registerWebviewViewProvider(COMMENT_NAVIGATOR_WEBVIEW_ID, this, {
@@ -10044,6 +9918,14 @@ var CommentNavigator,
   /* [dead-code] hb removed */
   /* [dead-code] _ye removed */
   /* [dead-code] Fo removed */
+  
+// [unbundle] 注入 FilePathHandler 依赖
+injectFilePathHandlerDependencies({
+  CommentNavigator,
+  PathConversionMessageTypes,
+  PathConversionWebViewMessages
+});
+
   /* [dead-code] Eye removed */
   /* [dead-code] wye removed */
   /* [dead-code] Nj removed */
@@ -13986,7 +13868,7 @@ var initTaskChainCommands = __esmModule(() => {
   initFileWatcher = __esmModule(() => {
     'use strict';
 
-    initCliAgentService(), initPromptTemplateService(), initFilePathHandler(), FileWatcher = class {
+    initCliAgentService(), initPromptTemplateService(), FileWatcher = class {
       constructor() {
         this.ignoreFilePatterns = getGlobalIgnoreInstance().add(IGNORE_ALL_PATTERNS);
       }
@@ -14049,7 +13931,7 @@ var initTaskChainCommands = __esmModule(() => {
   initWorkspaceWatcher = __esmModule(() => {
     'use strict';
 
-     initFilePathHandler(), WorkspaceWatcher = class {
+     WorkspaceWatcher = class {
       ['activate'](_0x5514e4) {
         this.workspaceChangeWatcher = vscode_module.workspace.onDidChangeWorkspaceFolders(_0x5251fa => this.handleWorkspaceChange()), _0x5514e4.subscriptions.push(this.workspaceChangeWatcher);
       }
