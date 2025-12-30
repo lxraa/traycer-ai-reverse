@@ -28,7 +28,9 @@ const {
   PromptTemplate,
   PROMPT_ENV_VAR,
   TraycerFileSystem,
-  TemplateErrorManager
+  TemplateErrorManager,
+  baseTemplateSchema,
+  fullTemplateSchema
 } = require("./modules/prompt_template.js");
 const path_module = {
   default: require("path"),
@@ -53,8 +55,25 @@ const {
     getAgentIconByDisplayName,
     getAgentIcon,
     isUtilityAgent,
-    isTerminalAgent
+    isTerminalAgent,
+    AgentRegistry
 } = require("./modules/agent_registry.js");
+
+// WebView Messages
+const {
+  SubscriptionWebViewActions,
+  TaskWebViewMessages,
+  PathConversionWebViewMessages,
+  ActivationWebViewMessages,
+  AuthenticationWebViewMessages,
+  MCPServerWebViewMessages,
+  CLIAgentWebViewMessages,
+  NavigationMessages,
+  PromptTemplateWebViewMessages,
+  TaskSettingsWebViewMessages,
+  UsageInformationWebViewMessages,
+  WorkspaceWebViewMessages
+} = require("./modules/webview_messages.js");
 
 // �?config_module 导入 ripgrep 配置和语言相关函数
 const {
@@ -98,9 +117,8 @@ const {
   MediaFileSystem
 } = require("./modules/media_file_system.js");
 const {
-  SqliteService,
-  SummaryCacheService
-} = require("./modules/sqlite_service.js");
+  LlmCacheHandler
+} = require("./modules/llm_cache_handler.js");
 const {
   // 枚举
   TaskStepStatus,
@@ -1347,145 +1365,7 @@ var fileOperationSet = new Set(Object.values(TaskSettingsActions)),
   orchestratorMessageTypeSet = new Set(Object.values(MCPServerActions)),
   taskContextMessageTypeSet = new Set(Object.values(PromptTemplateActions)),
   commentNavigatorMessageTypeSet = new Set(Object.values(CLIAgentManagementActions)),
-  gitignoreChangeSet = new Set(Object.values(PathConversionMessageTypes)),
-  SubscriptionWebViewActions = {
-    POST_SUBSCRIPTION: 'postSubscription'
-  },
-  TaskWebViewMessages = {
-    POST_TASK: "postTask",
-    POST_TASKS: "postTasks",
-    POST_TASK_LIGHT: "postTaskLight",
-    FETCH_FILE_AND_FOLDER: "fetchFileAndFolder",
-    OPEN_TASK: "openTask",
-    TICKET_LOADING: 'ticketLoading',
-    TASK_LIST_BOOTSTRAPPING: 'taskListBootstrapping',
-    POST_PLAN_THINKING: "postPlanThinking",
-    POST_VERIFICATION_THINKING: 'postVerificationThinking',
-    POST_PRE_PHASE_CONVERSATION_THINKING: 'postPrePhaseConversationThinking',
-    POST_PLAN_DELTA: "postPlanDelta",
-    FETCH_GIT_CONTEXT: "fetchGitContext",
-    YOLO_MODE_STARTED: 'yoloModeStarted',
-    YOLO_MODE_STOPPED: 'yoloModeStopped'
-  },
-  PathConversionWebViewMessages = {
-    FILE_PATH_CONVERTED: "filePathConverted"
-  },
-  ActivationWebViewMessages = {
-    ACTIVATED: "activated"
-  },
-  AuthenticationWebViewMessages = {
-    SIGNING_IN: 'signingIn',
-    SIGNED_OUT: "signedOut",
-    SIGNED_IN: "signedIn"
-  },
-  MCPServerWebViewMessages = {
-    SYNC_MCP_SERVERS: 'syncMCPServers',
-    ACKNOWLEDGE_SET_ACTIVE_ACCOUNT_FOR_MCP_SERVER: "acknowledgeSetActiveAccountForMCPServer"
-  },
-  CLIAgentWebViewMessages = {
-    LIST_CLI_AGENTS: 'listCLIAgents',
-    IS_USER_CLI_AGENT_NAME_ALLOWED: 'isUserCLIAgentNameAllowed',
-    IS_WORKSPACE_CLI_AGENT_NAME_ALLOWED: 'isWorkspaceCLIAgentNameAllowed'
-  },
-  NavigationMessages = {
-    NAVIGATE_TO_NEW_TASK: 'navigateToNewTask',
-    NAVIGATE_TO_TASK_HISTORY: "navigateToTaskHistory",
-    NAVIGATE_TO_MCP_SERVERS: 'navigateToMCPServers',
-    NAVIGATE_TO_PROMPT_TEMPLATES: 'navigateToPromptTemplates',
-    NAVIGATE_TO_CLI_AGENTS: 'navigateToCLIAgents',
-    NAVIGATE_TO_TASK_LANDING_WITH_PREFILL: "navigateToTaskLandingWithPrefill"
-  },
-  PromptTemplateWebViewMessages = {
-    LIST_PROMPT_TEMPLATES: "listPromptTemplates",
-    IS_USER_PROMPT_TEMPLATE_NAME_ALLOWED: "isUserPromptTemplateNameAllowed",
-    IS_WORKSPACE_PROMPT_TEMPLATE_NAME_ALLOWED: 'isWorkspacePromptTemplateNameAllowed',
-    LIST_WORKSPACE_DIRECTORIES: "listWorkspaceDirectories"
-  },
-  TaskSettingsWebViewMessages = {
-    SYNC_TASK_SETTINGS: "sync-task-settings",
-    SYNC_DEFAULT_TASK_EXECUTION_CONFIG: "sync-default-task-execution-config"
-  },
-  UsageInformationWebViewMessages = {
-    SEND_USAGE_INFORMATION: 'sendUsageInformation',
-    SEND_FETCH_STATUS: 'SEND_FETCH_STATUS'
-  },
-  WorkspaceWebViewMessages = {
-    WORKSPACE_STATUS: "workspaceStatus"
-  },
-  baseTemplateSchema = {
-    type: 'object',
-    properties: {
-      displayName: {
-        type: 'string',
-        description: "Display name for the template"
-      }
-    },
-    required: [],
-    additionalProperties: false
-  },
-  fullTemplateSchema = {
-    type: "object",
-    properties: {
-      ...baseTemplateSchema.properties,
-      applicableFor: {
-        type: 'string',
-        enum: ['plan', 'verification', 'generic', "review", 'userQuery'],
-        description: 'Specifies which type of content this template applies to'
-      }
-    },
-    required: ['applicableFor', ...baseTemplateSchema.required],
-    additionalProperties: false
-  },
-  AgentRegistry = class _0x98f6f0 {
-    constructor() {
-      this.agents = new Map();
-    }
-    static ["getInstance"]() {
-      return _0x98f6f0.instance || (_0x98f6f0.instance = new _0x98f6f0()), _0x98f6f0.instance;
-    }
-    ["registerAgent"](_0x2d953d) {
-      this.agents.set(_0x2d953d.id, _0x2d953d);
-    }
-    ['unregisterAgent'](_0x2358a0) {
-      return this.agents.delete(_0x2358a0);
-    }
-    ['getAgent'](_0x205f38) {
-      return this.hasAgent(_0x205f38) ? this.agents.get(_0x205f38) : isValidAgentType(_0x205f38) ? getAgentIcon(_0x205f38) : void 0;
-    }
-    ['getAllAgents']() {
-      return Array.from(this.agents.values());
-    }
-    ['getAgentsBySource'](_0x5f51c9) {
-      return this.getAllAgents().filter(_0x2b27ea => _0x2b27ea.source === _0x5f51c9);
-    }
-    ['getBuiltInCLIAgents']() {
-      return this.getAgentsBySource('builtin').filter(_0x1447b2 => _0x1447b2.type === 'terminal');
-    }
-    ["getUserAgents"]() {
-      return this.getAgentsBySource('user');
-    }
-    ['getWorkspaceAgents']() {
-      return this.getAgentsBySource('workspace');
-    }
-    ["hasAgent"](_0x460b87) {
-      return this.agents.has(_0x460b87);
-    }
-    ["getAgentInfo"](_0xd801d2) {
-      let _0x23405d = this.getAgent(_0xd801d2);
-      if (!_0x23405d) throw new Error("Agent with ID " + _0xd801d2 + " not found");
-      return _0x23405d;
-    }
-    ["getAgentInfoIfExists"](_0x112a1a) {
-      try {
-        return this.getAgentInfo(_0x112a1a);
-      } catch {
-        return null;
-      }
-    }
-    ["getConflictingWithBuiltInAgent"](_0x3824d6) {
-      return this.getAgentsBySource('builtin').find(_0x360e25 => _0x360e25.id === _0x3824d6 || _0x360e25.displayName.toLowerCase() === _0x3824d6.toLowerCase()) || null;
-    }
-  };
+  gitignoreChangeSet = new Set(Object.values(PathConversionMessageTypes));
 async function formatCodeBlockContent(_0xaeb101, _0x36e209, _0x4fbe28, _0xb33b6, _0xef23c3, _0x136f81, _0x11d8e6, _0xcd99b2) {
   if (!(await _0xaeb101.fileExists(_0xb33b6.absPath))) throw new Error("Directory not found");
   let _0x35c95e = new RipgrepCommandBuilder(_0x36e209).withMaxResults(300).withIncludePatterns(_0xef23c3 ? [_0xef23c3] : []).withIgnorePatterns(_0x136f81).withAdditionalArgs(['--json', '--context=' + 3, _0xb33b6.absPath]).withRegex(_0x4fbe28).build(),
@@ -1572,51 +1452,7 @@ async function searchFilesAndFoldersQueued(_0x3ad6d4, _0x4205d2) {
 
 /* [unbundle] sqlite3 已移至顶部导入区 */
 /* [unbundle] SqliteService 和 SummaryCacheService 已移至 modules/sqlite_service.js */
-var LlmCacheHandler,
-  initLlmCacheHandler = __esmModule(() => {
-    'use strict';
-
-    LlmCacheHandler = class _0x31bc7c {
-      constructor(_0x46d11a) {
-        this.llmCache = _0x46d11a;
-      }
-      static async ["getInstance"]() {
-        if (!_0x31bc7c.instance) {
-          let _0x4fae2a = WorkspaceInfoManager.getInstance(),
-            _0x48aa46 = SqliteService.getInstance(_0x4fae2a.getLogger()),
-            _0xba957a = new SummaryCacheService(_0x48aa46);
-          _0x31bc7c.instance = new _0x31bc7c(_0xba957a);
-        }
-        return _0x31bc7c.instance;
-      }
-      ["shutdown"]() {
-        this.runShutdownInBackground();
-      }
-      async ['runShutdownInBackground']() {
-        try {
-          await this.llmCache.shutdown(), _0x31bc7c.instance = null;
-        } catch (_0x295c81) {
-          Logger.error(_0x295c81, 'Failed to shutdown cache handler');
-        }
-      }
-      async ['getSummaryFromCache'](_0xecb0a5, _0xb09b81) {
-        try {
-          return await this.llmCache.getSummaryFromCache(_0xecb0a5, _0xb09b81);
-        } catch (_0x508ecc) {
-          return Logger.error('Error getting summary from cache for ' + _0xecb0a5, _0x508ecc), '';
-        }
-      }
-      async ['setSummaryToCache'](_0x35e77a, _0x4aac3b) {
-        try {
-          let _0x45aed9 = TraycerPath.fromPathProto(_0x35e77a).absPath,
-            _0x2a483b = await DocumentManager.getSourceCode(_0x45aed9);
-          await this.llmCache.setSummaryToCache(_0x45aed9, _0x4aac3b, _0x2a483b, null);
-        } catch (_0x4ace6d) {
-          Logger.error("Error setting summary to cache for " + _0x35e77a, _0x4ace6d);
-        }
-      }
-    };
-  });
+/* [unbundle] LlmCacheHandler 已移至 modules/llm_cache_handler.js */
 function getWorkspaceRootPath(_0x479aed) {
   return vscode_module.languages.getDiagnostics(_0x479aed);
 }
@@ -3233,7 +3069,7 @@ function isPathContainedInDirectories(_0x90173f, _0x44af6d) {
 var initPlanContextModule = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initTaskContext(), initQueryProcessor(), initGitLogModule(), initLlmCacheHandler();
+    initIDEAgentManager(), initTaskContext(), initQueryProcessor(), initGitLogModule();
   }),
   $Ye = 'Implementation plan not found',
   ImplementationPlanNotFoundError = class extends Error {
@@ -13233,7 +13069,7 @@ async function createFileNotFoundResponse(_0x1475ef) {
 var initFileReadHandler = __esmModule(() => {
   'use strict';
 
-  initIDEAgentManager(), initTaskContext(),  initGitLogModule(), initLlmCacheHandler(), initSymbolSearch();
+  initIDEAgentManager(), initTaskContext(),  initGitLogModule(), initSymbolSearch();
 });
 async function handleRipgrepSearchRequest(_0x2dfbb8) {
   let {
@@ -13258,7 +13094,7 @@ var MAX_WRITE_RETRIES,
   initGrpcClient = __esmModule(() => {
     'use strict';
 
-    initGoogleAuth(), initGrpcMessageTracker(), initIDEAgentManager(), initTaskContext(), initLlmCacheHandler(), initSymbolSearch(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = streamConstants.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
+    initGoogleAuth(), initGrpcMessageTracker(), initIDEAgentManager(), initTaskContext(), initSymbolSearch(), initSymbolSearchExports(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = streamConstants.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
       constructor(_0x30dd48, _0x34bdfa) {
         super(_0x30dd48, Logger), this.grpcConnection = null, this.id = null, this.client = _0x34bdfa;
       }
@@ -14519,7 +14355,7 @@ var disposables,
   initExtension = __esmModule(() => {
     'use strict';
 
-    initTraycerCredentials(), initGrpcClient(), initExtensionCommands(), initTaskChainCommands(), initIDEAgentManager(), initTaskContext(), initTaskChainManager(), initAnalytics(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initLlmCacheHandler(), initTaskRunner(), initTemplateManager(), initMigrationLogger(), initUsageTracker(), initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initFileSystemProviders(), initWorkspaceWatcher(), initCommentNavigatorDeps(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(),  initTaskContext(), disposables = [], extensionContext = null;
+    initTraycerCredentials(), initGrpcClient(), initExtensionCommands(), initTaskChainCommands(), initIDEAgentManager(), initTaskContext(), initTaskChainManager(), initAnalytics(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initTaskRunner(), initTemplateManager(), initMigrationLogger(), initUsageTracker(), initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initFileSystemProviders(), initWorkspaceWatcher(), initCommentNavigatorDeps(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(),  initTaskContext(), disposables = [], extensionContext = null;
   }),
   sSt = {};
 __export(sSt, {

@@ -137,11 +137,64 @@ function isValidAgentType(agentType) {
     })
   });
 
+  // AgentRegistry class for managing dynamic agents
+  var AgentRegistry = class _0x98f6f0 {
+    constructor() {
+      this.agents = new Map();
+    }
+    static ["getInstance"]() {
+      return _0x98f6f0.instance || (_0x98f6f0.instance = new _0x98f6f0()), _0x98f6f0.instance;
+    }
+    ["registerAgent"](_0x2d953d) {
+      this.agents.set(_0x2d953d.id, _0x2d953d);
+    }
+    ['unregisterAgent'](_0x2358a0) {
+      return this.agents.delete(_0x2358a0);
+    }
+    ['getAgent'](_0x205f38) {
+      return this.hasAgent(_0x205f38) ? this.agents.get(_0x205f38) : isValidAgentType(_0x205f38) ? getAgentIcon(_0x205f38) : void 0;
+    }
+    ['getAllAgents']() {
+      return Array.from(this.agents.values());
+    }
+    ['getAgentsBySource'](_0x5f51c9) {
+      return this.getAllAgents().filter(_0x2b27ea => _0x2b27ea.source === _0x5f51c9);
+    }
+    ['getBuiltInCLIAgents']() {
+      return this.getAgentsBySource('builtin').filter(_0x1447b2 => _0x1447b2.type === 'terminal');
+    }
+    ["getUserAgents"]() {
+      return this.getAgentsBySource('user');
+    }
+    ['getWorkspaceAgents']() {
+      return this.getAgentsBySource('workspace');
+    }
+    ["hasAgent"](_0x460b87) {
+      return this.agents.has(_0x460b87);
+    }
+    ["getAgentInfo"](_0xd801d2) {
+      let _0x23405d = this.getAgent(_0xd801d2);
+      if (!_0x23405d) throw new Error("Agent with ID " + _0xd801d2 + " not found");
+      return _0x23405d;
+    }
+    ["getAgentInfoIfExists"](_0x112a1a) {
+      try {
+        return this.getAgentInfo(_0x112a1a);
+      } catch {
+        return null;
+      }
+    }
+    ["getConflictingWithBuiltInAgent"](_0x3824d6) {
+      return this.getAgentsBySource('builtin').find(_0x360e25 => _0x360e25.id === _0x3824d6 || _0x360e25.displayName.toLowerCase() === _0x3824d6.toLowerCase()) || null;
+    }
+  };
+
   module.exports = {
     agentRegistry,
     isValidAgentType,
     getAgentIconByDisplayName,
     getAgentIcon,
     isUtilityAgent,
-    isTerminalAgent
+    isTerminalAgent,
+    AgentRegistry
   };

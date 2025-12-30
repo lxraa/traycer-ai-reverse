@@ -253,6 +253,24 @@ read_lints ["extension/out/modules/request_queue.js", "extension/out/extension.j
 - ⚠️ **路径修正**：初始实现使用了 `path.dirname(__dirname)`（只向上一级），导致路径错误。已修正为 `path.dirname(path.dirname(__dirname))`（向上两级到 extension 目录）
 **验证**：9 处 `WorkerPoolManager.exec()` 和其他静态方法调用正常，无 lint 错误，worker 文件路径正确
 
+## 示例：LlmCacheHandler (initLlmCacheHandler) 拆解记录
+
+**原位置**：`extension.js` 1573-1619 行  
+**新文件**：`modules/llm_cache_handler.js`  
+**导入位置**：`extension.js` 第 104-106 行  
+**删除的 init 调用**：4 处（行号：3196, 13196, 13221, 14482）  
+**依赖**：
+- `SqliteService`, `SummaryCacheService`（已提取到 `modules/sqlite_service.js`）
+- `WorkspaceInfoManager`, `DocumentManager`（从 `modules/workspace_info.js` 导入）
+- `TraycerPath`（从 `modules/path_types.js` 导入）
+- `Logger`（已提取）
+**说明**：
+- 单例模式，用于管理文件摘要的缓存存取
+- 直接从相应的模块导入所需依赖，无需反向依赖主文件
+- `getInstance()` 方法内部创建 `SqliteService` 和 `SummaryCacheService` 实例
+- `getSummaryFromCache()` 和 `setSummaryToCache()` 方法使用 `DocumentManager` 和 `TraycerPath` 处理文件操作
+**验证**：5 处 `LlmCacheHandler.getInstance()` 调用正常，无 lint 错误
+
 ## 工作流程总结
 
 ```

@@ -3,6 +3,34 @@ const {EXTENSION_ID,SHOW_TEMPLATE_ERRORS_COMMAND } = require("./constants");
 const {isWindows} = require("./config");
 
 var PROMPT_ENV_VAR = "TRAYCER_PROMPT"
+
+// Template Schemas
+var baseTemplateSchema = {
+  type: 'object',
+  properties: {
+    displayName: {
+      type: 'string',
+      description: "Display name for the template"
+    }
+  },
+  required: [],
+  additionalProperties: false
+};
+
+var fullTemplateSchema = {
+  type: "object",
+  properties: {
+    ...baseTemplateSchema.properties,
+    applicableFor: {
+      type: 'string',
+      enum: ['plan', 'verification', 'generic', "review", 'userQuery'],
+      description: 'Specifies which type of content this template applies to'
+    }
+  },
+  required: ['applicableFor', ...baseTemplateSchema.required],
+  additionalProperties: false
+};
+
 class PromptTemplate {
     constructor(_0x22652d, _0x437174, _0x91c128, _0x245cce, _0x295e30, _0x3b991f, _0x93dd4) {
       this.name = _0x22652d, this.filePath = _0x437174, this.content = _0x91c128, this.metadata = _0x245cce, this.scope = _0x295e30, this.fileExtension = _0x3b991f, this.isDefault = _0x93dd4, this.allowedFields = ["TRAYCER_PROMPT", "TRAYCER_PROMPT_TMP_FILE", "TRAYCER_PHASE_ID", "TRAYCER_TASK_ID", "TRAYCER_PHASE_BREAKDOWN_ID"], this._validationResult = {
@@ -272,5 +300,7 @@ module.exports = {
     PROMPT_ENV_VAR,
     TraycerFileSystem,
     TemplateErrorManager,
-    T0
+    T0,
+    baseTemplateSchema,
+    fullTemplateSchema
 };
