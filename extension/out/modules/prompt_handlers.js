@@ -1,8 +1,10 @@
 'use strict';
 
-const vscode = require("vscode");
+const vscode_module = require("vscode");
 const { Logger } = require("./logger.js");
-
+const { WorkspaceInfoManager } = require("./workspace_info.js");
+const path_module = require("path");
+const os_module = require("os");
 /**
  * ExtensionHelper - 用于获取和激活 VSCode 扩展的辅助类
  */
@@ -12,20 +14,20 @@ class ExtensionHelper {
    * @param {string} extensionId - 扩展 ID
    * @param {string} displayName - 显示名称
    * @param {string} extensionName - 扩展名称（可选，默认使用 displayName）
-   * @returns {Promise<vscode.Extension>} - VSCode 扩展实例
+   * @returns {Promise<vscode_module.Extension>} - VSCode 扩展实例
    */
   static async getExtension(extensionId, displayName, extensionName) {
-    let extension = vscode.extensions.getExtension(extensionId);
+    let extension = vscode_module.extensions.getExtension(extensionId);
     if (!extension) {
       Logger.warn("Extension not found", extensionId);
-      const result = await vscode.window.showInformationMessage(
+      const result = await vscode_module.window.showInformationMessage(
         `You have selected to use ${displayName} for execution, but the ${extensionName ?? displayName} extension is not installed. Would you like to install it from the marketplace?`,
         "View in Marketplace",
         'Cancel'
       );
       if (result === "View in Marketplace") {
         Logger.info('Opening marketplace for extension', extensionId);
-        await vscode.commands.executeCommand("workbench.extensions.search", extensionId);
+        await vscode_module.commands.executeCommand("workbench.extensions.search", extensionId);
       }
       throw new Error(`${displayName} extension not found`);
     }
@@ -37,7 +39,7 @@ class ExtensionHelper {
    * @param {string} extensionId - 扩展 ID
    * @param {string} displayName - 显示名称
    * @param {string} extensionName - 扩展名称（可选）
-   * @returns {Promise<vscode.Extension>} - 已激活的 VSCode 扩展实例
+   * @returns {Promise<vscode_module.Extension>} - 已激活的 VSCode 扩展实例
    */
   static async activateExtension(extensionId, displayName, extensionName) {
     let extension = await ExtensionHelper.getExtension(extensionId, displayName, extensionName);
@@ -67,7 +69,7 @@ class ExtensionTaskHandler {
     );
     await this.startTask(extension.exports);
     if (this.config.sidebarCommand) {
-      await vscode.commands.executeCommand(this.config.sidebarCommand);
+      await vscode_module.commands.executeCommand(this.config.sidebarCommand);
     }
   }
 }
@@ -90,21 +92,21 @@ class ClipboardPromptHandler {
   }
 
   async handle() {
-    let originalClipboard = await vscode.env.clipboard.readText();
+    let originalClipboard = await vscode_module.env.clipboard.readText();
     
     // 执行预命令
     for (let command of this.getPreCommandsToRun()) {
-      await vscode.commands.executeCommand(command);
+      await vscode_module.commands.executeCommand(command);
       await new Promise(resolve => setTimeout(resolve, this.customDelay));
     }
     
     // 写入提示到剪贴板并粘贴
-    await vscode.env.clipboard.writeText(this.prompt);
-    await vscode.commands.executeCommand("editor.action.clipboardPasteAction");
+    await vscode_module.env.clipboard.writeText(this.prompt);
+    await vscode_module.commands.executeCommand("editor.action.clipboardPasteAction");
     await new Promise(resolve => setTimeout(resolve, 200));
     
     // 恢复原剪贴板内容
-    await vscode.env.clipboard.writeText(originalClipboard);
+    await vscode_module.env.clipboard.writeText(originalClipboard);
   }
 }
 
@@ -321,7 +323,7 @@ class CopilotPromptHandler extends ClipboardPromptHandler {
   }
 
   async handle() {
-    await vscode.commands.executeCommand("workbench.action.chat.open", {
+    await vscode_module.commands.executeCommand("workbench.action.chat.open", {
       mode: 'agent',
       query: this.prompt,
       isPartialQuery: false
@@ -361,11 +363,11 @@ class WindsurfPromptHandler extends ClipboardPromptHandler {
 
   async handle() {
     for (let command of this.getPreCommandsToRun()) {
-      await vscode.commands.executeCommand(command);
+      await vscode_module.commands.executeCommand(command);
       await new Promise(resolve => setTimeout(resolve, 200));
     }
-    await vscode.env.clipboard.writeText(this.prompt);
-    vscode.window.showInformationMessage(
+    await vscode_module.env.clipboard.writeText(this.prompt);
+    vscode_module.window.showInformationMessage(
       "Prompt copied to clipboard. Paste it into Cascade to start the execution."
     );
   }
@@ -382,6 +384,79 @@ class AntigravityPromptHandler extends ClipboardPromptHandler {
     ];
   }
 }
+class BasePromptTemplate {
+  constructor(_0xe85d2e) {
+    this.prompt = _0xe85d2e;
+  }
+}
+
+
+
+class CopyToClipboardHandler extends BasePromptTemplate {
+  async ["handle"]() {
+    await vscode_module.env.clipboard.writeText(this.prompt), vscode_module.window.showInformationMessage('Copied to clipboard');
+  }
+}
+
+
+class ExportHandler extends BasePromptTemplate {
+  constructor(_0x3d33b1, _0x2dcdb8) {
+    super(_0x3d33b1), this.title = _0x2dcdb8;
+  }
+  ["getDefaultFilename"]() {
+    let _0x3104f7 = this.title.replaceAll(' ', '-').toLocaleLowerCase() + '.' + this.getFileExtension(),
+      _0x35e01e = WorkspaceInfoManager.getInstance().getWorkspaceDirs();
+    return _0x35e01e.length > 0 ? path_module.join(_0x35e01e[0], _0x3104f7) : path_module.join(os_module.homedir(), _0x3104f7);
+  }
+  async ['getSaveUri'](_0x3b461c, _0x75b21f) {
+    return await vscode_module.window.showSaveDialog({
+      defaultUri: vscode_module.Uri.file(_0x3b461c),
+      filters: _0x75b21f
+    });
+  }
+  ['showSuccessMessage'](_0x33a647) {
+    vscode_module.window.showInformationMessage('Export as ' + this.getType() + " completed successfully to " + _0x33a647);
+  }
+  ["showErrorMessage"](_0x529c74) {
+    vscode_module.window.showErrorMessage('Failed to export as ' + this.getType() + ': ' + _0x529c74);
+  }
+  ["showCancelMessage"]() {
+    vscode_module.window.showInformationMessage("Export as " + this.getType() + ' cancelled');
+  }
+  async ['handle']() {
+    try {
+      let _0x17c0ff = this.getDefaultFilename(),
+        _0x21335f = this.getFileFilter(),
+        _0x41d370 = await this.getSaveUri(_0x17c0ff, _0x21335f);
+      if (!_0x41d370) {
+        this.showCancelMessage();
+        return;
+      }
+      await this.performExport(this.prompt, _0x41d370.fsPath);
+      let _0x284b0d = path_module.basename(_0x41d370.fsPath) || "file";
+      this.showSuccessMessage(_0x284b0d);
+    } catch (_0x16fa56) {
+      let _0x4de4b8 = _0x16fa56 instanceof Error ? _0x16fa56.message : 'Unknown error';
+      this.showErrorMessage(_0x4de4b8);
+    }
+  }
+};
+class MarkdownExportHandler extends ExportHandler {
+  ["getType"]() {
+    return 'Markdown';
+  }
+  ["getFileExtension"]() {
+    return 'md';
+  }
+  ['getFileFilter']() {
+    return {
+      'Markdown Files': ['md']
+    };
+  }
+  async ['performExport'](_0x103353, _0x3ec67f) {
+    await vscode_module.workspace.fs.writeFile(vscode_module.Uri.file(_0x3ec67f), Buffer.from(_0x103353, "utf8"));
+  }
+};
 
 // CommonJS 导出
 module.exports = {
@@ -407,6 +482,9 @@ module.exports = {
   CursorPromptHandler,
   AugmentPromptHandler,
   WindsurfPromptHandler,
-  AntigravityPromptHandler
+  AntigravityPromptHandler,
+  MarkdownExportHandler,
+  CopyToClipboardHandler,
+  BasePromptTemplate,
 };
 

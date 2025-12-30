@@ -203,7 +203,10 @@ const {
   CursorPromptHandler,
   AugmentPromptHandler,
   WindsurfPromptHandler,
-  AntigravityPromptHandler
+  AntigravityPromptHandler,
+  MarkdownExportHandler,
+  CopyToClipboardHandler,
+  BasePromptTemplate
 } = require("./modules/prompt_handlers.js");
 
 
@@ -9154,11 +9157,11 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  ii,
+  CliAgentTemplateService,
   initCliAgentService = __esmModule(() => {
     'use strict';
 
-     initUsageInfoHandler(), initCommentNavigator(), initTaskContext(), initPromptTemplateFactory(), ii = class _0x3e7e8c {
+     initUsageInfoHandler(), initCommentNavigator(), initTaskContext(), initPromptTemplateFactory(), CliAgentTemplateService = class _0x3e7e8c {
       constructor() {
         this.userCLIAgents = new Map(), this.workspaceCLIAgents = new Map(), this.defaultCLIAgents = new Map(), this.invalidTemplates = new Set(), this.globalWatcher = null;
       }
@@ -9469,25 +9472,25 @@ var QUERY_THROTTLE_MS,
         }
       }
       async ["createUserCLIAgent"](_0x213763, _0x28d935, _0x2c0703) {
-        return ii.getInstance().createUserCLIAgent(_0x213763, _0x28d935, _0x2c0703);
+        return CliAgentTemplateService.getInstance().createUserCLIAgent(_0x213763, _0x28d935, _0x2c0703);
       }
       async ['createWorkspaceCLIAgent'](_0x5a6023, _0x202e09, _0x127b5d, _0x1a495d) {
-        return ii.getInstance().createWorkspaceCLIAgent(_0x5a6023, _0x202e09, _0x127b5d, _0x1a495d);
+        return CliAgentTemplateService.getInstance().createWorkspaceCLIAgent(_0x5a6023, _0x202e09, _0x127b5d, _0x1a495d);
       }
       async ['deleteCLIAgent'](_0x26c1cc) {
-        return ii.getInstance().deleteCLIAgent(_0x26c1cc);
+        return CliAgentTemplateService.getInstance().deleteCLIAgent(_0x26c1cc);
       }
       async ["refreshCLIAgents"]() {
-        return ii.getInstance().sendCLIAgentsToUI();
+        return CliAgentTemplateService.getInstance().sendCLIAgentsToUI();
       }
       async ['openCLIAgent'](_0x5794f8) {
-        return ii.getInstance().openCLIAgent(_0x5794f8);
+        return CliAgentTemplateService.getInstance().openCLIAgent(_0x5794f8);
       }
       async ['isUserCLIAgentNameAllowed'](_0x14e477, _0xbd7ec8) {
-        return ii.getInstance().isUserCLIAgentNameAllowed(_0x14e477, _0xbd7ec8);
+        return CliAgentTemplateService.getInstance().isUserCLIAgentNameAllowed(_0x14e477, _0xbd7ec8);
       }
       async ['isWorkspaceCLIAgentNameAllowed'](_0x270369, _0x3c17ee, _0x35a47e) {
-        return ii.getInstance().isWorkspaceCLIAgentNameAllowed(_0x270369, _0x3c17ee, _0x35a47e);
+        return CliAgentTemplateService.getInstance().isWorkspaceCLIAgentNameAllowed(_0x270369, _0x3c17ee, _0x35a47e);
       }
     };
   }),
@@ -10634,7 +10637,7 @@ var ajvValidatorInstance,
         this.instance = null;
       }
       constructor() {
-        this.promptTemplateService = PromptTemplateService.getInstance(), this.cliAgentTemplateService = ii.getInstance();
+        this.promptTemplateService = PromptTemplateService.getInstance(), this.cliAgentTemplateService = CliAgentTemplateService.getInstance();
       }
       static ["getInstance"]() {
         return _0x3bf0d8.instance || (_0x3bf0d8.instance = new _0x3bf0d8()), _0x3bf0d8.instance;
@@ -10710,16 +10713,11 @@ var ajvValidatorInstance,
       }
     };
   }),
-  BasePromptTemplate = class {
-    constructor(_0xe85d2e) {
-      this.prompt = _0xe85d2e;
-    }
-  },
-  PN,
+  TempFilePromptTemplate,
   initTemplateManagerDeps = __esmModule(() => {
     'use strict';
 
-    initTemplateManager(), /* [unbundle] bN=require('node:fs/promises'), ZEe=require('node:os'), eSe=require('node:path'), tSe=require('node:crypto') 已移至顶部导入区 */PN = class _0x18a868 extends BasePromptTemplate {
+    initTemplateManager(), TempFilePromptTemplate = class _0x18a868 extends BasePromptTemplate {
       constructor(_0x58e202, _0x4a74c6, _0x37a2ed, _0x5811bd) {
         super(_0x58e202), this.name = _0x4a74c6, this.title = _0x37a2ed, this.sessionIDs = _0x5811bd;
       }
@@ -10771,78 +10769,17 @@ var ajvValidatorInstance,
       }
     };
   }),
-  CopyToClipboardHandler = class extends BasePromptTemplate {
-    async ["handle"]() {
-      await vscode_module.env.clipboard.writeText(this.prompt), vscode_module.window.showInformationMessage('Copied to clipboard');
-    }
-  },
-  ExportHandler,
+  
+  
   initExportHandler = __esmModule(() => {
     'use strict';
 
-     ExportHandler = class extends BasePromptTemplate {
-      constructor(_0x3d33b1, _0x2dcdb8) {
-        super(_0x3d33b1), this.title = _0x2dcdb8;
-      }
-      ["getDefaultFilename"]() {
-        let _0x3104f7 = this.title.replaceAll(' ', '-').toLocaleLowerCase() + '.' + this.getFileExtension(),
-          _0x35e01e = WorkspaceInfoManager.getInstance().getWorkspaceDirs();
-        return _0x35e01e.length > 0 ? path_module.join(_0x35e01e[0], _0x3104f7) : path_module.join(os_module.homedir(), _0x3104f7);
-      }
-      async ['getSaveUri'](_0x3b461c, _0x75b21f) {
-        return await vscode_module.window.showSaveDialog({
-          defaultUri: vscode_module.Uri.file(_0x3b461c),
-          filters: _0x75b21f
-        });
-      }
-      ['showSuccessMessage'](_0x33a647) {
-        vscode_module.window.showInformationMessage('Export as ' + this.getType() + " completed successfully to " + _0x33a647);
-      }
-      ["showErrorMessage"](_0x529c74) {
-        vscode_module.window.showErrorMessage('Failed to export as ' + this.getType() + ': ' + _0x529c74);
-      }
-      ["showCancelMessage"]() {
-        vscode_module.window.showInformationMessage("Export as " + this.getType() + ' cancelled');
-      }
-      async ['handle']() {
-        try {
-          let _0x17c0ff = this.getDefaultFilename(),
-            _0x21335f = this.getFileFilter(),
-            _0x41d370 = await this.getSaveUri(_0x17c0ff, _0x21335f);
-          if (!_0x41d370) {
-            this.showCancelMessage();
-            return;
-          }
-          await this.performExport(this.prompt, _0x41d370.fsPath);
-          let _0x284b0d = path_module.basename(_0x41d370.fsPath) || "file";
-          this.showSuccessMessage(_0x284b0d);
-        } catch (_0x16fa56) {
-          let _0x4de4b8 = _0x16fa56 instanceof Error ? _0x16fa56.message : 'Unknown error';
-          this.showErrorMessage(_0x4de4b8);
-        }
-      }
-    };
+     
   }),
-  kN,
   initExportHandlerExports = __esmModule(() => {
     'use strict';
 
-    initExportHandler(), kN = class extends ExportHandler {
-      ["getType"]() {
-        return 'Markdown';
-      }
-      ["getFileExtension"]() {
-        return 'md';
-      }
-      ['getFileFilter']() {
-        return {
-          'Markdown Files': ['md']
-        };
-      }
-      async ['performExport'](_0x103353, _0x3ec67f) {
-        await vscode_module.workspace.fs.writeFile(vscode_module.Uri.file(_0x3ec67f), Buffer.from(_0x103353, "utf8"));
-      }
-    };
+    initExportHandler();
   });
 async function debounce(_0xad5586, _0x184124, _0x2514c4, _0x227745) {
   if (!AgentRegistry.getInstance().getAgent(_0x2514c4.id)) throw new Error("Agent or handler not found: " + _0x2514c4);
@@ -10881,7 +10818,7 @@ async function debounce(_0xad5586, _0x184124, _0x2514c4, _0x227745) {
       _0xacd5a9 = new CopyToClipboardHandler(_0xad5586);
       break;
     case 'markdown-export':
-      _0xacd5a9 = new kN(_0xad5586, _0x184124);
+      _0xacd5a9 = new MarkdownExportHandler(_0xad5586, _0x184124);
       break;
     case 'augment':
       _0xacd5a9 = new AugmentHandler(_0xad5586);
@@ -10897,7 +10834,7 @@ async function debounce(_0xad5586, _0x184124, _0x2514c4, _0x227745) {
       break;
     default:
       throw new Error("Unsupported agent: " + _0x2514c4);
-  } else _0xacd5a9 = new PN(_0xad5586, _0x2514c4.id, _0x184124, _0x227745);
+  } else _0xacd5a9 = new TempFilePromptTemplate(_0xad5586, _0x2514c4.id, _0x184124, _0x227745);
   await _0xacd5a9.handle();
 }
 function getAllAvailableAgents() {
@@ -11602,10 +11539,8 @@ var initGoogleAuth = __esmModule(() => {
   }),
   initAuthModule = __esmModule(() => {
     'use strict';
-
     initAuthStatusHandlerExports(), initContextStorageManager(), initTokenValidator(), initAuthStatusHandler();
   }),
-  IT = 'traycer.traycer-vscode',
   TraycerCredentials,
   initTraycerCredentials = __esmModule(() => {
     'use strict';
@@ -11738,15 +11673,12 @@ var initGoogleAuth = __esmModule(() => {
       }
       async ['promptSignIn']() {
         await this.authStateManager.setState("SignedOut");
-        let loginMessage = "Login to use Traycer",
-          signInOption = "Sign in with Traycer",
-          pasteOption = "Paste token";
         await this.authStateManager.setState('WaitingForUserConfirmation');
         let selection = await vscode_module.window.showInformationMessage("Login to use Traycer", "Sign in with Traycer", "Paste token");
         selection === "Sign in with Traycer" ? (await this.authStateManager.setState("SigningIn"), await this.openCloudUI()) : selection === "Paste token" && (await this.promptPasteToken());
       }
       async ['openCloudUI']() {
-        let callbackUri = WorkspaceInfoManager.getInstance().getIdeInfo().uriScheme + "://" + IT + '/' + AUTH_CALLBACK_COMMAND,
+        let callbackUri = WorkspaceInfoManager.getInstance().getIdeInfo().uriScheme + "://" + 'traycer.traycer-vscode' + '/' + AUTH_CALLBACK_COMMAND,
           cloudUrl = config.cloudUIUrl + '?redirect_uri=' + encodeURIComponent(callbackUri);
         await WorkspaceInfoManager.getInstance().openExternalLink(cloudUrl);
       }
@@ -13874,13 +13806,13 @@ var initTaskChainCommands = __esmModule(() => {
       }
       ['activate'](_0x5a0c45) {
         this.fileSystemWatcher = vscode_module.workspace.createFileSystemWatcher(vscode_module.workspace.asRelativePath("**/*"), false, false, false), this.fileSystemWatcher.onDidChange(async _0x2582a1 => {
-          await Promise.all([PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x2582a1.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x2582a1.fsPath, "upsert"), FilePathHandler.getInstance().invalidatePath(_0x2582a1.fsPath)]);
+          await Promise.all([PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x2582a1.fsPath, "upsert"), CliAgentTemplateService.getInstance().watchWorkspaceCLIAgentsPath(_0x2582a1.fsPath, "upsert"), FilePathHandler.getInstance().invalidatePath(_0x2582a1.fsPath)]);
         }), this.fileSystemWatcher.onDidCreate(async _0xf17a5c => {
-          await Promise.all([PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0xf17a5c.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0xf17a5c.fsPath, "upsert"), FilePathHandler.getInstance().invalidatePath(_0xf17a5c.fsPath)]);
+          await Promise.all([PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0xf17a5c.fsPath, "upsert"), CliAgentTemplateService.getInstance().watchWorkspaceCLIAgentsPath(_0xf17a5c.fsPath, "upsert"), FilePathHandler.getInstance().invalidatePath(_0xf17a5c.fsPath)]);
         }), this.fileSystemWatcher.onDidDelete(async _0x3ef5e6 => {
-          await Promise.all([PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x3ef5e6.fsPath, 'delete'), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x3ef5e6.fsPath, 'delete'), FilePathHandler.getInstance().invalidatePath(_0x3ef5e6.fsPath)]);
+          await Promise.all([PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x3ef5e6.fsPath, 'delete'), CliAgentTemplateService.getInstance().watchWorkspaceCLIAgentsPath(_0x3ef5e6.fsPath, 'delete'), FilePathHandler.getInstance().invalidatePath(_0x3ef5e6.fsPath)]);
         }), this.fileRenameWatcher = vscode_module.workspace.onDidRenameFiles(async _0x1e1398 => {
-          await Promise.all(_0x1e1398.files.flatMap(_0x24923e => [PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x24923e.oldUri.fsPath, 'delete'), PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x24923e.newUri.fsPath, "upsert"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.oldUri.fsPath, "delete"), ii.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.newUri.fsPath, 'upsert'), FilePathHandler.getInstance().invalidatePath(_0x24923e.oldUri.fsPath), FilePathHandler.getInstance().invalidatePath(_0x24923e.newUri.fsPath)]));
+          await Promise.all(_0x1e1398.files.flatMap(_0x24923e => [PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x24923e.oldUri.fsPath, 'delete'), PromptTemplateService.getInstance().watchWorkspaceTemplatePath(_0x24923e.newUri.fsPath, "upsert"), CliAgentTemplateService.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.oldUri.fsPath, "delete"), CliAgentTemplateService.getInstance().watchWorkspaceCLIAgentsPath(_0x24923e.newUri.fsPath, 'upsert'), FilePathHandler.getInstance().invalidatePath(_0x24923e.oldUri.fsPath), FilePathHandler.getInstance().invalidatePath(_0x24923e.newUri.fsPath)]));
         }), _0x5a0c45.subscriptions.push(this.fileRenameWatcher), _0x5a0c45.subscriptions.push(this.fileSystemWatcher);
       }
       ['deactivate']() {
@@ -13952,7 +13884,7 @@ var initTaskChainCommands = __esmModule(() => {
     platformWebsite: 'https://platform.traycer.ai',
     platformWebsiteSettings: 'https://platform.traycer.ai/settings',
     openVsxMarketplaceWebsite: "https://open-vsx.org/extension/Traycer/traycer-vscode",
-    vscMarketplaceWebsite: "https://marketplace.visualstudio.com/items?itemName=" + IT,
+    vscMarketplaceWebsite: "https://marketplace.visualstudio.com/items?itemName=" + 'traycer.traycer-vscode',
     privacyPolicy: "https://traycer.ai/privacy-policy",
     termsOfService: 'https://traycer.ai/terms-of-service',
     twitter: 'https://x.com/traycerai',
