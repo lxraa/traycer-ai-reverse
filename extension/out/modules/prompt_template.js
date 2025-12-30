@@ -1,6 +1,11 @@
 const vscode_module = require("vscode");
 const {EXTENSION_ID,SHOW_TEMPLATE_ERRORS_COMMAND } = require("./constants");
 const {isWindows} = require("./config");
+const path = require("path");
+const { mkdir, writeFile } = require("fs/promises");
+const grayMatter = require("gray-matter");
+const Ajv = require("ajv");
+const { WorkspaceInfoManager } = require("./workspace_info.js");
 
 var PROMPT_ENV_VAR = "TRAYCER_PROMPT"
 
@@ -30,6 +35,139 @@ var fullTemplateSchema = {
   required: ['applicableFor', ...baseTemplateSchema.required],
   additionalProperties: false
 };
+
+// ============== TemplateFile 错误类 ==============
+
+class TemplateFileNotFoundError extends Error {
+  constructor(filePath) {
+    super('Template file ' + filePath + " not found");
+    this.name = "TemplateFileNotFoundError";
+  }
+}
+
+class TemplateFileEmptyError extends Error {
+  constructor() {
+    super("File is empty");
+    this.name = "TemplateFileEmptyError";
+  }
+}
+
+class TemplateFileNotMarkdownError extends Error {
+  constructor() {
+    super("Only markdown (.md) files are supported");
+    this.name = 'TemplateFileNotMarkdownError';
+  }
+}
+
+class TemplateMissingMetadataError extends Error {
+  constructor() {
+    super('Missing metadata');
+    this.name = 'TemplateMissingMetadataError';
+  }
+}
+
+class TemplateInvalidMetadataError extends Error {
+  constructor(message) {
+    super("Invalid metadata" + (message ? ': ' + message : ''));
+    this.name = 'TemplateInvalidMetadataError';
+  }
+}
+
+class TemplateFileAlreadyExistsError extends Error {
+  constructor(filePath) {
+    super('Template file ' + filePath + " already exists");
+    this.name = 'TemplateFileAlreadyExistsError';
+  }
+}
+
+// ============== AJV 验证器单例 ==============
+
+let ajvValidatorInstance = null;
+
+function getAjvValidator() {
+  if (!ajvValidatorInstance) {
+    ajvValidatorInstance = new Ajv();
+  }
+  return ajvValidatorInstance;
+}
+
+// ============== TemplateFile 类 ==============
+
+class TemplateFile {
+  constructor(filePath, metadata, validationResult) {
+    this._filePath = filePath;
+    this._metadata = metadata;
+    this._validationResult = validationResult;
+  }
+
+  get filePath() {
+    return this._filePath;
+  }
+
+  get metadata() {
+    return this._metadata;
+  }
+
+  get validationResult() {
+    return this._validationResult;
+  }
+
+  async getContent() {
+    let fileContent = await WorkspaceInfoManager.getInstance().readFile(this.filePath);
+    return grayMatter(fileContent).content.replaceAll(/<!--[\s\S]*?-->\s*/g, '').trim();
+  }
+
+  async createOnDisk(content) {
+    if (await WorkspaceInfoManager.getInstance().fileExists(this.filePath)) {
+      throw new TemplateFileAlreadyExistsError(this.filePath);
+    }
+    
+    let fileContent = grayMatter.stringify(content, this.metadata);
+    
+    await mkdir(path.dirname(this.filePath), { recursive: true });
+    await writeFile(this.filePath, fileContent, { mode: 420 }); // 0o644 = 420
+  }
+
+  static async validateTemplateFile(filePath, schema) {
+    if (!(await WorkspaceInfoManager.getInstance().fileExists(filePath))) {
+      throw new TemplateFileNotFoundError(filePath);
+    }
+
+    if (path.extname(filePath).toLowerCase() !== '.md') {
+      throw new TemplateFileNotMarkdownError();
+    }
+
+    let fileContent = await WorkspaceInfoManager.getInstance().readFile(filePath);
+    
+    if (!fileContent.length) {
+      throw new TemplateFileEmptyError();
+    }
+
+    if (!grayMatter.test(fileContent)) {
+      throw new TemplateMissingMetadataError();
+    }
+
+    let parsed = grayMatter(fileContent);
+    
+    let validator = getAjvValidator().compile(schema);
+    if (!validator(parsed.data)) {
+      let errorMessages = validator.errors?.map(error => {
+        if (error.keyword === "enum" && error.params && "allowedValues" in error.params) {
+          let allowedValues = error.params.allowedValues.join(', ');
+          return ((error.instancePath ? error.instancePath.substring(1) : error.schemaPath) || "field") 
+            + ' should be equal to one of the allowed values: ' + allowedValues;
+        }
+        return error.message;
+      }).join(', ');
+      
+      throw new TemplateInvalidMetadataError(errorMessages);
+    }
+
+    return parsed.data;
+  }
+}
+
+// ============== PromptTemplate 类 ==============
 
 class PromptTemplate {
     constructor(_0x22652d, _0x437174, _0x91c128, _0x245cce, _0x295e30, _0x3b991f, _0x93dd4) {
@@ -302,5 +440,13 @@ module.exports = {
     TemplateErrorManager,
     T0,
     baseTemplateSchema,
-    fullTemplateSchema
+    fullTemplateSchema,
+    TemplateFile,
+    TemplateFileNotFoundError,
+    TemplateFileEmptyError,
+    TemplateFileNotMarkdownError,
+    TemplateMissingMetadataError,
+    TemplateInvalidMetadataError,
+    TemplateFileAlreadyExistsError,
+    getAjvValidator
 };

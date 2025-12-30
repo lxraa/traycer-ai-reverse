@@ -30,7 +30,14 @@ const {
   TraycerFileSystem,
   TemplateErrorManager,
   baseTemplateSchema,
-  fullTemplateSchema
+  fullTemplateSchema,
+  TemplateFile,
+  TemplateFileNotFoundError,
+  TemplateFileEmptyError,
+  TemplateFileNotMarkdownError,
+  TemplateMissingMetadataError,
+  TemplateInvalidMetadataError,
+  TemplateFileAlreadyExistsError
 } = require("./modules/prompt_template.js");
 const path_module = {
   default: require("path"),
@@ -2063,37 +2070,7 @@ async function getRevisionDiffWithContent(_0x3ef3bf, _0x2b4220, _0x49f087) {
     }), [];
   }
 }
-var  TemplateFileNotFoundError = class extends Error {
-    constructor(_0xe835c) {
-      super('Template file ' + _0xe835c + " not found"), this.name = "TemplateFileNotFoundError";
-    }
-  },
-  TemplateFileEmptyError = class extends Error {
-    constructor() {
-      super("File is empty"), this.name = "TemplateFileEmptyError";
-    }
-  },
-  TemplateFileNotMarkdownError = class extends Error {
-    constructor() {
-      super("Only markdown (.md) files are supported"), this.name = 'TemplateFileNotMarkdownError';
-    }
-  },
-  TemplateMissingMetadataError = class extends Error {
-    constructor() {
-      super('Missing metadata'), this.name = 'TemplateMissingMetadataError';
-    }
-  },
-  TemplateInvalidMetadataError = class extends Error {
-    constructor(_0xd43f10) {
-      super("Invalid metadata" + (_0xd43f10 ? ': ' + _0xd43f10 : '')), this.name = 'TemplateInvalidMetadataError';
-    }
-  },
-  TemplateFileAlreadyExistsError = class extends Error {
-    constructor(_0xcd915f) {
-      super('Template file ' + _0xcd915f + " already exists"), this.name = 'TemplateFileAlreadyExistsError';
-    }
-  },
-  TemplateNotFoundError = class extends Error {
+var  TemplateNotFoundError = class extends Error {
     constructor(_0x3eeaeb) {
       super("Template not found at " + _0x3eeaeb), this.name = "TemplateNotFoundError";
     }
@@ -2589,11 +2566,6 @@ async function getAgentsMdContentFromPaths(_0xb6c7ec) {
   }
   return _0x53b940;
 }
-var initGitLogModule = __esmModule(() => {
-  'use strict';
-
-  
-});
 async function listDirectoryWithAgentsMd(_0x1f3609, _0x1b6bb9) {
   let _0x120891 = TraycerPath.fromPathProto(_0x1f3609),
     _0x11bc6a = [],
@@ -2624,7 +2596,7 @@ async function listDirectoryWithAgentsMd(_0x1f3609, _0x1b6bb9) {
 var initQueryProcessor = __esmModule(() => {
   'use strict';
 
-  initIDEAgentManager(), initTaskContext(), initGitLogModule();
+  initIDEAgentManager(), initTaskContext();
 });
 async function parseAndFormatUserQuery(_0x2bd6eb, _0x253e4d) {
   let _0x4b797c = parseUserQueryContent(_0x2bd6eb, _0x253e4d);
@@ -2803,7 +2775,7 @@ function isPathContainedInDirectories(_0x90173f, _0x44af6d) {
 var initPlanContextModule = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initTaskContext(), initQueryProcessor(), initGitLogModule();
+    initIDEAgentManager(), initTaskContext(), initQueryProcessor();
   }),
   ImplementationPlanNotFoundError = class extends Error {
     constructor() {
@@ -9762,63 +9734,9 @@ injectFilePathHandlerDependencies({
 
 /* [dead-code] ajv/gray-matter 相关 dead-code 已清理 */
 /* [unbundle] gray-matter 已移至顶部导入区 */
-function parseJsonSafe() {
-  return ajvValidatorInstance || (ajvValidatorInstance = new ajv_module()), ajvValidatorInstance;
-}
-var ajvValidatorInstance,
-  TemplateFile,
-  initTemplateFile = __esmModule(() => {
-    'use strict';
+/* [unbundle] parseJsonSafe, TemplateFile 已移至 modules/prompt_template.js */
 
-     ajvValidatorInstance = null, TemplateFile = class {
-      constructor(_0x38c1e6, _0xd68cca, _0x2af77d) {
-        this._filePath = _0x38c1e6, this._metadata = _0xd68cca, this._validationResult = _0x2af77d;
-      }
-      get ['filePath']() {
-        return this._filePath;
-      }
-      get ['metadata']() {
-        return this._metadata;
-      }
-      get ["validationResult"]() {
-        return this._validationResult;
-      }
-      async ['getContent']() {
-        let _0x3af6ff = await WorkspaceInfoManager.getInstance().readFile(this.filePath);
-        return (0, gray_matter_module)(_0x3af6ff).content.replaceAll(/<!--[\s\S]*?-->\s*/g, '').trim();
-      }
-      async ["createOnDisk"](_0x5c95b5) {
-        if (await WorkspaceInfoManager.getInstance().fileExists(this.filePath)) throw new TemplateFileAlreadyExistsError(this.filePath);
-        let _0x2f836e = gray_matter_module.stringify(_0x5c95b5, this.metadata);
-        await (0, fs_promises_module.mkdir)(path_module.dirname(this.filePath), {
-          recursive: true
-        }), await (0, fs_promises_module.writeFile)(this.filePath, _0x2f836e, {
-          mode: 420
-        });
-      }
-      static async ['validateTemplateFile'](_0x49c732, _0x45712a) {
-        if (!(await WorkspaceInfoManager.getInstance().fileExists(_0x49c732))) throw new TemplateFileNotFoundError(_0x49c732);
-        if (path_module.extname(_0x49c732).toLowerCase() !== '.md') throw new TemplateFileNotMarkdownError();
-        let _0x4e31e2 = await WorkspaceInfoManager.getInstance().readFile(_0x49c732);
-        if (!_0x4e31e2.length) throw new TemplateFileEmptyError();
-        if (!gray_matter_module.test(_0x4e31e2)) throw new TemplateMissingMetadataError();
-        let _0x5e0a45 = (0, gray_matter_module)(_0x4e31e2),
-          _0x5cfe6c = parseJsonSafe().compile(_0x45712a);
-        if (!_0x5cfe6c(_0x5e0a45.data)) {
-          let _0x5a07e5 = _0x5cfe6c.errors?.['map'](_0x45bda9 => {
-            if (_0x45bda9.keyword === "enum" && _0x45bda9.params && "allowedValues" in _0x45bda9.params) {
-              let _0x2934ce = _0x45bda9.params.allowedValues.join(', ');
-              return ((_0x45bda9.instancePath ? _0x45bda9.instancePath.substring(1) : _0x45bda9.schemaPath) || "field") + ' should be equal to one of the allowed values: ' + _0x2934ce;
-            }
-            return _0x45bda9.message;
-          })['join'](', ');
-          throw new TemplateInvalidMetadataError(_0x5a07e5);
-        }
-        return _0x5e0a45.data;
-      }
-    };
-  }),
-  PromptMetadata,
+var PromptMetadata,
   initPromptMetadata = __esmModule(() => {
     'use strict';
 
@@ -9876,7 +9794,7 @@ var ajvValidatorInstance,
   initTemplateFileBase = __esmModule(() => {
     'use strict';
 
-    initTemplateFile(), TemplateFileBase = class extends TemplateFile {
+    TemplateFileBase = class extends TemplateFile {
       constructor(_0x2ecbc2, _0x5a1084, _0x5b4717, _0x245384, _0xd45d53) {
         super(_0x2ecbc2, _0x5a1084, _0x5b4717), this._scope = _0x245384, this._isDefault = _0xd45d53;
       }
@@ -10052,7 +9970,7 @@ var ajvValidatorInstance,
   initPromptTemplateService = __esmModule(() => {
     'use strict';
 
-     initCommentNavigator(), initTaskContext(), initTemplateFile(), initPromptMetadata(), initGenericTemplate(), initUserQueryTemplate(), initPlanTemplate(), initReviewTemplate(), initVerificationTemplate(), PromptTemplateService = class _0x389cf0 {
+     initCommentNavigator(), initTaskContext(), initPromptMetadata(), initGenericTemplate(), initUserQueryTemplate(), initPlanTemplate(), initReviewTemplate(), initVerificationTemplate(), PromptTemplateService = class _0x389cf0 {
       constructor() {
         this.userPromptTemplates = new Map(), this.workspacePromptTemplates = new Map(), this.defaultPromptTemplates = new Map(), this.invalidTemplates = new Set(), this.globalWatcher = null;
       }
@@ -11108,7 +11026,7 @@ async function createFileNotFoundResponse(_0x1475ef) {
 var initFileReadHandler = __esmModule(() => {
   'use strict';
 
-  initIDEAgentManager(), initTaskContext(),  initGitLogModule();
+  initIDEAgentManager(), initTaskContext();
 });
 async function handleRipgrepSearchRequest(_0x2dfbb8) {
   let {
