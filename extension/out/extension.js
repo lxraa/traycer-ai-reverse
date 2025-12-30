@@ -120,6 +120,9 @@ const {
   LlmCacheHandler
 } = require("./modules/llm_cache_handler.js");
 const {
+  PosthogAnalytics
+} = require("./modules/posthog_analytics.js");
+const {
   FilePathHandler,
   injectFilePathHandlerDependencies
 } = require("./modules/file_path_handler.js");
@@ -2182,69 +2185,10 @@ var  TemplateFileNotFoundError = class extends Error {
       super("CLI agent template file extension \"" + _0x183590 + '\x22 is invalid for ' + getGitignoreCache(_0x3bfa69) + ' platform. Expected extension: ' + _0x50d8b3), this.name = "CLIAgentInvalidPlatformError";
     }
   },
-  PosthogAnalytics,
-  initPosthogAnalytics = __esmModule(() => {
-    'use strict';
-
-    initIDEAgentManager(), initTaskContext(), PosthogAnalytics = class _0x693982 {
-      constructor(_0x3044ab, _0x44cbc2, _0x23f42f = false) {
-        this.userId = _0x3044ab, this.userEmail = _0x44cbc2, this.privacyMode = _0x23f42f;
-        let _0x2072b2 = config.posthogApiKey,
-          _0xc63215 = config.posthogApiUri,
-          _0x430800 = new posthog_module.PostHog(_0x2072b2, {
-            host: _0xc63215,
-            flushAt: 3,
-            flushInterval: 30000
-          });
-        _0x430800.identify(this.userId, {
-          name: this.userId || '',
-          email: this.userEmail || ''
-        }), this.posthog = _0x430800;
-      }
-      ['reIdentify'](_0x43c654, _0x425039, _0x3e5010 = false) {
-        if (!_0x43c654) return;
-        let _0x1b73be = _0x43c654 === this.userId,
-          _0x31cc6f = _0x425039 === this.userEmail;
-        _0x1b73be && _0x31cc6f || (this.userId = _0x43c654, this.userEmail = _0x425039, this.privacyMode = _0x3e5010, this.posthog.identify(_0x43c654, {
-          name: this.userId,
-          email: this.userEmail || ''
-        }));
-      }
-      static ["getInstance"](_0x42f455, _0x3ebb1f, _0x9cf05f = false) {
-        let _0x11638f = _0x693982.instance;
-        return _0x11638f ? _0x11638f.reIdentify(_0x42f455, _0x3ebb1f, _0x9cf05f) : (_0x11638f = new _0x693982(_0x42f455, _0x3ebb1f, _0x9cf05f), _0x693982.instance = _0x11638f), _0x11638f;
-      }
-      ['getSystemTags']() {
-        let _0x203853 = {
-          defaultProperties: {
-            version: config.version || "unknown"
-          },
-          userProperties: {}
-        };
-        return this.userId && (_0x203853.defaultProperties.userId = this.userId), _0x203853;
-      }
-      ["getAllTags"](_0x1584b1) {
-        let _0x453c15 = this.getSystemTags();
-        return {
-          ..._0x1584b1?.["defaultProperties"],
-          ...(this.privacyMode ? {} : _0x1584b1?.['userProperties']),
-          ..._0x453c15.defaultProperties,
-          ..._0x453c15.userProperties
-        };
-      }
-      ['increment'](_0x25cc48, _0x38b2da) {
-        try {
-          this.posthog.capture(_0x25cc48, this.getAllTags(_0x38b2da));
-        } catch (_0x17a781) {
-          Logger.warn("Failed to increment event: " + _0x25cc48, _0x17a781 instanceof Error ? _0x17a781.message : String(_0x17a781));
-        }
-      }
-    };
-  }),
   initAnalytics = __esmModule(() => {
     'use strict';
 
-    initPosthogAnalytics();
+    initIDEAgentManager(), initTaskContext();
   }),
   CloudAuthHandler = class {
     constructor(_0x3bc94d) {

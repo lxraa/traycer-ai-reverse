@@ -294,6 +294,27 @@ read_lints ["extension/out/modules/request_queue.js", "extension/out/extension.j
 - 1 处 `FilePathHandler.convertFilePath()` 静态方法调用正常
 - 无 lint 错误
 
+## 示例：PosthogAnalytics (initPosthogAnalytics) 拆解记录
+
+**原位置**：`extension.js` 2188-2246 行  
+**新文件**：`modules/posthog_analytics.js`  
+**导入位置**：`extension.js` 第 123-125 行  
+**删除的 init 调用**：1 处（行号：2247，在 `initAnalytics` 中）  
+**依赖**：
+- `posthog-js-lite`（npm 模块，用于 PostHog 分析）
+- `config`（已提取到 `modules/config.js`）
+- `Logger`（已提取到 `modules/logger.js`）  
+**说明**：
+- 单例模式，用于跟踪和分析用户行为
+- 支持用户识别、重新识别和隐私模式
+- 提供事件记录功能，自动附加系统标签（版本号、用户ID）和用户标签
+- 原类名混淆为 `_0x693982`，已重命名为 `PosthogAnalytics`
+- `initAnalytics` 模块原本只调用 `initPosthogAnalytics()`，现在直接调用其依赖的 `initIDEAgentManager()` 和 `initTaskContext()`  
+**验证**：
+- 13 处 `PosthogAnalytics.getInstance()` 调用正常
+- 所有事件跟踪功能正常（task_chain_creation, navigator_view, phase_generation 等）
+- 无 lint 错误
+
 ## 工作流程总结
 
 ```
