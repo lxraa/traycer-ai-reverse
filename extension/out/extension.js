@@ -41,8 +41,6 @@ const os_module = {
   default: require("os"),
   ...require("os")
 };
-const child_process_module = require("child_process");
-const util_module = require("util");
 const crypto_module = {
   default: require("node:crypto"),
   ...require("node:crypto")
@@ -126,6 +124,40 @@ const {
   FilePathHandler,
   injectFilePathHandlerDependencies
 } = require("./modules/file_path_handler.js");
+const {
+  AuthCallbackHandler,
+  UriCommandHandler
+} = require("./modules/uri_command_handler.js");
+const {
+  TabChangeWatcher
+} = require("./modules/tab_change_watcher.js");
+const {
+  WorkspaceWatcher
+} = require("./modules/workspace_watcher.js");
+const {
+  // 错误类和重试执行器
+  calculateRetryDelay,
+  ServerDisconnectedError,
+  UnauthorizedError,
+  NetworkError,
+  UserCancelledError,
+  RetryExecutor
+} = require("./modules/retry_executor.js");
+const {
+  TokenManager,
+  fetchGoogleIapToken
+} = require("./modules/token_manager.js");
+const {
+  ApiClient,
+  TraycerApiClient,
+  AuthStatusHandler,
+  AuthStatusHandlerExports,
+  ContextStorageManager,
+  TraycerCredentials,
+  UsageTracker,
+  isAbortError,
+  registerVscodeCommand
+} = require("./modules/auth.js");
 const {
   // 枚举
   TaskStepStatus,
@@ -907,13 +939,6 @@ function reassembleChunkedMessage(_0x42d4c0) {
     return _0x109109;
   });
 }
-function calculateRetryDelay(_0x41c0b5, _0x162062) {
-  let _0xb2ea5b = Math.pow(2, _0x162062) * 1000,
-    _0x233ddc = getRandomInt(50, 100);
-  return {
-    retryAfter: Math.min(_0xb2ea5b + _0x233ddc, _0x41c0b5 * 1000)
-  };
-}
 function getRandomInt(_0xcb681b, _0x438e9a) {
   return Math.floor(Math.random() * (_0x438e9a - _0xcb681b)) + _0xcb681b;
 }
@@ -1156,9 +1181,7 @@ var IGNORE_ALL_PATTERNS = config_module.IGNORE_ALL_PATTERNS,
 function getGitignoreCache(_0x122f12) {
   return platformTypeNames[_0x122f12];
 }
-function isAbortError(_0x5911c2) {
-  return _0x5911c2 instanceof Error && (_0x5911c2.name === "AbortError" || _0x5911c2.name === 'AbortedError' || RequestAbortedError.matches(_0x5911c2));
-}
+/* [unbundle] isAbortError moved to auth.js */
 /* [unbundle] formatPathForDisplay 已移�?github_ticket_query_builder.js */
 
 function getContextFilePath(_0xbe0463) {
@@ -2185,11 +2208,6 @@ var  TemplateFileNotFoundError = class extends Error {
       super("CLI agent template file extension \"" + _0x183590 + '\x22 is invalid for ' + getGitignoreCache(_0x3bfa69) + ' platform. Expected extension: ' + _0x50d8b3), this.name = "CLIAgentInvalidPlatformError";
     }
   },
-  initAnalytics = __esmModule(() => {
-    'use strict';
-
-    initIDEAgentManager(), initTaskContext();
-  }),
   CloudAuthHandler = class {
     constructor(_0x3bc94d) {
       this.auth = _0x3bc94d;
@@ -2209,11 +2227,6 @@ var  TemplateFileNotFoundError = class extends Error {
       await this.auth.promptPasteToken();
     }
   },
-  initCommentNavigatorDeps = __esmModule(() => {
-    'use strict';
-
-    initCommentNavigator();
-  }),
   GitHubAuthHandler = class {
     constructor(_0xf40a84) {
       this.auth = _0xf40a84;
@@ -2242,7 +2255,7 @@ var  TemplateFileNotFoundError = class extends Error {
   initMetricsHandler = __esmModule(() => {
     'use strict';
 
-    initAnalytics(), MetricsHandler = class {
+    MetricsHandler = class {
       ['handle'](_0x44d825) {
         let _0x5ca766 = PosthogAnalytics.getInstance();
         switch (_0x44d825.type) {
@@ -4945,11 +4958,11 @@ var TaskCountStorageAPI = class {
       this.showNotification(_0xe1a9, _0x551fc0);
     }
   },
-  Bf,
+  WebviewMessageQueue,
   initMcpHandler = __esmModule(() => {
     'use strict';
 
-    initCommentNavigator(), Bf = class _0x155860 {
+    initCommentNavigator(), WebviewMessageQueue = class _0x155860 {
       constructor() {
         this.commentNavigatorReady = false, this.pendingCommentNavigatorMessages = [];
       }
@@ -6098,7 +6111,7 @@ var ReviewStepStorageAPI = class {
   initTaskOrchestrator = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(),  initAnalytics(), initPlanContextModule(), initTemplateManager(), initTaskSettingsHandler(), initUsageInfoHandler(), initTaskContext(), initTaskPlan(), initTaskOrchestrator(), initPlanConversationHandler(), PhaseBreakdown = class _0x5c880e {
+    initIDEAgentManager(),  initPlanContextModule(), initTemplateManager(), initTaskSettingsHandler(), initUsageInfoHandler(), initTaskContext(), initTaskPlan(), initTaskOrchestrator(), initPlanConversationHandler(), PhaseBreakdown = class _0x5c880e {
       constructor(_0x20483f = createUuid(), _0x35286c = [], _0x528b0a = [], _0x79b5be, _0x395b29, _0x4cbcac, _0x2e734f, _0xbaa6e9) {
         this._taskExecutionConfig = void 0, this.yoloOrchestrator = null, this._id = _0x20483f, this._prePhaseConversations = _0x35286c, this._tasks = _0x528b0a, this.taskChainContext = _0x395b29, this.planGenerationService = _0x4cbcac, this.phaseGenerationService = _0x2e734f, this.verificationService = _0xbaa6e9, this._storageAPI = _0x79b5be, this._taskStorage = new TaskStepStorageAPI(_0x79b5be);
       }
@@ -7167,7 +7180,7 @@ var QUERY_THROTTLE_MS,
   initPlanGenerationHandler = __esmModule(() => {
     'use strict';
 
-    initAnalytics(), initPlanContextModule(), initQueryThrottleConfig(), initPlanOutputModule(),  PlanGenerationHandler = class {
+    initPlanContextModule(), initQueryThrottleConfig(), initPlanOutputModule(),  PlanGenerationHandler = class {
       constructor(_0x4b5e6a) {
         this.context = _0x4b5e6a;
       }
@@ -7384,7 +7397,7 @@ var QUERY_THROTTLE_MS,
   initTaskChain = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(),  initTaskChainPersistence(), initCommentNavigatorDeps(), initTaskContext(), initTaskOrchestrator(), initTaskChainDeps(), initPlanOutputHandler(), initPlanGenerationHandler(), initVerificationHandler(), TaskChain = class _0x534a40 {
+    initIDEAgentManager(),  initTaskChainPersistence(), initTaskContext(), initTaskOrchestrator(), initTaskChainDeps(), initPlanOutputHandler(), initPlanGenerationHandler(), initVerificationHandler(), TaskChain = class _0x534a40 {
       constructor(_0x2ec0b7) {
         this._phaseBreakdowns = [], this._activePhaseBreakdownId = null, this.upsertOnUIWithTimestamp = _0x2bae97 => this.upsertOnUI(true, _0x2bae97), this.upsertOnUIWithoutTimestamp = _0x43959b => this.upsertOnUI(false, _0x43959b), this.client = _0x2ec0b7.client, this._id = _0x2ec0b7.id, this._title = _0x2ec0b7.title, this._displayState = _0x2ec0b7.displayState, this._creationTimestamp = _0x2ec0b7.creationTimestamp, this._lastUpdatedTime = _0x2ec0b7.lastUpdatedTime, this._workspaceScope = _0x2ec0b7.workspaceScope;
         let _0x42c45f = TaskChainPersistence.getInstance();
@@ -7905,7 +7918,7 @@ var QUERY_THROTTLE_MS,
   initTaskChainExports = __esmModule(() => {
     'use strict';
 
-     initAnalytics(), initTaskChainPersistence(), initTaskChain(), TaskChainMemoryManager = class {
+     initTaskChainPersistence(), initTaskChain(), TaskChainMemoryManager = class {
       constructor(_0x281b2f) {
         this._activeTaskChains = new Map(), this._currentVisibleTaskChains = new lru_map_module.LRUMap(5), this._operationCounter = 0, this._taskChainIDs = new Set(), this._currentVisibleTaskChainMutex = new Mutex(), this._activeTaskChainsMutex = new Map(), this._pendingUIRequests = new Set(), this._inflightUIRequests = new Map(), this._client = _0x281b2f;
       }
@@ -8044,7 +8057,7 @@ var QUERY_THROTTLE_MS,
   initTaskRunner = __esmModule(() => {
     'use strict';
 
-    initTaskChainPersistence(), initTaskPlanExports(), initCommentNavigatorDeps(), initMcpHandler(), initTaskChainExports(), TaskRunner = class _0x17835e {
+    initTaskChainPersistence(), initTaskPlanExports(), initMcpHandler(), initTaskChainExports(), TaskRunner = class _0x17835e {
       constructor(_0x48dab9) {
         this._isBootstrapping = false, this.client = _0x48dab9, this.taskChainMemoryManager = new TaskChainMemoryManager(_0x48dab9);
       }
@@ -8059,7 +8072,7 @@ var QUERY_THROTTLE_MS,
         return this._isBootstrapping = _0x5a8a6b, this.postIsBootstrappingToUI();
       }
       ["postIsBootstrappingToUI"]() {
-        Bf.getInstance().enqueueOrSendToCommentNavigator({
+        WebviewMessageQueue.getInstance().enqueueOrSendToCommentNavigator({
           type: TaskWebViewMessages.TASK_LIST_BOOTSTRAPPING,
           isLoading: this._isBootstrapping
         });
@@ -8737,7 +8750,7 @@ var QUERY_THROTTLE_MS,
   initUsageInfoHandler = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(),  initTaskContext(), initCommentNavigatorDeps(), RateLimitHandler = class _0x3b1630 {
+    initIDEAgentManager(),  initTaskContext(), RateLimitHandler = class _0x3b1630 {
       async ["handle"](_0x529100) {
         switch (_0x529100.type) {
           case TaskSettingsActions.GET_TASK_SETTINGS_STATE:
@@ -8815,7 +8828,7 @@ var QUERY_THROTTLE_MS,
   initTaskSettingsHandler = __esmModule(() => {
     'use strict';
 
-    initCommentNavigatorDeps(), initUsageInfoHandler(), SubscriptionHandler = class _0x1bea46 {
+    initUsageInfoHandler(), SubscriptionHandler = class _0x1bea46 {
       constructor(_0x521c64) {
         this.auth = _0x521c64;
       }
@@ -8869,7 +8882,7 @@ var QUERY_THROTTLE_MS,
   initWebviewStatusHandler = __esmModule(() => {
     'use strict';
 
-     initTaskRunner(), initCommentNavigatorDeps(), ED = class {
+     initTaskRunner(), ED = class {
       constructor() {}
       ["handle"](_0x191b6f) {
         let _0x46fa50 = TaskRunner.getInstance();
@@ -9385,11 +9398,11 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  bD,
+  CLIAgentHandler,
   initPromptTemplateHandler = __esmModule(() => {
     'use strict';
 
-    initCliAgentService(), bD = class {
+    initCliAgentService(), CLIAgentHandler = class {
       async ['handle'](_0xd3e916) {
         switch (_0xd3e916.type) {
           case CLIAgentManagementActions.CREATE_USER_CLI_AGENT:
@@ -9438,11 +9451,11 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  S0,
+  ExtensionActivationHandler,
   initCliAgentHandler = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initTaskContext(), initCommentNavigator(), S0 = class _0x38838b {
+    initIDEAgentManager(), initTaskContext(), initCommentNavigator(), ExtensionActivationHandler = class _0x38838b {
       constructor() {}
       ['handle'](_0xdf6e40) {
         switch (_0xdf6e40.type) {
@@ -9460,11 +9473,11 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  CD,
+  MCPHandler,
   initGitHubAuthHandler = __esmModule(() => {
     'use strict';
 
-    initTaskContext(), initCommentNavigator(), CD = class {
+    initTaskContext(), initCommentNavigator(), MCPHandler = class {
       constructor(_0x17cb20) {
         this.auth = _0x17cb20;
       }
@@ -9500,11 +9513,11 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  ID,
+  PromptTemplateHandler,
   initCloudUIAuthHandler = __esmModule(() => {
     'use strict';
 
-    initTemplateManager(), ID = class {
+    initTemplateManager(), PromptTemplateHandler = class {
       async ["handle"](_0x29a803) {
         switch (_0x29a803.type) {
           case PromptTemplateActions.CREATE_USER_PROMPT_TEMPLATE:
@@ -9570,100 +9583,13 @@ var QUERY_THROTTLE_MS,
         return TemplateManager.getInstance().listWorkspaceDirectories();
       }
     };
-  }),
-  UsageTracker,
-  initUsageTracker = __esmModule(() => {
-    'use strict';
-
-    initCommentNavigatorDeps(), initUsageInfoHandler(), UsageTracker = class _0x10574b {
-      constructor(_0x188c71) {
-        this.reFetchTimer = null, this.isFetching = false, this.lastSentMessage = null, this.lastSentFetchStatus = null, this.client = _0x188c71, this._latestRateLimitInfo = {
-          remainingTokens: 0,
-          totalTokens: 0,
-          retryAfter: 0
-        };
-      }
-      static ['getInstance'](_0x367117) {
-        if (!_0x10574b.instance) {
-          if (!_0x367117) throw new Error('Need client to initialize usage information tracker the first time.');
-          _0x10574b.instance = new _0x10574b(_0x367117);
-        }
-        return _0x10574b.instance;
-      }
-      ["dispose"]() {
-        this.reFetchTimer && (clearTimeout(this.reFetchTimer), this.reFetchTimer = null);
-      }
-      set ["latestRateLimitInfo"](_0xfd58e5) {
-        this._latestRateLimitInfo = _0xfd58e5, _0xfd58e5.retryAfter && _0xfd58e5.remainingTokens < 1 && RateLimitHandler.updateRateLimitTimestamp(_0xfd58e5.retryAfter), _0xfd58e5.remainingTokens >= 1 && RateLimitHandler.updateRateLimitTimestamp(void 0);
-      }
-      get ["latestRateLimitInfo"]() {
-        return this._latestRateLimitInfo;
-      }
-      async ['setIsFetching'](_0x10e492) {
-        this.isFetching = _0x10e492, await this.sendFetchStatusToWebview();
-      }
-      ["startRetryTimer"](_0x1ba6c5) {
-        this.reFetchTimer && clearTimeout(this.reFetchTimer), this.reFetchTimer = setTimeout(async () => {
-          this.isFetching || (await this.fetchRateLimitUsage(false, false));
-        }, (_0x1ba6c5 + 1) * 1000);
-      }
-      async ["fetchRateLimitUsageInBackground"](_0x6dd17, _0x12aa51) {
-        try {
-          await this.fetchRateLimitUsage(_0x6dd17, _0x12aa51);
-        } catch (_0x214343) {
-          Logger.warn('Error fetching rate limit usage in background', _0x214343);
-        }
-      }
-      async ['fetchRateLimitUsage'](_0x2190fe, _0x58b060) {
-        await this.setIsFetching(true);
-        try {
-          let _0x3a7c9f = {},
-            _0x12ce41 = new AbortController();
-          _0x2190fe && (await this.client.auth.refreshTraycerToken());
-          let _0x1e78c1 = await this.client.sendGetRateLimitUsageRequest(_0x3a7c9f, _0x12ce41);
-          _0x1e78c1.rateLimitInfo && (this.latestRateLimitInfo = _0x1e78c1.rateLimitInfo, await this.sendUsageInformationToWebview(_0x58b060));
-        } finally {
-          await this.setIsFetching(false);
-        }
-      }
-      async ["handleSyncRateLimitUsage"](_0x3cb28b) {
-        this.latestRateLimitInfo = _0x3cb28b, await this.sendUsageInformationToWebview(false);
-      }
-      async ["handleSendIsFetchingStatus"]() {
-        return this.sendFetchStatusToWebview();
-      }
-      async ["sendFetchStatusToWebview"]() {
-        let _0x461cac = {
-          type: UsageInformationWebViewMessages.SEND_FETCH_STATUS,
-          isFetching: this.isFetching
-        };
-        this.lastSentFetchStatus && (0, lodash_module.isEqual)(this.lastSentFetchStatus, _0x461cac) || (this.lastSentFetchStatus = _0x461cac, await CommentNavigator.postToCommentNavigator(_0x461cac));
-      }
-      async ['sendUsageInformationToWebview'](_0x2d71e2) {
-        let _0x5c56e3 = this.convertToUsageInformation(this.latestRateLimitInfo),
-          _0x1451f7 = {
-            type: UsageInformationWebViewMessages.SEND_USAGE_INFORMATION,
-            usageInformation: _0x5c56e3
-          };
-        this.deduplicateMessage(_0x1451f7) && !_0x2d71e2 || (this.lastSentMessage = _0x1451f7, this.latestRateLimitInfo.retryAfter && this.startRetryTimer(this.latestRateLimitInfo.retryAfter), await CommentNavigator.postToCommentNavigator(_0x1451f7));
-      }
-      ["deduplicateMessage"](_0x36debc) {
-        return !!(this.lastSentMessage && (0, lodash_module.isEqual)(this.lastSentMessage, _0x36debc));
-      }
-      ["convertToUsageInformation"](_0x18d114) {
-        return {
-          totalTokens: _0x18d114.totalTokens ?? 0,
-          remainingTokens: Number((_0x18d114.remainingTokens ?? 0).toFixed(3)),
-          retryAfter: _0x18d114.retryAfter ?? null
-        };
-      }
-    };
-  }),
-  AD,
+  });
+/* [unbundle] UsageTracker moved to auth.js */
+var UsageInformationHandler,
   initSubscriptionHandler = __esmModule(() => {
     'use strict';
 
-    initUsageTracker(), AD = class {
+    /* initUsageTracker removed - UsageTracker now in auth.js */ UsageInformationHandler = class {
       constructor() {}
       async ['handle'](_0x5679fc) {
         switch (_0x5679fc.type) {
@@ -9685,15 +9611,15 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  kD,
+  WebviewListenerHandler,
   initExtensionActivationHandler = __esmModule(() => {
     'use strict';
 
-    initMcpHandler(), kD = class {
+    initMcpHandler(), WebviewListenerHandler = class {
       ["handle"](_0x1b8045) {
         switch (_0x1b8045.type) {
           case ListenersReadyMessage.LISTENERS_READY:
-            _0x1b8045.webviewChannel === 'commentNavigator' && Bf.getInstance().markNavigatorReady();
+            _0x1b8045.webviewChannel === 'commentNavigator' && WebviewMessageQueue.getInstance().markNavigatorReady();
             break;
           default:
             throw new Error("Unknown message type: " + _0x1b8045.type);
@@ -9701,11 +9627,11 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  H_,
+  WorkspaceHandler,
   initTrackMetricsHandler = __esmModule(() => {
     'use strict';
 
-     initCommentNavigator(), H_ = class _0xc83630 {
+     initCommentNavigator(), WorkspaceHandler = class _0xc83630 {
       constructor() {}
       static ["getInstance"]() {
         return this.instance || (this.instance = new _0xc83630()), this.instance;
@@ -9738,8 +9664,7 @@ var QUERY_THROTTLE_MS,
     };
   });
 function normalizePathSeparators() {
-  let _0x542ee4 = '',
-    _0x1b8d81 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let _0x542ee4 = '';
   for (let _0x266123 = 0; _0x266123 < 32; _0x266123++) _0x542ee4 += 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random() * 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.length));
   return _0x542ee4;
 }
@@ -9747,7 +9672,7 @@ var CommentNavigator,
   initCommentNavigator = __esmModule(() => {
     'use strict';
 
-     initAnalytics(), initMetricsHandler(), initTaskSettingsHandler(), initWebviewStatusHandler(), initUsageInfoHandler(), initMcpHandler(), initPromptTemplateHandler(), initCliAgentHandler(), initGitHubAuthHandler(), initCloudUIAuthHandler(), initSubscriptionHandler(), initExtensionActivationHandler(), initTrackMetricsHandler(), CommentNavigator = class _0x23672d {
+     initMetricsHandler(), initTaskSettingsHandler(), initWebviewStatusHandler(), initUsageInfoHandler(), initMcpHandler(), initPromptTemplateHandler(), initCliAgentHandler(), initGitHubAuthHandler(), initCloudUIAuthHandler(), initSubscriptionHandler(), initExtensionActivationHandler(), initTrackMetricsHandler(), CommentNavigator = class _0x23672d {
       constructor(_0x2c906e) {
         this.context = _0x2c906e;
         let _0x5b9eb1 = vscode_module.window.registerWebviewViewProvider(COMMENT_NAVIGATOR_WEBVIEW_ID, this, {
@@ -9764,7 +9689,7 @@ var CommentNavigator,
         return _0x23672d._commentNavigatorView;
       }
       static ["getInstance"](_0x5b07df, _0x5b3c9a) {
-        return _0x23672d.instance ? _0x23672d.instance.context = _0x5b07df : _0x23672d.instance = new _0x23672d(_0x5b07df), _0x23672d.instance.taskHandler = new ED(), _0x23672d.instance.extensionActivationHandler = new S0(), _0x23672d.instance.subscriptionHandler = new SubscriptionHandler(_0x5b3c9a), _0x23672d.instance.trackMetricsHandler = new MetricsHandler(), _0x23672d.instance.gitHubAuthenticationHandler = new GitHubAuthHandler(_0x5b3c9a), _0x23672d.instance.cloudUIAuthenticationHandler = new CloudAuthHandler(_0x5b3c9a), _0x23672d.instance.taskSettingsHandler = new RateLimitHandler(), _0x23672d.instance.webviewStatusMessageHandler = new kD(), _0x23672d.instance.usageInformationHandler = new AD(), _0x23672d.instance.mcpHandler = new CD(_0x5b3c9a), _0x23672d.instance.promptTemplateHandler = new ID(), _0x23672d.instance.cliAgentHandler = new bD(), _0x23672d.instance.fileHandler = FilePathHandler.getInstance(), _0x23672d.instance;
+        return _0x23672d.instance ? _0x23672d.instance.context = _0x5b07df : _0x23672d.instance = new _0x23672d(_0x5b07df), _0x23672d.instance.taskHandler = new ED(), _0x23672d.instance.extensionActivationHandler = new ExtensionActivationHandler(), _0x23672d.instance.subscriptionHandler = new SubscriptionHandler(_0x5b3c9a), _0x23672d.instance.trackMetricsHandler = new MetricsHandler(), _0x23672d.instance.gitHubAuthenticationHandler = new GitHubAuthHandler(_0x5b3c9a), _0x23672d.instance.cloudUIAuthenticationHandler = new CloudAuthHandler(_0x5b3c9a), _0x23672d.instance.taskSettingsHandler = new RateLimitHandler(), _0x23672d.instance.webviewStatusMessageHandler = new WebviewListenerHandler(), _0x23672d.instance.usageInformationHandler = new UsageInformationHandler(), _0x23672d.instance.mcpHandler = new MCPHandler(_0x5b3c9a), _0x23672d.instance.promptTemplateHandler = new PromptTemplateHandler(), _0x23672d.instance.cliAgentHandler = new CLIAgentHandler(), _0x23672d.instance.fileHandler = FilePathHandler.getInstance(), _0x23672d.instance;
       }
       ["dispose"]() {
         this._visibilityChangeWatcher?.['dispose']();
@@ -9811,7 +9736,7 @@ var CommentNavigator,
           case setGitignorePath(_0x32d382):
             return this.usageInformationHandler?.["handle"](_0x33aaff);
           case getGitignoreStats(_0x32d382):
-            return H_.getInstance().handle(_0x33aaff);
+            return WorkspaceHandler.getInstance().handle(_0x33aaff);
           case resetGitignoreState(_0x32d382):
             return this.mcpHandler?.['handle'](_0x33aaff);
           case initGitignoreWatcher(_0x32d382):
@@ -9828,7 +9753,7 @@ var CommentNavigator,
         return this.postToCommentNavigator(_0x13ff8d);
       }
       static async ['postToCommentNavigator'](_0x35d0fd) {
-        return Bf.getInstance().enqueueOrSendToCommentNavigator(_0x35d0fd);
+        return WebviewMessageQueue.getInstance().enqueueOrSendToCommentNavigator(_0x35d0fd);
       }
       static async ["openCommentNavigator"]() {
         await vscode_module.commands.executeCommand(COMMENT_NAVIGATOR_WEBVIEW_ID + ".focus");
@@ -10822,39 +10747,8 @@ var initSearchConfig = __esmModule(() => {
 
   initIDEAgentManager(), initTaskContext();
 });
-var AuthCallbackHandler = class _0x456dfa {
-  constructor(_0x35742c) {
-    this.credentials = _0x35742c;
-  }
-  static ["getInstance"](_0x544a1e) {
-    if (!_0x456dfa.instance) {
-      if (!_0x544a1e) throw new Error('Credentials are required');
-      _0x456dfa.instance = new _0x456dfa(_0x544a1e);
-    }
-    return _0x456dfa.instance;
-  }
-  async ['handleAuthCallback'](_0x5450d9) {
-    let _0xdc5e1b = new URLSearchParams(_0x5450d9.query).get('traycer-tokens');
-    if (_0xdc5e1b) return this.credentials.authenticateWithTraycerToken(_0xdc5e1b);
-    await vscode_module.window.showErrorMessage('Invalid response received while authenticating with Traycer. Please try again.');
-  }
-};
-async function registerVscodeCommand(_0x2acc8f, _0xb621c1, _0x23c705, _0x2cc0a0 = false, _0x3a24ba) {
-  try {
-    if ((await vscode_module.commands.getCommands(true)).includes(_0xb621c1)) {
-      if (_0x2cc0a0) {
-        commandRegistry.get(_0xb621c1)?.["dispose"]();
-        let _0x36fb7b = vscode_module.commands.registerCommand(_0xb621c1, _0x23c705, _0x3a24ba);
-        _0x2acc8f.subscriptions.push(_0x36fb7b), commandRegistry.set(_0xb621c1, _0x36fb7b);
-      }
-    } else {
-      let _0x43bc3c = vscode_module.commands.registerCommand(_0xb621c1, _0x23c705, _0x3a24ba);
-      _0x2acc8f.subscriptions.push(_0x43bc3c), commandRegistry.set(_0xb621c1, _0x43bc3c);
-    }
-  } catch (_0x2c7b9d) {
-    return Logger.warn('Failed to register command: ' + _0xb621c1, _0x2c7b9d), Promise.reject(_0x2c7b9d);
-  }
-}
+/* [unbundle] registerVscodeCommand moved to auth.js */
+
 var RSe,
   repoSettingsSchema,
   initRepoSettingsSchema = __esmModule(() => {
@@ -10894,753 +10788,24 @@ var RSe,
       }
     };
   });
-function parseDateFromJson(_0x265b18, _0x4b3b79) {
-  if (ISO8601_DATETIME_REGEX.test(_0x4b3b79)) {
-    let _0x1a9765 = new Date(_0x4b3b79);
-    return isNaN(_0x1a9765.getTime()) ? _0x4b3b79 : _0x1a9765;
-  }
-  return _0x4b3b79;
-}
-function parseJsonWithDates(_0xe6dfc) {
-  return JSON.parse(_0xe6dfc, parseDateFromJson);
-}
-var ISO8601_DATETIME_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d*)?(?:Z|[-+]\d{2}:?\d{2})?$/,
-  ApiClient = class {
-    constructor(_0x539fdd, _0x12f1db, _0x3a1735) {
-      this.token = _0x12f1db, this.headers = _0x3a1735, _0x539fdd.pathname.endsWith('/') ? this.base = _0x539fdd : this.base = new URL(_0x539fdd.href + '/'), this.base.pathname.includes('api') || (this.base.pathname = this.base.pathname + "api/");
-    }
-    ["base"];
-    ["clientUrl"](_0x5b75fc, _0x5ae899) {
-      let _0x24ee36 = new URL(_0x5b75fc.replace(/^\/+/, ''), this.base);
-      if (_0x5ae899) {
-        for (let [_0x26812c, _0x13dd5f] of Object.entries(_0x5ae899)) _0x13dd5f instanceof Date ? _0x24ee36.searchParams.set(_0x26812c, _0x13dd5f.toISOString()) : _0x24ee36.searchParams.set(_0x26812c, String(_0x13dd5f));
-      }
-      return _0x24ee36;
-    }
-    async ['get'](_0xb9790a, _0x5ed437 = this.getHeaders(this.headers), _0x3ad2b0) {
-      let _0x4a2cf7 = await fetch(_0xb9790a, {
-        headers: _0x5ed437,
-        method: 'GET',
-        signal: _0x3ad2b0
-      });
-      return this.handleResponse(_0x4a2cf7);
-    }
-    async ["post"](_0x2e0891, _0x167b04, _0x5952f6 = this.postHeaders(this.headers), _0x1b32f5) {
-      let _0x5a72bd = await fetch(_0x2e0891, {
-        headers: _0x5952f6,
-        method: 'POST',
-        body: JSON.stringify(_0x167b04),
-        signal: _0x1b32f5
-      });
-      return this.handleResponse(_0x5a72bd);
-    }
-    async ["put"](_0x239142, _0x16b25e, _0x48a090 = this.postHeaders(this.headers)) {
-      let _0x1a402a = await fetch(_0x239142, {
-        headers: _0x48a090,
-        method: 'PUT',
-        body: JSON.stringify(_0x16b25e)
-      });
-      return this.handleResponse(_0x1a402a);
-    }
-    async ['delete'](_0x3ab41a, _0x5d320e, _0x577924 = this.getHeaders(this.headers)) {
-      let _0x2e2dfb = await fetch(_0x3ab41a, {
-        headers: _0x577924,
-        method: 'DELETE',
-        body: JSON.stringify(_0x5d320e)
-      });
-      return this.handleResponse(_0x2e2dfb);
-    }
-    ["setAuthToken"](_0x1a7ff7) {
-      !_0x1a7ff7.has("Authorization") && this.token && _0x1a7ff7.set("Authorization", 'Bearer ' + this.token);
-    }
-    async ["handleResponse"](_0x118d66) {
-      return _0x118d66.json = async () => parseJsonWithDates(await _0x118d66.text()), _0x118d66;
-    }
-    ["getHeaders"](_0x274fb9) {
-      let _0x3f5075 = new Headers(_0x274fb9);
-      return this.setAuthToken(_0x3f5075), _0x3f5075.has('Accept') || _0x3f5075.set('Accept', "application/json"), _0x3f5075;
-    }
-    ["postHeaders"](_0x5e6f93) {
-      let _0x16ee75 = new Headers(_0x5e6f93);
-      return this.setAuthToken(_0x16ee75), _0x16ee75.has('Content-Type') || _0x16ee75.set('Content-Type', 'application/json'), _0x16ee75;
-    }
-  },
-  TraycerApiClient = class extends ApiClient {
-    ["githubLogin"](_0x170b1a, _0x47ec9a, _0x52c6cf) {
-      let _0x40da80 = this.clientUrl('/github/sign-in', {
-        source: _0x47ec9a,
-        email: _0x52c6cf
-      });
-      return this.get(_0x40da80, _0x170b1a);
-    }
-    ["getUser"](_0x404f8c) {
-      let _0x4259f5 = this.clientUrl('/user');
-      return this.get(_0x4259f5, _0x404f8c);
-    }
-    ["getSubscription"](_0x14b5f2) {
-      let _0x1b82a0 = this.clientUrl("/user/subscription");
-      return this.get(_0x1b82a0, _0x14b5f2);
-    }
-    ['cancelUserSubscription'](_0x3cd03d, _0x49ffea) {
-      let _0x5d3edf = this.clientUrl('/user/cancel-subscription');
-      return this.post(_0x5d3edf, _0x3cd03d, _0x49ffea);
-    }
-    ["cancelUserUpcomingSubscription"](_0x43f002) {
-      let _0x137528 = this.clientUrl("/user/cancel-upcoming");
-      return this.post(_0x137528, {}, _0x43f002);
-    }
-    ["resumeUserSubscription"](_0x598de7) {
-      let _0x1f8b1b = this.clientUrl("/user/resume-subscription");
-      return this.post(_0x1f8b1b, {}, _0x598de7);
-    }
-    ['listOrganizations'](_0x531924) {
-      let _0x43909a = this.clientUrl('/user/list-organizations');
-      return this.get(_0x43909a, _0x531924);
-    }
-    ["listPrices"](_0x3e77a2) {
-      let _0x4d6eaa = this.clientUrl("/user/list-prices");
-      return this.get(_0x4d6eaa, _0x3e77a2);
-    }
-    ['generateCustomerPortalLink'](_0x331fc0, _0x1a329b) {
-      let _0xc227f9 = this.clientUrl('/user/customer-portal');
-      return this.post(_0xc227f9, _0x331fc0, _0x1a329b);
-    }
-    ['updatePrivacyMode'](_0x3ce159, _0x4b37bb) {
-      let _0x5f530a = this.clientUrl("/user/update-privacy-mode");
-      return this.post(_0x5f530a, _0x3ce159, _0x4b37bb);
-    }
-    ['applyCoupon'](_0x311378, _0xd2fbec) {
-      let _0x40ecf4 = this.clientUrl('/user/apply-coupon');
-      return this.post(_0x40ecf4, _0x311378, _0xd2fbec);
-    }
-    ['updateUserSubscription'](_0x15946d, _0x211c92) {
-      let _0x11a628 = this.clientUrl("/user/update-subscription");
-      return this.post(_0x11a628, _0x15946d, _0x211c92);
-    }
-    ['calculateUserPrice'](_0x2c2a23, _0x26b075) {
-      let _0x5dfd06 = this.clientUrl("/user/calculate-price");
-      return this.post(_0x5dfd06, _0x2c2a23, _0x26b075);
-    }
-    ["createUserCheckoutSession"](_0x152773, _0x5c22e6) {
-      let _0x323773 = this.clientUrl('/user/create-checkout-session');
-      return this.post(_0x323773, _0x152773, _0x5c22e6);
-    }
-    ["createUserSetupIntent"](_0x50b41c) {
-      let _0x3df79d = this.clientUrl('/user/setup-intent');
-      return this.post(_0x3df79d, {}, _0x50b41c);
-    }
-    ["validateUserCoupon"](_0x22655e, _0x5ce986) {
-      let _0xc9d031 = this.clientUrl('/user/validate-coupon');
-      return this.post(_0xc9d031, _0x22655e, _0x5ce986);
-    }
-    ['updateUserEmail'](_0x161736, _0x2ff343) {
-      let _0x4f5ee3 = this.clientUrl("/user/update-email");
-      return this.post(_0x4f5ee3, _0x161736, _0x2ff343);
-    }
-    ["sendUserVerificationEmail"](_0x3ca145, _0x33d0d9) {
-      let _0xada44a = this.clientUrl('/user/email-verification');
-      return this.post(_0xada44a, _0x3ca145, _0x33d0d9);
-    }
-    ['sendOrganizationVerificationEmail'](_0x2560d, _0xecaca9, _0x39dfd4) {
-      let _0x3ac091 = this.clientUrl('/organization/' + _0xecaca9 + '/email-verification');
-      return this.post(_0x3ac091, _0x2560d, _0x39dfd4);
-    }
-    ["updateOrganizationEmail"](_0x1fe582, _0x2be7b4, _0x5a6196) {
-      let _0x243c5d = this.clientUrl("/organization/" + _0x1fe582 + "/update-email");
-      return this.post(_0x243c5d, _0x2be7b4, _0x5a6196);
-    }
-    ['fetchOrganizationInfo'](_0x44c937, _0x3d368e) {
-      let _0x534fb7 = this.clientUrl("/organization/" + _0x44c937);
-      return this.get(_0x534fb7, _0x3d368e);
-    }
-    ["fetchOrganizationSeats"](_0x195817, _0x2152c6) {
-      let _0x97badf = this.clientUrl('/organization/' + _0x195817 + '/seat-management');
-      return this.get(_0x97badf, _0x2152c6);
-    }
-    ["fetchOrganizationSubscription"](_0x1b92fa, _0x2b6010) {
-      let _0x4b43ae = this.clientUrl("/organization/" + _0x1b92fa + "/subscription");
-      return this.get(_0x4b43ae, _0x2b6010);
-    }
-    ["listOrganizationPrices"](_0x208719, _0x31ac3d) {
-      let _0x4cb367 = this.clientUrl("/organization/" + _0x208719 + "/list-prices");
-      return this.get(_0x4cb367, _0x31ac3d);
-    }
-    ['generateOrganizationCustomerPortalLink'](_0x4295, _0x570c80, _0x4ad160) {
-      let _0x52d51a = this.clientUrl("/organization/" + _0x570c80 + '/customer-portal');
-      return this.post(_0x52d51a, _0x4295, _0x4ad160);
-    }
-    ['updateOrganizationSeatAssignmentType'](_0x224417, _0xc3be67, _0x37f45c) {
-      let _0x54925c = this.clientUrl("/organization/" + _0x224417 + "/update-seat-assignment-type");
-      return this.post(_0x54925c, _0xc3be67, _0x37f45c);
-    }
-    ['startOrganizationTrial'](_0x2b6f69, _0x3d97f5) {
-      let _0x292651 = this.clientUrl("/organization/" + _0x2b6f69 + "/start-trial");
-      return this.post(_0x292651, {}, _0x3d97f5);
-    }
-    ['updateOrganizationSubscription'](_0x5405ba, _0x120507, _0x599a4b) {
-      let _0x1b4bff = this.clientUrl('/organization/' + _0x5405ba + "/update-subscription");
-      return this.post(_0x1b4bff, _0x120507, _0x599a4b);
-    }
-    ["resumeOrganizationSubscription"](_0x3c9dd8, _0x579722) {
-      let _0x5cafec = this.clientUrl('/organization/' + _0x3c9dd8 + "/resume-subscription");
-      return this.post(_0x5cafec, {}, _0x579722);
-    }
-    ["calculateOrganizationPrice"](_0x1d9c1d, _0x26cf1b, _0x2377a0) {
-      let _0x56e6fc = this.clientUrl('/organization/' + _0x1d9c1d + '/calculate-price');
-      return this.post(_0x56e6fc, _0x26cf1b, _0x2377a0);
-    }
-    ["applyOrganizationCoupon"](_0x4aeb53, _0x593925, _0x319631) {
-      let _0x5e7d66 = this.clientUrl("/organization/" + _0x4aeb53 + '/apply-coupon');
-      return this.post(_0x5e7d66, _0x593925, _0x319631);
-    }
-    ["cancelOrganizationSubscription"](_0x547cf6, _0x47d409, _0x23425d) {
-      let _0x4a0cd3 = this.clientUrl('/organization/' + _0x547cf6 + "/cancel-subscription");
-      return this.post(_0x4a0cd3, _0x47d409, _0x23425d);
-    }
-    ['cancelOrganizationUpcomingSubscription'](_0x349961, _0xff0b31) {
-      let _0x38508c = this.clientUrl('/organization/' + _0x349961 + '/cancel-upcoming');
-      return this.post(_0x38508c, {}, _0xff0b31);
-    }
-    ["updateOrganizationSeats"](_0x249f61, _0x1a0690, _0x5a1257) {
-      let _0xaa8604 = this.clientUrl("/organization/" + _0x249f61 + '/seat-management');
-      return this.post(_0xaa8604, _0x1a0690, _0x5a1257);
-    }
-    ['createOrganizationCheckoutSession'](_0x4d9853, _0x51a0ad, _0x7f4fe2) {
-      let _0x49eb4e = this.clientUrl('/organization/' + _0x4d9853 + "/create-checkout-session");
-      return this.post(_0x49eb4e, _0x51a0ad, _0x7f4fe2);
-    }
-    ["createOrganizationSetupIntent"](_0x9ae7e8, _0x158d1b) {
-      let _0x4a9853 = this.clientUrl('/organization/' + _0x9ae7e8 + '/setup-intent');
-      return this.post(_0x4a9853, {}, _0x158d1b);
-    }
-    ['validateOrganizationCoupon'](_0x1e9791, _0xaa2b2c, _0x4a0f3b) {
-      let _0x430173 = this.clientUrl("/organization/" + _0x1e9791 + "/validate-coupon");
-      return this.post(_0x430173, _0xaa2b2c, _0x4a0f3b);
-    }
-    ["getOrgRepo"](_0x357489, _0xb42b32) {
-      let _0x3ae0a7 = this.clientUrl("/repositories/" + _0x357489 + "/list-repos");
-      return this.get(_0x3ae0a7, _0xb42b32);
-    }
-    ["getUserRepo"](_0x28b4f9) {
-      let _0x22b0a1 = this.clientUrl('/repositories/list-repos');
-      return this.get(_0x22b0a1, _0x28b4f9);
-    }
-    ['getOrgRepoLabels'](_0xeaac, _0x2f7aa1, _0x5c13a4) {
-      let _0x398abe = this.clientUrl("/repositories/" + _0xeaac + '/labels');
-      return this.post(_0x398abe, _0x2f7aa1, _0x5c13a4);
-    }
-    ['getUserRepoLabels'](_0x520d17, _0x2a6ce9) {
-      let _0x1e86c3 = this.clientUrl("/repositories/labels");
-      return this.post(_0x1e86c3, _0x520d17, _0x2a6ce9);
-    }
-    ["updateRepoSettings"](_0x161e57, _0x81cee0, _0x3fbe93) {
-      let _0x5d7769 = this.clientUrl("/repositories/update-settings");
-      return this.post(_0x5d7769, _0x81cee0, _0x3fbe93);
-    }
-    ["increaseMeteredUsageCount"](_0x4cfe31) {
-      let _0x46b106 = this.clientUrl('/user/increase-metered-usage-count');
-      return this.post(_0x46b106, {}, _0x4cfe31);
-    }
-    ['increaseMeteredUsageCountInBackground'](_0x5794ae) {
-      this.increaseMeteredUsageCount(_0x5794ae).catch(() => {});
-    }
-    ["validateInvoice"](_0x14a375) {
-      let _0x4428ae = this.clientUrl('/user/validate-invoice');
-      return this.post(_0x4428ae, {}, _0x14a375);
-    }
-    ['generateMeteredInvoice'](_0x4d68ab) {
-      let _0x153cde = this.clientUrl("/user/generate-metered-invoice");
-      return this.post(_0x153cde, {}, _0x4d68ab);
-    }
-    ['refreshToken'](_0x5b470e) {
-      let _0x369581 = this.clientUrl("/auth/refresh");
-      return this.post(_0x369581, {}, _0x5b470e);
-    }
-    ['exchangeToken'](_0x428df0) {
-      let _0x132061 = this.clientUrl("/user/exchange-token");
-      return this.post(_0x132061, {}, _0x428df0);
-    }
-    ["installMCPServer"](_0x5e232d, _0x14bff7) {
-      let _0x42e455 = this.clientUrl('/user/mcp-servers/install');
-      return this.post(_0x42e455, _0x5e232d, _0x14bff7);
-    }
-    ['updateMCPServer'](_0x2c8ebf, _0x41eb13, _0x4b152e) {
-      let _0x3a93d0 = this.clientUrl("/user/mcp-servers/" + _0x2c8ebf + '/update');
-      return this.post(_0x3a93d0, _0x41eb13, _0x4b152e);
-    }
-    ["connectMCPServer"](_0x1f45d7, _0x35ddc3) {
-      let _0xb784bf = this.clientUrl("/user/mcp-servers/" + _0x1f45d7 + "/connect");
-      return this.post(_0xb784bf, {}, _0x35ddc3);
-    }
-    ['listMCPServers'](_0x4b4af5) {
-      let _0x592f87 = this.clientUrl('/user/mcp-servers/list');
-      return this.get(_0x592f87, _0x4b4af5);
-    }
-    ['refreshMCPServers'](_0x363bdd) {
-      let _0x5e3bd4 = this.clientUrl("/user/mcp-servers/refresh");
-      return this.post(_0x5e3bd4, {}, _0x363bdd);
-    }
-    ["listAllMCPServers"](_0x1a2291) {
-      let _0x467ce4 = this.clientUrl("/user/mcp-servers/list-all");
-      return this.get(_0x467ce4, _0x1a2291);
-    }
-    ['disconnectMCPServer'](_0x3deff4, _0x1a7b74) {
-      let _0x89f171 = this.clientUrl('/user/mcp-servers/' + _0x3deff4 + '/disconnect');
-      return this.post(_0x89f171, {}, _0x1a7b74);
-    }
-    ['deleteMCPServer'](_0x3ba910, _0x427809) {
-      let _0x31434c = this.clientUrl("/user/mcp-servers/" + _0x3ba910);
-      return this.delete(_0x31434c, {}, _0x427809);
-    }
-    ['oauthCallback'](_0x5002ba, _0x36da2c) {
-      let _0xa8b71c = this.clientUrl("/mcp-servers/oauth/callback", _0x5002ba);
-      return this.post(_0xa8b71c, {}, _0x36da2c);
-    }
-    ['executeMCPServerTool'](_0xaed4d, _0x264dd6, _0x86d24d) {
-      let _0x2c9cd9 = this.clientUrl("/user/mcp-servers/" + _0xaed4d + '/execute-tool');
-      return this.post(_0x2c9cd9, _0x264dd6, _0x86d24d);
-    }
-    ["listMCPServerTools"](_0x31805a, _0x43e4f6) {
-      let _0x17b4e2 = this.clientUrl("/user/mcp-servers/" + _0x31805a + "/list-tools");
-      return this.get(_0x17b4e2, _0x43e4f6);
-    }
-    ['installOrganizationMCPServer'](_0x12e80c, _0x1a7992, _0x44e2ff) {
-      let _0x51e20b = this.clientUrl('/organization/' + _0x12e80c + '/mcp-servers/install');
-      return this.post(_0x51e20b, _0x1a7992, _0x44e2ff);
-    }
-    ["updateOrganizationMCPServer"](_0x1d4a87, _0x57348b, _0x30f62f, _0x365181) {
-      let _0xc5d723 = this.clientUrl('/organization/' + _0x1d4a87 + '/mcp-servers/' + _0x57348b + '/update');
-      return this.post(_0xc5d723, _0x30f62f, _0x365181);
-    }
-    ["connectOrganizationMCPServer"](_0x1633c3, _0x2d32ad, _0x44003a) {
-      let _0x3ab88e = this.clientUrl("/organization/" + _0x1633c3 + "/mcp-servers/" + _0x2d32ad + '/connect');
-      return this.post(_0x3ab88e, {}, _0x44003a);
-    }
-    ['listOrganizationMCPServers'](_0xfb065d, _0x37f3aa) {
-      let _0x26d4c5 = this.clientUrl('/organization/' + _0xfb065d + "/mcp-servers/list");
-      return this.get(_0x26d4c5, _0x37f3aa);
-    }
-    ['refreshOrganizationMCPServers'](_0x1c6097, _0x196bb4) {
-      let _0x52a40d = this.clientUrl('/organization/' + _0x1c6097 + '/mcp-servers/refresh');
-      return this.post(_0x52a40d, {}, _0x196bb4);
-    }
-    ["disconnectOrganizationMCPServer"](_0x515fae, _0x3f6c2b, _0x20c57e) {
-      let _0x292629 = this.clientUrl("/organization/" + _0x515fae + '/mcp-servers/' + _0x3f6c2b + '/disconnect');
-      return this.post(_0x292629, {}, _0x20c57e);
-    }
-    ['deleteOrganizationMCPServer'](_0x8c21d8, _0x36daab, _0x37c1db) {
-      let _0x1fb29e = this.clientUrl("/organization/" + _0x8c21d8 + '/mcp-servers/' + _0x36daab);
-      return this.delete(_0x1fb29e, {}, _0x37c1db);
-    }
-    ['executeOrganizationMCPServerTool'](_0x3ec65b, _0x430b07, _0x9640a0, _0x2b9a5c) {
-      let _0x3c4aa4 = this.clientUrl("/organization/" + _0x3ec65b + '/mcp-servers/' + _0x430b07 + '/execute-tool');
-      return this.post(_0x3c4aa4, _0x9640a0, _0x2b9a5c);
-    }
-    ["listOrganizationMCPServerTools"](_0x36c58c, _0x513a18, _0x190481) {
-      let _0x533e84 = this.clientUrl('/organization/' + _0x36c58c + '/mcp-servers/' + _0x513a18 + "/list-tools");
-      return this.get(_0x533e84, _0x190481);
-    }
-  },
-  initRepoSettingsExports = __esmModule(() => {
+
+
+
+var initRepoSettingsExports = __esmModule(() => {
     initRepoSettingsSchema();
-  }),
-  AuthStatusHandler,
-  initAuthStatusHandler = __esmModule(() => {
-    'use strict';
-
-    initCommentNavigatorDeps(), AuthStatusHandler = class {
-      static async ['sendAuthStatus'](_0x42b2df) {
-        let _0x5efd6e = {
-          type: _0x42b2df,
-          sendToViewImmediately: true
-        };
-        await CommentNavigator.postToCommentNavigator(_0x5efd6e);
-      }
-      static async ["sendSigningInMessage"]() {
-        await this.sendAuthStatus(AuthenticationWebViewMessages.SIGNING_IN);
-      }
-      static async ["sendSignedInMessage"]() {
-        await this.sendAuthStatus(AuthenticationWebViewMessages.SIGNED_IN);
-      }
-      static async ['sendSignedOutMessage']() {
-        await this.sendAuthStatus(AuthenticationWebViewMessages.SIGNED_OUT);
-      }
-      static async ["updateVSCodeContext"](_0x18f442) {
-        _0x18f442 ? await this.setSignedInContext() : await this.setSignedOutContext();
-      }
-      static async ['setSignedInContext']() {
-        await vscode_module.commands.executeCommand("setContext", "traycer.isSignedOut", false);
-      }
-      static async ['setSignedOutContext']() {
-        return vscode_module.commands.executeCommand("setContext", 'traycer.isSignedOut', true);
-      }
-    };
-  }),
-  AuthStatusHandlerExports,
-  initAuthStatusHandlerExports = __esmModule(() => {
-    'use strict';
-
-    initAuthStatusHandler(), AuthStatusHandlerExports = class {
-      constructor() {
-        this.currentState = "SignedOut";
-      }
-      async ["setState"](_0x572b9b) {
-        await this.performStateTransition(_0x572b9b);
-      }
-      async ['performStateTransition'](_0x58dcd2) {
-        switch (_0x58dcd2) {
-          case "SignedOut":
-            await AuthStatusHandler.sendSignedOutMessage();
-            break;
-          case "SigningIn":
-            await AuthStatusHandler.sendSigningInMessage();
-            break;
-          case "SignedIn":
-            await AuthStatusHandler.sendSignedInMessage();
-            break;
-        }
-        this.currentState = _0x58dcd2;
-      }
-      ["isInProgress"]() {
-        return this.currentState === 'SigningIn';
-      }
-      ["isSignedOut"]() {
-        return this.currentState === 'SignedOut';
-      }
-      ["isWaitingForUserConfirmation"]() {
-        return this.currentState === 'WaitingForUserConfirmation';
-      }
-    };
-  }),
-  ContextStorageManager,
-  initContextStorageManager = __esmModule(() => {
-    'use strict';
-
-    initIDEAgentManager(), initTaskContext(), ContextStorageManager = class {
-      constructor(_0x5d3aec) {
-        this.context = _0x5d3aec;
-      }
-      ["getTokenKey"]() {
-        return config.nodeEnv === 'production' ? AUTH_TOKEN_KEY : config.nodeEnv + ':' + AUTH_TOKEN_KEY;
-      }
-      ["getLegacyTokenKey"]() {
-        return ACCESS_TOKEN_KEY;
-      }
-      async ["storeToken"](_0x3932a6) {
-        await this.context.secrets.store(this.getTokenKey(), _0x3932a6);
-      }
-      async ["getToken"]() {
-        return await this.context.secrets.get(this.getTokenKey());
-      }
-      async ["getLegacyToken"]() {
-        return await this.context.secrets.get(this.getLegacyTokenKey());
-      }
-      async ["removeLegacyToken"]() {
-        await this.context.secrets.delete(this.getLegacyTokenKey());
-      }
-      async ['deleteToken']() {
-        await this.context.secrets.delete(this.getTokenKey());
-      }
-    };
   });
-async function fetchGoogleIapToken() {
-  let _0x1f74ad = config.iapTargetAudience;
-  if (!_0x1f74ad?.["trim"]()) return Logger.warn("No target audience provided"), null;
-  let _0x4c233f = null;
-  try {
-    _0x4c233f = await new google_auth_module.GoogleAuth({
-      keyFilename: getGoogleCredentialsPath()
-    }).getClient();
-  } catch (_0xd568ff) {
-    return Logger.warn('Failed to get iap token', _0xd568ff), null;
-  }
-  try {
-    if (!_0x4c233f?.["fetchIdToken"]) return Logger.warn("Cannot fetch ID token in this environment", "Use GCE or set the GOOGLE_APPLICATION_CREDENTIALS environment variable to a service account credentials JSON file"), null;
-    let _0x42f0c4 = await _0x4c233f.fetchIdToken(_0x1f74ad).catch(_0x1f6edf => (Logger.warn('Failed to fetch IAP token', _0x1f6edf), null));
-    return Logger.debug("Fetched IAP token"), _0x42f0c4;
-  } catch (_0x43ae33) {
-    return Logger.warn("Failed to get IAP token", _0x43ae33), null;
-  }
-}
+
+/* [unbundle] TraycerCredentials dependency injection removed - auth.js now uses direct imports */
+
+var initAuthStatusHandler = __esmModule(() => {
+    'use strict';
+    initCommentNavigator();
+    AuthStatusHandler.initialize(CommentNavigator);
+  });
 var initGoogleAuth = __esmModule(() => {
     'use strict';
 
     initIDEAgentManager(), initTaskContext();
-  }),
-  ult = 'Server disconnected',
-  bT = class extends Error {
-    constructor() {
-      super('' + ult), this.name = "ServerDisconnectedError";
-    }
-  },
-  _a = class extends Error {
-    constructor(_0x46a7ec = 'Unauthorized access') {
-      super(_0x46a7ec), this.name = "UnauthorizedError";
-    }
-  },
-  lh = class extends Error {
-    constructor(_0x18b92d) {
-      super(_0x18b92d), this.name = 'NetworkError';
-    }
-  },
-  bC = class extends Error {
-    constructor(_0x19070d = "User cancelled the operation") {
-      super(_0x19070d), this.name = 'UserCancelledError';
-    }
-  },
-  RetryExecutor,
-  initRetryExecutor = __esmModule(() => {
-    'use strict';
-
-    RetryExecutor = class _0x38d06e {
-      static {
-        this.DEFAULT_RETRIES = 4;
-      }
-      static async ["executeWithRetry"](_0x25e662, _0x846566) {
-        let {
-          shouldRetry: _0x5422ec,
-          signal: _0xdb76cd
-        } = _0x846566;
-        if (_0xdb76cd?.['aborted']) throw new bC();
-        return (await p_retry_module.default)(_0x25e662, {
-          retries: _0x846566.retries,
-          signal: _0xdb76cd,
-          onFailedAttempt: _0x490a84 => {
-            if (!_0x5422ec(_0x490a84)) throw _0x490a84;
-            let _0x12ed6e = calculateRetryDelay(10, _0x490a84.attemptNumber);
-            return Logger.warn('Failed attempt ' + _0x490a84.attemptNumber + " due to error: " + _0x490a84.message + ", retrying in " + _0x12ed6e.retryAfter + "ms."), new Promise(_0x1b5f9f => setTimeout(_0x1b5f9f, _0x12ed6e.retryAfter));
-          }
-        });
-      }
-      static async ["executeTokenValidation"](_0x1ee821, _0x5a13c7) {
-        return this.executeWithRetry(_0x1ee821, {
-          retries: _0x38d06e.DEFAULT_RETRIES,
-          shouldRetry: this.shouldRetryTokenOperation,
-          signal: _0x5a13c7
-        });
-      }
-      static ["shouldRetryTokenOperation"](_0x4d9b04) {
-        return !(_0x4d9b04 instanceof _a || _0x4d9b04 instanceof bC);
-      }
-    };
-  }),
-  TokenManager,
-  initTokenValidator = __esmModule(() => {
-    'use strict';
-
-    initGoogleAuth(), initIDEAgentManager(), initTaskContext(), initRetryExecutor(), TokenManager = class {
-      constructor(_0x292285) {
-        this.authClient = _0x292285;
-      }
-      async ["validateToken"](_0x5271b0, _0x572775) {
-        return await RetryExecutor.executeTokenValidation(async () => {
-          let _0x32a19b = await this.prepareHeaders(_0x5271b0),
-            _0x2cd779 = await this.authClient.getUser(_0x32a19b);
-          if (_0x2cd779.status === 404 || _0x2cd779.status === 401) throw new _a('Failed to validate token: ' + _0x2cd779.status);
-          if (!_0x2cd779.ok) throw new lh('Failed to validate token: ' + _0x2cd779.status);
-          return await _0x2cd779.json();
-        }, _0x572775);
-      }
-      async ["validateInvoice"](_0x5f17ed) {
-        let _0x4af531 = await this.prepareHeaders(_0x5f17ed),
-          _0x146513 = await this.authClient.validateInvoice(_0x4af531);
-        if (_0x146513.status === 401) throw new _a();
-        if (!_0x146513.ok) throw new lh("Failed to validate invoice: " + _0x146513.status);
-        return await _0x146513.json();
-      }
-      async ['refreshToken'](_0x28c298, _0x4bba86) {
-        return await RetryExecutor.executeTokenValidation(async () => {
-          let _0x5382b2 = await this.prepareHeaders(_0x28c298),
-            _0x35b8da = await this.authClient.refreshToken(_0x5382b2);
-          if (_0x35b8da.status === 401) throw new _a("Failed to refresh token: " + _0x35b8da.status);
-          if (!_0x35b8da.ok) throw new lh('Failed to refresh token: ' + _0x35b8da.status);
-          return await _0x35b8da.json();
-        }, _0x4bba86);
-      }
-      async ["exchangeToken"](_0x5081f8, _0x512117) {
-        return await RetryExecutor.executeTokenValidation(async () => {
-          let _0x204cba = await this.prepareHeaders(_0x5081f8),
-            _0xfc53b9 = await this.authClient.exchangeToken(_0x204cba);
-          if (_0xfc53b9.status === 401) throw new _a("Failed to exchange token: " + _0xfc53b9.status);
-          if (!_0xfc53b9.ok) throw new lh('Failed to exchange token: ' + _0xfc53b9.status);
-          return await _0xfc53b9.json();
-        }, _0x512117);
-      }
-      async ["listAllMCPServers"](_0x4340bd) {
-        let _0x45629c = await this.prepareHeaders(_0x4340bd),
-          _0x347d8d = await this.authClient.listAllMCPServers(_0x45629c);
-        if (_0x347d8d.status === 401) throw new _a();
-        if (!_0x347d8d.ok) throw new lh("Failed to list MCP servers: " + _0x347d8d.status);
-        return await _0x347d8d.json();
-      }
-      async ['prepareHeaders'](_0x78fd79) {
-        let _0x2230d7 = null;
-        if (config.nodeEnv === 'development' && (_0x2230d7 = await fetchGoogleIapToken().catch(_0x3d17e3 => (Logger.warn("Failed to get IAP token for validation", _0x3d17e3), null)), !_0x2230d7)) throw Logger.warn('IAP token not received for validation'), new Error('Failed to get IAP token for validation');
-        let _0x54058b = new Headers();
-        return _0x2230d7 && _0x54058b.set("Proxy-Authorization", 'Bearer ' + _0x2230d7), _0x54058b.set("Authorization", 'Bearer ' + _0x78fd79), _0x54058b;
-      }
-    };
-  }),
-  initAuthModule = __esmModule(() => {
-    'use strict';
-    initAuthStatusHandlerExports(), initContextStorageManager(), initTokenValidator(), initAuthStatusHandler();
-  }),
-  TraycerCredentials,
-  initTraycerCredentials = __esmModule(() => {
-    'use strict';
-
-    initIDEAgentManager(), initTaskContext(),  initUsageTracker(), initRepoSettingsExports(), initAuthModule(), TraycerCredentials = class TraycerCredentials {
-      constructor(context, onActivation, onDeactivation) {
-        this.context = context, this._traycerUser = null, this._traycerToken = null, this.currentAuthController = null, Logger.info("Initializing Traycer credentials"), this.authClient = new TraycerApiClient(new URL(config.authnApiUrl)), this.onActivation = onActivation, this.onDeactivation = onDeactivation, this.authStateManager = new AuthStatusHandlerExports(), this.contextStorageManager = new ContextStorageManager(context), this.tokenManager = new TokenManager(this.authClient);
-      }
-      static {
-        this.SIGN_IN_COMMAND = "traycer.signIn";
-      }
-      static {
-        this.SIGN_OUT_COMMAND = "traycer.signOut";
-      }
-      async ['handleActivation'](token, user) {
-        await this.authStateManager.setState("SignedIn"), this._traycerUser = user, this._traycerToken = token, await this.contextStorageManager.storeToken(token), await AuthStatusHandler.updateVSCodeContext(user), await vscode_module.commands.executeCommand("setContext", 'traycer.enableCommands', true), await this.onActivation(), await UsageTracker.getInstance().fetchRateLimitUsage(false, true);
-      }
-      async ['handleDeactivation']() {
-        this.currentAuthController?.['abort'](), this.currentAuthController = null, await this.authStateManager.setState("SignedOut"), await this.contextStorageManager.deleteToken(), this._traycerUser = null, this._traycerToken = null, await AuthStatusHandler.updateVSCodeContext(void 0), await vscode_module.commands.executeCommand('setContext', "traycer.enableCommands", false), await this.onDeactivation();
-      }
-      get ['authnClient']() {
-        return this.authClient;
-      }
-      get ['traycerToken']() {
-        return this._traycerToken;
-      }
-      get ["traycerUser"]() {
-        return this._traycerUser;
-      }
-      async ["setupAuth"]() {
-        this.currentAuthController?.["abort"]();
-        let abortSignal = this.beginAuthOperation();
-        await this.authStateManager.setState('SigningIn'), await registerVscodeCommand(this.context, TraycerCredentials.SIGN_IN_COMMAND, async () => {
-          try {
-            await this.promptSignIn();
-          } catch (_0x28168a) {
-            Logger.error(_0x28168a, 'Error during sign in command'), this.handleDeactivation();
-            return;
-          }
-        }), await registerVscodeCommand(this.context, TraycerCredentials.SIGN_OUT_COMMAND, async () => {
-          try {
-            await this.handleDeactivation();
-          } catch (_0x360ed6) {
-            Logger.error(_0x360ed6, 'Error during sign out command');
-            return;
-          }
-        });
-        let storedToken = await this.contextStorageManager.getToken();
-        if (storedToken?.["length"]) {
-          if (await this.validateTraycerToken(storedToken, abortSignal)) return;
-          Logger.warn("Invalid tokens, removing stored tokens"), await this.contextStorageManager.deleteToken();
-        } else {
-          let legacyToken = await this.contextStorageManager.getLegacyToken();
-          if (legacyToken?.["length"]) {
-            if (await this.exchangeTraycerToken(legacyToken, abortSignal)) return;
-            await this.contextStorageManager.removeLegacyToken();
-          }
-        }
-        this.handleDeactivation();
-      }
-      async ['authenticateWithTraycerToken'](token) {
-        let abortSignal = this.beginAuthOperation();
-        (await this.validateTraycerToken(token, abortSignal)) || (await this.handleDeactivation());
-      }
-      async ['validateTraycerToken'](token, abortSignal) {
-        try {
-          let validatedUser = await this.tokenManager.validateToken(token, abortSignal);
-          return await this.handleActivation(token, validatedUser), true;
-        } catch (error) {
-          return Logger.warn("Error validating Traycer token", formatErrorToString(error)), isAbortError(error) ? false : error instanceof _a && (await this.refreshTraycerTokenInternal(token, abortSignal)) && this._traycerToken ? this.validateTraycerToken(this._traycerToken, abortSignal) : false;
-        }
-      }
-      async ["exchangeTraycerToken"](legacyToken, abortSignal) {
-        try {
-          let exchangeResult = await this.tokenManager.exchangeToken(legacyToken, abortSignal);
-          return await this.handleActivation(exchangeResult.token, exchangeResult.user), await this.contextStorageManager.removeLegacyToken(), true;
-        } catch (_0x12a302) {
-          return Logger.warn("Token exchange failed", _0x12a302), false;
-        }
-      }
-      async ['refreshTraycerToken']() {
-        let currentToken = this.traycerToken;
-        return currentToken ? this.refreshTraycerTokenInternal(currentToken, this.beginAuthOperation()) : false;
-      }
-      async ["refreshTraycerTokenInternal"](token, abortSignal) {
-        try {
-          let refreshResult = await this.tokenManager.refreshToken(token, abortSignal);
-          return await this.contextStorageManager.storeToken(refreshResult.token), this._traycerToken = refreshResult.token, true;
-        } catch (_0x33b548) {
-          return Logger.warn('Token refresh failed', _0x33b548), false;
-        }
-      }
-      async ['validateInvoice']() {
-        let user = this.traycerUser,
-          token = this.traycerToken;
-        if (!user || !token) throw new Error("Traycer user or access token not set");
-        try {
-          let usage = await this.tokenManager.validateInvoice(token);
-          user.payAsYouGoUsage = usage;
-        } catch (_0x3b5915) {
-          if (_0x3b5915 instanceof _a) {
-            if (await this.refreshTraycerTokenInternal(token, this.beginAuthOperation())) return this.validateInvoice();
-            this.handleDeactivation();
-            return;
-          }
-          throw _0x3b5915;
-        }
-      }
-      async ['listAllMCPServers']() {
-        let token = this.traycerToken;
-        if (!token) throw new Error('Traycer user or access token not set');
-        try {
-          return await this.tokenManager.listAllMCPServers(token);
-        } catch (_0x19fa96) {
-          if (_0x19fa96 instanceof _a) {
-            if (await this.refreshTraycerTokenInternal(token, this.beginAuthOperation())) return this.listAllMCPServers();
-            throw this.handleDeactivation(), new Error("Failed to list MCP servers");
-          }
-          throw _0x19fa96;
-        }
-      }
-      async ["sendAuthenticationStatus"]() {
-        return this.traycerUser && this.traycerToken ? AuthStatusHandler.sendSignedInMessage() : this.authStateManager.isInProgress() ? AuthStatusHandler.sendSigningInMessage() : AuthStatusHandler.sendSignedOutMessage();
-      }
-      ["dispose"]() {
-        this.currentAuthController?.['abort']();
-      }
-      ["beginAuthOperation"]() {
-        return this.currentAuthController?.['abort'](), this.currentAuthController = new AbortController(), this.currentAuthController.signal;
-      }
-      async ['promptSignIn']() {
-        await this.authStateManager.setState("SignedOut");
-        await this.authStateManager.setState('WaitingForUserConfirmation');
-        let selection = await vscode_module.window.showInformationMessage("Login to use Traycer", "Sign in with Traycer", "Paste token");
-        selection === "Sign in with Traycer" ? (await this.authStateManager.setState("SigningIn"), await this.openCloudUI()) : selection === "Paste token" && (await this.promptPasteToken());
-      }
-      async ['openCloudUI']() {
-        let callbackUri = WorkspaceInfoManager.getInstance().getIdeInfo().uriScheme + "://" + 'traycer.traycer-vscode' + '/' + AUTH_CALLBACK_COMMAND,
-          cloudUrl = config.cloudUIUrl + '?redirect_uri=' + encodeURIComponent(callbackUri);
-        await WorkspaceInfoManager.getInstance().openExternalLink(cloudUrl);
-      }
-      async ['promptPasteToken']() {
-        let pastedToken = await vscode_module.window.showInputBox({
-          prompt: "Paste the token copied from the browser",
-          placeHolder: "Paste the token copied from the browser",
-          ignoreFocusOut: true,
-          password: true
-        });
-        if (pastedToken && pastedToken.trim()) try {
-          if (await this.validateTraycerToken(pastedToken, this.beginAuthOperation())) return;
-        } catch (_0x5c2322) {
-          Logger.error('Error processing pasted token', _0x5c2322 instanceof Error ? _0x5c2322.message : String(_0x5c2322));
-        }
-        await this.promptSignIn();
-      }
-    };
   }),
   m2 = class extends Error {
     constructor(_0x3346da, _0xff57ae) {
@@ -12842,7 +12007,7 @@ var MAX_WRITE_RETRIES,
   initGrpcClient = __esmModule(() => {
     'use strict';
 
-    initGoogleAuth(), initGrpcMessageTracker(), initIDEAgentManager(), initTaskContext(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initTaskRunner(), initUsageTracker(), initTaskContext(), MAX_WRITE_RETRIES = streamConstants.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
+    initGoogleAuth(), initGrpcMessageTracker(), initIDEAgentManager(), initTaskContext(), initGitInfoModule(), initGitInfoExports(), initSymbolSearchHandler(), initFileReadModule(), initFileReadHandler(), initTaskRunner(), /* initUsageTracker removed */ initTaskContext(), MAX_WRITE_RETRIES = streamConstants.MAX_WRITE_RETRIES, GrpcStreamHandler = class extends StreamMessageHandler {
       constructor(_0x30dd48, _0x34bdfa) {
         super(_0x30dd48, Logger), this.grpcConnection = null, this.id = null, this.client = _0x34bdfa;
       }
@@ -12943,7 +12108,7 @@ var MAX_WRITE_RETRIES,
             'grpc.max_receive_message_length': -1,
             'grpc.max_send_message_length': -1
           });
-        return (await this.isClientConnected(_0x227875)) ? _0x227875 : (Logger.error('Failed to connect to server after 30 seconds'), Promise.reject(new bT()));
+        return (await this.isClientConnected(_0x227875)) ? _0x227875 : (Logger.error('Failed to connect to server after 30 seconds'), Promise.reject(new ServerDisconnectedError()));
       }
       async ['streamDataHandler'](_0x4858af, _0x16315d) {
         try {
@@ -13047,7 +12212,7 @@ var MAX_WRITE_RETRIES,
         let _0x53dae0 = _0x13af0f.client.getChannel().getConnectivityState(true);
         if (_0x53dae0 !== grpc_module.connectivityState.SHUTDOWN) {
           if (_0x53dae0 === grpc_module.connectivityState.TRANSIENT_FAILURE) {
-            Logger.error("Channel in transient failure state", _0x53dae0.toString()), this.rpcTracker.rejectMessage(_0x453f20, new bT());
+            Logger.error("Channel in transient failure state", _0x53dae0.toString()), this.rpcTracker.rejectMessage(_0x453f20, new ServerDisconnectedError());
             return;
           }
           _0x13af0f.client.getChannel().watchConnectivityState(_0x53dae0, 1 / 0, this.kickChannel.bind(this, _0x13af0f, _0x453f20));
@@ -13107,7 +12272,7 @@ var MAX_WRITE_RETRIES,
               } catch (_0x3cf5f7) {
                 Logger.error(_0x3cf5f7, 'Failed to send abort RPC to server');
               } finally {
-                this.rpcTracker.rejectMessage(_0x354478, new bT());
+                this.rpcTracker.rejectMessage(_0x354478, new ServerDisconnectedError());
               }
             };
             _0x54cc08.push(_0x1ff74a());
@@ -13335,11 +12500,7 @@ async function registerExtensionCommands(_0x2ed719) {
     await CommentNavigator.postToCommentNavigator(_0x1b87b4);
   }), await registerVscodeCommand(_0x2ed719, TRIGGER_MANUAL_ANALYSIS_FILE_COMMAND, triggerManualAnalysisFile), await registerVscodeCommand(_0x2ed719, TRIGGER_MANUAL_ANALYSIS_CHANGES_COMMAND, triggerManualAnalysisChanges), await registerVscodeCommand(_0x2ed719, TRIGGER_MANUAL_ANALYSIS_ALL_CHANGES_COMMAND, triggerManualAnalysisAllChanges);
 }
-var initExtensionCommands = __esmModule(() => {
-  'use strict';
 
-  initCommentNavigatorDeps();
-});
 async function registerShowTemplateErrorsCommand(_0x50b7bd) {
   await registerVscodeCommand(_0x50b7bd, SHOW_TEMPLATE_ERRORS_COMMAND, (..._0x5ead29) => {
     vscode_module.window.showErrorMessage("Template errors: " + _0x5ead29.join(', '));
@@ -13371,7 +12532,7 @@ var TicketLoadingNotifier,
   initPersistedTicketLoading = __esmModule(() => {
     'use strict';
 
-    initIDEAgentManager(), initTaskContext(),  initTaskChainManager(), initFileOperations(), initCommentNavigatorDeps(), Xg = class _0x1c824e extends BaseStorageAPI {
+    initIDEAgentManager(), initTaskContext(),  initTaskChainManager(), initFileOperations(), Xg = class _0x1c824e extends BaseStorageAPI {
       constructor(_0x21c199, _0x49d2fc) {
         super(_0x21c199, 'PersistedTicketLoading', _0x49d2fc, config.CURRENT_IMPORT_TICKET_VERSION, config.IMPORT_TICKET_SIZE), this.shouldInvalidateData = false, this.shouldInvalidateData = false;
       }
@@ -13414,7 +12575,7 @@ var TicketLoadingNotifier,
   initTaskChainManager = __esmModule(() => {
     'use strict';
 
-     initTicketLoadingNotifier(), initAnalytics(), initPersistedTicketLoading(), initTaskRunner(), initCommentNavigatorDeps(), Nh = class _0x21dae1 {
+     initTicketLoadingNotifier(), initPersistedTicketLoading(), initTaskRunner(), Nh = class _0x21dae1 {
       constructor(_0xaabdf) {
         this.client = _0xaabdf, this.uiNotifier = new TicketLoadingNotifier();
       }
@@ -13619,33 +12780,6 @@ var initTaskChainCommands = __esmModule(() => {
       }
     };
   }),
-  UriCommandHandler,
-  initMigrationLogger = __esmModule(() => {
-    'use strict';
-
-    UriCommandHandler = class {
-      async ["handleUri"](_0x416157) {
-        if (_0x416157.scheme !== vscode_module.env.uriScheme) return;
-        let _0x20eab0 = _0x416157.path.slice(1),
-          _0x1ec280 = _0x416157.query.split('&');
-        switch (_0x20eab0) {
-          case COMMAND_IDS.OPEN_SETTINGS:
-          case COMMAND_IDS.IMPORT_TICKET:
-            await this.triggerCommand(_0x20eab0, _0x1ec280);
-            break;
-          case COMMAND_IDS.AUTH_CALLBACK:
-            await AuthCallbackHandler.getInstance().handleAuthCallback(_0x416157);
-            break;
-          default:
-            Logger.warn('Unsupported command on URI handler: ' + _0x20eab0);
-            break;
-        }
-      }
-      async ['triggerCommand'](_0x25dc15, _0xc592a8) {
-        return vscode_module.commands.executeCommand(_0x25dc15, ..._0xc592a8);
-      }
-    };
-  }),
   ConfigWatcher,
   initConfigWatcher = __esmModule(() => {
     'use strict';
@@ -13778,47 +12912,6 @@ var initTaskChainCommands = __esmModule(() => {
       }
     };
   }),
-  TabChangeWatcher,
-  initFileSystemProviders = __esmModule(() => {
-    'use strict';
-
-    TabChangeWatcher = class {
-      activate(context) {
-        this.tabChangeWatcher = vscode_module.window.tabGroups.onDidChangeTabs(event => {
-          this.handleTabChangeEvent(event);
-        }), context.subscriptions.push(this.tabChangeWatcher);
-      }
-      deactivate() {
-        this.tabChangeWatcher?.dispose();
-      }
-      handleTabChangeEvent(tabChangeEvent) {
-        tabChangeEvent.closed.forEach(closedTab => {
-          let tabUri = closedTab.input?.uri;
-          tabUri instanceof vscode_module.Uri && MediaFileSystem.getInstance().delete(tabUri);
-          let tabInput = closedTab.input;
-          tabInput?.textDiffs?.length && tabInput.textDiffs.forEach(textDiff => {
-            !(textDiff?.modified instanceof vscode_module.Uri) || !(textDiff?.original instanceof vscode_module.Uri) || (EditableFileSystem.getInstance().delete(textDiff.modified), TraycerFileSystem.getInstance().delete(textDiff.original));
-          });
-        });
-      }
-    };
-  }),
-  WorkspaceWatcher,
-  initWorkspaceWatcher = __esmModule(() => {
-    'use strict';
-
-     WorkspaceWatcher = class {
-      ['activate'](_0x5514e4) {
-        this.workspaceChangeWatcher = vscode_module.workspace.onDidChangeWorkspaceFolders(_0x5251fa => this.handleWorkspaceChange()), _0x5514e4.subscriptions.push(this.workspaceChangeWatcher);
-      }
-      ["deactivate"]() {
-        this.workspaceChangeWatcher?.['dispose']();
-      }
-      async ["handleWorkspaceChange"]() {
-        FilePathHandler.getInstance().clearCache(), WorkspaceInfoManager.getInstance().invalidateWSInfo();
-      }
-    };
-  }),
   TraycerWebLinks = {
     mainWebsite: 'https://traycer.ai',
     mainWebsitePricing: "https://traycer.ai/#pricing1",
@@ -13881,7 +12974,7 @@ async function initializeExtensionWithAuth(vscode_context) {
   config.version = vscode_context.extension.packageJSON.version;
   // setSentryTag('Traycer Version', config.version);
   let _0x17e4bf = async () => {
-      Logger.debug('Initializing Traycer subscriptions'), await H_.getInstance().sendWorkspaceStatus(), disposables.length || (await initializeExtensionServices(vscode_context, _0x2feb83));
+      Logger.debug('Initializing Traycer subscriptions'), await WorkspaceHandler.getInstance().sendWorkspaceStatus(), disposables.length || (await initializeExtensionServices(vscode_context, _0x2feb83));
     },
     _0x41b689 = async () => {
       Logger.debug('Disposing Traycer subscriptions'), vscode_module.Disposable.from(...disposables).dispose(), disposables = [];
@@ -13891,7 +12984,7 @@ async function initializeExtensionWithAuth(vscode_context) {
   let _0x1655f7 = vscode_module.window.registerUriHandler(new UriCommandHandler());
   vscode_context.subscriptions.push(_0x1655f7), extensionContext = _0x2feb83;
   let _0x39ac3c = CommentNavigator.getInstance(vscode_context, _0x2feb83);
-  await H_.getInstance().sendWorkspaceStatus(), (vscode_module.workspace.workspaceFolders?.['length'] ?? 0) !== 0 && (vscode_context.subscriptions.push(_0x39ac3c), _0x2feb83.setupAuth().catch(_0x3728ea => {
+  await WorkspaceHandler.getInstance().sendWorkspaceStatus(), (vscode_module.workspace.workspaceFolders?.['length'] ?? 0) !== 0 && (vscode_context.subscriptions.push(_0x39ac3c), _0x2feb83.setupAuth().catch(_0x3728ea => {
     Logger.error(_0x3728ea, "Failed to activate Traycer"), vscode_module.Disposable.from(...disposables).dispose(), disposables = [];
   }));
 }
@@ -14043,7 +13136,7 @@ async function initializeExtensionServices(context, authState_local) {
   config.activated = true;
 
   // 发送扩展激活状态
-  await S0.sendExtensionActivationStatus();
+  await ExtensionActivationHandler.sendExtensionActivationStatus();
 }
 function loadLastSelectedAgent(_0x144cda) {
   let _0x466f4e = _0x144cda.globalState.get(LAST_SELECTED_IDE_AGENT_KEY);
@@ -14103,7 +13196,7 @@ var disposables,
   initExtension = __esmModule(() => {
     'use strict';
 
-    initTraycerCredentials(), initGrpcClient(), initExtensionCommands(), initTaskChainCommands(), initIDEAgentManager(), initTaskContext(), initTaskChainManager(), initAnalytics(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initTaskRunner(), initTemplateManager(), initMigrationLogger(), initUsageTracker(), initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initFileSystemProviders(), initWorkspaceWatcher(), initCommentNavigatorDeps(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(),  initTaskContext(), disposables = [], extensionContext = null;
+    initAuthStatusHandler(), initGrpcClient(), initTaskChainCommands(), initIDEAgentManager(), initTaskContext(), initTaskChainManager(), initSnippetContextProvider(), initGoParser(), initJavaScriptParser(), initPythonParser(), initRustParser(), initTypeScriptParserExports(), initTypeScriptParser(), initPersistenceManager(), initTaskRunner(), initTemplateManager(), /* initUsageTracker removed */ initConfigWatcher(), initDocsWatcher(), initFileWatcher(), initCliAgentHandler(), initTaskSettingsHandler(), initUsageInfoHandler(), initTrackMetricsHandler(),  initTaskContext(), disposables = [], extensionContext = null;
   }),
   sSt = {};
 __export(sSt, {

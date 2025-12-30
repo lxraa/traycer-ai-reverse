@@ -101,3 +101,4 @@ sorted.forEach(([name, info]) => {
 console.log(`\n找到 ${sorted.length} 个可能需要重命名的符号`);
 console.log(`已跳过 ${alreadyRenamed.size} 个已在映射中的符号`);
 
+
