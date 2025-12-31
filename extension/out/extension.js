@@ -39,8 +39,15 @@ const {
   TemplateInvalidMetadataError,
   TemplateFileAlreadyExistsError,
   PromptMetadata,
-  TemplateFileBase
+  TemplateFileBase,
+  GenericTemplate,
+  UserQueryTemplate,
+  PlanTemplate,
+  ReviewTemplate,
+  VerificationTemplate,
+  TemplateNotFoundError
 } = require("./modules/prompt_template.js");
+const { PromptTemplateFactory } = require("./modules/prompt_template_factory.js");
 const path_module = {
   default: require("path"),
   ...require("path")
@@ -235,6 +242,33 @@ const {
   TraycerPath
 } = require("./modules/path_types.js");
 const {
+  PlanStepManager,
+  PlanConversation,
+  UserQueryMessage,
+  BasePlanOutput,
+  ImplementationPlanOutput,
+  PlanOutputWithReview,
+  PlanOutputFactory,
+  ImplementationPlanNotFoundError,
+  ReviewOutputNotFoundError,
+  InvalidPlanOutputError,
+  ArtifactType,
+  CustomSet,
+  PlanConversationStorageAPI,
+  PlanConversationStorageAdapter,
+  parseUserQueryContent,
+  parseAndFormatUserQuery,
+  parseAndEnrichUserQuery,
+  formatVerificationResult,
+  enrichAttachmentContext,
+  resolveGitMentions,
+  getUncommittedFileDeltas,
+  searchFoldersWithRipgrep,
+  listDirectoryWithAgentsMd,
+  isPathContainedInDirectories,
+  getAgentsMdContent
+} = require("./modules/plan.js");
+const {
   ClineHandler,
   KiloCodeHandler,
   RooCodeHandler,
@@ -399,28 +433,13 @@ var HttpStatusError = class extends Error {
       super(errorMessage);
     }
   },
-  UNSUPPORTED_IMAGE_ERROR_MSG = "Attached image is not supported.",
-  SUPPORTED_IMAGE_TYPES_STRING = Array.from(IMAGE_MIME_TYPES.keys()).join(', '),
-  UnsupportedImageTypeError = class extends Error {
-    constructor(imageType) {
-      super(UNSUPPORTED_IMAGE_ERROR_MSG + ' ' + imageType + ". Supported types are " + SUPPORTED_IMAGE_TYPES_STRING + '.'), this.name = 'UnsupportedImageTypeError';
-    }
-  },
+  
   UserAbortedError = class extends Error {
     constructor(abortMessage = "User aborted") {
       super(abortMessage), this.name = 'UserAbortedError';
     }
   },
-  REQUEST_ABORTED_ERROR_NAME = "RequestAbortedError",
-  RequestAbortedError = class extends Error {
-    ["reason"];
-    constructor(abortReason) {
-      super('Request aborted: ' + abortReason), this.reason = abortReason, this.name = REQUEST_ABORTED_ERROR_NAME;
-    }
-    static ['matches'](errorToCheck) {
-      return errorToCheck instanceof Error && errorToCheck.name === REQUEST_ABORTED_ERROR_NAME;
-    }
-  },
+  
   StreamCloseReason = {
     USER_ABORT: 0,
     PING_WRITE_FAILURE: 1,
@@ -444,49 +463,7 @@ function ensureBuffer(inputData) {
   }
   return Buffer.from(inputData);
 }
-class CustomSet {
-  ['items'] = [];
-  ["equals"];
-  constructor(equalsFn, initialItems) {
-    if (this.equals = equalsFn, this.items = [], initialItems && initialItems.length > 0) {
-      for (let key of initialItems) this.add(key);
-    }
-  }
-  ["add"](_0x30372c) {
-    this.has(_0x30372c) || this.items.push(_0x30372c);
-  }
-  ['has'](_0xc781ff) {
-    return this.items.some(_0xeba538 => this.equals(_0xeba538, _0xc781ff));
-  }
-  ["values"]() {
-    return [...this.items];
-  }
-  ['union'](otherSet) {
-    let resultSet = new CustomSet(this.equals);
-    return this.values().forEach(thisItem => resultSet.add(thisItem)), otherSet.values().forEach(otherItem => resultSet.add(otherItem)), resultSet;
-  }
-  ['intersection'](otherSet) {
-    let resultSet = new CustomSet(this.equals);
-    return this.values().forEach(itemToCheck => {
-      otherSet.has(itemToCheck) && resultSet.add(itemToCheck);
-    }), resultSet;
-  }
-  ['difference'](otherSet) {
-    let resultSet = new CustomSet(this.equals);
-    return this.values().forEach(itemToCheck => {
-      otherSet.has(itemToCheck) || resultSet.add(itemToCheck);
-    }), resultSet;
-  }
-  ['isSubsetOf'](superSet) {
-    return this.values().every(itemToCheck => superSet.has(itemToCheck));
-  }
-  ['clear']() {
-    this.items = [];
-  }
-  get ["size"]() {
-    return this.items.length;
-  }
-}
+
 
 // [unbundle] LineRange, createCodeSnippetFromRange, mergeOverlappingLineRanges, FileContent 等已移至 language_parser.js
 
@@ -615,143 +592,7 @@ function formatPlanName(_0x2aa6c9, _0x497a89, _0x4ce2d4) {
   let _0x1ca706 = _0x2aa6c9 ? _0x497a89 : 'Business ' + _0x497a89;
   return _0x4ce2d4 ? _0x1ca706 + ' (Trial)' : _0x1ca706;
 }
-function parseUserQueryContent(_0x4e3d49, _0x2960d1) {
-  let _0x50343a = {
-      userQuery: '',
-      userQueryWithMentions: '',
-      sourceContext: {
-        files: [],
-        directories: [],
-        detectedRuleFiles: [],
-        ticketReference: null,
-        attachments: [],
-        gitDiffs: []
-      },
-      githubTicketRef: null,
-      attachments: [],
-      gitMentions: []
-    },
-    _0x66f191 = [];
-  function _0x54fb15(_0x5e69bc) {
-    if (_0x5e69bc.type === 'paragraph') {
-      let _0x78978b = _0x50343a.userQuery.endsWith('\x0a') && _0x50343a.userQueryWithMentions.endsWith('\x0a');
-      _0x50343a.userQuery.length > 0 && !_0x78978b && (_0x50343a.userQuery += '\x0a', _0x50343a.userQueryWithMentions += '\x0a'), _0x5e69bc.content && _0x5e69bc.content.forEach(_0x54fb15), _0x50343a.userQuery += '\x0a', _0x50343a.userQueryWithMentions += '\x0a';
-      return;
-    }
-    if (_0x5e69bc.type === "text" && _0x5e69bc.text && (_0x50343a.userQuery += _0x5e69bc.text, _0x50343a.userQueryWithMentions += _0x5e69bc.text), _0x5e69bc.type === "hardBreak" && (_0x50343a.userQuery += '\x0a', _0x50343a.userQueryWithMentions += '\x0a'), _0x5e69bc.type === 'blockquote') {
-      let _0x2a7f29 = [];
-      _0x5e69bc.content && _0x5e69bc.content.forEach(_0x240971 => {
-        let _0x1f5b50 = '',
-          _0x4a5067 = _0x26a6fd => {
-            _0x26a6fd.type === "text" && _0x26a6fd.text ? _0x1f5b50 += _0x26a6fd.text : _0x26a6fd.content && _0x26a6fd.content.forEach(_0x4a5067);
-          };
-        _0x4a5067(_0x240971), _0x2a7f29.push(_0x1f5b50);
-      });
-      let _0x37455c = _0x2a7f29.join('\x0a');
-      _0x50343a.userQuery += '\x0a<user_quoted_section>' + _0x37455c + '</user_quoted_section>\x0a', _0x50343a.userQueryWithMentions += _0x37455c;
-      return;
-    }
-    if (_0x5e69bc.type === "mention" && _0x5e69bc.attrs) {
-      let _0x2a66a7, _0x527c1a;
-      switch (_0x5e69bc.attrs.contextType) {
-        case 'file':
-        case "folder":
-          {
-            _0x2a66a7 = {
-              absolutePath: _0x5e69bc.attrs.id,
-              isDirectory: _0x5e69bc.attrs.contextType === "folder"
-            }, _0x527c1a = FilePath.getAbsolutePath(_0x2a66a7, _0x2960d1), _0x50343a.userQuery += '`' + _0x527c1a + '`', _0x66f191.push({
-              filename: '@' + (_0x5e69bc.attrs.label ?? _0x5e69bc.attrs.id),
-              fullPath: '`' + _0x527c1a + '`'
-            }), _0x5e69bc.attrs.contextType === 'file' ? (_0x50343a.sourceContext.files?.['push']({
-              path: _0x2a66a7,
-              content: '',
-              range: null,
-              diagnostics: []
-            }), _0x50343a.userQueryWithMentions += '@' + _0x5e69bc.attrs.label) : (_0x50343a.sourceContext.directories?.["push"]({
-              path: _0x2a66a7,
-              filePaths: [],
-              subDirectories: []
-            }), _0x50343a.userQueryWithMentions += '@' + _0x5e69bc.attrs.id);
-            break;
-          }
-        case "phase":
-          {
-            let _0xa1e769 = _0x5e69bc.attrs.phaseId || _0x5e69bc.attrs.label;
-            _0x50343a.userQuery += '@phase:' + _0xa1e769, _0x66f191.push({
-              filename: '@phase:' + _0xa1e769,
-              fullPath: '@phase:' + _0xa1e769
-            }), _0x50343a.userQueryWithMentions += "@phase:" + _0xa1e769;
-            break;
-          }
-        case "review_comment":
-          {
-            let _0x192e96 = _0x5e69bc.attrs.reviewCommentId || _0x5e69bc.attrs.label;
-            _0x50343a.userQuery += "@review-comment:" + _0x192e96, _0x66f191.push({
-              filename: '@review-comment:' + _0x192e96,
-              fullPath: '@review-comment:' + _0x192e96
-            }), _0x50343a.userQueryWithMentions += "@review-comment:" + _0x192e96;
-            break;
-          }
-        case "github_issue":
-          _0x50343a.githubTicketRef = {
-            organizationLogin: _0x5e69bc.attrs.organizationLogin,
-            repositoryName: _0x5e69bc.attrs.repositoryName,
-            issueNumber: _0x5e69bc.attrs.issueNumber,
-            userLogin: _0x5e69bc.attrs.userLogin
-          }, _0x50343a.userQuery += '`' + _0x5e69bc.attrs.label + '`', _0x66f191.push({
-            filename: '@' + _0x5e69bc.attrs.label,
-            fullPath: '`' + _0x5e69bc.attrs.label + '`'
-          }), _0x50343a.userQueryWithMentions += '@' + _0x5e69bc.attrs.label;
-          break;
-        case "attachment":
-          _0x50343a.userQuery += '`' + _0x5e69bc.attrs.label + '`', _0x66f191.push({
-            filename: '@' + _0x5e69bc.attrs.label,
-            fullPath: '`' + _0x5e69bc.attrs.label + '`'
-          }), _0x50343a.userQueryWithMentions += '@' + _0x5e69bc.attrs.label, _0x5e69bc.attrs.b64content && _0x5e69bc.attrs.fileName && _0x50343a.attachments.push({
-            file: {
-              b64content: _0x5e69bc.attrs.b64content,
-              fileName: _0x5e69bc.attrs.fileName
-            }
-          });
-          break;
-        case 'git':
-          {
-            let _0x54fa81 = _0x5e69bc.attrs.gitType,
-              _0x43bd4d = _0x5e69bc.attrs.branchName,
-              _0x11ae8c = _0x5e69bc.attrs.commitHash,
-              _0x37324c = "@git:diff-against";
-            _0x43bd4d ? _0x37324c += ":branch@" + _0x43bd4d : _0x11ae8c ? _0x37324c += ':commit@' + _0x11ae8c : _0x37324c += ":uncommitted-changes", _0x50343a.userQuery += _0x37324c, _0x66f191.push({
-              filename: _0x37324c,
-              fullPath: _0x37324c
-            }), _0x50343a.userQueryWithMentions += _0x37324c, _0x50343a.gitMentions.push({
-              gitType: _0x54fa81,
-              branchName: _0x43bd4d,
-              commitHash: _0x11ae8c
-            });
-            break;
-          }
-        default:
-          throw new Error("Unknown context type: " + _0x5e69bc.attrs.contextType);
-      }
-    }
-    _0x5e69bc.content && _0x5e69bc.content.forEach(_0x54fb15);
-  }
-  if (_0x4e3d49.content && _0x4e3d49.content.forEach(_0x54fb15), _0x4e3d49.traycerMarkdown) {
-    let _0x5a8318 = _0x4e3d49.traycerMarkdown;
-    if (/\[mention\]/.test(_0x5a8318)) {
-      let _0x146efa = 0;
-      _0x50343a.userQuery = _0x5a8318.replace(/\[mention\]/g, () => {
-        let _0x446c09 = _0x66f191[_0x146efa];
-        return _0x146efa += 1, _0x446c09 ? _0x446c09.fullPath : "[mention]";
-      }), _0x146efa = 0, _0x50343a.userQueryWithMentions = _0x5a8318.replace(/\[mention\]/g, () => {
-        let _0x251f62 = _0x66f191[_0x146efa];
-        return _0x146efa += 1, _0x251f62 ? _0x251f62.filename : '[mention]';
-      });
-    } else _0x50343a.userQuery.trim().length === 0 && (_0x50343a.userQuery = _0x5a8318), _0x50343a.userQueryWithMentions.trim().length === 0 && (_0x50343a.userQueryWithMentions = _0x5a8318);
-  }
-  return _0x50343a.userQuery = _0x50343a.userQuery.trim(), _0x50343a.userQueryWithMentions = _0x50343a.userQueryWithMentions.trim(), _0x50343a.sourceContext.files = new CustomSet((_0x5e7a12, _0x1bd341) => FilePath.getAbsolutePath(_0x5e7a12.path, _0x2960d1) === FilePath.getAbsolutePath(_0x1bd341.path, _0x2960d1), [..._0x50343a.sourceContext.files]).values(), _0x50343a.sourceContext.directories = new CustomSet((_0x58a05f, _0x256672) => FilePath.getAbsolutePath(_0x58a05f.path, _0x2960d1) === FilePath.getAbsolutePath(_0x256672.path, _0x2960d1), [..._0x50343a.sourceContext.directories]).values(), _0x50343a;
-}
+
 function spliceIntoDocContent(_0x206a3b, _0x42a599, _0x3a5d0e) {
   let _0x50b145 = _0x206a3b.content ? [..._0x206a3b.content] : [],
     _0xc71353 = _0x3a5d0e !== void 0 ? Math.max(0, Math.min(_0x3a5d0e, _0x50b145.length)) : _0x50b145.length;
@@ -778,6 +619,7 @@ var createUuid = createUuidWithFallback;
 
 // [unbundle] 注入 createUuid 函数到 task_migrators 模块
 setCreateUuid(createUuidWithFallback);
+
 var streamConstants = {
   QUEUE_CAPACITY: 512,
   HIGH_WATER_MARK: 512,
@@ -1105,14 +947,7 @@ function getContextFilePath(_0xbe0463) {
   }
   return false;
 }
-function formatContextFileContent(_0x6b6682) {
-  if (_0x6b6682.file?.["b64content"]) {
-    let _0x2f6258 = path_module.extname(_0x6b6682.file.fileName);
-    if (IMAGE_MIME_TYPES.has(_0x2f6258.toLowerCase())) {
-      if (_0x6b6682.file.b64content.length > MAX_FILE_SIZE) throw new Error("Attached image " + _0x6b6682.file.fileName + " is too large. Maximum size is " + MAX_FILE_SIZE + " bytes.");
-    } else throw new UnsupportedImageTypeError(_0x6b6682.file.fileName);
-  }
-}
+
 function parseGitignoreContent(_0x58b03f) {
   let _0x318b0b = {
     iVBORw0KGgo: 'image/png',
@@ -1323,25 +1158,7 @@ async function formatCodeBlockContent(_0xaeb101, _0x36e209, _0x4fbe28, _0xb33b6,
     matchingFileSnippets: await _0xcd99b2(_0x3c19f5, _0xb33b6.proto, _0x11d8e6)
   };
 }
-async function searchFoldersWithRipgrep(_0x10d4d2, _0x249521, _0x1d3546, _0x4ffec6 = 50, _0x1850be = true) {
-  let _0x1ff9c5 = await config.getRipgrepBinPath();
-  if (!_0x1ff9c5) throw new Error('ripgrep binary not found');
-  if (!(await WorkspaceInfoManager.getInstance().fileExists(_0x10d4d2))) return Logger.warn("Path to list folders in does not exist", _0x10d4d2), [];
-  let _0x17afb1 = isWindows ? ['-o', "^.*\\\\"] : ['-o', "'^.*/'"],
-    _0x1f39ac = [...DEFAULT_RG_ARGS];
-  _0x1850be || _0x1f39ac.push('--max-depth', '2');
-  let _0x547294 = new RipgrepCommandBuilder(_0x1ff9c5).withAdditionalArgs(_0x1f39ac).build(),
-    _0x4f4b02 = new RipgrepCommandBuilder(_0x1ff9c5).withAdditionalArgs(_0x17afb1).build(),
-    _0x40281f = new RipgrepCommandBuilder(_0x1ff9c5).withCaseInsensitive().withQuery(_0x249521).build(),
-    _0x23e87e = isWindows ? ["sort", "/unique"] : ["sort", '-u', '-f'],
-    _0x13e594 = new RipgrepCommandBuilder(_0x1ff9c5).withMaxResults(_0x4ffec6).withCaseInsensitive().withQuery('').build(),
-    _0x262355 = [_0x547294, _0x4f4b02, _0x40281f, _0x23e87e, _0x13e594];
-  return (await RipgrepExecutor.execute(_0x262355, {
-    cwd: _0x10d4d2,
-    timeout: MAX_SEARCH_RESULTS,
-    abortSignal: _0x1d3546?.['signal']
-  })).trim().replaceAll('\x0d', '\x0a').split('\x0a').filter(Boolean);
-}
+
 async function searchFilesAndFoldersInWorkspace(_0x41dcf1, _0x326761, _0x438a88) {
   let _0x5aa40f = {
       files: [],
@@ -1470,10 +1287,6 @@ var SymbolQueryType = {
     MODIFIED_PHASE: 1,
     UNCHANGED_PHASE: 2
   },
-  ArtifactType = {
-    IMPLEMENTATION_ARTIFACT: 0,
-    REVIEW_ARTIFACT: 1
-  },
   QueryType = {
     EXPLANATION: 0,
     ITERATION: 1
@@ -1494,6 +1307,7 @@ var SymbolQueryType = {
     RESOLVED: 1,
     OUTDATED: 2
   };
+
 async function readFilesWithSummary(_0x14bfc8, _0x5b961d) {
   let _0x3a46ec = new CustomSet((_0x50d723, _0x45e05a) => TraycerPath.equals(_0x50d723, _0x45e05a), _0x14bfc8).values(),
     _0x1bbcec = await LlmCacheHandler.getInstance(),
@@ -1767,14 +1581,7 @@ var DatabaseTransactionWrapper,
     initIDEAgentManager(), initTaskContext(), initFileOperations(), initRepoMappingMigrator();
   });
 
-async function getGitRootPath(_0x1783be) {
-  try {
-    let [_0x27af39, _0x4a7964] = await getGitRootAndRelativePath(_0x1783be);
-    return await executeGitCommand("show HEAD:" + _0x4a7964, _0x27af39, false);
-  } catch (_0x11e2e5) {
-    return Logger.debug("Failed to get file contents", _0x11e2e5), '';
-  }
-}
+
 async function getGitRemoteUrl(_0x1c516d) {
   try {
     let [_0xee287f] = await getGitRootAndRelativePath(_0x1c516d);
@@ -1837,247 +1644,10 @@ async function getGitDiff(_0x383d51, _0xe0d4ca = 50) {
     return Logger.debug("Failed to get recent commits", _0x101427), [];
   }
 }
-function parseGitStatusCode(_0x2a340d) {
-  if (_0x2a340d.length !== 2) return Logger.debug('Invalid git status code length: ' + _0x2a340d), GitFileStatus.UNKNOWN_STATUS;
-  let _0x2a22f0 = _0x2a340d[0],
-    _0x373619 = _0x2a340d[1];
-  return _0x2a340d === '??' ? GitFileStatus.UNTRACKED : _0x2a340d === '!!' ? GitFileStatus.IGNORED : _0x2a340d === 'DD' ? GitFileStatus.BOTH_DELETED : _0x2a340d === 'AU' ? GitFileStatus.ADDED_BY_US : _0x2a340d === 'UD' ? GitFileStatus.DELETED_BY_THEM : _0x2a340d === 'UA' ? GitFileStatus.ADDED_BY_THEM : _0x2a340d === 'DU' ? GitFileStatus.DELETED_BY_US : _0x2a340d === 'AA' ? GitFileStatus.BOTH_ADDED : _0x2a340d === 'UU' ? GitFileStatus.BOTH_MODIFIED : _0x2a22f0 === 'M' ? GitFileStatus.INDEX_MODIFIED : _0x2a22f0 === 'A' ? GitFileStatus.INDEX_ADDED : _0x2a22f0 === 'D' ? GitFileStatus.INDEX_DELETED : _0x2a22f0 === 'R' ? GitFileStatus.INDEX_RENAMED : _0x2a22f0 === 'C' ? GitFileStatus.INDEX_COPIED : _0x2a22f0 === 'T' ? GitFileStatus.TYPE_CHANGED : _0x2a22f0 === 'I' ? GitFileStatus.INTENT_TO_ADD : _0x373619 === 'M' ? GitFileStatus.MODIFIED : _0x373619 === 'D' ? GitFileStatus.DELETED : _0x373619 === 'T' ? GitFileStatus.TYPE_CHANGED : (Logger.debug("Unrecognized git status code: " + _0x2a340d), GitFileStatus.UNKNOWN_STATUS);
-}
-function parseGitStatusOutput(_0x318e91) {
-  let _0x178f91 = [],
-    _0x12ff83 = _0x318e91.split('\x0a');
-  for (let key of _0x12ff83) {
-    if (key.length === 0) continue;
-    if (key.length < 3) {
-      Logger.debug('Invalid git status line: ' + key);
-      continue;
-    }
-    let _0x3a7522 = key.substring(0, 2),
-      _0x571797 = key.substring(3),
-      _0x27129e;
-    if (_0x571797.includes(" -> ")) {
-      let _0x370a80 = _0x571797.split(' -> ');
-      _0x370a80.length === 2 && (_0x27129e = _0x370a80[0].trim(), _0x571797 = _0x370a80[1].trim(), _0x27129e.startsWith('\x22') && _0x27129e.endsWith('\x22') && (_0x27129e = _0x27129e.slice(1, -1)));
-    }
-    _0x571797.startsWith('\x22') && _0x571797.endsWith('\x22') && (_0x571797 = _0x571797.slice(1, -1));
-    let _0x273a2d = parseGitStatusCode(_0x3a7522);
-    _0x178f91.push({
-      filePath: _0x571797,
-      status: _0x273a2d,
-      previousPath: _0x27129e
-    });
-  }
-  return _0x178f91;
-}
-function parseDiffStatusChar(_0x2072d3) {
-  switch (_0x2072d3) {
-    case 'A':
-      return GitFileStatus.INDEX_ADDED;
-    case 'M':
-      return GitFileStatus.MODIFIED;
-    case 'D':
-      return GitFileStatus.DELETED;
-    case 'R':
-      return GitFileStatus.INDEX_RENAMED;
-    case 'C':
-      return GitFileStatus.INDEX_COPIED;
-    case 'T':
-      return GitFileStatus.TYPE_CHANGED;
-    case 'U':
-      return GitFileStatus.BOTH_MODIFIED;
-    default:
-      return Logger.debug('Unrecognized diff status: ' + _0x2072d3), GitFileStatus.UNKNOWN_STATUS;
-  }
-}
-function parseDiffNameStatus(_0x2736d7) {
-  let _0x198f29 = [],
-    _0xf8064d = _0x2736d7.split('\x0a');
-  for (let key of _0xf8064d) {
-    let _0x5954cf = key.trim();
-    if (_0x5954cf.length === 0) continue;
-    let _0x4f2cd7 = _0x5954cf.split('\x09');
-    if (_0x4f2cd7.length < 2) {
-      Logger.debug('Invalid diff name-status line: ' + _0x5954cf);
-      continue;
-    }
-    let _0x7b16c2 = _0x4f2cd7[0].charAt(0),
-      _0x4e6aab,
-      _0x2b5fc7;
-    (_0x7b16c2 === 'R' || _0x7b16c2 === 'C') && _0x4f2cd7.length >= 3 ? (_0x2b5fc7 = _0x4f2cd7[1], _0x4e6aab = _0x4f2cd7[2]) : _0x4e6aab = _0x4f2cd7[1], _0x198f29.push({
-      filePath: _0x4e6aab,
-      status: _0x7b16c2,
-      previousPath: _0x2b5fc7
-    });
-  }
-  return _0x198f29;
-}
-async function createFileChangeInfo(_0x448c75, _0x28031d, _0x303c2d, _0x17d22b, _0xdf0606, _0x12c99d, _0x87bd67) {
-  let _0x13174d = await TraycerPath.fromPath(path_module.join(_0x448c75, _0x28031d)),
-    _0x23dfa9 = _0x87bd67 ? await TraycerPath.fromPath(path_module.join(_0x448c75, _0x87bd67)) : void 0;
-  return {
-    currentPath: _0x13174d.proto,
-    currentFileContent: _0xdf0606,
-    previousFileContent: _0x12c99d,
-    previousPath: _0x23dfa9?.["proto"],
-    diff: _0x303c2d,
-    gitStatus: _0x17d22b
-  };
-}
-async function getFileContentAtRef(_0x4a84f0, _0x4fe54b, _0x38e9c4) {
-  try {
-    let [_0x52c7af] = await getGitRootAndRelativePath(_0x4a84f0);
-    return await executeGitCommand('show ' + _0x4fe54b + ':' + _0x38e9c4, _0x52c7af, false);
-  } catch (_0x59d559) {
-    return Logger.debug('Failed to get file content at ref', {
-      error: _0x59d559,
-      ref: _0x4fe54b,
-      filePath: _0x38e9c4
-    }), '';
-  }
-}
-function createNewFileDiff(_0x333ef9, _0x32eabf) {
-  if (!_0x333ef9) return '';
-  let _0x59f31f = _0x333ef9.split('\x0a'),
-    _0x2c2b9d = ["--- /dev/null", '+++ b/' + _0x32eabf, '@@ -0,0 +1,' + _0x59f31f.length + " @@"];
-  for (let key of _0x59f31f) _0x2c2b9d.push('+' + key);
-  return _0x2c2b9d.join('\x0a');
-}
-async function createFileDeltaFromStatus(_0x1e821c, _0x132241, _0x462b16, _0x336590, _0x52e6f7) {
-  try {
-    if (_0x336590 === GitFileStatus.UNTRACKED) return await createUntrackedFileDiff(_0x1e821c, _0x462b16);
-    let _0x2f5f0f = path_module.join(_0x1e821c, _0x462b16),
-      _0x567180 = '';
-    try {
-      _0x567180 = await DocumentManager.getSourceCode(_0x2f5f0f);
-    } catch (_0x23ebc6) {
-      Logger.debug('Failed to get current file content', {
-        error: _0x23ebc6,
-        filePath: _0x462b16
-      });
-    }
-    let _0x4ab882;
-    if (_0x336590 !== GitFileStatus.DELETED && _0x336590 !== GitFileStatus.INDEX_DELETED) {
-      let _0x17e942 = _0x52e6f7 || _0x462b16,
-        _0x426d52 = vscode_module.Uri.file(path_module.join(_0x1e821c, _0x17e942));
-      _0x4ab882 = await getGitRootPath(_0x426d52);
-    }
-    let _0x2cc5d2 = '';
-    try {
-      _0x336590 === GitFileStatus.DELETED || _0x336590 === GitFileStatus.INDEX_DELETED ? _0x2cc5d2 = await executeGitCommand('diff HEAD -- \x22' + _0x462b16 + '\x22', _0x1e821c, false) : _0x336590 === GitFileStatus.INDEX_RENAMED && _0x52e6f7 ? _0x2cc5d2 = await executeGitCommand("diff HEAD -- \"" + _0x52e6f7 + '\x22 \x22' + _0x462b16 + '\x22', _0x1e821c, false) : _0x2cc5d2 = await executeGitCommand("diff HEAD -- \"" + _0x462b16 + '\x22', _0x1e821c, false);
-    } catch (_0x185dd1) {
-      Logger.debug('Failed to generate diff', {
-        error: _0x185dd1,
-        filePath: _0x462b16
-      }), _0x2cc5d2 = '';
-    }
-    return createFileChangeInfo(_0x1e821c, _0x462b16, _0x2cc5d2, _0x336590, _0x567180, _0x4ab882, _0x52e6f7);
-  } catch (_0x45c369) {
-    Logger.debug('Failed to create FileDelta from status', {
-      error: _0x45c369,
-      filePath: _0x462b16,
-      status: _0x336590
-    });
-    let [_0x531057] = await getGitRootAndRelativePath(_0x132241).catch(() => [_0x132241.fsPath, _0x462b16]);
-    return createFileChangeInfo(_0x531057, _0x462b16, '', _0x336590, '', '', _0x52e6f7);
-  }
-}
-async function createUntrackedFileDiff(_0x3d2f01, _0x1d7278) {
-  try {
-    let _0x162430 = path_module.join(_0x3d2f01, _0x1d7278),
-      _0x39ccf2 = '';
-    try {
-      _0x39ccf2 = await DocumentManager.getSourceCode(_0x162430);
-    } catch (_0x1f71f6) {
-      Logger.debug('Failed to get untracked file content', {
-        error: _0x1f71f6,
-        filePath: _0x1d7278
-      });
-    }
-    let _0x1723da = createNewFileDiff(_0x39ccf2, _0x1d7278);
-    return createFileChangeInfo(_0x3d2f01, _0x1d7278, _0x1723da, GitFileStatus.UNTRACKED, _0x39ccf2, void 0, void 0);
-  } catch (_0x13833d) {
-    return Logger.debug("Failed to create FileDelta for untracked file", {
-      error: _0x13833d,
-      filePath: _0x1d7278
-    }), createFileChangeInfo(_0x3d2f01, _0x1d7278, '', GitFileStatus.UNTRACKED, '', void 0, void 0);
-  }
-}
-async function getUncommittedFileDeltas(_0x3a3c62, _0x2d4c32) {
-  try {
-    let [_0x1e9cf5] = await getGitRootAndRelativePath(_0x3a3c62),
-      _0x3426d7 = _0x2d4c32 ? "status --porcelain -- \"" + _0x2d4c32 + '\x22' : 'status --porcelain',
-      _0x34a705 = await executeGitCommand(_0x3426d7, _0x1e9cf5, false);
-    if (_0x34a705.trim().length === 0) return [];
-    let _0x2c2240 = parseGitStatusOutput(_0x34a705);
-    if (_0x2c2240.length === 0) return [];
-    let _0x3a9066 = [];
-    for (let key of _0x2c2240) try {
-      let _0x163b9d = await createFileDeltaFromStatus(_0x1e9cf5, _0x3a3c62, key.filePath, key.status, key.previousPath);
-      _0x3a9066.push(_0x163b9d);
-    } catch (_0x465cf5) {
-      Logger.debug("Failed to create FileDelta from status entry", {
-        error: _0x465cf5,
-        filePath: key.filePath,
-        status: key.status
-      });
-    }
-    return _0x3a9066;
-  } catch (_0x363bac) {
-    return Logger.debug("Failed to get all file statuses as deltas", {
-      error: _0x363bac,
-      path: _0x3a3c62.fsPath
-    }), [];
-  }
-}
-async function getRevisionDiffWithContent(_0x3ef3bf, _0x2b4220, _0x49f087) {
-  try {
-    let [_0x860a51] = await getGitRootAndRelativePath(_0x3ef3bf),
-      _0x4ccfbb = _0x49f087 ? 'diff ' + _0x2b4220 + ' --name-status -- \x22' + _0x49f087 + '\x22' : "diff " + _0x2b4220 + " --name-status",
-      _0x5db65 = await executeGitCommand(_0x4ccfbb, _0x860a51, false);
-    if (_0x5db65.trim().length === 0) return [];
-    let _0x1e4629 = parseDiffNameStatus(_0x5db65),
-      _0x4f787f = [],
-      _0x5175cf = _0x2b4220.includes('..') || _0x2b4220.includes('...');
-    for (let key of _0x1e4629) try {
-      let _0x19a412 = await executeGitCommand("diff " + _0x2b4220 + " -- \"" + key.filePath + '\x22', _0x860a51, false),
-        _0x59321b = parseDiffStatusChar(key.status),
-        _0x3a8602 = '',
-        _0x4ae3f6 = '';
-      if (_0x5175cf) {
-        let _0x239d89 = _0x2b4220.includes('...') ? '...' : '..',
-          _0x494290 = _0x2b4220.split(_0x239d89),
-          _0x57a26c = _0x494290[0],
-          _0x453b4e = _0x494290[1] || "HEAD";
-        _0x59321b !== GitFileStatus.DELETED && _0x59321b !== GitFileStatus.INDEX_DELETED && (_0x3a8602 = await getFileContentAtRef(_0x3ef3bf, _0x453b4e, key.filePath)), _0x59321b !== GitFileStatus.INDEX_ADDED && _0x59321b !== GitFileStatus.UNTRACKED && (_0x4ae3f6 = await getFileContentAtRef(_0x3ef3bf, _0x57a26c, key.previousPath || key.filePath));
-      } else {
-        if (_0x59321b !== GitFileStatus.DELETED && _0x59321b !== GitFileStatus.INDEX_DELETED) {
-          let _0x1f028f = path_module.join(_0x860a51, key.filePath);
-          _0x3a8602 = await DocumentManager.getSourceCode(_0x1f028f);
-        }
-        _0x59321b !== GitFileStatus.INDEX_ADDED && _0x59321b !== GitFileStatus.UNTRACKED && (_0x4ae3f6 = await getFileContentAtRef(_0x3ef3bf, _0x2b4220, key.previousPath || key.filePath));
-      }
-      let _0x3350eb = await createFileChangeInfo(_0x860a51, key.filePath, _0x19a412, _0x59321b, _0x3a8602, _0x4ae3f6, key.previousPath);
-      _0x4f787f.push(_0x3350eb);
-    } catch (_0x2a4328) {
-      Logger.debug('Failed to process file in revision diff', {
-        error: _0x2a4328,
-        filePath: key.filePath
-      });
-    }
-    return _0x4f787f;
-  } catch (_0x5474b3) {
-    return Logger.debug('Failed to get revision diff', {
-      error: _0x5474b3,
-      revisionSpec: _0x2b4220
-    }), [];
-  }
-}
-var  TemplateNotFoundError = class extends Error {
-    constructor(_0x3eeaeb) {
-      super("Template not found at " + _0x3eeaeb), this.name = "TemplateNotFoundError";
-    }
-  },
-  CLIAgentNameConflictsWithBuiltInAgentError = class extends Error {
+
+// [moved] TemplateNotFoundError 已移至 modules/prompt_template.js
+
+var CLIAgentNameConflictsWithBuiltInAgentError = class extends Error {
     constructor(_0x4bfacc, _0x480537) {
       super('CLI agent name \x22' + _0x4bfacc + '\x22 conflicts with built-in agent: ' + _0x480537 + '. Please choose a different name.'), this.name = 'CLIAgentNameConflictsWithBuiltInAgentError';
     }
@@ -2535,152 +2105,14 @@ var  TemplateNotFoundError = class extends Error {
       super(_0x5ec3dc ?? VYe), this.name = "ActivePlanNotFoundError";
     }
   };
-async function findAgentsMdFile(_0x1188f6, _0x165fe4) {
-  let _0x4fed75 = path_module.join(_0x1188f6, 'AGENTS.md');
-  try {
-    return await vscode_module.workspace.fs.stat(vscode_module.Uri.file(_0x4fed75)), _0x4fed75;
-  } catch {}
-  if (TraycerPath.pathEquals(_0x1188f6, _0x165fe4)) return;
-  let _0x490768 = path_module.dirname(_0x1188f6);
-  if (!TraycerPath.pathEquals(_0x490768, _0x1188f6)) return await findAgentsMdFile(_0x490768, _0x165fe4);
-}
-async function getAgentsMdContent(_0x5a2524) {
-  let _0x1c4a47 = TraycerPath.normalizePath(_0x5a2524),
-    _0x29afc0 = TraycerPath.findWorkspaceForPath(_0x1c4a47);
-  if (!_0x29afc0) return [];
-  let _0x5f17a7 = await findAgentsMdFile(_0x5a2524, _0x29afc0);
-  if (!_0x5f17a7) return [];
-  let _0x5f088e = await WorkspaceInfoManager.getInstance().readFile(_0x5f17a7, false);
-  return [{
-    path: (await TraycerPath.fromPath(_0x5f17a7)).proto,
-    content: _0x5f088e,
-    range: null,
-    diagnostics: []
-  }];
-}
-async function getAgentsMdContentFromPaths(_0xb6c7ec) {
-  let _0x53b940 = [];
-  for (let key of _0xb6c7ec) try {
-    let _0x48743e = await getAgentsMdContent(key);
-    _0x53b940.push(..._0x48743e);
-  } catch {
-    continue;
-  }
-  return _0x53b940;
-}
-async function listDirectoryWithAgentsMd(_0x1f3609, _0x1b6bb9) {
-  let _0x120891 = TraycerPath.fromPathProto(_0x1f3609),
-    _0x11bc6a = [],
-    _0x50b9ad = [],
-    _0x421b99 = (await searchFilesWithRipgrep(_0x120891.absPath, '', void 0, null, Number.MAX_SAFE_INTEGER, _0x1b6bb9)).trim().replaceAll('\x0d', '\x0a').split('\x0a').filter(Boolean),
-    _0x201b6a = await searchFoldersWithRipgrep(_0x120891.absPath, '', null, Number.MAX_SAFE_INTEGER, _0x1b6bb9);
-  for (let key of _0x421b99) _0x11bc6a.push(path_module.join(_0x120891.absPath, key));
-  for (let key of _0x201b6a) _0x50b9ad.push(path_module.join(_0x120891.absPath, key));
-  let _0x22368c = [];
-  try {
-    let _0x780a5b = _0x120891.absPath;
-    _0x22368c = config.enableAgentsMd ? await getAgentsMdContent(_0x780a5b) : [];
-  } catch (_0x4ab736) {
-    Logger.debug("Failed to read agents.md for directory: " + _0x4ab736), _0x22368c = [];
-  }
-  return {
-    directory: await WorkerPoolManager.exec("list-files-processor.cjs", "buildDirectoryTree", [{
-      filePaths: _0x11bc6a,
-      directoryPaths: _0x50b9ad,
-      rootAbsolutePath: _0x120891.absPath,
-      rootPath: _0x1f3609,
-      emptyWorkspacePath: TraycerPath.EMPTY_WORKSPACE,
-      workspacePath: _0x120891.workspacePath
-    }]),
-    detectedRuleFiles: _0x22368c
-  };
-}
+
+
 var initQueryProcessor = __esmModule(() => {
   'use strict';
 
   initIDEAgentManager(), initTaskContext();
 });
-async function parseAndFormatUserQuery(_0x2bd6eb, _0x253e4d) {
-  let _0x4b797c = parseUserQueryContent(_0x2bd6eb, _0x253e4d);
-  if (_0x4b797c.attachments.length > 0) {
-    for (let key of _0x4b797c.attachments) formatContextFileContent(key);
-  }
-  return _0x4b797c;
-}
-async function resolveGitMentions(_0x346575) {
-  if (_0x346575.length === 0) return [];
-  let _0x2e19c4 = [],
-    _0x2e2123 = new Set(),
-    _0x489433 = vscode_module.Uri.file(WorkspaceInfoManager.getInstance().getWorkspaceDirs()[0]);
-  if (!_0x489433) return Logger.warn("No workspace URI available for git operations"), [];
-  let _0x2404a9 = 'against_uncommitted_changes:UNCOMMITTED_CHANGES';
-  for (let key of _0x346575) try {
-    switch (key.gitType) {
-      case 'against_uncommitted_changes':
-        {
-          if (_0x2e2123.has('against_uncommitted_changes:UNCOMMITTED_CHANGES')) break;
-          _0x2e2123.add('against_uncommitted_changes:UNCOMMITTED_CHANGES');
-          let _0x475e58 = await getUncommittedFileDeltas(_0x489433, void 0);
-          _0x2e19c4.push({
-            gitDiffAgainstUncommitted: {
-              fileDeltas: _0x475e58
-            }
-          });
-          break;
-        }
-      case "against_branch":
-        if (key.branchName) {
-          let _0x2feefb = "against_branch:" + key.branchName;
-          if (_0x2e2123.has(_0x2feefb)) break;
-          _0x2e2123.add(_0x2feefb);
-          let _0x6d78b1 = await getGitFileRelativePath(_0x489433);
-          if (_0x6d78b1 && key.branchName !== _0x6d78b1) {
-            let _0x41f1e3 = key.branchName + '...' + _0x6d78b1,
-              _0x1b4766 = await getRevisionDiffWithContent(_0x489433, _0x41f1e3, void 0);
-            _0x2e19c4.push({
-              gitDiffAgainstRevision: {
-                revisionSpec: _0x41f1e3,
-                fileDeltas: _0x1b4766
-              }
-            });
-          } else {
-            let _0x4ef5fc = await getUncommittedFileDeltas(_0x489433, void 0);
-            _0x2e19c4.push({
-              gitDiffAgainstRevision: {
-                revisionSpec: key.branchName + "..." + _0x6d78b1,
-                fileDeltas: _0x4ef5fc
-              }
-            });
-          }
-        } else throw new Error("Branch name is required for AGAINST_BRANCH git type");
-        break;
-      case "against_commit":
-        {
-          let _0x4960b8 = "against_commit:" + key.commitHash;
-          if (_0x2e2123.has(_0x4960b8)) break;
-          if (_0x2e2123.add(_0x4960b8), key.commitHash) {
-            let _0x297084 = key.commitHash + '...HEAD',
-              _0x49a996 = await getRevisionDiffWithContent(_0x489433, _0x297084, void 0);
-            _0x2e19c4.push({
-              gitDiffAgainstRevision: {
-                revisionSpec: _0x297084,
-                fileDeltas: _0x49a996
-              }
-            }), _0x2e2123.add(_0x4960b8);
-          } else throw new Error("Commit hash is required for SINCE_COMMIT git type");
-          break;
-        }
-      default:
-        throw new Error('Unknown git type: ' + key.gitType);
-    }
-  } catch (_0x20324c) {
-    Logger.warn('Failed to resolve git mention', {
-      error: _0x20324c,
-      gitMention: key
-    });
-  }
-  return _0x2e19c4;
-}
+
 async function enrichFilesContext(_0x2f8c27) {
   return await enrichAttachmentContext({
     files: _0x2f8c27.files,
@@ -2691,99 +2123,13 @@ async function enrichFilesContext(_0x2f8c27) {
     ticketReference: null
   });
 }
-async function enrichAttachmentContext(_0x23ee1e) {
-  let _0x316721 = await LlmCacheHandler.getInstance(),
-    _0x11c9dd = await Promise.all(_0x23ee1e.files.map(async _0xbd0fd => {
-      let _0x3128a4 = TraycerPath.fromPathProto(_0xbd0fd.path);
-      try {
-        let _0x56e628 = _0xbd0fd.content || (await DocumentManager.getSourceCode(_0x3128a4.absPath));
-        return {
-          path: _0xbd0fd.path,
-          content: _0x56e628,
-          summary: await _0x316721.getSummaryFromCache(_0x3128a4.absPath, _0x56e628),
-          diagnostics: _0xbd0fd.diagnostics,
-          range: _0xbd0fd.range
-        };
-      } catch (_0x576cb3) {
-        throw Logger.warn("Failed to fetch file content", _0x576cb3), new Error("Cannot find the attached file: " + _0x3128a4.absPath);
-      }
-    })),
-    _0xfbd62 = config.enableAgentsMd ? await getAgentsMdContentFromPaths(_0x11c9dd.filter(_0x4c6e0a => _0x4c6e0a?.["path"] !== null).map(_0x54064f => TraycerPath.fromPathProto(_0x54064f.path).absPath)) : [],
-    {
-      directories: _0x5d44a5,
-      detectedRuleFiles: _0xc21cdc
-    } = await listDirectoriesWithRuleFiles(_0x23ee1e.directories),
-    _0x30687f = new CustomSet((_0x4f79e5, _0x25623e) => TraycerPath.equals(TraycerPath.fromPathProto(_0x4f79e5.path), TraycerPath.fromPathProto(_0x25623e.path)), [..._0xfbd62, ..._0xc21cdc]);
-  return {
-    files: _0x11c9dd.filter(_0x4b89df => _0x4b89df !== null).map(_0x45328a => ({
-      path: _0x45328a.path,
-      content: _0x45328a.content,
-      summary: _0x45328a.summary,
-      diagnostics: _0x45328a.diagnostics,
-      range: _0x45328a.range
-    })),
-    directories: _0x5d44a5,
-    detectedRuleFiles: _0x30687f.values(),
-    attachments: _0x23ee1e.attachments,
-    gitDiffs: _0x23ee1e.gitDiffs,
-    ticketReference: _0x23ee1e.ticketReference
-  };
-}
-async function listDirectoriesWithRuleFiles(_0x55874b) {
-  let _0x37518b = [..._0x55874b.map(_0x1e29f3 => ({
-      fsPath: TraycerPath.fromPathProto(_0x1e29f3.path),
-      directory: _0x1e29f3
-    }))].sort((_0x3ce35b, _0x24c93c) => _0x3ce35b.fsPath.absPath.length > _0x24c93c.fsPath.absPath.length ? 1 : _0x3ce35b.fsPath.absPath.length < _0x24c93c.fsPath.absPath.length ? -1 : 0),
-    _0x1b6d8f = [],
-    _0x5812ba = [];
-  for (let key of _0x37518b) {
-    if (isPathContainedInDirectories(key.fsPath, _0x1b6d8f)) continue;
-    if (!(await WorkspaceInfoManager.getInstance().fileExists(key.fsPath.absPath))) {
-      Logger.warn('Directory does not exist: ' + key.fsPath.absPath + ", skipping it from the attached context");
-      continue;
-    }
-    let _0x22c9f0 = await listDirectoryWithAgentsMd(key.fsPath.proto, true);
-    _0x22c9f0.directory && _0x1b6d8f.push(_0x22c9f0.directory), _0x22c9f0.detectedRuleFiles && _0x5812ba.push(..._0x22c9f0.detectedRuleFiles);
-  }
-  return {
-    directories: _0x1b6d8f,
-    detectedRuleFiles: _0x5812ba
-  };
-}
-function isPathContainedInDirectories(_0x90173f, _0x44af6d) {
-  function _0x48cc70(_0x478945, _0x1b229b) {
-    if (_0x478945.absPath !== _0x1b229b.absPath) return false;
-    let _0x3153ee = _0x478945.absUri,
-      _0x3d930e = _0x1b229b.absUri;
-    if (_0x3153ee.toString() === _0x3d930e.toString()) return true;
-    let _0x2de6f1 = _0x3153ee.path,
-      _0x24125d = _0x3d930e.path;
-    if (_0x24125d === _0x2de6f1) return true;
-    let _0x12e1cc = _0x2de6f1.endsWith('/') ? _0x2de6f1 : _0x2de6f1 + '/';
-    return _0x24125d.startsWith(_0x12e1cc);
-  }
-  function _0x5b7500(_0xea6bd9) {
-    if (_0xea6bd9.path) {
-      let _0x490c72 = TraycerPath.fromPathProto(_0xea6bd9.path);
-      if (_0x48cc70(_0x490c72, _0x90173f)) return true;
-      if (_0x48cc70(_0x90173f, _0x490c72)) return false;
-    }
-    for (let key of _0xea6bd9.subDirectories) if (_0x5b7500(key)) return true;
-    return false;
-  }
-  for (let key of _0x44af6d) if (_0x5b7500(key)) return true;
-  return false;
-}
+
+
 var initPlanContextModule = __esmModule(() => {
     'use strict';
 
     initIDEAgentManager(), initTaskContext(), initQueryProcessor();
-  }),
-  ImplementationPlanNotFoundError = class extends Error {
-    constructor() {
-      super('Implementation plan not found'), this.name = 'ImplementationPlanNotFoundError';
-    }
-  };
+  });
 function parseQueryParams(_0x201ec2) {
   let _0x2924b3 = {};
   for (let key of _0x201ec2) if (key.includes('=')) {
@@ -2794,97 +2140,12 @@ function parseQueryParams(_0x201ec2) {
 }
 /* [unbundle] formatTicketReferenceDisplay, getGitHubIssueUrl 已移至 github_ticket_query_builder.js */
 /* [unbundle] GitHubTicketQueryBuilder 已移至 github_ticket_query_builder.js */
-function formatVerificationResult(_0x219b5a) {
-  switch (_0x219b5a.ticketSource) {
-    case TICKET_SOURCE.GITHUB_TICKET:
-      return new GitHubTicketQueryBuilder(_0x219b5a);
-    default:
-      throw new Error("Unsupported ticket source: " + _0x219b5a.ticketSource);
-  }
-}
-async function parseAndEnrichUserQuery(_0x469cbe) {
-  let {
-      userQuery: _0x5d2bff,
-      sourceContext: _0x58dd0a,
-      attachments: _0x161ff0,
-      githubTicketRef: _0x4d0ac8,
-      gitMentions: _0x9ccb80
-    } = await parseAndFormatUserQuery(_0x469cbe, WorkspaceInfoManager.getInstance().getPlatform()),
-    _0x4486e0 = _0x58dd0a;
-  (_0x4486e0?.['files']?.["length"] || _0x4486e0?.["directories"]?.['length']) && (_0x4486e0 = await enrichAttachmentContext(_0x4486e0));
-  let _0x4f745a = await resolveGitMentions(_0x9ccb80);
-  return {
-    query: _0x5d2bff,
-    context: {
-      ..._0x4486e0,
-      gitDiffs: _0x4f745a,
-      ticketReference: {
-        github: _0x4d0ac8
-      },
-      attachments: _0x161ff0
-    }
-  };
-}
+
+
 var initPlanOutputModule = __esmModule(() => {
     'use strict';
 
     initPlanContextModule();
-  }),
-  BasePlanOutput = class {
-    constructor(_0x16d7d2) {
-      this.planOutput = _0x16d7d2, this.validateOutput();
-    }
-    ['validateOutput']() {
-      if (!this.planOutput) throw new Error("Plan output cannot be null or undefined");
-    }
-    ["throwNotFoundError"](_0x104d8b) {
-      throw new Error(_0x104d8b + " not found in plan output");
-    }
-  },
-  
-  PlanOutputImplementationPlanNotFoundError,
-  ImplementationPlanOutput,
-  initImplementationPlanOutput = __esmModule(() => {
-    'use strict';
-
-    PlanOutputImplementationPlanNotFoundError = class extends Error {
-      constructor(_0x1a9d35 = "Implementation plan not found in plan output") {
-        super(_0x1a9d35), this.name = "PlanOutputImplementationPlanNotFoundError";
-      }
-    }, ImplementationPlanOutput = class extends BasePlanOutput {
-      constructor(_0x51bf47) {
-        super(_0x51bf47);
-      }
-      ['validateOutput']() {
-        if (super.validateOutput(), !this.planOutput.implementationPlan) throw new PlanOutputImplementationPlanNotFoundError();
-      }
-      ['setPlanSummary'](_0x35308b) {
-        if (!this.planOutput.implementationPlan) throw new PlanOutputImplementationPlanNotFoundError();
-        this.planOutput.implementationPlan.aiGeneratedSummary = _0x35308b;
-      }
-      ['getImplementationPlan']() {
-        return this.planOutput.implementationPlan || this.throwNotFoundError("ImplementationPlan"), this.planOutput.implementationPlan;
-      }
-      ["serializeToStorage"]() {
-        return {
-          implementationPlan: this.getImplementationPlan(),
-          reviewOutput: null
-        };
-      }
-      async ["serializeToUI"]() {
-        let _0x5172a4 = this.getImplementationPlan();
-        return {
-          implementationPlan: {
-            ..._0x5172a4,
-            output: await FilePathHandler.convertFilePath(_0x5172a4.output)
-          },
-          reviewOutput: void 0
-        };
-      }
-      ['serializeToWire']() {
-        return this.getImplementationPlan();
-      }
-    };
   }),
   AnalysisFinding,
   initAnalysisFinding = __esmModule(() => {
@@ -3025,639 +2286,6 @@ var initPlanOutputModule = __esmModule(() => {
           let _0x5ed828 = this._comments.findIndex(_0x1620a5 => _0x1620a5.id === key);
           _0x5ed828 !== -1 && this._comments.splice(_0x5ed828, 1);
         }
-      }
-    };
-  }),
-  ReviewOutputNotFoundError,
-  PlanOutputWithReview ,
-  initPlanEditor = __esmModule(() => {
-    'use strict';
-
-    initIDEAgentManager(), initTemplateManager(), initReviewOutput(), initTaskContext(), ReviewOutputNotFoundError  = class extends Error {
-      constructor(_0x13986e = 'Review output not found in plan output') {
-        super(_0x13986e), this.name = 'ReviewOutputNotFoundError';
-      }
-    }, PlanOutputWithReview  = class extends BasePlanOutput {
-      constructor(_0x25d775) {
-        super(_0x25d775), this.initializeReviewOutput();
-      }
-      ["validateOutput"]() {
-        if (super.validateOutput(), !this.planOutput.reviewOutput) throw new ReviewOutputNotFoundError ();
-      }
-      ["initializeReviewOutput"]() {
-        let _0x17e6de = this.planOutput.reviewOutput;
-        if (!_0x17e6de) throw new ReviewOutputNotFoundError ("ReviewOutput not found in plan output");
-        this.reviewOutputInstance = ReviewOutput.createFromProto(_0x17e6de);
-      }
-      ['setPlanSummary'](_0xd2cbdf) {
-        if (!this.planOutput.reviewOutput) throw new ReviewOutputNotFoundError ();
-        this.planOutput.reviewOutput.aiGeneratedSummary = _0xd2cbdf;
-      }
-      ["getReviewOutput"]() {
-        if (!this.reviewOutputInstance) throw new ReviewOutputNotFoundError ('ReviewOutput instance not initialized');
-        return this.reviewOutputInstance;
-      }
-      ["getReviewOutputProto"]() {
-        if (!this.planOutput.reviewOutput) throw new ReviewOutputNotFoundError ('ReviewOutput not found in plan output');
-        return this.planOutput.reviewOutput;
-      }
-      ['getReviewComments']() {
-        return this.getReviewOutput().comments;
-      }
-      ['findCommentById'](_0x480bbb) {
-        return this.getReviewOutput().findCommentById(_0x480bbb);
-      }
-      ["serializeToStorage"]() {
-        return {
-          reviewOutput: this.getReviewOutput().serializeToStorage(),
-          implementationPlan: null
-        };
-      }
-      async ['serializeToUI']() {
-        return {
-          reviewOutput: this.getReviewOutput().serializeToUI(),
-          implementationPlan: void 0
-        };
-      }
-      ['serializeToWire']() {
-        return this.getReviewOutputProto();
-      }
-      ["applyComment"](_0x4de275) {
-        let _0x2a8d6b = this.findCommentById(_0x4de275);
-        if (!_0x2a8d6b) throw new Error("Review comment with ID " + _0x4de275 + ' not found');
-        _0x2a8d6b.markAsApplied();
-      }
-      ["revertComment"](_0x11ace8) {
-        let _0x499df3 = this.findCommentById(_0x11ace8);
-        if (!_0x499df3) throw new Error('Review comment with ID ' + _0x11ace8 + ' not found');
-        _0x499df3.resetApplied();
-      }
-      ['applyComments'](_0x54c761) {
-        _0x54c761.map(_0x48a1e2 => this.applyComment(_0x48a1e2));
-      }
-      ['revertComments'](_0x489ab2) {
-        _0x489ab2.map(_0x4083fd => this.revertComment(_0x4083fd));
-      }
-      ["discardComments"](_0x8567a9) {
-        return this.getReviewOutput().removeComments(_0x8567a9);
-      }
-      async ['executeCommentsInIDE'](_0xc9b2b6, _0x49099d, _0x618df6, _0x3a6e7c, _0x28eab1, _0x13f304, _0x28ff87) {
-        if (_0x49099d.length === 0) throw new Error('No review comment IDs provided');
-        let _0x2dbdbe = this.dedupeIds(_0x49099d),
-          _0x3635be = this.filterComments(_0x57b3dc => _0x2dbdbe.includes(_0x57b3dc.id));
-        await this.executeBatchReviewComments(_0xc9b2b6, _0x3635be, _0x618df6, _0x3a6e7c, _0x28eab1, _0x28ff87, _0x13f304);
-      }
-      async ['executeAllCommentsInIDE'](_0x5d1d89, _0x599869, _0x21d12e, _0x5292fe, _0x51af7a, _0x20a929, _0x6fe5d5) {
-        let _0x2d7751 = this.getCommentsByStatus(false);
-        _0x2d7751.length !== 0 && (_0x5292fe && (_0x2d7751 = _0x2d7751.filter(_0x13babd => _0x13babd.category === _0x5292fe)), _0x2d7751.length !== 0 && (await this.executeBatchReviewComments(_0x5d1d89, _0x2d7751, _0x599869, _0x21d12e, _0x51af7a, _0x6fe5d5, _0x20a929)));
-      }
-      async ["executeBatchReviewComments"](_0x51296a, _0x10ff30, _0x740164, _0x24668c, _0xbb929f, _0x23b53e, _0x189f70) {
-        if (_0x10ff30.length === 0) return;
-        let _0x3834de = this.buildCombinedContentFromComments(_0x10ff30),
-          _0x18276c = "Review : " + _0x51296a,
-          _0x1f4876 = await TemplateManager.getInstance().getPromptTemplate(_0x24668c).applyTemplate('---\x0a' + _0x3834de);
-        _0x23b53e && (_0x1f4876 += '\x0a\x0a' + _0x23b53e), await debounce(_0x1f4876, _0x18276c, _0x740164, _0x189f70), _0x10ff30.forEach(_0x406311 => _0x406311.markAsApplied()), await _0xbb929f(), await TaskSettingsHandler.getInstance().setLastUsedIDEAgents("review", _0x740164);
-      }
-      ["buildCombinedContentFromComments"](_0x28eb1c) {
-        let _0x794c96 = '';
-        return _0x28eb1c.forEach((_0x1c8ce7, _0xd90a06) => {
-          _0x794c96 += "## Comment " + (_0xd90a06 + 1) + ': ' + _0x1c8ce7.statement + '\x0a', _0x794c96 += _0x1c8ce7.promptForAIAgent + '\x0a', _0xd90a06 <= _0x28eb1c.length - 1 && (_0x794c96 += '---\x0a');
-        }), _0x794c96.trimEnd();
-      }
-      ["dedupeIds"](_0x2670a4) {
-        let _0x1f251c = {},
-          _0x173657 = [];
-        for (let key of _0x2670a4) _0x1f251c[key] || (_0x1f251c[key] = true, _0x173657.push(key));
-        return _0x173657;
-      }
-      ["filterComments"](_0x3b5f9a) {
-        return this.getReviewComments().filter(_0x3b5f9a);
-      }
-      ['getCommentsByStatus'](_0x386900) {
-        return this.filterComments(_0x2c3b7b => _0x2c3b7b.isApplied === _0x386900);
-      }
-    };
-  }),
-  InvalidPlanOutputError,
-  PlanOutputFactory,
-  initPlanEditorDeps = __esmModule(() => {
-    'use strict';
-
-    initImplementationPlanOutput(), initPlanEditor(), InvalidPlanOutputError = class extends Error {
-      constructor(_0x10908f = 'No valid output type found in plan output') {
-        super(_0x10908f), this.name = 'InvalidPlanOutputError';
-      }
-    }, PlanOutputFactory = class {
-      static ['createHandler'](_0x259a95) {
-        if (!_0x259a95) throw new InvalidPlanOutputError('Plan output cannot be null or undefined');
-        let _0x29cf29 = [_0x259a95.implementationPlan != null, _0x259a95.reviewOutput != null].filter(Boolean).length;
-        if (_0x29cf29 === 0) throw new InvalidPlanOutputError('No output found: expected one of explanationPlan or implementationPlan, reviewOutput');
-        if (_0x29cf29 > 1) throw new InvalidPlanOutputError('Multiple outputs present: plan output must be mutually exclusive. One of explanationPlan or implementationPlan, reviewOutput');
-        if (_0x259a95.implementationPlan !== void 0 && _0x259a95.implementationPlan !== null) return new ImplementationPlanOutput(_0x259a95);
-        if (_0x259a95.reviewOutput !== void 0 && _0x259a95.reviewOutput !== null) return new PlanOutputWithReview (_0x259a95);
-        throw new InvalidPlanOutputError('No valid output type found. Plan output must contain one of: explanationPlan, implementationPlan, or reviewOutput');
-      }
-    };
-  }),
-  UserQueryMessage,
-  initUserQueryMessage = __esmModule(() => {
-    'use strict';
-
-    UserQueryMessage = class {
-      constructor(_0xc5e000, _0x2e56a7, _0x427d8c, _0x22a957, _0x5328dd, _0xe72ed6, _0x436ab2, _0x50825d) {
-        this._queryJSONContent = null, this._id = _0x50825d;
-        let {
-          userQueryWithMentions: _0x37c8e6,
-          attachments: _0x261916
-        } = parseUserQueryContent(_0xc5e000, WorkspaceInfoManager.getInstance().getPlatform());
-        (!_0x261916.length || _0x5328dd) && (this._queryJSONContent = _0xc5e000), this._queryWithMentions = _0x37c8e6, this._payload = _0x2e56a7, this._logs = _0x22a957, this._isStreaming = _0x5328dd, this._isAborted = _0xe72ed6, this._hasFailed = _0x436ab2;
-      }
-      get ['id']() {
-        return this._id;
-      }
-      get ["logs"]() {
-        return this._logs;
-      }
-      get ["payload"]() {
-        return this._payload;
-      }
-      get ["queryWithMentions"]() {
-        return this._queryWithMentions;
-      }
-      set ["isStreaming"](_0x5aef61) {
-        this._isStreaming = _0x5aef61;
-      }
-      set ["isAborted"](_0x46baa8) {
-        this._isAborted = _0x46baa8;
-      }
-      set ['hasFailed'](_0x257c9d) {
-        this._hasFailed = _0x257c9d;
-      }
-      ['updateLog'](_0x55822c) {
-        let _0x556ef3 = this.findLogEntry(_0x55822c.id);
-        return _0x556ef3 ? (_0x556ef3.content = _0x55822c.content, _0x556ef3.childrenThinkings = _0x55822c.childrenThinkings, _0x556ef3.isCompleted = _0x55822c.isCompleted) : this._logs.push(_0x55822c), this._logs;
-      }
-      ['findLogEntry'](_0x5ec474) {
-        return this._logs.find(_0x531b42 => _0x531b42.id === _0x5ec474);
-      }
-    };
-  }),
-  PlanConversation,
-  initPlanConversation = __esmModule(() => {
-    'use strict';
-
-    initUserQueryMessage(), PlanConversation = class _0x47e2c7 extends UserQueryMessage {
-      constructor(_0x5124c7, _0x5501ea, _0x449db9, _0x292314 = {}) {
-        super(_0x5501ea, _0x292314.plan, _0x449db9, _0x292314.logs ?? [], _0x292314.isStreaming ?? false, _0x292314.isAborted ?? false, _0x292314.hasFailed ?? false, _0x292314.id ?? createUuid()), this._storageAPI = _0x5124c7;
-      }
-      static async ['createNewInstance'](_0x171cab, _0x17aaf1, _0x4851ae, _0x161f58, _0x489787 = {}) {
-        let _0x4d5765 = new _0x47e2c7(_0x171cab, _0x17aaf1, _0x4851ae, _0x489787);
-        return await _0x161f58({
-          id: _0x4d5765.id,
-          userQuery: _0x17aaf1,
-          llmInput: StorageSerializer.toStorage(_0x4851ae),
-          plan: null,
-          logs: []
-        }), _0x4d5765;
-      }
-      get ["storageAPI"]() {
-        return this._storageAPI;
-      }
-      async ["setIsStreaming"](_0x20c67f) {
-        this._isStreaming = _0x20c67f;
-      }
-      async ['setIsAborted'](_0x2ad73a) {
-        this._isAborted = _0x2ad73a;
-      }
-      async ["setHasFailed"](_0xf10c27) {
-        this._hasFailed = _0xf10c27;
-      }
-      async ['getUserQuery']() {
-        return this._queryJSONContent ? this._queryJSONContent : (await this.storageAPI.read()).userQuery;
-      }
-      async ["setUserQuery"](_0xba36e3, _0x5d7a9e) {
-        let {
-          userQueryWithMentions: _0x374762,
-          attachments: _0x44d2e6
-        } = parseUserQueryContent(_0xba36e3, WorkspaceInfoManager.getInstance().getPlatform());
-        if (this._queryWithMentions = _0x374762, !_0x44d2e6.length || this._isStreaming ? this._queryJSONContent = _0xba36e3 : this._queryJSONContent = null, _0x5d7a9e) return this.upsertOnDisk(_0x2f7640 => {
-          _0x2f7640.userQuery = _0xba36e3;
-        });
-      }
-      async ["getLLMInput"]() {
-        let _0x3b78b2 = await this.storageAPI.read();
-        return StorageSerializer.fromStorage(_0x3b78b2.llmInput);
-      }
-      async ["setLLMInput"](_0x43f7c1) {
-        return this.upsertOnDisk(_0x319590 => {
-          _0x319590.llmInput = StorageSerializer.toStorage(_0x43f7c1);
-        });
-      }
-      async ["serializeToUIHeavy"]() {
-        return {
-          id: this.id,
-          userQuery: await this.getUserQuery(),
-          plan: this.payload ?? void 0,
-          logs: this._logs,
-          isStreaming: this._isStreaming
-        };
-      }
-      async ['handlePlanOutput'](_0x1a1d8c, _0x38dffb) {
-        this._isStreaming = false, this._payload = _0x1a1d8c, this._queryJSONContent && (await this.setUserQuery(this._queryJSONContent, false)), await this.upsertOnDisk(_0x5b2818 => {
-          _0x5b2818.plan = {
-            implementationPlan: _0x1a1d8c.implementationPlan ?? null,
-            reviewOutput: _0x1a1d8c.reviewOutput ?? null
-          }, _0x5b2818.llmInput = StorageSerializer.toStorage(_0x38dffb), _0x5b2818.logs = this._logs;
-        });
-      }
-      static async ['deserializeFromStorage'](_0x3908c6, _0x493f00) {
-        return new _0x47e2c7(_0x493f00, _0x3908c6.userQuery, StorageSerializer.fromStorage(_0x3908c6.llmInput), {
-          id: _0x3908c6.id,
-          logs: _0x3908c6.logs,
-          isStreaming: false,
-          isAborted: false,
-          hasFailed: false,
-          plan: _0x3908c6.plan
-        });
-      }
-      async ['dispose']() {}
-      async ['upsertOnDisk'](_0x5543c9) {
-        return this.storageAPI.runInTransaction(async _0x450f87 => {
-          let _0x1e5f24 = await this.storageAPI.read();
-          _0x5543c9(_0x1e5f24), await this.storageAPI.upsert(_0x1e5f24, _0x450f87);
-        });
-      }
-    };
-  });
-function findPlanConversationIndex(_0x1871e6, _0x313b6d) {
-  let _0xa4fb72 = _0x1871e6.planConversations.findIndex(_0x4bb143 => _0x4bb143.id === _0x313b6d);
-  if (_0xa4fb72 === -1) throw new Error("Plan conversation storage API: Plan conversation with id " + _0x313b6d + ' not found in plan.');
-  return _0xa4fb72;
-}
-function getPlanConversationById(_0x4c7eae, _0x30cb5c) {
-  let _0x385cb0 = findPlanConversationIndex(_0x4c7eae, _0x30cb5c);
-  return _0x4c7eae.planConversations[_0x385cb0];
-}
-function updatePlanConversation(_0x3b6d62, _0x393c36) {
-  let _0x369130 = findPlanConversationIndex(_0x3b6d62, _0x393c36.id);
-  _0x3b6d62.planConversations[_0x369130] = _0x393c36;
-}
-function deletePlanConversation(_0x266d7d, _0x45098c) {
-  let _0x9fb2bc = findPlanConversationIndex(_0x266d7d, _0x45098c);
-  _0x266d7d.planConversations.splice(_0x9fb2bc, 1);
-}
-var PlanConversationStorageAPI = class {
-    constructor(_0x164bab) {
-      this.planStorageAPI = _0x164bab;
-    }
-    async ['read'](_0x2628df) {
-      let _0xca06e3 = await this.planStorageAPI.read();
-      return getPlanConversationById(_0xca06e3, _0x2628df);
-    }
-    async ['upsert'](_0xff3d17, _0x14b5e1) {
-      let _0x474f29 = await this.planStorageAPI.read();
-      updatePlanConversation(_0x474f29, _0xff3d17), await this.planStorageAPI.upsert(_0x474f29, _0x14b5e1);
-    }
-    async ["runInTransaction"](_0xe73334) {
-      return this.planStorageAPI.runInTransaction(_0xe73334);
-    }
-    async ['delete'](_0x10b32d, _0xac6d8d) {
-      let _0x4f9c3e = await this.planStorageAPI.read();
-      deletePlanConversation(_0x4f9c3e, _0x10b32d), await this.planStorageAPI.upsert(_0x4f9c3e, _0xac6d8d);
-    }
-    ['getAdapter'](_0x5c4a0a) {
-      return new CW(this, _0x5c4a0a);
-    }
-  },
-  CW = class extends BaseStorage {},
-  PlanStepManager,
-  initTaskExecution = __esmModule(() => {
-    'use strict';
-
-    initPlanOutputModule(), initPlanEditorDeps(), initImplementationPlanOutput(), initPlanEditor(), initPlanConversation(), PlanStepManager = class _0x41754d {
-      constructor(_0x167b0c, _0x15c7b8, _0x325423, _0x5e0628, _0xc66fdd, _0x910f84, _0x314df0, _0x45b3ed = {}) {
-        this._parentPlan = _0x167b0c, this._planStorageAdapter = _0x15c7b8, this._planArtifactType = _0x325423, this._generatedPlan = null, this._queryJSONContent = null, this._isExecuted = false, this._executedWithAgent = null, this._isPayAsYouGo = false, this._planOutputHandler = null, this._isQueryExecutedDirectly = false, this._id = _0x45b3ed.id ?? createUuid(), this._planConversations = _0x45b3ed.planConversations ?? [], this._executedWithAgent = _0x45b3ed.executedWithAgent ? AgentRegistry.getInstance().getAgentInfoIfExists(_0x45b3ed.executedWithAgent) : null, this._isExecuted = _0x45b3ed.isExecuted ?? false, this._isPayAsYouGo = _0x45b3ed.isPayAsYouGo ?? false, this._logs = _0x45b3ed.logs ?? [], this._hasSentCreationMetrics = _0x45b3ed.hasSentCreationMetrics ?? false, this._generatedPlan = _0x5e0628;
-        let {
-          userQueryWithMentions: _0x4b4184,
-          attachments: _0x570610
-        } = parseUserQueryContent(_0xc66fdd, WorkspaceInfoManager.getInstance().getPlatform());
-        (!_0x570610.length || _0x910f84) && (this._queryJSONContent = _0xc66fdd), this._queryWithMentions = _0x4b4184, this._isStreaming = _0x910f84, this._isQueryExecutedDirectly = _0x45b3ed.isQueryExecutedDirectly ?? false;
-      }
-      static async ["createNewInstance"](_0x397e30, _0x939807, _0x2e8f77, _0x454419, _0x274903, _0x1677f5, _0x5767f5 = {}) {
-        let _0x2d6b24 = new _0x41754d(_0x939807, _0x2e8f77, _0x397e30, null, _0x454419, _0x274903, void 0, _0x5767f5);
-        return await _0x1677f5({
-          id: _0x2d6b24.id,
-          queryJsonContent: _0x454419,
-          llmInput: null,
-          isExecuted: false,
-          isPayAsYouGo: false,
-          hasSentCreationMetrics: false,
-          executedWithAgent: null,
-          logs: [],
-          planConversations: [],
-          parentPlanID: _0x939807?.['id'] ?? null,
-          generatedPlan: null,
-          planArtifactType: _0x397e30,
-          isQueryExecutedDirectly: false,
-          planSummary: void 0
-        }), _0x2d6b24;
-      }
-      get ["outputHandler"]() {
-        return this._planOutputHandler ? this._planOutputHandler : this.createOutputHandler();
-      }
-      ["createOutputHandler"]() {
-        if (!this._generatedPlan) return null;
-        let _0x420ee5 = PlanOutputFactory.createHandler(this._generatedPlan);
-        return this._planOutputHandler = _0x420ee5, _0x420ee5;
-      }
-      ['mustGetOutputHandler']() {
-        let _0x19855f = this.outputHandler;
-        if (!_0x19855f) throw new Error("Output handler not found");
-        return _0x19855f;
-      }
-      get ['planArtifactType']() {
-        return this._planArtifactType;
-      }
-      async ['setPlanSummary'](_0x5b5424) {
-        let _0x2f465e = this.mustGetOutputHandler();
-        _0x2f465e.setPlanSummary(_0x5b5424), await this.upsertToDisk(_0x43a70e => {
-          _0x43a70e.generatedPlan = _0x2f465e.serializeToStorage();
-        });
-      }
-      get ["storageAPI"]() {
-        return this._planStorageAdapter;
-      }
-      get ['hasSentCreationMetrics']() {
-        return this._hasSentCreationMetrics;
-      }
-      async ["sendCreationMetrics"](_0x34118a, _0x5616c9) {
-        try {
-          this._hasSentCreationMetrics || (_0x34118a.increment("task_plan_generation", _0x5616c9), this._hasSentCreationMetrics = true, await this.upsertToDisk(_0x355fe6 => {
-            _0x355fe6.hasSentCreationMetrics = true;
-          }));
-        } catch (_0x4cc280) {
-          Logger.warn('Failed to send creation metrics for plan ' + this.id, _0x4cc280);
-        }
-      }
-      get ['id']() {
-        return this._id;
-      }
-      get ["isExecuted"]() {
-        return this._isExecuted;
-      }
-      get ['executedWithAgent']() {
-        return this._executedWithAgent;
-      }
-      get ['isPayAsYouGo']() {
-        return this._isPayAsYouGo;
-      }
-      get ["isQueryExecutedDirectly"]() {
-        return this._isQueryExecutedDirectly;
-      }
-      get ['parentPlan']() {
-        return this._parentPlan;
-      }
-      get ["generatedPlan"]() {
-        return this._generatedPlan;
-      }
-      async ["setIsExecuted"](_0x320185, _0x1b0a3d) {
-        this._isExecuted = _0x320185, _0x1b0a3d && (await this.upsertToDisk(_0x382df2 => {
-          _0x382df2.isExecuted = _0x320185;
-        }));
-      }
-      async ['setExecutedWithAgent'](_0x361d15) {
-        this._executedWithAgent = _0x361d15 ? AgentRegistry.getInstance().getAgentInfo(_0x361d15) : null, _0x361d15 ? this._isExecuted = true : this._isExecuted = false, await this.upsertToDisk(_0x32e533 => {
-          _0x32e533.executedWithAgent = _0x361d15, _0x32e533.isExecuted = this._isExecuted;
-        });
-      }
-      async ["handlePlanGenerationFailure"]() {
-        this._isPayAsYouGo = false, this._isStreaming = false, this._logs = [], this._queryJSONContent && (await this.setQueryJSONContent(this._queryJSONContent, false)), await this.upsertToDisk(_0x18ab82 => {
-          _0x18ab82.isPayAsYouGo = false, _0x18ab82.logs = [];
-        });
-      }
-      async ["setPayAsYouGo"](_0x410a80) {
-        this._isPayAsYouGo = _0x410a80, await this.upsertToDisk(_0x24fa9f => {
-          _0x24fa9f.isPayAsYouGo = _0x410a80;
-        });
-      }
-      async ['setQueryExecutedDirectly'](_0x4932eb) {
-        this._isQueryExecutedDirectly = _0x4932eb, await this.upsertToDisk(_0x5ce899 => {
-          _0x5ce899.isQueryExecutedDirectly = _0x4932eb;
-        });
-      }
-      async ['getQueryJSONContent']() {
-        return this._queryJSONContent ? this._queryJSONContent : (await this.storageAPI.read()).queryJsonContent;
-      }
-      async ["setQueryJSONContentAndArtifactType"](_0x29d781, _0xd111e6, _0x5b8efb) {
-        await this.setQueryJSONContent(_0x29d781, false), await this.setPlanArtifactType(_0xd111e6, false), _0x5b8efb && (await this.upsertToDisk(_0xfc1a4d => {
-          _0xfc1a4d.queryJsonContent = _0x29d781, _0xfc1a4d.planArtifactType = _0xd111e6;
-        }));
-      }
-      async ['setPlanArtifactType'](_0x3c0381, _0x182b32) {
-        this._planArtifactType = _0x3c0381, _0x182b32 && (await this.upsertToDisk(_0x442742 => {
-          _0x442742.planArtifactType = _0x3c0381;
-        }));
-      }
-      async ["setQueryJSONContent"](_0x44466e, _0x22b5ab) {
-        let {
-          userQueryWithMentions: _0x591241,
-          attachments: _0x7e96e1
-        } = parseUserQueryContent(_0x44466e, WorkspaceInfoManager.getInstance().getPlatform());
-        !_0x7e96e1.length || this._isStreaming ? this._queryJSONContent = _0x44466e : this._queryJSONContent = null, this._queryWithMentions = _0x591241, _0x22b5ab && (await this.upsertToDisk(_0x21d8de => {
-          _0x21d8de.queryJsonContent = _0x44466e;
-        }));
-      }
-      async ["updateQueryAndPlanArtifactType"](_0x43673a, _0x28b308) {
-        await this.setQueryJSONContent(_0x43673a, false), await this.setPlanArtifactType(_0x28b308, false), await this.upsertToDisk(_0x4e4917 => {
-          _0x4e4917.queryJsonContent = _0x43673a, _0x4e4917.planArtifactType = _0x28b308;
-        });
-      }
-      ["isPlanConvInProgress"]() {
-        return !!this._activeConversation;
-      }
-      get ['logs']() {
-        return this._logs;
-      }
-      async ["getLLMInput"]() {
-        if (this._planConversations.length) return this._planConversations[this._planConversations.length - 1].getLLMInput();
-        let _0x5e3c22 = await this.storageAPI.read();
-        return StorageSerializer.fromStorage(_0x5e3c22.llmInput);
-      }
-      async ["handlePlanOutput"](_0xcd3677, _0x2c1426, _0x1ce793) {
-        let _0x21151e = false;
-        this._isStreaming = false, this._activeConversation ? (await this._activeConversation.handlePlanOutput(_0xcd3677, _0x2c1426), _0x21151e = true) : (this._generatedPlan = _0xcd3677, this.createOutputHandler(), this._queryJSONContent && (await this.setQueryJSONContent(this._queryJSONContent, false))), this.disposeActiveConversation(), _0x1ce793 !== void 0 && (this._isPayAsYouGo = _0x1ce793), await this.upsertToDisk(_0x3af546 => {
-          _0x1ce793 !== void 0 && (_0x3af546.isPayAsYouGo = _0x1ce793), _0x21151e || (_0x3af546.logs = this._logs, _0x3af546.llmInput = StorageSerializer.toStorage(_0x2c1426), _0x3af546.generatedPlan = this.mustGetOutputHandler().serializeToStorage());
-        });
-      }
-      async ["handleImplementationPlanDelta"](_0xea925e) {
-        this._generatedPlan || (this._generatedPlan = {
-          implementationPlan: {
-            output: ''
-          }
-        });
-        let _0x2fafa4 = this.mustGetImplementationPlan();
-        return _0x2fafa4.output += _0xea925e, this.mustGetOutputHandler().serializeToUI();
-      }
-      async ["setLLMInput"](_0x17ee03) {
-        this._activeConversation ? await this._activeConversation.setLLMInput(_0x17ee03) : await this.upsertToDisk(_0x4a1503 => {
-          _0x4a1503.llmInput = StorageSerializer.toStorage(_0x17ee03);
-        });
-      }
-      ['findLogEntry'](_0x6b55d) {
-        return this._logs.find(_0x35b990 => _0x35b990.id === _0x6b55d);
-      }
-      ['updateLog'](_0x253650) {
-        if (this._activeConversation) this._activeConversation.updateLog(_0x253650);else {
-          let _0x56929b = this.findLogEntry(_0x253650.id);
-          _0x56929b ? (_0x56929b.content = _0x253650.content, _0x56929b.childrenThinkings = _0x253650.childrenThinkings, _0x56929b.isCompleted = _0x253650.isCompleted) : this._logs.push(_0x253650);
-        }
-        return this._logs;
-      }
-      async ["dispose"]() {
-        this._logs = [], this._planConversations = [], this._activeConversation = void 0, this._queryWithMentions = '', this._isExecuted = false, this._isQueryExecutedDirectly = false, this._executedWithAgent = null, this._isPayAsYouGo = false;
-      }
-      get ["queryWithMentions"]() {
-        return this._queryWithMentions;
-      }
-      get ["planConversations"]() {
-        return this._planConversations;
-      }
-      get ['activeConversation']() {
-        return this._activeConversation;
-      }
-      ['removeActiveConversation']() {
-        this._planConversations.pop(), this._activeConversation = void 0;
-      }
-      async ["startNewConversation"](_0x39ce8d) {
-        let _0x2a146e = createUuid(),
-          _0x2ee92d = async _0x143618 => {
-            await this.upsertToDisk(_0x4bfc79 => {
-              _0x4bfc79.planConversations.push(_0x143618);
-            });
-          },
-          _0x39c010 = await PlanConversation.createNewInstance(new PlanConversationStorageAPI(this.storageAPI).getAdapter(_0x2a146e), _0x39ce8d, null, _0x2ee92d, {
-            id: _0x2a146e,
-            hasFailed: false,
-            isAborted: false,
-            isStreaming: true
-          });
-        return this._activeConversation = _0x39c010, this._planConversations.push(_0x39c010), _0x39c010;
-      }
-      ["disposeActiveConversation"]() {
-        this._activeConversation && (this._activeConversation = void 0);
-      }
-      get ["mustGetPlanOutput"]() {
-        if (!this._generatedPlan) throw new ImplementationPlanNotFoundError();
-        return this._generatedPlan;
-      }
-      ['mustGetReviewOutput']() {
-        let _0x2991f7 = this.mustGetOutputHandler();
-        if (_0x2991f7 instanceof PlanOutputWithReview ) return _0x2991f7.getReviewOutputProto();
-        throw new ReviewOutputNotFoundError ();
-      }
-      ["mustGetReviewOutputHandler"]() {
-        let _0x169f7b = this.mustGetOutputHandler();
-        if (_0x169f7b instanceof PlanOutputWithReview ) return _0x169f7b;
-        throw new ReviewOutputNotFoundError ();
-      }
-      ['mustGetImplementationPlan']() {
-        let _0x222425 = this.mustGetOutputHandler();
-        if (_0x222425 instanceof ImplementationPlanOutput) return _0x222425.getImplementationPlan();
-        throw new ImplementationPlanNotFoundError();
-      }
-      static async ["deserializeFromStorage"](_0x4698f7, _0x4907bf, _0x5aefe5) {
-        _0x4698f7.parentPlanID !== void 0 && _0x4698f7.parentPlanID !== null && _0x4907bf !== null && _0x4907bf.id !== _0x4698f7.parentPlanID && Logger.warn("Parent plan mismatch while deserializing plan " + _0x4698f7.id + ". Expected parent " + _0x4698f7.parentPlanID + ", but got " + _0x4907bf.id + '.');
-        let _0x43d1b5 = _0x4698f7.planConversations;
-        if (_0x43d1b5.length > 0) {
-          let _0xd359d3 = _0x43d1b5[_0x43d1b5.length - 1];
-          _0xd359d3.userQuery && !_0xd359d3.plan && _0x43d1b5.pop();
-        }
-        let _0xae3e7b = null;
-        _0x4698f7.generatedPlan && (_0xae3e7b = _0x4698f7.generatedPlan);
-        let _0x233367 = _0x4698f7.planArtifactType;
-        return _0xae3e7b && (_0xae3e7b.reviewOutput ? _0x233367 = ArtifactType.REVIEW_ARTIFACT : _0x233367 = ArtifactType.IMPLEMENTATION_ARTIFACT), new _0x41754d(_0x4907bf, _0x5aefe5, _0x233367, _0xae3e7b, _0x4698f7.queryJsonContent, false, _0x4698f7.planSummary, {
-          id: _0x4698f7.id,
-          planConversations: await Promise.all(_0x43d1b5.map(_0xad4d98 => PlanConversation.deserializeFromStorage(_0xad4d98, new PlanConversationStorageAPI(_0x5aefe5).getAdapter(_0xad4d98.id)))),
-          isExecuted: _0x4698f7.isExecuted,
-          executedWithAgent: _0x4698f7.executedWithAgent ?? void 0,
-          isPayAsYouGo: _0x4698f7.isPayAsYouGo,
-          hasSentCreationMetrics: _0x4698f7.hasSentCreationMetrics,
-          isQueryExecutedDirectly: _0x4698f7.isQueryExecutedDirectly,
-          logs: _0x4698f7.logs
-        });
-      }
-      static ['persistedPlanFromPersistedTicketPlan'](_0x3d5a60, _0x2bc432) {
-        if (!_0x2bc432.ticketInput) throw new Error("No ticket input found");
-        let _0xb7593c = formatVerificationResult(_0x3d5a60).constructJsonQuery(_0x2bc432);
-        return {
-          id: createUuid(),
-          queryJsonContent: _0xb7593c,
-          logs: _0x2bc432.thinkings,
-          planConversations: [],
-          llmInput: null,
-          isExecuted: false,
-          executedWithAgent: null,
-          hasSentCreationMetrics: false,
-          generatedPlan: {
-            implementationPlan: _0x2bc432?.["plan"]?.["implementationPlan"] ?? null,
-            reviewOutput: _0x2bc432?.['plan']?.["reviewOutput"] ?? null
-          },
-          isPayAsYouGo: false,
-          parentPlanID: null,
-          planArtifactType: ArtifactType.IMPLEMENTATION_ARTIFACT,
-          isQueryExecutedDirectly: false,
-          planSummary: void 0
-        };
-      }
-      async ["getMarkdown"]() {
-        return this.mustGetImplementationPlan().output;
-      }
-      async ['resetPlan'](_0x3af10f, _0x3024cd) {
-        let {
-          userQueryWithMentions: _0x4abaf0
-        } = parseUserQueryContent(_0x3af10f, WorkspaceInfoManager.getInstance().getPlatform());
-        this._logs = [], this._generatedPlan = null, this._planOutputHandler = null, this._queryWithMentions = _0x4abaf0, this._isQueryExecutedDirectly = false, this._isExecuted = false, this._executedWithAgent = null, await this.setQueryJSONContent(_0x3af10f, false), await Promise.all(this._planConversations.map(_0x488aac => _0x488aac.dispose())), this._planConversations = [], this._activeConversation = void 0, this._planArtifactType = _0x3024cd, await this.upsertToDisk(_0x54c384 => {
-          _0x54c384.logs = [], _0x54c384.queryJsonContent = _0x3af10f, _0x54c384.isExecuted = false, _0x54c384.executedWithAgent = null, _0x54c384.planConversations = [], _0x54c384.logs = [], _0x54c384.llmInput = null, _0x54c384.generatedPlan = null, _0x54c384.isQueryExecutedDirectly = false, _0x54c384.planArtifactType = _0x3024cd;
-        });
-      }
-      async ["serializeToUIHeavy"](_0xa24791) {
-        return {
-          id: this.id,
-          queryWithMentions: this.queryWithMentions,
-          queryJsonContent: await this.getQueryJSONContent(),
-          logs: this._logs,
-          generatedPlan: await this.outputHandler?.['serializeToUI'](),
-          isActive: _0xa24791 === this.id,
-          planConversations: await Promise.all(this._planConversations.map(_0x390eb8 => _0x390eb8.serializeToUIHeavy())),
-          isExecuted: this._isExecuted,
-          executedWithAgent: this._executedWithAgent,
-          isPayAsYouGo: this._isPayAsYouGo,
-          planArtifactType: this._planArtifactType,
-          isQueryExecutedDirectly: this._isQueryExecutedDirectly
-        };
-      }
-      async ['serializeToPlanWithUserPrompt'](_0x4c1a0e) {
-        let _0xfb44e2 = await this.getQueryJSONContent(),
-          _0x82adf1 = this.mustGetPlanOutput;
-        return {
-          userPrompt: await parseAndEnrichUserQuery(_0xfb44e2),
-          plan: _0x82adf1,
-          identifier: {
-            ..._0x4c1a0e,
-            planID: this.id
-          }
-        };
-      }
-      async ["persistOutput"]() {
-        await this.upsertToDisk(_0x436e21 => {
-          _0x436e21.generatedPlan = this.mustGetOutputHandler().serializeToStorage();
-        });
-      }
-      async ['upsertToDisk'](_0x312032) {
-        return this._planStorageAdapter.runInTransaction(async _0x3c623d => {
-          let _0x5a609f = await this.storageAPI.read();
-          _0x312032(_0x5a609f), await this._planStorageAdapter.upsert(_0x5a609f, _0x3c623d);
-        });
       }
     };
   });
@@ -4123,7 +2751,7 @@ var TaskCountStorageAPI = class {
   initTaskPlan = __esmModule(() => {
     'use strict';
 
-    initPlanContextModule(), initTaskExecution(), initTaskPlanDeps(), initAnalysisSuggestion(), TaskStep = class _0x46545e {
+    initPlanContextModule(), initTaskPlanDeps(), initAnalysisSuggestion(), TaskStep = class _0x46545e {
       constructor(_0x103932) {
         this._hasSentCreationMetrics = false, this._abortController = _0x103932.abortController, this._id = _0x103932.id, this._activePlanId = _0x103932.activePlanID, this._title = _0x103932.title, this._creationTime = _0x103932.creationTime, this._lastUpdatedTime = _0x103932.lastUpdatedTime, this._steps = _0x103932.steps, this._plans = _0x103932.plans, this._verification = _0x103932.verification, this._attachmentSummaries = _0x103932.attachmentSummaries, this._storageAPI = _0x103932.storageAPI, this._discardedVerificationComments = _0x103932.discardedVerificationComments, this._retryAfterTimestamp = _0x103932.retryAfterTimestamp;
       }
@@ -5790,7 +4418,7 @@ var PlanGenerationStep,
   initPlanConversationHandler = __esmModule(() => {
     'use strict';
 
-     initUserQueryMessage(), initPlanOutputModule(), PlanConversationHandler = class _0x56cba7 extends UserQueryMessage {
+     initPlanOutputModule(), PlanConversationHandler = class _0x56cba7 extends UserQueryMessage {
       constructor(_0x183799, _0x1dff0d, _0x41adfb, _0x297ec9 = {}) {
         let _0x2b958b = _0x297ec9.state === TaskStepStatus.IN_PROGRESS,
           _0x170416 = _0x297ec9.state === TaskStepStatus.ABORTING,
@@ -8918,86 +7546,12 @@ var QUERY_THROTTLE_MS,
       }
     };
   }),
-  PromptTemplateFactory,
-  initPromptTemplateFactory = __esmModule(() => {
-    'use strict';
-
-     PromptTemplateFactory = class {
-      static ["createMetadata"](_0x5c6012) {
-        return {
-          displayName: WorkspaceInfoManager.getInstance().getFileNameWithoutExtension(_0x5c6012)
-        };
-      }
-      static ["createBuiltInAgentMetadata"](_0x39ca4f) {
-        return {
-          displayName: agentRegistry[_0x39ca4f].displayName
-        };
-      }
-      static ["instantiateTemplate"](_0x47e592, _0x2f731a, _0x572c08, _0x289b48, _0x5ee6e7, _0x44b2d7) {
-        let _0x22dade = _0x2f731a.displayName || WorkspaceInfoManager.getInstance().getFileNameWithoutExtension(_0x47e592);
-        return new PromptTemplate(_0x22dade, _0x47e592, _0x5ee6e7, _0x2f731a, _0x572c08, _0x289b48, _0x44b2d7);
-      }
-      static async ["createTemplateOnDisk"](_0x234b05, _0x5a7b5d, _0x373feb) {
-        let _0x373c62 = path_module.dirname(_0x234b05);
-        await fs_promises_module.mkdir(_0x373c62, {
-          recursive: true
-        }), await fs_promises_module.writeFile(_0x234b05, _0x5a7b5d, "utf8");
-        let _0x5e08e5 = _0x373feb === ".sh" ? 493 : 420;
-        await fs_promises_module.chmod(_0x234b05, _0x5e08e5);
-      }
-      static ['getAgentTemplateContent'](_0x1ac0e4, _0x204b5d) {
-        let _0x2c2e85;
-        switch (_0x1ac0e4) {
-          case "claude-code":
-            _0x2c2e85 = 'claude';
-            break;
-          case "gemini":
-            _0x2c2e85 = 'gemini -p';
-            break;
-          case "codex":
-            _0x2c2e85 = "codex";
-            break;
-          default:
-            throw new Error("Unsupported agent ID: " + _0x1ac0e4);
-        }
-        let _0xe1332a = _0x204b5d === '.sh',
-          _0x25ee5e = _0xe1332a ? '\x22$' + PROMPT_ENV_VAR + '\x22' : "\"$env:" + PROMPT_ENV_VAR + '\x22',
-          _0x3c3ae9 = _0x2c2e85 ? _0x2c2e85 + ' ' + _0x25ee5e : "echo " + _0x25ee5e;
-        return (_0xe1332a ? PromptTemplate.buildShellCommentBlock() : PromptTemplate.buildBatCommentBlock()) + '\x0a\x0a' + _0x3c3ae9 + '\x0a';
-      }
-      static ["createBuiltInAgentTemplateOnVirtualFileSystem"](_0xee4232, _0x594943) {
-        let _0x371496 = this.getAgentTemplateContent(_0xee4232, _0x594943),
-          _0x45c23e = '' + _0xee4232 + _0x594943,
-          _0x59ddc7 = vscode_module.Uri.joinPath(PromptTemplate.DEFAULT_CLI_AGENTS_DIR_PATH, _0x45c23e);
-        TraycerFileSystem.getInstance().createFile(_0x59ddc7, Buffer.from(_0x371496, "utf8"));
-      }
-      static async ['createNewTemplate'](_0x1d922c, _0x54216c, _0x14a871, _0x15dd19) {
-        let _0x2adfc2 = this.createMetadata(_0x1d922c),
-          _0x1cf51d = _0x15dd19 || (_0x14a871 === ".sh" ? PromptTemplate.DEFAULT_SHELL_TEMPLATE_CONTENT : PromptTemplate.DEFAULT_BAT_TEMPLATE_CONTENT);
-        await this.createTemplateOnDisk(_0x1d922c, _0x1cf51d, _0x14a871);
-        let _0x3c2b6b = await fs_promises_module.readFile(_0x1d922c, 'utf8'),
-          _0x3c7828 = this.instantiateTemplate(_0x1d922c, _0x2adfc2, _0x54216c, _0x14a871, _0x3c2b6b, false);
-        return _0x3c7828.validateTemplate(), _0x3c7828;
-      }
-      static async ["loadTemplateFromDisk"](_0x3983bc, _0x2ba604, _0xecdc1b, _0x5ec11c) {
-        let _0x13c56d = await fs_promises_module.readFile(_0x3983bc, 'utf8'),
-          _0x39e150 = this.instantiateTemplate(_0x3983bc, _0x2ba604, _0xecdc1b, _0x5ec11c, _0x13c56d, false);
-        return _0x39e150.validateTemplate(), _0x39e150;
-      }
-      static ["createBuiltInAgentTemplate"](_0x240aed, _0x15e225) {
-        this.createBuiltInAgentTemplateOnVirtualFileSystem(_0x240aed, _0x15e225);
-        let _0x220f59 = this.getAgentTemplateContent(_0x240aed, _0x15e225),
-          _0x4cc282 = '' + _0x240aed + _0x15e225,
-          _0x593ef3 = vscode_module.Uri.joinPath(PromptTemplate.DEFAULT_CLI_AGENTS_DIR_PATH, _0x4cc282);
-        return this.instantiateTemplate(_0x593ef3.toString(), this.createBuiltInAgentMetadata(_0x240aed), 'user', _0x15e225, _0x220f59, true);
-      }
-    };
-  }),
+  // PromptTemplateFactory 已移至 modules/prompt_template_factory.js
   CliAgentTemplateService,
   initCliAgentService = __esmModule(() => {
     'use strict';
 
-     initUsageInfoHandler(), initCommentNavigator(), initTaskContext(), initPromptTemplateFactory(), CliAgentTemplateService = class _0x3e7e8c {
+     initUsageInfoHandler(), initCommentNavigator(), initTaskContext(), CliAgentTemplateService = class _0x3e7e8c {
       constructor() {
         this.userCLIAgents = new Map(), this.workspaceCLIAgents = new Map(), this.defaultCLIAgents = new Map(), this.invalidTemplates = new Set(), this.globalWatcher = null;
       }
@@ -9677,207 +8231,19 @@ injectFilePathHandlerDependencies({
   PathConversionWebViewMessages
 });
 
-  /* [dead-code] Eye removed */
-  /* [dead-code] wye removed */
-  /* [dead-code] Nj removed */
-  /* [dead-code] Cye removed */
-  /* [dead-code] mb removed */
-  /* [dead-code] yb removed */
-  /* [dead-code] GD removed */
-  /* [dead-code] vb removed */
-  /* [dead-code] WD removed */
-  /* [dead-code] Hye removed */
-  /* [dead-code] Yj removed */
-  /* [dead-code] tve removed */
-  /* [dead-code] ive removed */
-  /* [dead-code] ave removed */
-  /* [dead-code] hve removed */
-  /* [dead-code] mve removed */
-  /* [dead-code] vve removed */
-  /* [dead-code] Tve removed */
-  /* [dead-code] Eve removed */
-  /* [dead-code] Sve removed */
-  /* [dead-code] Pve removed */
-  /* [dead-code] bve removed */
-  /* [dead-code] Cve removed */
-  /* [dead-code] Ive removed */
-  /* [dead-code] Ave removed */
-  /* [dead-code] kve removed */
-  /* [dead-code] tN removed */
-  /* [dead-code] Ove removed */
-  /* [dead-code] xve removed */
-  /* [dead-code] Mve removed */
-  /* [dead-code] Dve removed */
-  /* [dead-code] v8 removed */
-  /* [dead-code] T8 removed */
-  /* [dead-code] Uve removed */
-  /* [dead-code] Bve removed */
-  /* [dead-code] qve removed */
-  /* [dead-code] Wve removed */
-  /* [dead-code] Hve removed */
-  /* [dead-code] I8 removed */
-  /* [dead-code] Kve removed */
-  /* [dead-code] Zve removed */
-  /* [dead-code] e0e removed */
-  /* [dead-code] t0e removed */
-  /* [dead-code] r0e removed */
-  /* [dead-code] n0e removed */
-  /* [dead-code] a0e removed */
-  /* [dead-code] o0e removed */
-  /* [dead-code] u0e removed */
-  /* [dead-code] c0e removed */
-  /* [dead-code] l0e removed */
-  /* [dead-code] d0e removed */
-  /* [dead-code] f0e removed */
-  /* [dead-code] m0e removed */
-  /* [dead-code] g0e removed */
-  /* [dead-code] y0e removed */;
 /* [unbundle] ajv 已移至顶部导入区 */
 
 /* [dead-code] ajv/gray-matter 相关 dead-code 已清理 */
 /* [unbundle] gray-matter 已移至顶部导入区 */
 /* [unbundle] parseJsonSafe, TemplateFile 已移至 modules/prompt_template.js */
 
-var GenericTemplate,
-  initGenericTemplate = __esmModule(() => {
-    'use strict';
-
-    initTaskExecution(), GenericTemplate = class extends TemplateFileBase {
-      constructor() {
-        super(...arguments), this.allowedFields = ["basePrompt"];
-      }
-      static {
-        this.PROMPT_TEMPLATE_INITIAL_COMMENT = "Template to use while doing hand-off to any agent for code generation.";
-      }
-      static {
-        this.DEFAULT_TEMPLATE_FILE_PATH = vscode_module.Uri.parse(EXTENSION_ID + ":/.traycer/default-templates/generic.md");
-      }
-      static {
-        this.DEFAULT_TEMPLATE_CONTENT = '';
-      }
-      static {
-        this.PROMPT_TEMPLATE_TYPE = 'generic';
-      }
-      ['getAllowedFields']() {
-        return this.allowedFields;
-      }
-      async ["applyTemplate"](_0x4fbeee) {
-        let _0x218fc7 = _0x4fbeee;
-        return _0x4fbeee instanceof PlanStepManager && (_0x218fc7 = await _0x4fbeee.getMarkdown()), super.applyTemplate(_0x218fc7);
-      }
-    };
-  }),
-  UserQueryTemplate,
-  initUserQueryTemplate = __esmModule(() => {
-    'use strict';
-
-    UserQueryTemplate = class extends TemplateFileBase {
-      constructor() {
-        super(...arguments), this.allowedFields = ["userQuery"];
-      }
-      static {
-        this.DEFAULT_TEMPLATE_FILE_PATH = vscode_module.Uri.parse(EXTENSION_ID + ':/.traycer/default-templates/user-query.md');
-      }
-      static {
-        this.DEFAULT_TEMPLATE_CONTENT = '\x0aI have the following user query that I want you to help me with. Please implement the requested functionality following best practices.\x0a\x0a{{userQuery}}';
-      }
-      static {
-        this.PROMPT_TEMPLATE_INITIAL_COMMENT = 'Template to use while executing a user query directly in any agent.';
-      }
-      static {
-        this.PROMPT_TEMPLATE_TYPE = "userQuery";
-      }
-      ['getAllowedFields']() {
-        return this.allowedFields;
-      }
-    };
-  }),
-  PlanTemplate,
-  initPlanTemplate = __esmModule(() => {
-    'use strict';
-
-    PlanTemplate = class extends TemplateFileBase {
-      constructor() {
-        super(...arguments), this.allowedFields = ["planMarkdown"];
-      }
-      static {
-        this.DEFAULT_TEMPLATE_FILE_PATH = vscode_module.Uri.parse(EXTENSION_ID + ":/.traycer/default-templates/plan.md");
-      }
-      static {
-        this.DEFAULT_TEMPLATE_CONTENT = "\nI have created the following plan after thorough exploration and analysis of the codebase. Follow the below plan verbatim. Trust the files and references. Do not re-verify what's written in the plan. Explore only when absolutely necessary. First implement all the proposed file changes and then I'll review all the changes together at the end.\n\n{{planMarkdown}}";
-      }
-      static {
-        this.PROMPT_TEMPLATE_INITIAL_COMMENT = 'Template to use while executing a plan in any agent.';
-      }
-      static {
-        this.PROMPT_TEMPLATE_TYPE = 'plan';
-      }
-      ["getAllowedFields"]() {
-        return this.allowedFields;
-      }
-      async ["applyTemplate"](_0x1e3fbb) {
-        let _0x4f7ffe = await _0x1e3fbb.getMarkdown(),
-          _0xaa8b95 = await this.getContent();
-        for (let key of this.getAllowedFields()) _0xaa8b95 = _0xaa8b95.replace('{{' + key + '}}', _0x4f7ffe);
-        return this.sanitizeForCLI(_0xaa8b95);
-      }
-    };
-  }),
-  ReviewTemplate,
-  initReviewTemplate = __esmModule(() => {
-    'use strict';
-
-    ReviewTemplate = class extends TemplateFileBase {
-      constructor() {
-        super(...arguments), this.allowedFields = ['reviewComments'];
-      }
-      static {
-        this.DEFAULT_TEMPLATE_FILE_PATH = vscode_module.Uri.parse(EXTENSION_ID + ":/.traycer/default-templates/review.md");
-      }
-      static {
-        this.DEFAULT_TEMPLATE_CONTENT = "\nI have the following comments after thorough review of file. Implement the comments by following the instructions verbatim.\n\n{{reviewComments}}";
-      }
-      static {
-        this.PROMPT_TEMPLATE_INITIAL_COMMENT = 'Template to use while doing hand-off to any agent for code generation of review comments.';
-      }
-      static {
-        this.PROMPT_TEMPLATE_TYPE = "review";
-      }
-      ['getAllowedFields']() {
-        return this.allowedFields;
-      }
-    };
-  }),
-  VerificationTemplate,
-  initVerificationTemplate = __esmModule(() => {
-    'use strict';
-
-    VerificationTemplate = class extends TemplateFileBase {
-      constructor() {
-        super(...arguments), this.allowedFields = ['comments'];
-      }
-      static {
-        this.DEFAULT_TEMPLATE_FILE_PATH = vscode_module.Uri.parse(EXTENSION_ID + ':/.traycer/default-templates/verification.md');
-      }
-      static {
-        this.DEFAULT_TEMPLATE_CONTENT = '\x0aI have the following verification comments after thorough review and exploration of the codebase. Implement the comments by following the instructions in the comments verbatim.\x0a\x0a{{comments}}';
-      }
-      static {
-        this.PROMPT_TEMPLATE_INITIAL_COMMENT = "Template to use while doing hand-off to any agent for code generation of verification comments.";
-      }
-      static {
-        this.PROMPT_TEMPLATE_TYPE = "verification";
-      }
-      ['getAllowedFields']() {
-        return this.allowedFields;
-      }
-    };
-  }),
+// [moved] GenericTemplate, UserQueryTemplate, PlanTemplate, ReviewTemplate, VerificationTemplate 已移至 modules/prompt_template.js
+var
   PromptTemplateService,
   initPromptTemplateService = __esmModule(() => {
     'use strict';
 
-     initCommentNavigator(), initTaskContext(), initGenericTemplate(), initUserQueryTemplate(), initPlanTemplate(), initReviewTemplate(), initVerificationTemplate(), PromptTemplateService = class _0x389cf0 {
+     initCommentNavigator(), initTaskContext(), PromptTemplateService = class _0x389cf0 {
       constructor() {
         this.userPromptTemplates = new Map(), this.workspacePromptTemplates = new Map(), this.defaultPromptTemplates = new Map(), this.invalidTemplates = new Set(), this.globalWatcher = null;
       }
@@ -10229,7 +8595,7 @@ var GenericTemplate,
   }),
   TemplateManager,
   initTemplateManager = __esmModule(() => {
-    'use strict';
+  'use strict';
 
     initPromptTemplateService(), initCliAgentService(), TemplateManager = class _0x3bf0d8 {
       static {

@@ -3,11 +3,21 @@ const {config} = require('./config.js');
 const {AuthenticationWebViewMessages, UsageInformationWebViewMessages, UsageInformationActions} = require('./webview_messages.js');
 const vscode_module = require('vscode');
 const {TokenManager} = require('./token_manager.js');
-const {UnauthorizedError, RequestAbortedError} = require('./retry_executor.js');
+const {UnauthorizedError} = require('./retry_executor.js');
 const {WorkspaceInfoManager, formatErrorToString} = require('./workspace_info.js');
 const {commandRegistry} = require('./command_registry.js');
 const {Logger} = require('./logger.js');
 const lodash_module = require('lodash');
+
+class RequestAbortedError extends Error {
+    ["reason"];
+    constructor(abortReason) {
+      super('Request aborted: ' + abortReason), this.reason = abortReason, this.name = "RequestAbortedError";
+    }
+    static ['matches'](errorToCheck) {
+      return errorToCheck instanceof Error && errorToCheck.name === "RequestAbortedError";
+    }
+  };
 
 /**
  * 判断是否为中止错误
@@ -746,11 +756,14 @@ class TraycerCredentials {
       }
     }
     
-    this.handleDeactivation();
+    // 不要调用 handleDeactivation，而是设置为 SignedOut 状态
+    // 保持 AbortController 活跃，以便处理后续的认证回调
+    await this.authStateManager.setState("SignedOut");
   }
 
   async authenticateWithTraycerToken(token) {
-    let abortSignal = this.beginAuthOperation();
+    // 复用现有的 AbortController，如果没有则创建新的
+    let abortSignal = this.currentAuthController?.signal ?? this.beginAuthOperation();
     (await this.validateTraycerToken(token, abortSignal)) || (await this.handleDeactivation());
   }
 

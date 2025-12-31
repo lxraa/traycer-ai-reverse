@@ -696,6 +696,140 @@ class TemplateFileBase extends TemplateFile {
   }
 }
 
+// ============== 模板类错误 ==============
+
+class TemplateNotFoundError extends Error {
+  constructor(filePath) {
+    super('Template not found: ' + filePath);
+    this.name = 'TemplateNotFoundError';
+  }
+}
+
+// ============== 模板类定义 ==============
+
+/**
+ * GenericTemplate - 通用模板
+ * 用于任何代理的代码生成
+ */
+class GenericTemplate extends TemplateFileBase {
+  constructor() {
+    super(...arguments);
+    this.allowedFields = ["basePrompt"];
+  }
+
+  static PROMPT_TEMPLATE_INITIAL_COMMENT = "Template to use while doing hand-off to any agent for code generation.";
+  static DEFAULT_TEMPLATE_FILE_PATH = vscode_module.Uri.parse(EXTENSION_ID + ":/.traycer/default-templates/generic.md");
+  static DEFAULT_TEMPLATE_CONTENT = '';
+  static PROMPT_TEMPLATE_TYPE = 'generic';
+
+  getAllowedFields() {
+    return this.allowedFields;
+  }
+
+  async applyTemplate(value) {
+    let actualValue = value;
+    // 如果传入的是 PlanStepManager 实例,获取其 markdown
+    // 注意: PlanStepManager 通过依赖注入传入,这里只检查是否有 getMarkdown 方法
+    if (value && typeof value.getMarkdown === 'function') {
+      actualValue = await value.getMarkdown();
+    }
+    return super.applyTemplate(actualValue);
+  }
+}
+
+/**
+ * UserQueryTemplate - 用户查询模板
+ * 用于直接在代理中执行用户查询
+ */
+class UserQueryTemplate extends TemplateFileBase {
+  constructor() {
+    super(...arguments);
+    this.allowedFields = ["userQuery"];
+  }
+
+  static DEFAULT_TEMPLATE_FILE_PATH = vscode_module.Uri.parse(EXTENSION_ID + ':/.traycer/default-templates/user-query.md');
+  static DEFAULT_TEMPLATE_CONTENT = '\nI have the following user query that I want you to help me with. Please implement the requested functionality following best practices.\n\n{{userQuery}}';
+  static PROMPT_TEMPLATE_INITIAL_COMMENT = 'Template to use while executing a user query directly in any agent.';
+  static PROMPT_TEMPLATE_TYPE = "userQuery";
+
+  getAllowedFields() {
+    return this.allowedFields;
+  }
+}
+
+/**
+ * PlanTemplate - 计划模板
+ * 用于在代理中执行计划
+ */
+class PlanTemplate extends TemplateFileBase {
+  constructor() {
+    super(...arguments);
+    this.allowedFields = ["planMarkdown"];
+  }
+
+  static DEFAULT_TEMPLATE_FILE_PATH = vscode_module.Uri.parse(EXTENSION_ID + ":/.traycer/default-templates/plan.md");
+  static DEFAULT_TEMPLATE_CONTENT = "\nI have created the following plan after thorough exploration and analysis of the codebase. Follow the below plan verbatim. Trust the files and references. Do not re-verify what's written in the plan. Explore only when absolutely necessary. First implement all the proposed file changes and then I'll review all the changes together at the end.\n\n{{planMarkdown}}";
+  static PROMPT_TEMPLATE_INITIAL_COMMENT = 'Template to use while executing a plan in any agent.';
+  static PROMPT_TEMPLATE_TYPE = 'plan';
+
+  getAllowedFields() {
+    return this.allowedFields;
+  }
+
+  async applyTemplate(planStepManager) {
+    let planMarkdown = await planStepManager.getMarkdown();
+    let content = await this.getContent();
+    
+    for (let key of this.getAllowedFields()) {
+      content = content.replace('{{' + key + '}}', planMarkdown);
+    }
+    
+    return this.sanitizeForCLI(content);
+  }
+}
+
+/**
+ * ReviewTemplate - 审查模板
+ * 用于代理的审查评论代码生成
+ */
+class ReviewTemplate extends TemplateFileBase {
+  constructor() {
+    super(...arguments);
+    this.allowedFields = ['reviewComments'];
+  }
+
+  static DEFAULT_TEMPLATE_FILE_PATH = vscode_module.Uri.parse(EXTENSION_ID + ":/.traycer/default-templates/review.md");
+  static DEFAULT_TEMPLATE_CONTENT = "\nI have the following comments after thorough review of file. Implement the comments by following the instructions verbatim.\n\n{{reviewComments}}";
+  static PROMPT_TEMPLATE_INITIAL_COMMENT = 'Template to use while doing hand-off to any agent for code generation of review comments.';
+  static PROMPT_TEMPLATE_TYPE = "review";
+
+  getAllowedFields() {
+    return this.allowedFields;
+  }
+}
+
+/**
+ * VerificationTemplate - 验证模板
+ * 用于代理的验证评论代码生成
+ */
+class VerificationTemplate extends TemplateFileBase {
+  constructor() {
+    super(...arguments);
+    this.allowedFields = ['comments'];
+  }
+
+  static DEFAULT_TEMPLATE_FILE_PATH = vscode_module.Uri.parse(EXTENSION_ID + ':/.traycer/default-templates/verification.md');
+  static DEFAULT_TEMPLATE_CONTENT = '\nI have the following verification comments after thorough review and exploration of the codebase. Implement the comments by following the instructions in the comments verbatim.\n\n{{comments}}';
+  static PROMPT_TEMPLATE_INITIAL_COMMENT = "Template to use while doing hand-off to any agent for code generation of verification comments.";
+  static PROMPT_TEMPLATE_TYPE = "verification";
+
+  getAllowedFields() {
+    return this.allowedFields;
+  }
+}
+
+// ============== 导出 ==============
+
 module.exports = {
     PromptTemplate,
     PROMPT_ENV_VAR,
@@ -713,5 +847,12 @@ module.exports = {
     TemplateFileAlreadyExistsError,
     getAjvValidator,
     PromptMetadata,
-    TemplateFileBase
+    TemplateFileBase,
+    // 新增的模板类
+    GenericTemplate,
+    UserQueryTemplate,
+    PlanTemplate,
+    ReviewTemplate,
+    VerificationTemplate,
+    TemplateNotFoundError
 };
